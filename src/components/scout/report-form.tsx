@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -17,9 +18,11 @@ import { processVoiceNote } from "@/ai/flows/process-voice-notes";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from '@/lib/i18n/context';
 
 export function ReportForm() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
   const [playerName, setPlayerName] = useState("");
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
@@ -47,7 +50,6 @@ export function ReportForm() {
     try {
       const result = await processVoiceNote({ voiceNoteText: voiceInput });
       toast({ title: "Voice Note Processed", description: result.overallSummary });
-      // In a real app, we'd map playerObservations to the form
     } catch (e) {
       toast({ variant: "destructive", title: "Processing Error" });
     } finally {
@@ -58,7 +60,6 @@ export function ReportForm() {
   const handleGenerateSummary = async () => {
     setIsGeneratingSummary(true);
     try {
-      // Map ratings to the expected format for the AI flow
       const metrics: any = {
         technical: {}, tactical: {}, physical: {}, mental: {}
       };
@@ -117,9 +118,9 @@ export function ReportForm() {
               <div className="space-y-1">
                 <CardTitle className="text-2xl font-headline flex items-center gap-2">
                   <FileText className="h-6 w-6 text-primary" />
-                  Match Evaluation Report
+                  {t.report.title}
                 </CardTitle>
-                <CardDescription>Live scouting assessment for professional elite recruitment</CardDescription>
+                <CardDescription>{t.report.subtitle}</CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-accent border-accent/30 bg-accent/5">LIVE MODE</Badge>
@@ -130,7 +131,7 @@ export function ReportForm() {
           <CardContent className="pt-6">
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div className="space-y-2">
-                <Label htmlFor="playerName" className="text-xs uppercase tracking-widest text-muted-foreground">Player Name</Label>
+                <Label htmlFor="playerName" className="text-xs uppercase tracking-widest text-muted-foreground">{t.report.playerName}</Label>
                 <Input 
                   id="playerName" 
                   placeholder="Enter full name" 
@@ -140,7 +141,7 @@ export function ReportForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Tactical Role Assessment</Label>
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">{t.report.tacticalRole}</Label>
                 <Select onValueChange={handleRoleChange} defaultValue={activeRole.id}>
                   <SelectTrigger className="bg-background/50">
                     <SelectValue placeholder="Select tactical role" />
@@ -156,9 +157,9 @@ export function ReportForm() {
 
             <Tabs defaultValue="kpis" className="w-full">
               <TabsList className="grid grid-cols-3 mb-6 bg-secondary h-12">
-                <TabsTrigger value="kpis" className="data-[state=active]:bg-background">Core Metrics</TabsTrigger>
-                <TabsTrigger value="tactical" className="data-[state=active]:bg-background">Tactical Canvas</TabsTrigger>
-                <TabsTrigger value="voice" className="data-[state=active]:bg-background">Voice Observations</TabsTrigger>
+                <TabsTrigger value="kpis" className="data-[state=active]:bg-background">{t.report.tabs.metrics}</TabsTrigger>
+                <TabsTrigger value="tactical" className="data-[state=active]:bg-background">{t.report.tabs.tactical}</TabsTrigger>
+                <TabsTrigger value="voice" className="data-[state=active]:bg-background">{t.report.tabs.voice}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="kpis" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -166,7 +167,7 @@ export function ReportForm() {
                   <section className="space-y-4">
                     <h3 className="text-sm font-bold text-accent uppercase tracking-tighter flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-accent" />
-                      Technical Efficiency
+                      {t.report.sections.technical}
                     </h3>
                     {activeRole.kpis.technical.map(kpi => (
                       <div key={kpi} className="space-y-2">
@@ -186,7 +187,7 @@ export function ReportForm() {
                   <section className="space-y-4">
                     <h3 className="text-sm font-bold text-primary uppercase tracking-tighter flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-primary" />
-                      Tactical Awareness
+                      {t.report.sections.tactical}
                     </h3>
                     {activeRole.kpis.tactical.map(kpi => (
                       <div key={kpi} className="space-y-2">
@@ -206,7 +207,7 @@ export function ReportForm() {
                   <section className="space-y-4">
                     <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-tighter flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-muted-foreground" />
-                      Physical Profile
+                      {t.report.sections.physical}
                     </h3>
                     {activeRole.kpis.physical.map(kpi => (
                       <div key={kpi} className="space-y-2">
@@ -226,7 +227,7 @@ export function ReportForm() {
                   <section className="space-y-4">
                     <h3 className="text-sm font-bold text-destructive uppercase tracking-tighter flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-destructive" />
-                      Mental Attributes
+                      {t.report.sections.mental}
                     </h3>
                     {activeRole.kpis.mental.map(kpi => (
                       <div key={kpi} className="space-y-2">
@@ -254,7 +255,7 @@ export function ReportForm() {
                 <div className="space-y-4">
                   <div className="relative group">
                     <Textarea 
-                      placeholder="Dictate scout observations here... AI will automatically categorize technical skills and key match events."
+                      placeholder={t.report.voice.placeholder}
                       className="min-h-[200px] bg-background/50 border-border group-hover:border-primary transition-colors pr-12"
                       value={voiceInput}
                       onChange={(e) => setVoiceInput(e.target.value)}
@@ -274,7 +275,7 @@ export function ReportForm() {
                     disabled={isProcessingVoice}
                   >
                     <Sparkles className="h-4 w-4 text-accent" />
-                    {isProcessingVoice ? "Structuring Data..." : "Process Verbal Notes with AI"}
+                    {isProcessingVoice ? t.report.voice.processing : t.report.voice.process}
                   </Button>
                 </div>
               </TabsContent>
@@ -288,7 +289,7 @@ export function ReportForm() {
           <CardHeader>
             <CardTitle className="text-lg font-headline flex items-center gap-2">
               <Activity className="h-5 w-5 text-primary" />
-              PIM Analytics Engine
+              {t.report.pim.title}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -313,7 +314,7 @@ export function ReportForm() {
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground text-center italic">Calculate the Player Impact Metric (PIM) to benchmark performance against historical data.</p>
+              <p className="text-xs text-muted-foreground text-center italic">{t.report.pim.placeholder}</p>
             )}
             <Button 
               className="w-full" 
@@ -321,7 +322,7 @@ export function ReportForm() {
               disabled={isCalculatingPIM}
             >
               <Database className="h-4 w-4 mr-2" />
-              {isCalculatingPIM ? "Benchmarking..." : "Calculate PIM"}
+              {isCalculatingPIM ? t.report.pim.calculating : t.report.pim.calculate}
             </Button>
           </CardContent>
         </Card>
@@ -330,7 +331,7 @@ export function ReportForm() {
           <CardHeader>
             <CardTitle className="text-lg font-headline flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-accent" />
-              AI Executive Summary
+              {t.report.summary.title}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -341,7 +342,7 @@ export function ReportForm() {
                 </p>
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground text-center italic">Generate an objective executive summary to eliminate subjective bias from this report.</p>
+              <p className="text-xs text-muted-foreground text-center italic">{t.report.summary.placeholder}</p>
             )}
             <Button 
               variant="secondary" 
@@ -350,17 +351,17 @@ export function ReportForm() {
               disabled={isGeneratingSummary}
             >
               <ChevronRight className="h-4 w-4 mr-2" />
-              {isGeneratingSummary ? "Synthesizing..." : "Generate AI Summary"}
+              {isGeneratingSummary ? t.report.summary.generating : t.report.summary.generate}
             </Button>
           </CardContent>
         </Card>
 
         <div className="pt-4 flex flex-col gap-3">
           <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12">
-            SUBMIT FINAL REPORT
+            {t.report.actions.submit}
           </Button>
           <Button variant="outline" className="w-full h-12">
-            EXPORT TO PDF
+            {t.report.actions.export}
           </Button>
         </div>
       </div>

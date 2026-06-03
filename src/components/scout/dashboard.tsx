@@ -1,3 +1,4 @@
+
 "use client"
 
 import React from 'react';
@@ -7,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Users, ClipboardCheck, ArrowUpRight, Search } from "lucide-react";
 import { Player } from "@/lib/types";
+import { useTranslation } from '@/lib/i18n/context';
 
 const MOCK_PLAYERS: Player[] = [
   { id: '1', name: 'Julian Alvarez', age: 24, club: 'Manchester City', nationality: 'ARG', marketValue: '€90M', currentPIM: 88, tacticalRole: 'False 9', grade: 'A' },
@@ -15,35 +17,37 @@ const MOCK_PLAYERS: Player[] = [
 ];
 
 export function ScoutDashboard() {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-headline font-bold text-foreground">ScoutPro Elite Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, Head Scout. Centralized intelligence for organizational talent acquisition.</p>
+          <h1 className="text-3xl font-headline font-bold text-foreground">{t.dashboard.title}</h1>
+          <p className="text-muted-foreground">{t.dashboard.subtitle}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="bg-background/50 backdrop-blur-sm border-border">
-            <Search className="h-4 w-4 mr-2" /> Search Global Database
+            <Search className="h-4 w-4 mr-2" /> {t.dashboard.search}
           </Button>
           <Button className="bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-            Create New Report
+            {t.dashboard.createReport}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard title="Total Players Observed" value="1,284" icon={<Users className="text-primary" />} trend="+12% this month" />
-        <StatsCard title="Pending Reports" value="14" icon={<ClipboardCheck className="text-accent" />} trend="4 High Priority" />
-        <StatsCard title="Avg. Squad PIM" value="76.4" icon={<TrendingUp className="text-primary" />} trend="Benchmark: 72.0" />
-        <StatsCard title="Recruitment Status" value="A+" icon={<ArrowUpRight className="text-accent" />} trend="3 Targets Identified" />
+        <StatsCard title={t.dashboard.stats.totalPlayers} value="1,284" icon={<Users className="text-primary" />} trend="+12% this month" />
+        <StatsCard title={t.dashboard.stats.pendingReports} value="14" icon={<ClipboardCheck className="text-accent" />} trend="4 High Priority" />
+        <StatsCard title={t.dashboard.stats.avgPim} value="76.4" icon={<TrendingUp className="text-primary" />} trend="Benchmark: 72.0" />
+        <StatsCard title={t.dashboard.stats.recruitmentStatus} value="A+" icon={<ArrowUpRight className="text-accent" />} trend="3 Targets Identified" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 border-border/40 shadow-xl overflow-hidden">
           <CardHeader className="bg-secondary/20 pb-4">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-lg font-headline">Top Rated Targets (A Grade)</CardTitle>
+              <CardTitle className="text-lg font-headline">{t.dashboard.topTargets}</CardTitle>
               <Button variant="ghost" size="sm" className="text-xs text-primary">View All</Button>
             </div>
           </CardHeader>
@@ -83,7 +87,7 @@ export function ScoutDashboard() {
 
         <Card className="border-border/40 shadow-xl">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-headline">Recent Activity</CardTitle>
+            <CardTitle className="text-lg font-headline">{t.dashboard.recentActivity}</CardTitle>
             <CardDescription>Latest team updates and reports</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

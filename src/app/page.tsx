@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -6,9 +7,12 @@ import { ReportForm } from '@/components/scout/report-form';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
 import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
+import { useTranslation } from '@/lib/i18n/context';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 export default function Home() {
   const [activeView, setActiveView] = useState<'dashboard' | 'report'>('dashboard');
+  const { t } = useTranslation();
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -28,7 +32,9 @@ export default function Home() {
 
           <SidebarContent className="px-3">
             <SidebarGroup>
-              <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-4">Operations</SidebarGroupLabel>
+              <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-4">
+                {t.sidebar.operations}
+              </SidebarGroupLabel>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
@@ -37,7 +43,7 @@ export default function Home() {
                     className="h-12 px-4 gap-4"
                   >
                     <LayoutDashboard className="h-5 w-5" />
-                    <span className="font-medium">Command Center</span>
+                    <span className="font-medium">{t.sidebar.commandCenter}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -47,31 +53,33 @@ export default function Home() {
                     className="h-12 px-4 gap-4"
                   >
                     <FilePlus className="h-5 w-5" />
-                    <span className="font-medium">Live Report</span>
+                    <span className="font-medium">{t.sidebar.liveReport}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton className="h-12 px-4 gap-4">
                     <Users className="h-5 w-5" />
-                    <span className="font-medium">Global Database</span>
+                    <span className="font-medium">{t.sidebar.globalDatabase}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton className="h-12 px-4 gap-4">
                     <Map className="h-5 w-5" />
-                    <span className="font-medium">Talent Mapping</span>
+                    <span className="font-medium">{t.sidebar.talentMapping}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroup>
 
             <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-4">Analytics</SidebarGroupLabel>
+              <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-4">
+                {t.sidebar.analytics}
+              </SidebarGroupLabel>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton className="h-12 px-4 gap-4 text-accent">
                     <LineChart className="h-5 w-5" />
-                    <span className="font-medium">PIM Benchmarking</span>
+                    <span className="font-medium">{t.sidebar.pimBenchmarking}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -83,13 +91,13 @@ export default function Home() {
               <SidebarMenuItem>
                 <SidebarMenuButton className="h-10 px-4 gap-4 text-muted-foreground hover:text-foreground">
                   <Settings className="h-4 w-4" />
-                  <span className="text-sm">Settings</span>
+                  <span className="text-sm">{t.sidebar.settings}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton className="h-10 px-4 gap-4 text-destructive hover:bg-destructive/10">
                   <LogOut className="h-4 w-4" />
-                  <span className="text-sm">Sign Out</span>
+                  <span className="text-sm">{t.sidebar.signOut}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -104,16 +112,21 @@ export default function Home() {
               <div className="flex items-center gap-2 text-sm font-medium">
                 <span className="text-muted-foreground">Main</span>
                 <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                <span className="text-foreground capitalize">{activeView === 'dashboard' ? 'Command Center' : 'Live Scouting Report'}</span>
+                <span className="text-foreground capitalize">
+                  {activeView === 'dashboard' ? t.sidebar.commandCenter : t.sidebar.liveReport}
+                </span>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col text-right">
-                <span className="text-xs font-bold text-foreground">Manus AI</span>
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Elite Scouting Division</span>
-              </div>
-              <div className="h-9 w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform">
-                M
+            <div className="flex items-center gap-6">
+              <LanguageSwitcher />
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col text-right">
+                  <span className="text-xs font-bold text-foreground">Manus AI</span>
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Elite Scouting Division</span>
+                </div>
+                <div className="h-9 w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform">
+                  M
+                </div>
               </div>
             </div>
           </header>
