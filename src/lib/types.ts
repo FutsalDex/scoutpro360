@@ -12,14 +12,19 @@ export interface Player {
   grade: Grade;
 }
 
+export interface KPISection {
+  observation: string[];
+  impact: string[];
+}
+
 export interface TacticalRoleConfig {
   id: string;
   name: string;
   kpis: {
-    technical: string[];
-    tactical: string[];
-    physical: string[];
-    mental: string[];
+    technical: KPISection;
+    tactical: KPISection;
+    physical: KPISection;
+    mental: KPISection;
   };
 }
 
@@ -28,40 +33,45 @@ export const TACTICAL_ROLES: TacticalRoleConfig[] = [
     id: 'inverted-fullback',
     name: 'Inverted Fullback',
     kpis: {
-      technical: ['Short Passing', 'Ball Control', 'Interceptions'],
-      tactical: ['Positioning', 'Vision', 'Tactical Discipline'],
-      physical: ['Agility', 'Stamina', 'Balance'],
-      mental: ['Decision Making', 'Composure', 'Work Rate'],
+      technical: {
+        observation: ['Primer toque', 'Pase corto', 'Pase largo', 'Pase en profundidad', 'Regate 1vs1', 'Control de balón', 'Posesión', 'Disparo', 'Centro', 'Finalización', 'Juego aéreo', 'Balón parado', 'Técnica bajo presión'],
+        impact: ['Con posesión', 'Sin posesión', 'Momentos clave', 'Consistencia', 'Bajo presión', 'En el resultado']
+      },
+      tactical: {
+        observation: ['Posicionamiento', 'Lectura de juego', 'Disciplina táctica', 'Coberturas', 'Presión', 'Apoyo ofensivo', 'Vigilancias', 'Anticipación', 'Inteligencia espacial'],
+        impact: ['Equilibrio defensivo', 'Salida de balón', 'Transiciones', 'Organización', 'Adaptabilidad']
+      },
+      physical: {
+        observation: ['Velocidad', 'Aceleración', 'Resistencia', 'Fuerza', 'Agilidad', 'Equilibrio', 'Salto/Juego aéreo', 'Coordinación', 'Recuperación'],
+        impact: ['Duelos ganados', 'Intensidad', 'Presencia física', 'Despliegue', 'Potencia']
+      },
+      mental: {
+        observation: ['Liderazgo', 'Determinación', 'Agresividad', 'Compostura', 'Toma de decisiones', 'Concentración', 'Sacrificio', 'Valentía', 'Madurez'],
+        impact: ['Resiliencia', 'Comunicación', 'Impacto anímico', 'Enfoque', 'Espíritu de equipo']
+      }
     },
   },
+  // Default values for other roles to ensure consistency
   {
     id: 'deep-lying-playmaker',
     name: 'Deep-Lying Playmaker',
     kpis: {
-      technical: ['Long Passing', 'Vision', 'First Touch'],
-      tactical: ['Game Intelligence', 'Positioning', 'Switching Play'],
-      physical: ['Balance', 'Endurance', 'Strength'],
-      mental: ['Composure', 'Anticipation', 'Leadership'],
-    },
-  },
-  {
-    id: 'false-9',
-    name: 'False 9',
-    kpis: {
-      technical: ['Dribbling', 'Finishing', 'Short Passing'],
-      tactical: ['Off-the-ball Movement', 'Creative Vision', 'Pressing'],
-      physical: ['Explosiveness', 'Agility', 'Balance'],
-      mental: ['Composure', 'Decisions', 'Flair'],
-    },
-  },
-  {
-    id: 'mezzala',
-    name: 'Mezzala',
-    kpis: {
-      technical: ['Final Third Passing', 'Shooting', 'Crossing'],
-      tactical: ['Half-space Penetration', 'Transition Support', 'Pressing'],
-      physical: ['Acceleration', 'Stamina', 'Pace'],
-      mental: ['Aggression', 'Determination', 'Work Rate'],
-    },
-  },
+      technical: {
+        observation: ['Primer toque', 'Pase corto', 'Pase largo', 'Pase en profundidad', 'Visión', 'Control de balón', 'Cambios de orientación', 'Protección de balón'],
+        impact: ['Distribución', 'Control del tiempo', 'Asistencias', 'Bajo presión']
+      },
+      tactical: {
+        observation: ['Ubicación', 'Intercepciones', 'Apoyos', 'Coberturas'],
+        impact: ['Ritmo de juego', 'Organización', 'Transiciones']
+      },
+      physical: {
+        observation: ['Resistencia', 'Equilibrio', 'Agilidad'],
+        impact: ['Cobertura de campo', 'Duelos']
+      },
+      mental: {
+        observation: ['Visión estratégica', 'Compostura', 'Concentración'],
+        impact: ['Claridad', 'Confianza']
+      }
+    }
+  }
 ];

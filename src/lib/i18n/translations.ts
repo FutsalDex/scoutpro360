@@ -1,4 +1,3 @@
-
 export const translations = {
   en: {
     sidebar: {
@@ -36,7 +35,19 @@ export const translations = {
         tactical: 'TACTICAL',
         physical: 'PHYSICAL',
         mental: 'MENTAL',
+        actions: 'ACTIONS',
         evaluation: 'EVALUATION',
+      },
+      sections: {
+        technical_obs: 'TECHNICAL OBSERVATION',
+        technical_impact: 'MATCH IMPACT',
+        tactical_obs: 'TACTICAL OBSERVATION',
+        tactical_impact: 'MATCH IMPACT',
+        physical_obs: 'PHYSICAL OBSERVATION',
+        physical_impact: 'MATCH IMPACT',
+        mental_obs: 'MENTAL OBSERVATION',
+        mental_impact: 'MATCH IMPACT',
+        actions_title: 'KEY MATCH ACTIONS',
       },
       playerInfo: {
         title: 'PLAYER INFORMATION',
@@ -138,6 +149,8 @@ export const translations = {
         submit: 'SUBMIT FINAL REPORT',
         export: 'EXPORT TO PDF',
         save: 'SAVE REPORT',
+        addEvent: 'Add Key Event',
+        eventPlaceholder: 'Describe the action (e.g., Key interception in 42nd min)',
       },
       pim: {
         title: 'PLAYER IMPACT METRIC (PIM)',
@@ -188,7 +201,19 @@ export const translations = {
         tactical: 'TÁCTICO',
         physical: 'FÍSICO',
         mental: 'MENTAL',
+        actions: 'ACCIONES',
         evaluation: 'EVALUACIÓN',
+      },
+      sections: {
+        technical_obs: 'OBSERVACIÓN TÉCNICA',
+        technical_impact: 'IMPACTO EN EL PARTIDO',
+        tactical_obs: 'OBSERVACIÓN TÁCTICA',
+        tactical_impact: 'IMPACTO EN EL PARTIDO',
+        physical_obs: 'OBSERVACIÓN FÍSICA',
+        physical_impact: 'IMPACTO EN EL PARTIDO',
+        mental_obs: 'OBSERVACIÓN MENTAL',
+        mental_impact: 'IMPACTO EN EL PARTIDO',
+        actions_title: 'ACCIONES CLAVE DEL PARTIDO',
       },
       playerInfo: {
         title: 'INFORMACIÓN DEL JUGADOR',
@@ -222,7 +247,7 @@ export const translations = {
         weather: 'CONDICIONES METEOROLÓGICAS',
         styles: { possession: 'Posesión', counter: 'Contragolpe', highPress: 'Presión alta', direct: 'Directo', defensive: 'Defensivo' },
         tempos: { low: 'Bajo', medium: 'Medio', high: 'Alto' },
-        dominances: { dominant: 'Dominante', equilibrado: 'Equilibrado', disadvantaged: 'En desventaja' },
+        dominances: { dominant: 'Dominante', balanced: 'Equilibrado', disadvantaged: 'En desventaja' },
         scores: { winning: 'Ganando', drawing: 'Empatando', losing: 'Perdiendo' },
         importances: { low: 'Baja', medium: 'Media', high: 'Alta', decisive: 'Decisiva' },
         weathers: { sun: 'Sol', cloudy: 'Nublado', rain: 'Lluvia', cold: 'Frío', wind: 'Viento' }
@@ -290,6 +315,8 @@ export const translations = {
         submit: 'ENVIAR INFORME FINAL',
         export: 'EXPORTAR A PDF',
         save: 'GUARDAR INFORME',
+        addEvent: 'Añadir Acción Clave',
+        eventPlaceholder: 'Describe la acción (ej: Intercepción clave min 42)',
       },
       pim: {
         title: 'MÉTRICA DE IMPACTO DEL JUGADOR (PIM)',
