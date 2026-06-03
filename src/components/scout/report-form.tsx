@@ -8,11 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, Activity, User, Target, Brain, Zap, Sword, Award, Clipboard, Shield, Zap as ZapIcon, Heart } from "lucide-react";
+import { FileText, ChevronRight, Activity, User, Target, Brain, Sword, Award, Clipboard, Shield, Zap as ZapIcon, Heart } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
@@ -78,27 +76,43 @@ export function ReportForm() {
   };
 
   const RatingModule = ({ title, icon: Icon, kpis, nextTab }: { title: string, icon: any, kpis: string[], nextTab: string }) => (
-    <Card className="border-border/40 shadow-xl p-8 md:p-12 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-card/50 backdrop-blur-sm">
-      <div className="flex flex-col items-center gap-4">
-        <Icon className="h-12 w-12 text-primary opacity-50" />
-        <h2 className="text-2xl font-bold font-headline uppercase tracking-tight">{title}</h2>
+    <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40 animate-in fade-in slide-in-from-bottom-2">
+      <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
+        <Icon className="h-4 w-4 text-white" />
+        <h2 className="text-xs font-bold text-white uppercase tracking-wider">{title}</h2>
       </div>
-      <div className="grid md:grid-cols-2 gap-x-12 gap-y-8 max-w-4xl mx-auto text-left">
+      <CardContent className="pt-6 space-y-3">
         {kpis.map(kpi => (
-          <div key={kpi} className="space-y-3">
-            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              <span>{kpi}</span>
-              <span className="text-primary bg-primary/10 px-2 py-0.5 rounded">{ratings[kpi] || 3} / 5</span>
+          <div key={kpi} className="flex items-center justify-between gap-4 py-1 border-b border-border/10 last:border-0">
+            <Label className="text-[10px] font-bold uppercase w-48 shrink-0 text-muted-foreground">{kpi}</Label>
+            <div className="flex gap-2 shrink-0">
+              {[1, 2, 3, 4, 5].map(num => (
+                <button
+                  key={num}
+                  onClick={() => handleRatingChange(kpi, num)}
+                  className={cn(
+                    "h-7 w-7 rounded-full border border-border/40 text-[10px] font-bold flex items-center justify-center transition-all",
+                    ratings[kpi] === num ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/20 hover:border-primary/50 text-muted-foreground"
+                  )}
+                >
+                  {num}
+                </button>
+              ))}
             </div>
-            <Slider defaultValue={[3]} max={5} step={0.5} onValueChange={(v) => handleRatingChange(kpi, v[0])} />
+            <Input 
+              className="h-7 text-[10px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 flex-grow ml-4" 
+              placeholder="Nota..." 
+              value={notes[kpi] || ""}
+              onChange={(e) => handleNoteChange(kpi, e.target.value)}
+            />
           </div>
         ))}
-      </div>
-      <div className="flex justify-center pt-8 border-t border-border/20">
-        <Button onClick={() => setActiveTab(nextTab)} className="px-8 bg-primary hover:bg-primary/90 font-bold">
-          {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
+        <div className="flex justify-end pt-6">
+          <Button onClick={() => setActiveTab(nextTab)} className="px-8 bg-[#007b83] hover:bg-[#006a72] font-bold text-xs uppercase">
+            {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
     </Card>
   );
 
