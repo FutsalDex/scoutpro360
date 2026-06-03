@@ -93,6 +93,7 @@ export const translations = {
         next: 'Next',
         submit: 'SUBMIT FINAL REPORT',
         export: 'EXPORT TO PDF',
+        save: 'SAVE REPORT',
       },
       pim: {
         title: 'PLAYER IMPACT METRIC (PIM)',
@@ -200,6 +201,7 @@ export const translations = {
         next: 'Siguiente',
         submit: 'ENVIAR INFORME FINAL',
         export: 'EXPORTAR A PDF',
+        save: 'GUARDAR INFORME',
       },
       pim: {
         title: 'MÉTRICA DE IMPACTO DEL JUGADOR (PIM)',

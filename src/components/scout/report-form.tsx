@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, Activity, User, Target, Brain, Sword, Award, Clipboard, Shield, Zap as ZapIcon, Heart } from "lucide-react";
+import { FileText, ChevronRight, Activity, User, Target, Brain, Sword, Award, Clipboard, Shield, Zap as ZapIcon, Heart, Save } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
@@ -37,6 +37,13 @@ export function ReportForm() {
 
   const handleNoteChange = (kpi: string, value: string) => {
     setNotes(prev => ({ ...prev, [kpi]: value }));
+  };
+
+  const handleSaveReport = () => {
+    toast({
+      title: t.report.actions.save,
+      description: "Report draft saved successfully. (Firebase integration coming soon)",
+    });
   };
 
   const handleCalculatePIM = async () => {
@@ -128,7 +135,10 @@ export function ReportForm() {
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">{t.report.subtitle}</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="bg-background text-xs font-bold" onClick={handleSaveReport}>
+            <Save className="h-3 w-3 mr-2" /> {t.report.actions.save}
+          </Button>
           <Button variant="outline" size="sm" className="bg-background text-xs font-bold">
             <Clipboard className="h-3 w-3 mr-2" /> {t.report.actions.export}
           </Button>
