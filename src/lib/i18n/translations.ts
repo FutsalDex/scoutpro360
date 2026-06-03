@@ -31,12 +31,10 @@ export const translations = {
       subtitle: 'Confidential Scouting Department Assessment',
       tabs: {
         player: 'PLAYER',
-        context: 'CONTEXT',
         technical: 'TECHNICAL',
         tactical: 'TACTICAL',
         physical: 'PHYSICAL',
         mental: 'MENTAL',
-        actions: 'ACTIONS',
         evaluation: 'EVALUATION',
       },
       playerInfo: {
@@ -95,6 +93,17 @@ export const translations = {
         next: 'Next',
         submit: 'SUBMIT FINAL REPORT',
         export: 'EXPORT TO PDF',
+      },
+      pim: {
+        title: 'PLAYER IMPACT METRIC (PIM)',
+        calculate: 'Calculate PIM Score',
+        calculating: 'Analyzing Performance Data...',
+      },
+      summary: {
+        title: 'EXECUTIVE SUMMARY',
+        placeholder: 'Generate an objective summary based on the report findings...',
+        generate: 'GENERATE AI SUMMARY',
+        generating: 'Analyzing Report...',
       }
     }
   },
@@ -129,12 +138,10 @@ export const translations = {
       subtitle: 'Departamento de Scouting - Confidencial',
       tabs: {
         player: 'JUGADOR',
-        context: 'CONTEXTO',
         technical: 'TÉCNICO',
         tactical: 'TÁCTICO',
         physical: 'FÍSICO',
         mental: 'MENTAL',
-        actions: 'ACCIONES',
         evaluation: 'EVALUACIÓN',
       },
       playerInfo: {
@@ -193,6 +200,17 @@ export const translations = {
         next: 'Siguiente',
         submit: 'ENVIAR INFORME FINAL',
         export: 'EXPORTAR A PDF',
+      },
+      pim: {
+        title: 'MÉTRICA DE IMPACTO DEL JUGADOR (PIM)',
+        calculate: 'Calcular Puntuación PIM',
+        calculating: 'Analizando Datos de Rendimiento...',
+      },
+      summary: {
+        title: 'RESUMEN EJECUTIVO',
+        placeholder: 'Generar un resumen objetivo basado en los hallazgos del informe...',
+        generate: 'GENERAR RESUMEN AI',
+        generating: 'Analizando Informe...',
       }
     }
   }
