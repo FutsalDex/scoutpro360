@@ -9,362 +9,297 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Textarea } from "@/components/ui/textarea";
-import { TacticalCanvas } from "./tactical-canvas";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Sparkles, Database, FileText, ChevronRight, Activity } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { TacticalCanvas } from "./tactical-canvas";
+import { FileText, ChevronRight, Activity, User, Target, Brain, Zap, Sword, Award, Clipboard } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig } from "@/lib/types";
-import { processVoiceNote } from "@/ai/flows/process-voice-notes";
-import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
+import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 
 export function ReportForm() {
   const { toast } = useToast();
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
-  const [playerName, setPlayerName] = useState("");
-  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
-  const [voiceInput, setVoiceInput] = useState("");
-  const [summary, setSummary] = useState("");
   const [pimScore, setPimScore] = useState<number | null>(null);
-  const [pimExplanation, setPimExplanation] = useState("");
-  
+  const [summary, setSummary] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
-
-  const handleRoleChange = (roleId: string) => {
-    const role = TACTICAL_ROLES.find(r => r.id === roleId);
-    if (role) setActiveRole(role);
-  };
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => ({ ...prev, [kpi]: value }));
   };
 
-  const handleVoiceProcess = async () => {
-    if (!voiceInput) return;
-    setIsProcessingVoice(true);
-    try {
-      const result = await processVoiceNote({ voiceNoteText: voiceInput });
-      toast({ title: "Voice Note Processed", description: result.overallSummary });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Processing Error" });
-    } finally {
-      setIsProcessingVoice(false);
-    }
-  };
-
-  const handleGenerateSummary = async () => {
-    setIsGeneratingSummary(true);
-    try {
-      const metrics: any = {
-        technical: {}, tactical: {}, physical: {}, mental: {}
-      };
-      
-      activeRole.kpis.technical.forEach(kpi => metrics.technical[kpi] = ratings[kpi] || 3);
-      activeRole.kpis.tactical.forEach(kpi => metrics.tactical[kpi] = ratings[kpi] || 3);
-      activeRole.kpis.physical.forEach(kpi => metrics.physical[kpi] = ratings[kpi] || 3);
-      activeRole.kpis.mental.forEach(kpi => metrics.mental[kpi] = ratings[kpi] || 3);
-
-      const result = await generateExecutiveSummary({
-        playerName: playerName || "Prospect #1",
-        tacticalRole: activeRole.name,
-        metrics,
-        scoutNotes: voiceInput
-      });
-      setSummary(result.summary);
-    } catch (e) {
-      toast({ variant: "destructive", title: "Summary Error" });
-    } finally {
-      setIsGeneratingSummary(false);
-    }
+  const toggleRole = (role: string) => {
+    setSelectedRoles(prev => 
+      prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
+    );
   };
 
   const handleCalculatePIM = async () => {
     setIsCalculatingPIM(true);
     try {
-      const metrics: any = { technical: {}, tactical: {}, physical: {}, mental: {} };
-      activeRole.kpis.technical.forEach(kpi => metrics.technical[kpi] = ratings[kpi] || 3);
-      activeRole.kpis.tactical.forEach(kpi => metrics.tactical[kpi] = ratings[kpi] || 3);
-      activeRole.kpis.physical.forEach(kpi => metrics.physical[kpi] = ratings[kpi] || 3);
-      activeRole.kpis.mental.forEach(kpi => metrics.mental[kpi] = ratings[kpi] || 3);
-
       const result = await calculatePlayerImpactMetric({
         playerId: "p1",
         currentEvaluation: {
           tacticalRole: activeRole.name,
-          metrics
+          metrics: { technical: {}, tactical: {}, physical: {}, mental: {} }
         },
         historicalClubData: JSON.stringify([{ tacticalRole: activeRole.name, avgPIM: 72 }])
       });
       setPimScore(result.playerImpactMetric);
-      setPimExplanation(result.explanation);
     } catch (e) {
-      toast({ variant: "destructive", title: "PIM Calculation Error" });
+      toast({ variant: "destructive", title: "Error calculating PIM" });
     } finally {
       setIsCalculatingPIM(false);
     }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-20">
-      <div className="lg:col-span-8 space-y-6">
-        <Card className="border-border/40 shadow-xl overflow-hidden">
-          <CardHeader className="bg-secondary/30 pb-8">
-            <div className="flex flex-col md:flex-row justify-between gap-4">
-              <div className="space-y-1">
-                <CardTitle className="text-2xl font-headline flex items-center gap-2">
-                  <FileText className="h-6 w-6 text-primary" />
-                  {t.report.title}
-                </CardTitle>
-                <CardDescription>{t.report.subtitle}</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-accent border-accent/30 bg-accent/5">LIVE MODE</Badge>
-                <Badge className="bg-primary text-primary-foreground font-bold">PRO VERSION</Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="space-y-2">
-                <Label htmlFor="playerName" className="text-xs uppercase tracking-widest text-muted-foreground">{t.report.playerName}</Label>
-                <Input 
-                  id="playerName" 
-                  placeholder="Enter full name" 
-                  value={playerName} 
-                  onChange={(e) => setPlayerName(e.target.value)}
-                  className="bg-background/50"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-muted-foreground">{t.report.tacticalRole}</Label>
-                <Select onValueChange={handleRoleChange} defaultValue={activeRole.id}>
-                  <SelectTrigger className="bg-background/50">
-                    <SelectValue placeholder="Select tactical role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TACTICAL_ROLES.map(role => (
-                      <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Tabs defaultValue="kpis" className="w-full">
-              <TabsList className="grid grid-cols-3 mb-6 bg-secondary h-12">
-                <TabsTrigger value="kpis" className="data-[state=active]:bg-background">{t.report.tabs.metrics}</TabsTrigger>
-                <TabsTrigger value="tactical" className="data-[state=active]:bg-background">{t.report.tabs.tactical}</TabsTrigger>
-                <TabsTrigger value="voice" className="data-[state=active]:bg-background">{t.report.tabs.voice}</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="kpis" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
-                  <section className="space-y-4">
-                    <h3 className="text-sm font-bold text-accent uppercase tracking-tighter flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-accent" />
-                      {t.report.sections.technical}
-                    </h3>
-                    {activeRole.kpis.technical.map(kpi => (
-                      <div key={kpi} className="space-y-2">
-                        <div className="flex justify-between text-xs font-medium">
-                          <span>{kpi}</span>
-                          <span className="text-primary font-bold">{ratings[kpi] || 3} / 5</span>
-                        </div>
-                        <Slider 
-                          defaultValue={[3]} 
-                          max={5} 
-                          step={0.5} 
-                          onValueChange={(v) => handleRatingChange(kpi, v[0])}
-                        />
-                      </div>
-                    ))}
-                  </section>
-                  <section className="space-y-4">
-                    <h3 className="text-sm font-bold text-primary uppercase tracking-tighter flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                      {t.report.sections.tactical}
-                    </h3>
-                    {activeRole.kpis.tactical.map(kpi => (
-                      <div key={kpi} className="space-y-2">
-                        <div className="flex justify-between text-xs font-medium">
-                          <span>{kpi}</span>
-                          <span className="text-primary font-bold">{ratings[kpi] || 3} / 5</span>
-                        </div>
-                        <Slider 
-                          defaultValue={[3]} 
-                          max={5} 
-                          step={0.5} 
-                          onValueChange={(v) => handleRatingChange(kpi, v[0])}
-                        />
-                      </div>
-                    ))}
-                  </section>
-                  <section className="space-y-4">
-                    <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-tighter flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-muted-foreground" />
-                      {t.report.sections.physical}
-                    </h3>
-                    {activeRole.kpis.physical.map(kpi => (
-                      <div key={kpi} className="space-y-2">
-                        <div className="flex justify-between text-xs font-medium">
-                          <span>{kpi}</span>
-                          <span className="text-primary font-bold">{ratings[kpi] || 3} / 5</span>
-                        </div>
-                        <Slider 
-                          defaultValue={[3]} 
-                          max={5} 
-                          step={0.5} 
-                          onValueChange={(v) => handleRatingChange(kpi, v[0])}
-                        />
-                      </div>
-                    ))}
-                  </section>
-                  <section className="space-y-4">
-                    <h3 className="text-sm font-bold text-destructive uppercase tracking-tighter flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-destructive" />
-                      {t.report.sections.mental}
-                    </h3>
-                    {activeRole.kpis.mental.map(kpi => (
-                      <div key={kpi} className="space-y-2">
-                        <div className="flex justify-between text-xs font-medium">
-                          <span>{kpi}</span>
-                          <span className="text-primary font-bold">{ratings[kpi] || 3} / 5</span>
-                        </div>
-                        <Slider 
-                          defaultValue={[3]} 
-                          max={5} 
-                          step={0.5} 
-                          onValueChange={(v) => handleRatingChange(kpi, v[0])}
-                        />
-                      </div>
-                    ))}
-                  </section>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="tactical">
-                <TacticalCanvas />
-              </TabsContent>
-
-              <TabsContent value="voice">
-                <div className="space-y-4">
-                  <div className="relative group">
-                    <Textarea 
-                      placeholder={t.report.voice.placeholder}
-                      className="min-h-[200px] bg-background/50 border-border group-hover:border-primary transition-colors pr-12"
-                      value={voiceInput}
-                      onChange={(e) => setVoiceInput(e.target.value)}
-                    />
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      className="absolute bottom-4 right-4 h-10 w-10 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
-                    >
-                      <Mic className="h-5 w-5" />
-                    </Button>
-                  </div>
-                  <Button 
-                    className="w-full flex items-center gap-2" 
-                    variant="outline"
-                    onClick={handleVoiceProcess}
-                    disabled={isProcessingVoice}
-                  >
-                    <Sparkles className="h-4 w-4 text-accent" />
-                    {isProcessingVoice ? t.report.voice.processing : t.report.voice.process}
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="lg:col-span-4 space-y-6">
-        <Card className="border-primary/20 bg-primary/5 shadow-inner">
-          <CardHeader>
-            <CardTitle className="text-lg font-headline flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              {t.report.pim.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {pimScore !== null ? (
-              <div className="text-center space-y-4 animate-in zoom-in-95 duration-500">
-                <div className="relative inline-flex items-center justify-center">
-                  <svg className="w-24 h-24">
-                    <circle cx="48" cy="48" r="44" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-secondary" />
-                    <circle 
-                      cx="48" cy="48" r="44" 
-                      stroke="currentColor" strokeWidth="8" fill="transparent" 
-                      strokeDasharray={276}
-                      strokeDashoffset={276 - (276 * pimScore) / 100}
-                      className="text-primary"
-                    />
-                  </svg>
-                  <span className="absolute text-2xl font-bold font-headline">{pimScore}</span>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold">Player Impact Metric</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{pimExplanation}</p>
-                </div>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground text-center italic">{t.report.pim.placeholder}</p>
-            )}
-            <Button 
-              className="w-full" 
-              onClick={handleCalculatePIM}
-              disabled={isCalculatingPIM}
-            >
-              <Database className="h-4 w-4 mr-2" />
-              {isCalculatingPIM ? t.report.pim.calculating : t.report.pim.calculate}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="border-accent/20 bg-accent/5">
-          <CardHeader>
-            <CardTitle className="text-lg font-headline flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-accent" />
-              {t.report.summary.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {summary ? (
-              <div className="space-y-2 animate-in fade-in slide-in-from-right-2 duration-500">
-                <p className="text-sm leading-relaxed text-foreground/90 bg-background/40 p-3 rounded-lg border border-accent/20">
-                  {summary}
-                </p>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground text-center italic">{t.report.summary.placeholder}</p>
-            )}
-            <Button 
-              variant="secondary" 
-              className="w-full" 
-              onClick={handleGenerateSummary}
-              disabled={isGeneratingSummary}
-            >
-              <ChevronRight className="h-4 w-4 mr-2" />
-              {isGeneratingSummary ? t.report.summary.generating : t.report.summary.generate}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <div className="pt-4 flex flex-col gap-3">
-          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12">
-            {t.report.actions.submit}
+    <div className="space-y-6 pb-20 max-w-[1600px] mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-xl border border-border/50 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <FileText className="h-6 w-6 text-primary" />
+          </div>
+          <div className="space-y-0.5">
+            <h1 className="text-xl font-bold font-headline uppercase tracking-tight">{t.report.title}</h1>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">{t.report.subtitle}</p>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" size="sm" className="bg-background">
+            <Clipboard className="h-4 w-4 mr-2" /> {t.report.actions.export}
           </Button>
-          <Button variant="outline" className="w-full h-12">
-            {t.report.actions.export}
+          <Button size="sm" className="bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20">
+            {t.report.actions.submit}
           </Button>
         </div>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full flex justify-between bg-secondary/30 h-12 p-1 border border-border/20 rounded-xl overflow-x-auto no-scrollbar">
+          {Object.entries(t.report.tabs).map(([key, label]) => (
+            <TabsTrigger 
+              key={key} 
+              value={key} 
+              className="flex-1 text-[10px] font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <span className="mr-2 opacity-50">{Object.keys(t.report.tabs).indexOf(key) + 1}</span>
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <TabsContent value="player" className="mt-6 animate-in fade-in slide-in-from-bottom-2">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 space-y-6">
+              <Card className="border-border/40 shadow-xl">
+                <CardHeader className="bg-primary/5 pb-4 border-b border-border/20">
+                  <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    {t.report.playerInfo.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 grid grid-cols-2 gap-4">
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.name}</Label>
+                    <Input className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.club}</Label>
+                    <Input className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.number}</Label>
+                    <Input className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.competition}</Label>
+                    <Input className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.rival}</Label>
+                    <Input className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.birthDate}</Label>
+                    <Input type="date" className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.date}</Label>
+                    <Input type="date" className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.height}</Label>
+                    <Input className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.weight}</Label>
+                    <Input className="h-9 bg-secondary/20" />
+                  </div>
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.primaryPos}</Label>
+                    <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
+                      <SelectTrigger className="h-9 bg-secondary/20">
+                        <SelectValue placeholder="Select position" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TACTICAL_ROLES.map(role => (
+                          <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.dominantFoot}</Label>
+                    <RadioGroup defaultValue="right" className="flex gap-4">
+                      {Object.entries(t.report.playerInfo.footOptions).map(([key, label]) => (
+                        <div key={key} className="flex items-center space-x-2">
+                          <RadioGroupItem value={key} id={`foot-${key}`} />
+                          <Label htmlFor={`foot-${key}`} className="text-xs">{label}</Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.physicalCondition}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(t.report.playerInfo.conditionOptions).map(([key, label]) => (
+                        <Badge key={key} variant="outline" className="cursor-pointer hover:bg-primary/20 text-[10px] py-1 px-3">
+                          {label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 shadow-xl overflow-hidden">
+                <CardHeader className="bg-accent/5 pb-4 border-b border-border/20">
+                  <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-accent" />
+                    {t.report.globalProfile.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-4">
+                  {Object.entries(t.report.globalProfile).filter(([k]) => k !== 'title').map(([key, label]) => (
+                    <div key={key} className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-[10px] font-bold uppercase">{label}</Label>
+                        <span className="text-xs font-bold text-primary">{ratings[key] || 3}/5</span>
+                      </div>
+                      <Slider defaultValue={[3]} max={5} step={1} onValueChange={(v) => handleRatingChange(key, v[0])} />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="lg:col-span-7 space-y-6">
+              <Card className="border-border/40 shadow-xl bg-background/50 backdrop-blur-sm">
+                <CardHeader className="bg-secondary/20 pb-4 border-b border-border/20">
+                  <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Target className="h-4 w-4 text-primary" />
+                    {t.report.pitch.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <TacticalCanvas />
+                  <p className="text-[10px] text-center text-muted-foreground mt-4 font-bold uppercase tracking-widest">{t.report.pitch.hint}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 shadow-xl">
+                <CardHeader className="bg-primary/5 pb-4 border-b border-border/20">
+                  <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-primary" />
+                    {t.report.roles.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 flex flex-wrap gap-2">
+                  {Object.entries(t.report.roles).filter(([k]) => k !== 'title').map(([key, label]) => (
+                    <Badge 
+                      key={key} 
+                      variant={selectedRoles.includes(key) ? "default" : "outline"}
+                      className="cursor-pointer py-2 px-4 text-[10px] font-bold uppercase tracking-tighter transition-all"
+                      onClick={() => toggleRole(key)}
+                    >
+                      {label}
+                    </Badge>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-end">
+                <Button onClick={() => setActiveTab("technical")} className="px-12 py-6 bg-primary font-bold shadow-xl">
+                  {t.report.actions.next} <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="technical" className="mt-6">
+           {/* Technical, Tactical, Physical, Mental tabs would have similar slider structures */}
+           <Card className="border-border/40 shadow-xl p-12 text-center space-y-4">
+              <Sword className="h-16 w-16 text-primary mx-auto opacity-20" />
+              <h2 className="text-2xl font-bold font-headline">{t.report.tabs.technical}</h2>
+              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto text-left">
+                {activeRole.kpis.technical.map(kpi => (
+                  <div key={kpi} className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
+                      <span>{kpi}</span>
+                      <span className="text-primary">{ratings[kpi] || 3} / 5</span>
+                    </div>
+                    <Slider defaultValue={[3]} max={5} step={0.5} onValueChange={(v) => handleRatingChange(kpi, v[0])} />
+                  </div>
+                ))}
+              </div>
+              <Button onClick={() => setActiveTab("tactical")} className="mt-8">{t.report.actions.next}</Button>
+           </Card>
+        </TabsContent>
+
+        {/* ... Other tabs ... */}
+
+        <TabsContent value="evaluation" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="border-primary/20 bg-primary/5 shadow-inner p-8">
+              <div className="text-center space-y-6">
+                <Activity className="h-12 w-12 text-primary mx-auto" />
+                <h3 className="text-xl font-bold font-headline">{t.report.pim.title}</h3>
+                {pimScore !== null && (
+                  <div className="text-6xl font-black text-primary font-headline animate-in zoom-in-50">{pimScore}</div>
+                )}
+                <Button 
+                  className="w-full h-12" 
+                  onClick={handleCalculatePIM}
+                  disabled={isCalculatingPIM}
+                >
+                  {isCalculatingPIM ? t.report.pim.calculating : t.report.pim.calculate}
+                </Button>
+              </div>
+            </Card>
+
+            <Card className="border-accent/20 bg-accent/5 p-8">
+              <div className="text-center space-y-6">
+                <Award className="h-12 w-12 text-accent mx-auto" />
+                <h3 className="text-xl font-bold font-headline">{t.report.summary.title}</h3>
+                <div className="h-32 flex items-center justify-center border border-dashed border-accent/30 rounded-lg bg-background/50">
+                  <p className="text-sm text-muted-foreground italic px-6">{summary || t.report.summary.placeholder}</p>
+                </div>
+                <Button variant="secondary" className="w-full h-12">
+                  {t.report.summary.generate}
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
