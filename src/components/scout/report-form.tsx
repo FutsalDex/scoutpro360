@@ -139,42 +139,48 @@ export function ReportForm() {
     </div>
   );
 
-  const EvaluationModule = ({ title, icon: Icon, kpiSection, nextTab, prevTab, tabType }: { title: string, icon: any, kpiSection: KPISection, nextTab: string, prevTab: string, tabType: string }) => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column: Observation */}
-        <Card className="border-border/40 shadow-xl overflow-hidden rounded-lg bg-card/40 backdrop-blur-md">
-          <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2 border-b border-primary/20">
-            <Icon className="h-4 w-4 text-primary" />
-            <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
-          </div>
-          <CardContent className="pt-6 space-y-2">
-            {kpiSection.observation.map(kpi => <RatingRow key={kpi} kpi={kpi} />)}
-          </CardContent>
-        </Card>
+  const EvaluationModule = ({ title, icon: Icon, kpiSection, nextTab, prevTab, tabType }: { title: string, icon: any, kpiSection: KPISection, nextTab: string, prevTab: string, tabType: string }) => {
+    const hasImpactColumn = tabType === 'technical';
+    
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+        <div className={cn("grid grid-cols-1 gap-6", hasImpactColumn ? "lg:grid-cols-2" : "lg:max-w-4xl mx-auto")}>
+          {/* Left Column: Observation */}
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-lg bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2 border-b border-primary/20">
+              <Icon className="h-4 w-4 text-primary" />
+              <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
+            </div>
+            <CardContent className="pt-6 space-y-2">
+              {kpiSection.observation.map(kpi => <RatingRow key={kpi} kpi={kpi} />)}
+            </CardContent>
+          </Card>
 
-        {/* Right Column: Impact */}
-        <Card className="border-border/40 shadow-xl overflow-hidden rounded-lg bg-card/40 backdrop-blur-md">
-          <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2 border-b border-accent/20">
-            <Activity className="h-4 w-4 text-accent" />
-            <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
-          </div>
-          <CardContent className="pt-6 space-y-2">
-            {kpiSection.impact.map(kpi => <RatingRow key={kpi} kpi={kpi} />)}
-          </CardContent>
-        </Card>
-      </div>
+          {/* Right Column: Impact (Only for Technical) */}
+          {hasImpactColumn && (
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-lg bg-card/40 backdrop-blur-md">
+              <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2 border-b border-accent/20">
+                <Activity className="h-4 w-4 text-accent" />
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
+              </div>
+              <CardContent className="pt-6 space-y-2">
+                {kpiSection.impact.map(kpi => <RatingRow key={kpi} kpi={kpi} />)}
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-      <div className="flex justify-between pt-6 border-t border-border/20">
-        <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-8 font-bold text-xs uppercase text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
-        </Button>
-        <Button onClick={() => setActiveTab(nextTab)} className="px-12 py-5 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-xl rounded-lg text-sm transition-all transform hover:scale-105">
-          {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex justify-between pt-6 border-t border-border/20">
+          <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-8 font-bold text-xs uppercase text-muted-foreground hover:text-foreground">
+            <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
+          </Button>
+          <Button onClick={() => setActiveTab(nextTab)} className="px-12 py-5 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-xl rounded-lg text-sm transition-all transform hover:scale-105">
+            {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6 pb-24 max-w-[1600px] mx-auto">
