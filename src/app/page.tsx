@@ -121,11 +121,11 @@ export default function Home() {
               <LanguageSwitcher />
               <div className="flex items-center gap-4">
                 <div className="flex flex-col text-right">
-                  <span className="text-xs font-bold text-foreground">Manus AI</span>
+                  <span className="text-xs font-bold text-foreground">ScoutPro Elite</span>
                   <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Elite Scouting Division</span>
                 </div>
                 <div className="h-9 w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform">
-                  M
+                  S
                 </div>
               </div>
             </div>
