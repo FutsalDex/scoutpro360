@@ -42,12 +42,6 @@ export function ReportForm() {
     setNotes(prev => ({ ...prev, [kpi]: value }));
   };
 
-  const toggleRole = (role: string) => {
-    setSelectedRoles(prev => 
-      prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
-    );
-  };
-
   const handleCalculatePIM = async () => {
     setIsCalculatingPIM(true);
     try {
@@ -85,7 +79,7 @@ export function ReportForm() {
   };
 
   const RatingModule = ({ title, icon: Icon, kpis, nextTab }: { title: string, icon: any, kpis: string[], nextTab: string }) => (
-    <Card className="border-border/40 shadow-xl p-8 md:p-12 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4">
+    <Card className="border-border/40 shadow-xl p-8 md:p-12 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 bg-card/50 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-4">
         <Icon className="h-12 w-12 text-primary opacity-50" />
         <h2 className="text-2xl font-bold font-headline uppercase tracking-tight">{title}</h2>
@@ -145,160 +139,158 @@ export function ReportForm() {
           ))}
         </TabsList>
 
-        <TabsContent value="player" className="mt-6 animate-in fade-in slide-in-from-bottom-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-            <div className="space-y-6">
-              {/* Card 1: Información del Jugador */}
-              <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg">
-                <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
-                  <User className="h-4 w-4 text-white" />
-                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">1 {t.report.playerInfo.title}</h2>
+        <TabsContent value="player" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* 1 INFORMACIÓN DEL JUGADOR */}
+            <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40">
+              <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
+                <User className="h-4 w-4 text-white" />
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">1 {t.report.playerInfo.title}</h2>
+              </div>
+              <CardContent className="pt-6 grid grid-cols-2 gap-4">
+                <div className="col-span-1 space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.name}</Label>
+                  <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-8 bg-secondary/20 border-border/30" placeholder="Nombre del jugador" />
                 </div>
-                <CardContent className="pt-6 grid grid-cols-2 gap-4">
-                  <div className="col-span-1 space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.name}</Label>
-                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-8 bg-secondary/10" placeholder="Nombre del jugador" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.number}</Label>
-                    <Input className="h-8 bg-secondary/10" placeholder="-" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.club}</Label>
-                    <Input className="h-8 bg-secondary/10" placeholder="Club" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.rival}</Label>
-                    <Input className="h-8 bg-secondary/10" placeholder="vs" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.competition}</Label>
-                    <Input className="h-8 bg-secondary/10" placeholder="Liga / Copa" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.date}</Label>
-                    <Input type="date" className="h-8 bg-secondary/10" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.birthDate}</Label>
-                    <Input type="date" className="h-8 bg-secondary/10" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.nationality}</Label>
-                    <Input className="h-8 bg-secondary/10" placeholder="-" />
-                  </div>
-                  <div className="grid grid-cols-3 col-span-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.height}</Label>
-                      <Input className="h-8 bg-secondary/10" placeholder="-" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.weight}</Label>
-                      <Input className="h-8 bg-secondary/10" placeholder="-" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.minutes}</Label>
-                      <Input className="h-8 bg-secondary/10" placeholder="90" />
-                    </div>
-                  </div>
-                  <div className="col-span-1 space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.primaryPos}</Label>
-                    <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
-                      <SelectTrigger className="h-8 bg-secondary/10 text-xs">
-                        <SelectValue placeholder="Seleccionar..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TACTICAL_ROLES.map(role => (
-                          <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="col-span-1 space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.secondaryPos}</Label>
-                    <Input className="h-8 bg-secondary/10" placeholder="Ej: ED, MCO" />
-                  </div>
-                  <div className="col-span-2 space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.dominantFoot}</Label>
-                    <div className="flex gap-2">
-                        {Object.entries(t.report.playerInfo.footOptions).map(([key, label]) => (
-                            <Button key={key} variant="outline" size="sm" className="h-7 px-4 text-[10px] rounded-full border-border/60 hover:bg-primary/10 hover:text-primary transition-all">
-                                {label as string}
-                            </Button>
-                        ))}
-                    </div>
-                  </div>
-                  <div className="col-span-2 space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.physicalCondition}</Label>
-                    <div className="flex flex-wrap gap-2">
-                        {Object.entries(t.report.playerInfo.conditionOptions).map(([key, label]) => (
-                            <Button key={key} variant="outline" size="sm" className="h-7 px-3 text-[10px] rounded-full border-border/60">
-                                {label as string}
-                            </Button>
-                        ))}
-                    </div>
-                  </div>
-                  <div className="col-span-2 space-y-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.scout}</Label>
-                    <Input className="h-8 bg-secondary/10" placeholder="Nombre del observador" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Card 3: Perfil General */}
-              <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg">
-                <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-white" />
-                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">3 {t.report.globalProfile.title}</h2>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.number}</Label>
+                  <Input className="h-8 bg-secondary/20 border-border/30" placeholder="-" />
                 </div>
-                <CardContent className="pt-6 space-y-3">
-                  {Object.entries(t.report.globalProfile).filter(([k]) => k !== 'title').map(([key, label]) => (
-                    <div key={key} className="flex items-center justify-between gap-4 py-1 border-b border-border/20 last:border-0">
-                      <Label className="text-[10px] font-bold uppercase w-32 shrink-0">{label as string}</Label>
-                      <div className="flex gap-1.5 shrink-0">
-                        {[1, 2, 3, 4, 5].map(num => (
-                          <button
-                            key={num}
-                            onClick={() => handleRatingChange(key, num)}
-                            className={cn(
-                              "h-6 w-6 rounded-full border border-border/60 text-[10px] font-bold flex items-center justify-center transition-all",
-                              ratings[key] === num ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:border-primary/50"
-                            )}
-                          >
-                            {num}
-                          </button>
-                        ))}
-                      </div>
-                      <Input 
-                        className="h-6 text-[10px] bg-secondary/5 border-none shadow-none focus-visible:ring-1" 
-                        placeholder="Nota..." 
-                        value={notes[key] || ""}
-                        onChange={(e) => handleNoteChange(key, e.target.value)}
-                      />
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.club}</Label>
+                  <Input className="h-8 bg-secondary/20 border-border/30" placeholder="Club" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.rival}</Label>
+                  <Input className="h-8 bg-secondary/20 border-border/30" placeholder="vs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.competition}</Label>
+                  <Input className="h-8 bg-secondary/20 border-border/30" placeholder="Liga / Copa" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.date}</Label>
+                  <Input type="date" className="h-8 bg-secondary/20 border-border/30" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.birthDate}</Label>
+                  <Input type="date" className="h-8 bg-secondary/20 border-border/30" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.nationality}</Label>
+                  <Input className="h-8 bg-secondary/20 border-border/30" placeholder="-" />
+                </div>
+                <div className="grid grid-cols-3 col-span-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.height}</Label>
+                    <Input className="h-8 bg-secondary/20 border-border/30" placeholder="-" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.weight}</Label>
+                    <Input className="h-8 bg-secondary/20 border-border/30" placeholder="-" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.minutes}</Label>
+                    <Input className="h-8 bg-secondary/20 border-border/30" placeholder="90" />
+                  </div>
+                </div>
+                <div className="col-span-1 space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.primaryPos}</Label>
+                  <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
+                    <SelectTrigger className="h-8 bg-secondary/20 border-border/30 text-xs">
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TACTICAL_ROLES.map(role => (
+                        <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-1 space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.secondaryPos}</Label>
+                  <Input className="h-8 bg-secondary/20 border-border/30" placeholder="Ej: ED, MCO" />
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.dominantFoot}</Label>
+                  <div className="flex gap-2">
+                      {Object.entries(t.report.playerInfo.footOptions).map(([key, label]) => (
+                          <Button key={key} variant="outline" size="sm" className="h-7 px-4 text-[10px] rounded-full border-border/60 hover:bg-primary/10 hover:text-primary transition-all">
+                              {label as string}
+                          </Button>
+                      ))}
+                  </div>
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.physicalCondition}</Label>
+                  <div className="flex flex-wrap gap-2">
+                      {Object.entries(t.report.playerInfo.conditionOptions).map(([key, label]) => (
+                          <Button key={key} variant="outline" size="sm" className="h-7 px-3 text-[10px] rounded-full border-border/60">
+                              {label as string}
+                          </Button>
+                      ))}
+                  </div>
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.playerInfo.scout}</Label>
+                  <Input className="h-8 bg-secondary/20 border-border/30" placeholder="Nombre del observador" />
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Card 2: Posición en el Campo (Derecha) */}
-            <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg lg:h-full flex flex-col">
+            {/* 2 POSICIÓN EN EL CAMPO */}
+            <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg flex flex-col bg-card/40">
               <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
                 <Target className="h-4 w-4 text-white" />
                 <h2 className="text-xs font-bold text-white uppercase tracking-wider">2 {t.report.pitch.title}</h2>
               </div>
-              <CardContent className="pt-6 flex flex-col items-center flex-grow bg-[#f8f9fa]">
+              <CardContent className="pt-6 flex flex-col items-center justify-center flex-grow bg-transparent">
                 <TacticalCanvas />
                 <div className="mt-6 text-center space-y-1">
-                  <p className="text-[10px] text-[#007b83] font-bold uppercase tracking-widest">{t.report.pitch.hint}</p>
+                  <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{t.report.pitch.hint}</p>
                   <p className="text-[10px] text-muted-foreground">Haz clic para marcar la posición del jugador</p>
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* 3 PERFIL GENERAL (IMPRESIÓN GLOBAL) - Full width bottom */}
+          <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40">
+            <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2">
+              <Brain className="h-4 w-4 text-white" />
+              <h2 className="text-xs font-bold text-white uppercase tracking-wider">3 {t.report.globalProfile.title}</h2>
+            </div>
+            <CardContent className="pt-6 space-y-3">
+              {Object.entries(t.report.globalProfile).filter(([k]) => k !== 'title').map(([key, label]) => (
+                <div key={key} className="flex items-center justify-between gap-4 py-1 border-b border-border/10 last:border-0">
+                  <Label className="text-[10px] font-bold uppercase w-48 shrink-0 text-muted-foreground">{label as string}</Label>
+                  <div className="flex gap-2 shrink-0">
+                    {[1, 2, 3, 4, 5].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => handleRatingChange(key, num)}
+                        className={cn(
+                          "h-7 w-7 rounded-full border border-border/40 text-[10px] font-bold flex items-center justify-center transition-all",
+                          ratings[key] === num ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/20 hover:border-primary/50 text-muted-foreground"
+                        )}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                  <Input 
+                    className="h-7 text-[10px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 flex-grow ml-4" 
+                    placeholder="Nota..." 
+                    value={notes[key] || ""}
+                    onChange={(e) => handleNoteChange(key, e.target.value)}
+                  />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
           
           <div className="flex justify-end mt-8">
-            <Button onClick={() => setActiveTab("technical")} className="px-12 py-5 bg-[#007b83] hover:bg-[#006a72] font-bold shadow-xl rounded-lg text-sm">
+            <Button onClick={() => setActiveTab("technical")} className="px-12 py-5 bg-[#007b83] hover:bg-[#006a72] font-bold shadow-xl rounded-lg text-sm transition-all transform hover:scale-105">
               {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>

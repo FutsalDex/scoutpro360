@@ -27,9 +27,9 @@ export function TacticalCanvas() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-[400px] mx-auto">
+    <div className="flex flex-col items-center w-full max-w-[320px] mx-auto">
       <div 
-        className="relative w-full aspect-[2/3] bg-[#2E7D32] rounded-lg overflow-hidden border-2 border-white/40 shadow-2xl touch-none cursor-crosshair"
+        className="relative w-full aspect-[2/3] bg-[#2E7D32] rounded-lg overflow-hidden border-2 border-white/20 shadow-2xl touch-none cursor-crosshair"
         onClick={handleInteraction}
       >
         {/* Pitch Lines */}
@@ -44,36 +44,36 @@ export function TacticalCanvas() {
           ))}
 
           {/* Outer line */}
-          <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" strokeWidth="2" />
+          <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
           
           {/* Halfway line */}
-          <line x1="10" y1="300" x2="390" y2="300" stroke="white" strokeWidth="2" />
-          <circle cx="200" cy="300" r="60" fill="none" stroke="white" strokeWidth="2" />
-          <circle cx="200" cy="300" r="3" fill="white" />
+          <line x1="10" y1="300" x2="390" y2="300" stroke="white" strokeWidth="2" opacity="0.8" />
+          <circle cx="200" cy="300" r="60" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <circle cx="200" cy="300" r="3" fill="white" opacity="0.8" />
 
           {/* Top Penalty Area */}
-          <rect x="80" y="10" width="240" height="100" fill="none" stroke="white" strokeWidth="2" />
-          <rect x="140" y="10" width="120" height="40" fill="none" stroke="white" strokeWidth="2" />
-          <path d="M 140 110 A 90 90 0 0 0 260 110" fill="none" stroke="white" strokeWidth="2" />
-          <circle cx="200" cy="75" r="2.5" fill="white" />
+          <rect x="80" y="10" width="240" height="100" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <rect x="140" y="10" width="120" height="40" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <path d="M 140 110 A 90 90 0 0 0 260 110" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <circle cx="200" cy="75" r="2.5" fill="white" opacity="0.8" />
 
           {/* Bottom Penalty Area */}
-          <rect x="80" y="490" width="240" height="100" fill="none" stroke="white" strokeWidth="2" />
-          <rect x="140" y="550" width="120" height="40" fill="none" stroke="white" strokeWidth="2" />
-          <path d="M 140 490 A 90 90 0 0 1 260 490" fill="none" stroke="white" strokeWidth="2" />
-          <circle cx="200" cy="525" r="2.5" fill="white" />
+          <rect x="80" y="490" width="240" height="100" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <rect x="140" y="550" width="120" height="40" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <path d="M 140 490 A 90 90 0 0 1 260 490" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <circle cx="200" cy="525" r="2.5" fill="white" opacity="0.8" />
 
           {/* Corners */}
-          <circle cx="10" cy="10" r="15" fill="none" stroke="white" strokeWidth="2" />
-          <circle cx="390" cy="10" r="15" fill="none" stroke="white" strokeWidth="2" />
-          <circle cx="10" cy="590" r="15" fill="none" stroke="white" strokeWidth="2" />
-          <circle cx="390" cy="590" r="15" fill="none" stroke="white" strokeWidth="2" />
+          <circle cx="10" cy="10" r="15" fill="none" stroke="white" strokeWidth="2" opacity="0.6" />
+          <circle cx="390" cy="10" r="15" fill="none" stroke="white" strokeWidth="2" opacity="0.6" />
+          <circle cx="10" cy="590" r="15" fill="none" stroke="white" strokeWidth="2" opacity="0.6" />
+          <circle cx="390" cy="590" r="15" fill="none" stroke="white" strokeWidth="2" opacity="0.6" />
 
           {/* The Marker */}
-          <g transform={`translate(${marker.x}, ${marker.y})`} className="drop-shadow-xl transition-all duration-300">
-            <circle r="15" fill="white" />
-            <circle r="12" fill="#E0B050" />
-            <circle r="12" fill="none" stroke="white" strokeWidth="1" />
+          <g transform={`translate(${marker.x}, ${marker.y})`} className="drop-shadow-2xl transition-all duration-300">
+            <circle r="18" fill="white" opacity="0.9" />
+            <circle r="14" fill="#E0B050" />
+            <circle r="14" fill="none" stroke="white" strokeWidth="1" />
           </g>
         </svg>
       </div>
