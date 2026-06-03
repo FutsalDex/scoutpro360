@@ -31,7 +31,6 @@ export function ReportForm() {
   const [summary, setSummary] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [playerName, setPlayerName] = useState("");
 
   const handleRatingChange = (kpi: string, value: number) => {
@@ -68,7 +67,7 @@ export function ReportForm() {
         playerName: playerName || "Subject",
         tacticalRole: activeRole.name,
         metrics: { Technical: ratings },
-        scoutNotes: `Evaluated in roles: ${selectedRoles.join(', ')}. Global technical level: ${ratings.technicalLevel || 3}/5. Global tactical intelligence: ${ratings.tacticalIntel || 3}/5.`
+        scoutNotes: `Evaluated in roles: ${activeRole.name}. Global technical level: ${ratings.technicalLevel || 3}/5. Global tactical intelligence: ${ratings.tacticalIntel || 3}/5.`
       });
       setSummary(result.summary);
     } catch (e) {
@@ -244,9 +243,9 @@ export function ReportForm() {
                 <Target className="h-4 w-4 text-white" />
                 <h2 className="text-xs font-bold text-white uppercase tracking-wider">2 {t.report.pitch.title}</h2>
               </div>
-              <CardContent className="pt-6 flex flex-col items-center justify-center flex-grow bg-transparent">
+              <CardContent className="pt-2 flex flex-col items-center justify-center flex-grow bg-transparent p-4">
                 <TacticalCanvas />
-                <div className="mt-6 text-center space-y-1">
+                <div className="mt-4 text-center space-y-1">
                   <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{t.report.pitch.hint}</p>
                   <p className="text-[10px] text-muted-foreground">Haz clic para marcar la posición del jugador</p>
                 </div>

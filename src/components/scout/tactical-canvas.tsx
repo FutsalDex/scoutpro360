@@ -27,9 +27,9 @@ export function TacticalCanvas() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-[320px] mx-auto">
+    <div className="flex flex-col items-center w-full max-w-[450px] mx-auto transition-all">
       <div 
-        className="relative w-full aspect-[2/3] bg-[#2E7D32] rounded-lg overflow-hidden border-2 border-white/20 shadow-2xl touch-none cursor-crosshair"
+        className="relative w-full aspect-[2/3] bg-[#2E7D32] rounded-lg overflow-hidden border-2 border-white/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] touch-none cursor-crosshair"
         onClick={handleInteraction}
       >
         {/* Pitch Lines */}
@@ -71,9 +71,9 @@ export function TacticalCanvas() {
 
           {/* The Marker */}
           <g transform={`translate(${marker.x}, ${marker.y})`} className="drop-shadow-2xl transition-all duration-300">
-            <circle r="18" fill="white" opacity="0.9" />
-            <circle r="14" fill="#E0B050" />
-            <circle r="14" fill="none" stroke="white" strokeWidth="1" />
+            <circle r="20" fill="white" opacity="0.95" />
+            <circle r="16" fill="#E0B050" />
+            <circle r="16" fill="none" stroke="white" strokeWidth="1" />
           </g>
         </svg>
       </div>
