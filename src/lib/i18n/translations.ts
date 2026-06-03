@@ -31,6 +31,7 @@ export const translations = {
       subtitle: 'Confidential 360 Scouting Assessment',
       tabs: {
         player: 'PLAYER',
+        context: 'CONTEXT',
         technical: 'TECHNICAL',
         tactical: 'TACTICAL',
         physical: 'PHYSICAL',
@@ -57,6 +58,48 @@ export const translations = {
         physicalCondition: 'Physical Condition',
         conditionOptions: { excellent: 'Excellent', good: 'Good', normal: 'Normal', below: 'Below level', injured: 'Injured' },
         scout: 'Scout Name',
+      },
+      matchContext: {
+        title: 'MATCH CONTEXT',
+        playStyle: 'PLAY STYLE',
+        formation: 'SYSTEM / FORMATION',
+        tempo: 'MATCH TEMPO',
+        dominance: 'TEAM DOMINANCE',
+        score: 'SCORE WHEN OBSERVING',
+        importance: 'MATCH IMPORTANCE',
+        weather: 'WEATHER CONDITIONS',
+        styles: { possession: 'Possession', counter: 'Counter-attack', highPress: 'High Press', direct: 'Direct', defensive: 'Defensive' },
+        tempos: { low: 'Low', medium: 'Medium', high: 'High' },
+        dominances: { dominant: 'Dominant', balanced: 'Balanced', disadvantaged: 'Disadvantaged' },
+        scores: { winning: 'Winning', drawing: 'Drawing', losing: 'Losing' },
+        importances: { low: 'Low', medium: 'Medium', high: 'High', decisive: 'Decisive' },
+        weathers: { sun: 'Sun', cloudy: 'Cloudy', rain: 'Rain', cold: 'Cold', wind: 'Wind' }
+      },
+      offBall: {
+        title: 'OFF-BALL BEHAVIOR',
+        noPossession: 'WITHOUT POSSESSION',
+        bodyLanguage: 'BODY LANGUAGE',
+        tacticalRole: 'TACTICAL ROLE OF THE PLAYER IN THIS MATCH',
+        actions: {
+          aggressive: 'Aggressive Press',
+          central: 'Central Spaces',
+          passingLines: 'Closes Passing Lines',
+          quickRecovery: 'Quick Recovery',
+          blockDef: 'Defends in Block',
+          support: 'Offers Support',
+          readsGame: 'Reads the Game Well',
+          keepsForm: 'Maintains Form'
+        },
+        bodyLanguages: {
+          positive: 'Positive',
+          competitive: 'Competitive',
+          concentrated: 'Concentrated',
+          frustrated: 'Frustrated',
+          emotional: 'Emotional',
+          reactive: 'Reactive',
+          mature: 'Mature/Calm',
+          indifferent: 'Indifferent'
+        }
       },
       globalProfile: {
         title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
@@ -91,6 +134,7 @@ export const translations = {
       },
       actions: {
         next: 'Next',
+        previous: 'Previous',
         submit: 'SUBMIT FINAL REPORT',
         export: 'EXPORT TO PDF',
         save: 'SAVE REPORT',
@@ -139,6 +183,7 @@ export const translations = {
       subtitle: 'Evaluación Confidencial 360 Scouting',
       tabs: {
         player: 'JUGADOR',
+        context: 'CONTEXTO',
         technical: 'TÉCNICO',
         tactical: 'TÁCTICO',
         physical: 'FÍSICO',
@@ -165,6 +210,48 @@ export const translations = {
         physicalCondition: 'Condición Física',
         conditionOptions: { excellent: 'Excelente', good: 'Buena', normal: 'Normal', below: 'Bajo su nivel', injured: 'Lesionado' },
         scout: 'Scout',
+      },
+      matchContext: {
+        title: 'CONTEXTO DEL PARTIDO',
+        playStyle: 'ESTILO DE JUEGO',
+        formation: 'SISTEMA / FORMACIÓN',
+        tempo: 'RITMO DEL PARTIDO',
+        dominance: 'DOMINIO DEL EQUIPO',
+        score: 'MARCADOR AL OBSERVAR',
+        importance: 'IMPORTANCIA DEL PARTIDO',
+        weather: 'CONDICIONES METEOROLÓGICAS',
+        styles: { possession: 'Posesión', counter: 'Contragolpe', highPress: 'Presión alta', direct: 'Directo', defensive: 'Defensivo' },
+        tempos: { low: 'Bajo', medium: 'Medio', high: 'Alto' },
+        dominances: { dominant: 'Dominante', equilibrado: 'Equilibrado', disadvantaged: 'En desventaja' },
+        scores: { winning: 'Ganando', drawing: 'Empatando', losing: 'Perdiendo' },
+        importances: { low: 'Baja', medium: 'Media', high: 'Alta', decisive: 'Decisiva' },
+        weathers: { sun: 'Sol', cloudy: 'Nublado', rain: 'Lluvia', cold: 'Frío', wind: 'Viento' }
+      },
+      offBall: {
+        title: 'COMPORTAMIENTO SIN BALÓN',
+        noPossession: 'SIN POSESIÓN',
+        bodyLanguage: 'LENGUAJE CORPORAL',
+        tacticalRole: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
+        actions: {
+          aggressive: 'Presiona agresivo',
+          central: 'Espacios centrales',
+          passingLines: 'Cierra líneas pase',
+          quickRecovery: 'Recuperación rápida',
+          blockDef: 'Defiende en bloque',
+          support: 'Ofrece apoyo',
+          readsGame: 'Lee bien el juego',
+          keepsForm: 'Mantiene la forma'
+        },
+        bodyLanguages: {
+          positive: 'Positivo',
+          competitive: 'Competitivo',
+          concentrated: 'Concentrado',
+          frustrated: 'Frustrado',
+          emotional: 'Emotivo',
+          reactive: 'Reactivo',
+          mature: 'Tranquilo/Maduro',
+          indifferent: 'Indiferente'
+        }
       },
       globalProfile: {
         title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
@@ -199,6 +286,7 @@ export const translations = {
       },
       actions: {
         next: 'Siguiente',
+        previous: 'Anterior',
         submit: 'ENVIAR INFORME FINAL',
         export: 'EXPORTAR A PDF',
         save: 'GUARDAR INFORME',

@@ -6,11 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, Activity, User, Target, Brain, Sword, Award, Clipboard, Shield, Zap as ZapIcon, Heart, Save, Layers } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Sword, Award, Clipboard, Shield, Zap as ZapIcon, Heart, Save, Layers, Sun, Cloud, CloudRain, Thermometer, Wind } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
@@ -31,6 +32,7 @@ export function ReportForm() {
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [playerName, setPlayerName] = useState("");
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [contextData, setContextData] = useState<Record<string, string | string[]>>({});
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => ({ ...prev, [kpi]: value }));
@@ -44,6 +46,16 @@ export function ReportForm() {
     setSelectedRoles(prev => 
       prev.includes(roleKey) ? prev.filter(r => r !== roleKey) : [...prev, roleKey]
     );
+  };
+
+  const handleContextChange = (key: string, value: any) => {
+    setContextData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const toggleContextMulti = (key: string, value: string) => {
+    const current = (contextData[key] as string[]) || [];
+    const updated = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
+    handleContextChange(key, updated);
   };
 
   const handleSaveReport = () => {
@@ -89,7 +101,7 @@ export function ReportForm() {
     }
   };
 
-  const RatingModule = ({ title, icon: Icon, kpis, nextTab }: { title: string, icon: any, kpis: string[], nextTab: string }) => (
+  const RatingModule = ({ title, icon: Icon, kpis, nextTab, prevTab }: { title: string, icon: any, kpis: string[], nextTab: string, prevTab: string }) => (
     <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40 animate-in fade-in slide-in-from-bottom-2">
       <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
         <Icon className="h-4 w-4 text-white" />
@@ -121,7 +133,10 @@ export function ReportForm() {
             />
           </div>
         ))}
-        <div className="flex justify-end pt-6">
+        <div className="flex justify-between pt-6">
+          <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-8 font-bold text-xs uppercase text-muted-foreground">
+            <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
+          </Button>
           <Button onClick={() => setActiveTab(nextTab)} className="px-8 bg-[#007b83] hover:bg-[#006a72] font-bold text-xs uppercase">
             {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
@@ -171,9 +186,7 @@ export function ReportForm() {
 
         <TabsContent value="player" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-            {/* Columna Izquierda: Información y Perfil General */}
             <div className="space-y-6">
-              {/* 1 INFORMACIÓN DEL JUGADOR */}
               <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40">
                 <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
                   <User className="h-4 w-4 text-white" />
@@ -270,7 +283,6 @@ export function ReportForm() {
                 </CardContent>
               </Card>
 
-              {/* 3 PERFIL GENERAL (IMPRESIÓN GLOBAL) */}
               <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40">
                 <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2">
                   <Brain className="h-4 w-4 text-white" />
@@ -306,9 +318,7 @@ export function ReportForm() {
               </Card>
             </div>
 
-            {/* Columna Derecha: Posición y Roles */}
             <div className="space-y-6">
-              {/* 2 POSICIÓN EN EL CAMPO */}
               <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg flex flex-col bg-card/40">
                 <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
                   <Target className="h-4 w-4 text-white" />
@@ -323,7 +333,6 @@ export function ReportForm() {
                 </CardContent>
               </Card>
 
-              {/* ROLES Y FUNCIONES OBSERVADAS */}
               <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40 animate-in fade-in slide-in-from-right-4">
                 <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2">
                   <Layers className="h-4 w-4 text-white" />
@@ -354,6 +363,216 @@ export function ReportForm() {
           </div>
           
           <div className="flex justify-end mt-8">
+            <Button onClick={() => setActiveTab("context")} className="px-12 py-5 bg-[#007b83] hover:bg-[#006a72] font-bold shadow-xl rounded-lg text-sm transition-all transform hover:scale-105">
+              {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="context" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {/* CONTEXTO DEL PARTIDO */}
+            <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40">
+              <div className="bg-[#007b83] px-4 py-2 flex items-center gap-2">
+                <Target className="h-4 w-4 text-white" />
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.report.matchContext.title}</h2>
+              </div>
+              <CardContent className="pt-6 space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.matchContext.playStyle}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(t.report.matchContext.styles).map(([key, label]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleContextChange('playStyle', key)}
+                        className={cn(
+                          "h-8 px-4 text-[10px] font-medium rounded-full border-border/40",
+                          contextData.playStyle === key ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/10"
+                        )}
+                      >
+                        {label as string}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.matchContext.formation}</Label>
+                  <Input 
+                    className="h-8 bg-secondary/20 border-border/30 text-xs" 
+                    placeholder="Ej: 4-3-3, 4-4-2"
+                    onChange={(e) => handleContextChange('formation', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.matchContext.tempo}</Label>
+                  <div className="flex gap-2">
+                    {Object.entries(t.report.matchContext.tempos).map(([key, label]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleContextChange('tempo', key)}
+                        className={cn(
+                          "h-8 px-6 text-[10px] font-medium rounded-full border-border/40",
+                          contextData.tempo === key ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/10"
+                        )}
+                      >
+                        {label as string}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.matchContext.dominance}</Label>
+                  <div className="flex gap-2">
+                    {Object.entries(t.report.matchContext.dominances).map(([key, label]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleContextChange('dominance', key)}
+                        className={cn(
+                          "h-8 px-4 text-[10px] font-medium rounded-full border-border/40",
+                          contextData.dominance === key ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/10"
+                        )}
+                      >
+                        {label as string}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.matchContext.score}</Label>
+                  <div className="flex gap-2">
+                    {Object.entries(t.report.matchContext.scores).map(([key, label]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleContextChange('score', key)}
+                        className={cn(
+                          "h-8 px-4 text-[10px] font-medium rounded-full border-border/40",
+                          contextData.score === key ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/10"
+                        )}
+                      >
+                        {label as string}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.matchContext.importance}</Label>
+                  <div className="flex gap-2">
+                    {Object.entries(t.report.matchContext.importances).map(([key, label]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleContextChange('importance', key)}
+                        className={cn(
+                          "h-8 px-4 text-[10px] font-medium rounded-full border-border/40",
+                          contextData.importance === key ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/10"
+                        )}
+                      >
+                        {label as string}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.matchContext.weather}</Label>
+                  <div className="flex flex-wrap gap-4">
+                    <button onClick={() => handleContextChange('weather', 'sun')} className={cn("flex items-center gap-1.5 text-[10px] font-medium", contextData.weather === 'sun' ? "text-primary" : "text-muted-foreground")}>
+                      <Sun className="h-4 w-4" /> {t.report.matchContext.weathers.sun}
+                    </button>
+                    <button onClick={() => handleContextChange('weather', 'cloudy')} className={cn("flex items-center gap-1.5 text-[10px] font-medium", contextData.weather === 'cloudy' ? "text-primary" : "text-muted-foreground")}>
+                      <Cloud className="h-4 w-4" /> {t.report.matchContext.weathers.cloudy}
+                    </button>
+                    <button onClick={() => handleContextChange('weather', 'rain')} className={cn("flex items-center gap-1.5 text-[10px] font-medium", contextData.weather === 'rain' ? "text-primary" : "text-muted-foreground")}>
+                      <CloudRain className="h-4 w-4" /> {t.report.matchContext.weathers.rain}
+                    </button>
+                    <button onClick={() => handleContextChange('weather', 'cold')} className={cn("flex items-center gap-1.5 text-[10px] font-medium", contextData.weather === 'cold' ? "text-primary" : "text-muted-foreground")}>
+                      <Thermometer className="h-4 w-4" /> {t.report.matchContext.weathers.cold}
+                    </button>
+                    <button onClick={() => handleContextChange('weather', 'wind')} className={cn("flex items-center gap-1.5 text-[10px] font-medium", contextData.weather === 'wind' ? "text-primary" : "text-muted-foreground")}>
+                      <Wind className="h-4 w-4" /> {t.report.matchContext.weathers.wind}
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* COMPORTAMIENTO SIN BALÓN */}
+            <Card className="border-border/40 shadow-lg overflow-hidden rounded-lg bg-card/40">
+              <div className="bg-[#1b263b] px-4 py-2 flex items-center gap-2">
+                <Layers className="h-4 w-4 text-white" />
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t.report.offBall.title}</h2>
+              </div>
+              <CardContent className="pt-6 space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.offBall.noPossession}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(t.report.offBall.actions).map(([key, label]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleContextMulti('offBallActions', key)}
+                        className={cn(
+                          "h-8 px-3 text-[10px] font-medium rounded-full border-border/40",
+                          ((contextData.offBallActions as string[]) || []).includes(key) ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/10"
+                        )}
+                      >
+                        {label as string}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.offBall.bodyLanguage}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(t.report.offBall.bodyLanguages).map(([key, label]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleContextChange('bodyLanguage', key)}
+                        className={cn(
+                          "h-8 px-3 text-[10px] font-medium rounded-full border-border/40",
+                          contextData.bodyLanguage === key ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/10"
+                        )}
+                      >
+                        {label as string}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">{t.report.offBall.tacticalRole}</Label>
+                  <Textarea 
+                    className="min-h-[100px] bg-secondary/20 border-border/30 text-[10px] focus-visible:ring-1" 
+                    placeholder="Describe el rol táctico asignado al jugador..."
+                    onChange={(e) => handleContextChange('tacticalRoleDesc', e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-between mt-8">
+            <Button variant="ghost" onClick={() => setActiveTab("player")} className="px-8 font-bold text-xs uppercase text-muted-foreground">
+              <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
+            </Button>
             <Button onClick={() => setActiveTab("technical")} className="px-12 py-5 bg-[#007b83] hover:bg-[#006a72] font-bold shadow-xl rounded-lg text-sm transition-all transform hover:scale-105">
               {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
@@ -366,6 +585,7 @@ export function ReportForm() {
              icon={Sword} 
              kpis={activeRole.kpis.technical} 
              nextTab="tactical" 
+             prevTab="context"
            />
         </TabsContent>
 
@@ -375,6 +595,7 @@ export function ReportForm() {
              icon={Shield} 
              kpis={activeRole.kpis.tactical} 
              nextTab="physical" 
+             prevTab="technical"
            />
         </TabsContent>
 
@@ -384,6 +605,7 @@ export function ReportForm() {
              icon={ZapIcon} 
              kpis={activeRole.kpis.physical} 
              nextTab="mental" 
+             prevTab="tactical"
            />
         </TabsContent>
 
@@ -393,6 +615,7 @@ export function ReportForm() {
              icon={Heart} 
              kpis={activeRole.kpis.mental} 
              nextTab="evaluation" 
+             prevTab="physical"
            />
         </TabsContent>
 
@@ -434,6 +657,11 @@ export function ReportForm() {
                 </Button>
               </div>
             </Card>
+          </div>
+          <div className="flex justify-start mt-8">
+            <Button variant="ghost" onClick={() => setActiveTab("mental")} className="px-8 font-bold text-xs uppercase text-muted-foreground">
+              <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
+            </Button>
           </div>
         </TabsContent>
       </Tabs>
