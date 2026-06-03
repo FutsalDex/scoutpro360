@@ -4,7 +4,7 @@ import './globals.css';
 import { LanguageProvider } from '@/lib/i18n/context';
 
 export const metadata: Metadata = {
-  title: 'ScoutPro Football Elite',
+  title: 'ScoutPro 360 Football',
   description: 'AI-Powered Professional Football Scouting Platform',
 };
 

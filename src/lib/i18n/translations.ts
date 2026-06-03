@@ -13,7 +13,7 @@ export const translations = {
       signOut: 'Sign Out',
     },
     dashboard: {
-      title: 'ScoutPro Elite Dashboard',
+      title: 'ScoutPro 360 Dashboard',
       subtitle: 'Welcome back, Head Scout. Centralized intelligence for organizational talent acquisition.',
       search: 'Search Global Database',
       createReport: 'Create New Report',
@@ -28,7 +28,7 @@ export const translations = {
     },
     report: {
       title: 'Match Observation Report',
-      subtitle: 'Confidential Scouting Department Assessment',
+      subtitle: 'Confidential 360 Scouting Assessment',
       tabs: {
         player: 'PLAYER',
         technical: 'TECHNICAL',
@@ -121,7 +121,7 @@ export const translations = {
       signOut: 'Cerrar Sesión',
     },
     dashboard: {
-      title: 'Panel Elite ScoutPro',
+      title: 'Panel ScoutPro 360',
       subtitle: 'Bienvenido de nuevo, Jefe de Scouting. Inteligencia centralizada para la captación de talento organizacional.',
       search: 'Buscar en Base de Datos Global',
       createReport: 'Crear Nuevo Informe',
@@ -136,7 +136,7 @@ export const translations = {
     },
     report: {
       title: 'Informe de Observación de Partido',
-      subtitle: 'Departamento de Scouting - Confidencial',
+      subtitle: 'Evaluación Confidencial 360 Scouting',
       tabs: {
         player: 'JUGADOR',
         technical: 'TÉCNICO',

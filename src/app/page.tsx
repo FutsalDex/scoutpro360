@@ -25,7 +25,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-headline font-bold text-foreground leading-none">ScoutPro</span>
-                <span className="text-[10px] uppercase tracking-widest text-primary font-bold">Football Elite</span>
+                <span className="text-[10px] uppercase tracking-widest text-primary font-bold">360 Football</span>
               </div>
             </div>
           </SidebarHeader>
@@ -121,8 +121,8 @@ export default function Home() {
               <LanguageSwitcher />
               <div className="flex items-center gap-4">
                 <div className="flex flex-col text-right">
-                  <span className="text-xs font-bold text-foreground">ScoutPro Elite</span>
-                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Elite Scouting Division</span>
+                  <span className="text-xs font-bold text-foreground">ScoutPro 360</span>
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">360 Scouting Division</span>
                 </div>
                 <div className="h-9 w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform">
                   S
