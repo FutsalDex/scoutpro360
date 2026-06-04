@@ -27,6 +27,130 @@ interface ActionRow {
   notes: string;
 }
 
+// Subcomponente RatingRow extraído para evitar remontaos
+const RatingRow = ({ 
+  kpi, 
+  rating, 
+  onRatingChange, 
+  note, 
+  onNoteChange 
+}: { 
+  kpi: string, 
+  rating?: number, 
+  onRatingChange: (value: number) => void,
+  note?: string,
+  onNoteChange: (value: string) => void
+}) => (
+  <div className="flex items-center justify-between gap-4 py-1.5 border-b border-border/10 last:border-0 group">
+    <Label className="text-[10px] font-bold uppercase w-44 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors">{kpi}</Label>
+    <div className="flex gap-1.5 shrink-0">
+      {[1, 2, 3, 4, 5].map(num => (
+        <button
+          key={num}
+          type="button"
+          onClick={() => onRatingChange(num)}
+          className={cn(
+            "h-8 w-8 rounded-full border border-border/40 text-[11px] font-bold flex items-center justify-center transition-all",
+            rating === num ? "bg-primary text-primary-foreground border-primary scale-110 shadow-lg" : "bg-secondary/20 hover:border-primary/50 text-muted-foreground"
+          )}
+        >
+          {num}
+        </button>
+      ))}
+    </div>
+    <Input 
+      className="h-8 text-[11px] bg-secondary/5 border-none shadow-none focus-visible:ring-1 flex-grow ml-6 border-b border-border/20 rounded-none italic placeholder:opacity-40" 
+      placeholder="Observación / contexto..." 
+      value={note || ""}
+      onChange={(e) => onNoteChange(e.target.value)}
+    />
+  </div>
+);
+
+// Subcomponente EvaluationModule extraído para evitar remontaos
+const EvaluationModule = ({ 
+  icon: Icon, 
+  kpiSection, 
+  nextTab, 
+  prevTab, 
+  tabType,
+  ratings,
+  onRatingChange,
+  notes,
+  onNoteChange,
+  setActiveTab,
+  t
+}: { 
+  icon: any, 
+  kpiSection: KPISection, 
+  nextTab: string, 
+  prevTab: string, 
+  tabType: string,
+  ratings: Record<string, number>,
+  onRatingChange: (kpi: string, val: number) => void,
+  notes: Record<string, string>,
+  onNoteChange: (kpi: string, val: string) => void,
+  setActiveTab: (tab: string) => void,
+  t: any
+}) => {
+  const hasImpactColumn = tabType === 'technical';
+  
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+      <div className={cn("grid grid-cols-1 gap-6", hasImpactColumn ? "lg:grid-cols-2" : "lg:max-w-5xl mx-auto")}>
+        <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+          <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-2 border-b border-primary/20">
+            <Icon className="h-4 w-4 text-primary" />
+            <h2 className="text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
+          </div>
+          <CardContent className="pt-8 space-y-1.5">
+            {kpiSection.observation.map(kpi => (
+              <RatingRow 
+                key={kpi} 
+                kpi={kpi} 
+                rating={ratings[kpi]} 
+                onRatingChange={(val) => onRatingChange(kpi, val)}
+                note={notes[kpi]}
+                onNoteChange={(val) => onNoteChange(kpi, val)}
+              />
+            ))}
+          </CardContent>
+        </Card>
+
+        {hasImpactColumn && (
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-2 border-b border-accent/20">
+              <Activity className="h-4 w-4 text-accent" />
+              <h2 className="text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
+            </div>
+            <CardContent className="pt-8 space-y-1.5">
+              {kpiSection.impact.map(kpi => (
+                <RatingRow 
+                  key={kpi} 
+                  kpi={kpi} 
+                  rating={ratings[kpi]} 
+                  onRatingChange={(val) => onRatingChange(kpi, val)}
+                  note={notes[kpi]}
+                  onNoteChange={(val) => onNoteChange(kpi, val)}
+                />
+              ))}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      <div className="flex justify-between pt-10 max-w-5xl mx-auto">
+        <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+          <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
+        </Button>
+        <Button onClick={() => setActiveTab(nextTab)} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+          {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 export function ReportForm() {
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -122,73 +246,6 @@ export function ReportForm() {
     } finally {
       setIsGeneratingSummary(false);
     }
-  };
-
-  const RatingRow = ({ kpi }: { kpi: string }) => (
-    <div className="flex items-center justify-between gap-4 py-1.5 border-b border-border/10 last:border-0 group">
-      <Label className="text-[10px] font-bold uppercase w-44 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors">{kpi}</Label>
-      <div className="flex gap-1.5 shrink-0">
-        {[1, 2, 3, 4, 5].map(num => (
-          <button
-            key={num}
-            onClick={() => handleRatingChange(kpi, num)}
-            className={cn(
-              "h-8 w-8 rounded-full border border-border/40 text-[11px] font-bold flex items-center justify-center transition-all",
-              ratings[kpi] === num ? "bg-primary text-primary-foreground border-primary scale-110 shadow-lg" : "bg-secondary/20 hover:border-primary/50 text-muted-foreground"
-            )}
-          >
-            {num}
-          </button>
-        ))}
-      </div>
-      <Input 
-        className="h-8 text-[11px] bg-secondary/5 border-none shadow-none focus-visible:ring-1 flex-grow ml-6 border-b border-border/20 rounded-none italic placeholder:opacity-40" 
-        placeholder="Observación / contexto..." 
-        value={notes[kpi] || ""}
-        onChange={(e) => handleNoteChange(kpi, e.target.value)}
-      />
-    </div>
-  );
-
-  const EvaluationModule = ({ title, icon: Icon, kpiSection, nextTab, prevTab, tabType }: { title: string, icon: any, kpiSection: KPISection, nextTab: string, prevTab: string, tabType: string }) => {
-    const hasImpactColumn = tabType === 'technical';
-    
-    return (
-      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-        <div className={cn("grid grid-cols-1 gap-6", hasImpactColumn ? "lg:grid-cols-2" : "lg:max-w-5xl mx-auto")}>
-          <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-            <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-2 border-b border-primary/20">
-              <Icon className="h-4 w-4 text-primary" />
-              <h2 className="text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
-            </div>
-            <CardContent className="pt-8 space-y-1.5">
-              {kpiSection.observation.map(kpi => <RatingRow key={kpi} kpi={kpi} />)}
-            </CardContent>
-          </Card>
-
-          {hasImpactColumn && (
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-              <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-2 border-b border-accent/20">
-                <Activity className="h-4 w-4 text-accent" />
-                <h2 className="text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
-              </div>
-              <CardContent className="pt-8 space-y-1.5">
-                {kpiSection.impact.map(kpi => <RatingRow key={kpi} kpi={kpi} />)}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        <div className="flex justify-between pt-10 max-w-5xl mx-auto">
-          <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
-            <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
-          </Button>
-          <Button onClick={() => setActiveTab(nextTab)} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
-            {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -329,6 +386,7 @@ export function ReportForm() {
                         key={key} 
                         variant="outline" 
                         size="sm" 
+                        type="button"
                         onClick={() => toggleRole(key)}
                         className={cn(
                           "h-11 px-6 text-[11px] font-black uppercase rounded-full border-border/30 transition-all",
@@ -351,9 +409,16 @@ export function ReportForm() {
               <Brain className="h-5 w-5 text-primary" />
               <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">3 {t.report.globalProfile.title}</h2>
             </div>
-            <CardContent className="pt-10 space-y-2 px-10">
+            <CardContent className="pt-10 space-y-1.5 px-10">
               {Object.entries(t.report.globalProfile).filter(([k]) => k !== 'title').map(([key, label]) => (
-                <RatingRow key={key} kpi={label as string} />
+                <RatingRow 
+                  key={key} 
+                  kpi={label as string} 
+                  rating={ratings[key]}
+                  onRatingChange={(val) => handleRatingChange(key, val)}
+                  note={notes[key]}
+                  onNoteChange={(val) => handleNoteChange(key, val)}
+                />
               ))}
             </CardContent>
           </Card>
@@ -380,6 +445,7 @@ export function ReportForm() {
                       <Button
                         key={key}
                         variant="outline"
+                        type="button"
                         onClick={() => handleContextChange('playStyle', key)}
                         className={cn(
                           "h-11 px-6 text-[10px] font-black uppercase rounded-full border-border/30 transition-all",
@@ -400,7 +466,7 @@ export function ReportForm() {
                     <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.matchContext.tempo}</Label>
                     <div className="flex gap-3">
                       {Object.entries(t.report.matchContext.tempos).map(([key, label]) => (
-                        <Button key={key} onClick={() => handleContextChange('tempo', key)} className={cn("flex-1 h-11 text-[10px] font-black uppercase", contextData.tempo === key ? "bg-primary text-primary-foreground" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
+                        <Button key={key} type="button" onClick={() => handleContextChange('tempo', key)} className={cn("flex-1 h-11 text-[10px] font-black uppercase", contextData.tempo === key ? "bg-primary text-primary-foreground" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
                       ))}
                     </div>
                   </div>
@@ -408,16 +474,16 @@ export function ReportForm() {
                 <div className="space-y-6">
                   <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.matchContext.weather}</Label>
                   <div className="flex flex-wrap gap-8 bg-secondary/10 p-6 rounded-2xl border border-border/10 shadow-inner">
-                    <button onClick={() => handleContextChange('weather', 'sun')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'sun' ? "text-primary scale-110" : "text-muted-foreground")}>
+                    <button type="button" onClick={() => handleContextChange('weather', 'sun')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'sun' ? "text-primary scale-110" : "text-muted-foreground")}>
                       <Sun className="h-5 w-5" /> {t.report.matchContext.weathers.sun}
                     </button>
-                    <button onClick={() => handleContextChange('weather', 'cloudy')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'cloudy' ? "text-primary scale-110" : "text-muted-foreground")}>
+                    <button type="button" onClick={() => handleContextChange('weather', 'cloudy')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'cloudy' ? "text-primary scale-110" : "text-muted-foreground")}>
                       <Cloud className="h-5 w-5" /> {t.report.matchContext.weathers.cloudy}
                     </button>
-                    <button onClick={() => handleContextChange('weather', 'rain')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'rain' ? "text-primary scale-110" : "text-muted-foreground")}>
+                    <button type="button" onClick={() => handleContextChange('weather', 'rain')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'rain' ? "text-primary scale-110" : "text-muted-foreground")}>
                       <CloudRain className="h-5 w-5" /> {t.report.matchContext.weathers.rain}
                     </button>
-                    <button onClick={() => handleContextChange('weather', 'wind')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'wind' ? "text-primary scale-110" : "text-muted-foreground")}>
+                    <button type="button" onClick={() => handleContextChange('weather', 'wind')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'wind' ? "text-primary scale-110" : "text-muted-foreground")}>
                       <Wind className="h-5 w-5" /> {t.report.matchContext.weathers.wind}
                     </button>
                   </div>
@@ -435,7 +501,7 @@ export function ReportForm() {
                   <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.offBall.noPossession}</Label>
                   <div className="flex flex-wrap gap-4">
                     {Object.entries(t.report.offBall.actions).map(([key, label]) => (
-                      <Button key={key} onClick={() => toggleContextMulti('offBallActions', key)} className={cn("h-10 px-5 text-[10px] font-black uppercase rounded-xl transition-all", ((contextData.offBallActions as string[]) || []).includes(key) ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
+                      <Button key={key} type="button" onClick={() => toggleContextMulti('offBallActions', key)} className={cn("h-10 px-5 text-[10px] font-black uppercase rounded-xl transition-all", ((contextData.offBallActions as string[]) || []).includes(key) ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
                     ))}
                   </div>
                 </div>
@@ -443,7 +509,7 @@ export function ReportForm() {
                   <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.offBall.bodyLanguage}</Label>
                   <div className="flex flex-wrap gap-3">
                     {Object.entries(t.report.offBall.bodyLanguages).map(([key, label]) => (
-                      <Button key={key} onClick={() => handleContextChange('bodyLanguage', key)} className={cn("h-10 px-5 text-[10px] font-black uppercase rounded-xl transition-all", contextData.bodyLanguage === key ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
+                      <Button key={key} type="button" onClick={() => handleContextChange('bodyLanguage', key)} className={cn("h-10 px-5 text-[10px] font-black uppercase rounded-xl transition-all", contextData.bodyLanguage === key ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
                     ))}
                   </div>
                 </div>
@@ -467,45 +533,65 @@ export function ReportForm() {
 
         <TabsContent value="technical" className="mt-10">
            <EvaluationModule 
-             title={t.report.tabs.technical} 
+             t={t}
              icon={Sword} 
              kpiSection={activeRole.kpis.technical} 
              nextTab="tactical" 
              prevTab="context"
              tabType="technical"
+             ratings={ratings}
+             onRatingChange={handleRatingChange}
+             notes={notes}
+             onNoteChange={handleNoteChange}
+             setActiveTab={setActiveTab}
            />
         </TabsContent>
 
         <TabsContent value="tactical" className="mt-10">
            <EvaluationModule 
-             title={t.report.tabs.tactical} 
+             t={t}
              icon={Shield} 
              kpiSection={activeRole.kpis.tactical} 
              nextTab="physical" 
              prevTab="technical"
              tabType="tactical"
+             ratings={ratings}
+             onRatingChange={handleRatingChange}
+             notes={notes}
+             onNoteChange={handleNoteChange}
+             setActiveTab={setActiveTab}
            />
         </TabsContent>
 
         <TabsContent value="physical" className="mt-10">
            <EvaluationModule 
-             title={t.report.tabs.physical} 
+             t={t}
              icon={ZapIcon} 
              kpiSection={activeRole.kpis.physical} 
              nextTab="mental" 
              prevTab="tactical"
              tabType="physical"
+             ratings={ratings}
+             onRatingChange={handleRatingChange}
+             notes={notes}
+             onNoteChange={handleNoteChange}
+             setActiveTab={setActiveTab}
            />
         </TabsContent>
 
         <TabsContent value="mental" className="mt-10">
            <EvaluationModule 
-             title={t.report.tabs.mental} 
+             t={t}
              icon={Heart} 
              kpiSection={activeRole.kpis.mental} 
              nextTab="actions" 
              prevTab="physical"
              tabType="mental"
+             ratings={ratings}
+             onRatingChange={handleRatingChange}
+             notes={notes}
+             onNoteChange={handleNoteChange}
+             setActiveTab={setActiveTab}
            />
         </TabsContent>
 
