@@ -1,0 +1,52 @@
+
+{
+  "entities": {
+    "Player": {
+      "title": "Player",
+      "description": "Perfil profesional de un jugador de fútbol",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number" },
+        "club": { "type": "string" },
+        "nationality": { "type": "string" },
+        "marketValue": { "type": "string" },
+        "currentPIM": { "type": "number" },
+        "tacticalRole": { "type": "string" },
+        "grade": { "type": "string", "enum": ["A", "B", "C", "D", "F"] },
+        "createdAt": { "type": "object" }
+      },
+      "required": ["name", "tacticalRole", "currentPIM"]
+    },
+    "ScoutingReport": {
+      "title": "ScoutingReport",
+      "description": "Informe detallado de observación de un scout",
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "playerName": { "type": "string" },
+        "scoutId": { "type": "string" },
+        "scoutName": { "type": "string" },
+        "pimScore": { "type": "number" },
+        "summary": { "type": "string" },
+        "ratings": { "type": "object" },
+        "notes": { "type": "object" },
+        "createdAt": { "type": "object" }
+      },
+      "required": ["playerId", "playerName", "scoutId", "pimScore"]
+    }
+  },
+  "auth": {
+    "providers": ["password", "google.com", "apple.com"]
+  },
+  "firestore": {
+    "players": {
+      "schema": { "$ref": "#/entities/Player" },
+      "description": "Colección global de jugadores evaluados"
+    },
+    "reports": {
+      "schema": { "$ref": "#/entities/ScoutingReport" },
+      "description": "Colección de informes detallados de scouting"
+    }
+  }
+}

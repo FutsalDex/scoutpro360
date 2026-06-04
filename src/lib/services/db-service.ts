@@ -1,3 +1,4 @@
+
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -46,12 +47,11 @@ export async function savePlayer(playerData: Omit<Player, 'id'>) {
       errorEmitter.emit('permission-error', permissionError);
     });
     
-  // Retornamos una promesa vacía o el ID si se necesita esperar (aunque se recomienda no esperar)
   return "pending-id"; 
 }
 
 /**
- * Obtiene todos los jugadores en tiempo real
+ * Obtiene todos los jugadores en tiempo real con manejo de permisos actualizado
  */
 export function subscribeToPlayers(callback: (players: Player[]) => void) {
   const colRef = collection(db, "players");
@@ -77,7 +77,7 @@ export function subscribeToPlayers(callback: (players: Player[]) => void) {
 }
 
 /**
- * Guarda un informe de scouting
+ * Guarda un informe de scouting en la colección reports
  */
 export async function saveReport(reportData: Omit<ScoutingReport, 'id'>) {
   const colRef = collection(db, "reports");
