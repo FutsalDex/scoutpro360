@@ -9,7 +9,7 @@ import {
   signInWithPopup, 
   GoogleAuthProvider 
 } from 'firebase/auth';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,14 +63,22 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
 
   return (
     <DialogContent className="sm:max-w-[400px] bg-card border-border/40 shadow-2xl p-0 overflow-hidden">
-      <div className="bg-primary p-8 flex flex-col items-center gap-2">
-        <div className="h-12 w-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center border border-white/20">
-          <ShieldCheck className="text-primary-foreground h-7 w-7" />
-        </div>
-        <h2 className="text-xl font-black text-primary-foreground uppercase tracking-widest">
+      <DialogHeader className="p-0 space-y-0">
+        <DialogTitle className="sr-only">
           {isLogin ? 'Acceso Elite' : 'Registro de Scout'}
-        </h2>
-      </div>
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Inicia sesión o regístrate para acceder a la plataforma profesional de scouting.
+        </DialogDescription>
+        <div className="bg-primary p-8 flex flex-col items-center gap-2">
+          <div className="h-12 w-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center border border-white/20">
+            <ShieldCheck className="text-primary-foreground h-7 w-7" />
+          </div>
+          <h2 className="text-xl font-black text-primary-foreground uppercase tracking-widest">
+            {isLogin ? 'Acceso Elite' : 'Registro de Scout'}
+          </h2>
+        </div>
+      </DialogHeader>
 
       <div className="p-8 space-y-6">
         <form onSubmit={handleEmailAuth} className="space-y-4">
