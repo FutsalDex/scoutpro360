@@ -1,17 +1,17 @@
+'use client';
 
 import { db } from "@/lib/firebase/config";
 import { 
   collection, 
   addDoc, 
-  getDocs, 
   query, 
-  where, 
   orderBy, 
   onSnapshot,
-  Timestamp,
   serverTimestamp 
 } from "firebase/firestore";
 import { Player } from "@/lib/types";
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export interface ScoutingReport {
   id?: string;
@@ -30,44 +30,69 @@ export interface ScoutingReport {
  * Guarda un nuevo jugador en Firestore
  */
 export async function savePlayer(playerData: Omit<Player, 'id'>) {
-  try {
-    const docRef = await addDoc(collection(db, "players"), {
-      ...playerData,
-      createdAt: serverTimestamp()
+  const colRef = collection(db, "players");
+  const data = {
+    ...playerData,
+    createdAt: serverTimestamp()
+  };
+
+  addDoc(colRef, data)
+    .catch(async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: colRef.path,
+        operation: 'create',
+        requestResourceData: data,
+      });
+      errorEmitter.emit('permission-error', permissionError);
     });
-    return docRef.id;
-  } catch (e) {
-    console.error("Error adding player: ", e);
-    throw e;
-  }
+    
+  // Retornamos una promesa vacía o el ID si se necesita esperar (aunque se recomienda no esperar)
+  return "pending-id"; 
 }
 
 /**
  * Obtiene todos los jugadores en tiempo real
  */
 export function subscribeToPlayers(callback: (players: Player[]) => void) {
-  const q = query(collection(db, "players"), orderBy("createdAt", "desc"));
-  return onSnapshot(q, (snapshot) => {
-    const players = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Player[];
-    callback(players);
-  });
+  const colRef = collection(db, "players");
+  const q = query(colRef, orderBy("createdAt", "desc"));
+  
+  return onSnapshot(
+    q, 
+    (snapshot) => {
+      const players = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Player[];
+      callback(players);
+    },
+    async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: colRef.path,
+        operation: 'list',
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    }
+  );
 }
 
 /**
  * Guarda un informe de scouting
  */
 export async function saveReport(reportData: Omit<ScoutingReport, 'id'>) {
-  try {
-    const docRef = await addDoc(collection(db, "reports"), {
-      ...reportData,
-      createdAt: serverTimestamp()
+  const colRef = collection(db, "reports");
+  const data = {
+    ...reportData,
+    createdAt: serverTimestamp()
+  };
+
+  addDoc(colRef, data)
+    .catch(async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: colRef.path,
+        operation: 'create',
+        requestResourceData: data,
+      });
+      errorEmitter.emit('permission-error', permissionError);
     });
-    return docRef.id;
-  } catch (e) {
-    console.error("Error adding report: ", e);
-    throw e;
-  }
 }

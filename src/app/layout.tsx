@@ -1,7 +1,8 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { LanguageProvider } from '@/lib/i18n/context';
+import { FirebaseErrorListener } from '@/components/firebase-error-listener';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'ScoutPro 360 Football',
@@ -22,7 +23,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <LanguageProvider>
+          <FirebaseErrorListener />
           {children}
+          <Toaster />
         </LanguageProvider>
       </body>
     </html>
