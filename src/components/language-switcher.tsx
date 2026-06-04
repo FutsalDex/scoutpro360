@@ -26,8 +26,8 @@ export function LanguageSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="h-9 px-3 gap-3 bg-secondary/50 border-border/50 hover:bg-secondary">
-          <div className="flex items-center gap-1.5 font-black text-[12px] tracking-widest">
-            <span className="text-base leading-none">{currentLang?.flag}</span>
+          <div className="flex items-center gap-2 font-black text-[12px] tracking-widest">
+            <span className="text-lg leading-none filter drop-shadow-sm">{currentLang?.flag}</span>
             <span className="text-foreground">{currentLang?.code.toUpperCase()}</span>
           </div>
           <Globe className="h-3.5 w-3.5 text-muted-foreground" />
@@ -44,7 +44,7 @@ export function LanguageSwitcher() {
                 : 'hover:bg-white/5 text-foreground/80'
             }`}
           >
-            <span className="text-lg leading-none w-6">{lang.flag}</span>
+            <span className="text-xl leading-none w-8">{lang.flag}</span>
             <span className="text-sm font-medium">{lang.label}</span>
           </DropdownMenuItem>
         ))}
