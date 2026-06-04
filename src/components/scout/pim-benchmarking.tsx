@@ -8,17 +8,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Plus, ArrowRightLeft, Target, Activity, Zap, Heart } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useTranslation } from '@/lib/i18n/context';
 
 export function PIMBenchmarking() {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8 animate-in zoom-in-95 duration-500 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-bold text-foreground">PIM Benchmarking</h1>
-          <p className="text-muted-foreground">Comparative analysis between identified prospects and squad benchmarks.</p>
+          <h1 className="text-3xl font-headline font-bold text-foreground">{t.benchmarking.title}</h1>
+          <p className="text-muted-foreground">{t.benchmarking.subtitle}</p>
         </div>
         <Button className="bg-primary text-primary-foreground font-black tracking-widest uppercase text-xs px-8 h-12 rounded-xl">
-          <Plus className="h-4 w-4 mr-2" /> New Comparison
+          <Plus className="h-4 w-4 mr-2" /> {t.benchmarking.new}
         </Button>
       </div>
 
@@ -37,14 +40,14 @@ export function PIMBenchmarking() {
         {/* VS Indicator */}
         <div className="lg:col-span-4 flex flex-col items-center justify-center h-full space-y-8">
           <div className="h-20 w-20 rounded-full border-4 border-primary/20 bg-secondary/30 flex items-center justify-center shadow-[0_0_30px_rgba(224,176,80,0.2)]">
-            <span className="text-3xl font-black font-headline text-foreground italic">VS</span>
+            <span className="text-3xl font-black font-headline text-foreground italic">{t.benchmarking.vs}</span>
           </div>
           <div className="w-full space-y-6">
-            <BenchMarkRow label="Tactical Intelligence" p1={92} p2={84} />
-            <BenchMarkRow label="Technical Execution" p1={96} p2={88} />
-            <BenchMarkRow label="Physical Presence" p1={74} p2={82} />
-            <BenchMarkRow label="Mental Resilience" p1={88} p2={91} />
-            <BenchMarkRow label="Recruitment Fit" p1={95} p2={78} />
+            <BenchMarkRow label={t.benchmarking.tactical} p1={92} p2={84} />
+            <BenchMarkRow label={t.benchmarking.technical} p1={96} p2={88} />
+            <BenchMarkRow label={t.benchmarking.physical} p1={74} p2={82} />
+            <BenchMarkRow label={t.benchmarking.mental} p1={88} p2={91} />
+            <BenchMarkRow label={t.benchmarking.fit} p1={95} p2={78} />
           </div>
         </div>
 
@@ -65,19 +68,19 @@ export function PIMBenchmarking() {
         <CardContent className="p-8">
           <div className="grid md:grid-cols-3 gap-12 text-center">
             <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">PIM Delta</p>
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.delta}</p>
               <p className="text-4xl font-black font-headline text-primary">+12.0</p>
-              <p className="text-xs text-accent font-bold">Elite Prospect Territory</p>
+              <p className="text-xs text-accent font-bold">{t.benchmarking.territory}</p>
             </div>
             <div className="space-y-2 border-x border-border/20">
-              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Market Upside</p>
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.upside}</p>
               <p className="text-4xl font-black font-headline text-foreground">€65M</p>
-              <p className="text-xs text-muted-foreground font-bold">Projected Value (2 yrs)</p>
+              <p className="text-xs text-muted-foreground font-bold">{t.benchmarking.projected}</p>
             </div>
             <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Compatibility</p>
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.compatibility}</p>
               <p className="text-4xl font-black font-headline text-accent">95%</p>
-              <p className="text-xs text-muted-foreground font-bold">Fits Squad Profile</p>
+              <p className="text-xs text-muted-foreground font-bold">{t.benchmarking.squadProfile}</p>
             </div>
           </div>
         </CardContent>

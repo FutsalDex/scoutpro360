@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, AreaChart } from "recharts";
 import { TrendingUp, Activity, Target, Brain, ShieldCheck } from "lucide-react";
+import { useTranslation } from '@/lib/i18n/context';
 
 const PIM_TREND_DATA = [
   { month: 'Jan', avgPim: 68, topPim: 82 },
@@ -24,16 +25,18 @@ const SCOUT_PRODUCTIVITY_DATA = [
 ];
 
 export function AnalyticsHub() {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-bold text-foreground">Analytics Hub</h1>
-          <p className="text-muted-foreground">Strategic intelligence and performance modeling.</p>
+          <h1 className="text-3xl font-headline font-bold text-foreground">{t.analytics.title}</h1>
+          <p className="text-muted-foreground">{t.analytics.subtitle}</p>
         </div>
         <div className="flex gap-4">
           <div className="text-right">
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Global PIM Index</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.analytics.index}</p>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-black font-headline text-primary">76.4</span>
               <TrendingUp className="h-4 w-4 text-accent" />
@@ -46,9 +49,9 @@ export function AnalyticsHub() {
         <Card className="border-border/40 bg-card/40 shadow-xl overflow-hidden">
           <CardHeader className="bg-secondary/10 pb-6 border-b border-border/10">
             <CardTitle className="text-lg font-headline flex items-center gap-3">
-              <Activity className="text-primary h-5 w-5" /> PIM Historical Trends
+              <Activity className="text-primary h-5 w-5" /> {t.analytics.historical}
             </CardTitle>
-            <CardDescription>Average vs Top Talent PIM trajectory (Last 6 Months)</CardDescription>
+            <CardDescription>{t.analytics.historicalDesc}</CardDescription>
           </CardHeader>
           <CardContent className="p-8">
             <div className="h-[300px] w-full">
@@ -78,9 +81,9 @@ export function AnalyticsHub() {
         <Card className="border-border/40 bg-card/40 shadow-xl overflow-hidden">
           <CardHeader className="bg-secondary/10 pb-6 border-b border-border/10">
             <CardTitle className="text-lg font-headline flex items-center gap-3">
-              <Target className="text-accent h-5 w-5" /> Scout Productivity Matrix
+              <Target className="text-accent h-5 w-5" /> {t.analytics.matrix}
             </CardTitle>
-            <CardDescription>Volume of reports vs Quality of identified talent.</CardDescription>
+            <CardDescription>{t.analytics.matrixDesc}</CardDescription>
           </CardHeader>
           <CardContent className="p-8">
             <div className="h-[300px] w-full">
@@ -100,11 +103,11 @@ export function AnalyticsHub() {
             <div className="flex justify-center gap-8 mt-6">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 bg-primary rounded-sm" />
-                <span className="text-[10px] font-black uppercase text-muted-foreground">Reports Generated</span>
+                <span className="text-[10px] font-black uppercase text-muted-foreground">{t.analytics.reportsGen}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 bg-accent rounded-sm" />
-                <span className="text-[10px] font-black uppercase text-muted-foreground">Avg. Target PIM</span>
+                <span className="text-[10px] font-black uppercase text-muted-foreground">{t.analytics.avgTargetPim}</span>
               </div>
             </div>
           </CardContent>
@@ -112,9 +115,9 @@ export function AnalyticsHub() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <AnalyticsMetricCard title="Decision Speed" value="4.2 Days" icon={<Brain className="text-primary" />} trend="Down from 6.8d" />
-        <AnalyticsMetricCard title="Recruitment ROAS" value="14.8x" icon={<ShieldCheck className="text-accent" />} trend="+3.2x this year" />
-        <AnalyticsMetricCard title="Market Value Growth" value="€240M" icon={<TrendingUp className="text-primary" />} trend="Across top 10 targets" />
+        <AnalyticsMetricCard title={t.analytics.decisionSpeed} value="4.2 Days" icon={<Brain className="text-primary" />} trend="Down from 6.8d" />
+        <AnalyticsMetricCard title={t.analytics.roas} value="14.8x" icon={<ShieldCheck className="text-accent" />} trend="+3.2x this year" />
+        <AnalyticsMetricCard title={t.analytics.marketValue} value="€240M" icon={<TrendingUp className="text-primary" />} trend="Across top 10 targets" />
       </div>
     </div>
   );

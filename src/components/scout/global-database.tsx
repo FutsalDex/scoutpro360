@@ -28,15 +28,15 @@ export function GlobalDatabase() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-bold text-foreground">{t.sidebar.globalDatabase}</h1>
-          <p className="text-muted-foreground text-sm">Access to our repository of 15,000+ evaluated players worldwide.</p>
+          <h1 className="text-3xl font-headline font-bold text-foreground">{t.database.title}</h1>
+          <p className="text-muted-foreground text-sm">{t.database.subtitle}</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="h-11 bg-secondary/20 border-border/50">
-            <Download className="h-4 w-4 mr-2" /> Export CSV
+          <Button variant="outline" className="h-11 bg-secondary/20 border-border/50 text-xs font-bold uppercase tracking-widest">
+            <Download className="h-4 w-4 mr-2" /> {t.database.export}
           </Button>
-          <Button className="h-11 bg-primary text-primary-foreground font-bold px-6 shadow-lg shadow-primary/20">
-            Add Prospect
+          <Button className="h-11 bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest px-6 shadow-lg shadow-primary/20">
+            {t.database.add}
           </Button>
         </div>
       </div>
@@ -47,15 +47,15 @@ export function GlobalDatabase() {
             <div className="relative w-full lg:w-[400px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
-                placeholder="Search name, club or nationality..." 
-                className="pl-10 h-11 bg-background/50 border-border/50"
+                placeholder={t.database.search} 
+                className="pl-10 h-11 bg-background/50 border-border/50 text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex flex-wrap gap-3">
               <Select defaultValue="all">
-                <SelectTrigger className="w-[140px] h-11 bg-background/50">
+                <SelectTrigger className="w-[140px] h-11 bg-background/50 text-[10px] font-bold uppercase">
                   <SelectValue placeholder="Position" />
                 </SelectTrigger>
                 <SelectContent>
@@ -66,7 +66,7 @@ export function GlobalDatabase() {
                 </SelectContent>
               </Select>
               <Select defaultValue="pim">
-                <SelectTrigger className="w-[140px] h-11 bg-background/50">
+                <SelectTrigger className="w-[140px] h-11 bg-background/50 text-[10px] font-bold uppercase">
                   <SelectValue placeholder="Sort By" />
                 </SelectTrigger>
                 <SelectContent>
@@ -75,8 +75,8 @@ export function GlobalDatabase() {
                   <SelectItem value="age">Age</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="ghost" className="h-11 px-4 gap-2 text-primary font-bold">
-                <Filter className="h-4 w-4" /> Filters
+              <Button variant="ghost" className="h-11 px-4 gap-2 text-primary font-bold text-xs uppercase tracking-widest">
+                <Filter className="h-4 w-4" /> {t.database.filters}
               </Button>
             </div>
           </div>
@@ -86,14 +86,14 @@ export function GlobalDatabase() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-border/20 bg-secondary/10">
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Player Details</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Position</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Age</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Club / Nat</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Value</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">PIM</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Grade</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.player}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.position}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{t.database.table.age}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.clubNat}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.value}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{t.database.table.pim}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{t.database.table.grade}</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.status}</th>
                   <th className="px-6 py-4 w-10"></th>
                 </tr>
               </thead>
@@ -138,7 +138,7 @@ export function GlobalDatabase() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className={`h-1.5 w-1.5 rounded-full ${player.status === 'Priority' ? 'bg-primary' : 'bg-muted-foreground'}`} />
+                        <div className={`h-1.5 w-1.5 rounded-full ${player.status === 'Priority' || player.status === 'Elite' ? 'bg-primary' : 'bg-muted-foreground'}`} />
                         <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">{player.status}</span>
                       </div>
                     </td>
