@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,13 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Sun, Cloud, CloudRain, Wind, Clipboard, Star, Award, Search, CheckCircle2, Plus } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Star, Award, Plus, Camera, Video, Upload, CheckCircle2 } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
+import { uploadFile } from "@/lib/services/storage-service";
+import { Progress } from "@/components/ui/progress";
 
 interface ActionRow {
   id: string;
@@ -153,6 +155,7 @@ const EvaluationModule = ({
 export function ReportForm() {
   const { toast } = useToast();
   const { t, language } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
@@ -162,12 +165,16 @@ export function ReportForm() {
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [playerName, setPlayerName] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [contextData, setContextData] = useState<Record<string, string | string[]>>({});
   const [actionRows, setActionRows] = useState<ActionRow[]>([
     { id: '1', min: '', action: '', result: '', notes: '' },
     { id: '2', min: '', action: '', result: '', notes: '' },
   ]);
+
+  // Multimedia state
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [playerPhotoUrl, setPlayerPhotoUrl] = useState<string | null>(null);
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => ({ ...prev, [kpi]: value }));
@@ -175,12 +182,6 @@ export function ReportForm() {
 
   const handleNoteChange = (kpi: string, value: string) => {
     setNotes(prev => ({ ...prev, [kpi]: value }));
-  };
-
-  const toggleRole = (roleKey: string) => {
-    setSelectedRoles(prev => 
-      prev.includes(roleKey) ? prev.filter(r => r !== roleKey) : [...prev, roleKey]
-    );
   };
 
   const handleContextChange = (key: string, value: any) => {
@@ -201,11 +202,33 @@ export function ReportForm() {
     setActionRows(prev => [...prev, { id: Date.now().toString(), min: '', action: '', result: '', notes: '' }]);
   };
 
-  const handleSaveReport = () => {
-    toast({
-      title: t.report.actions.save,
-      description: "Report draft saved successfully.",
-    });
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const fileName = `${Date.now()}_${file.name}`;
+      const path = `reports/multimedia/${fileName}`;
+      const url = await uploadFile(file, path, (progress) => {
+        setUploadProgress(progress);
+      });
+      setPlayerPhotoUrl(url);
+      toast({
+        title: "Multimedia cargada",
+        description: "El archivo se ha subido correctamente a Firebase Storage.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error de carga",
+        description: "No se pudo subir el archivo. Revisa tu conexión.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleCalculatePIM = async () => {
@@ -259,11 +282,11 @@ export function ReportForm() {
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" className="flex-1 sm:flex-none h-10 px-3 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 uppercase tracking-widest" onClick={handleSaveReport}>
+            <Button variant="outline" className="flex-1 sm:flex-none h-10 px-3 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 uppercase tracking-widest">
               <Save className="h-3.5 w-3.5 mr-1.5" /> <span className="hidden xs:inline">{t.report.actions.save}</span><span className="xs:hidden">Guardar</span>
             </Button>
             <Button variant="outline" className="flex-1 sm:flex-none h-10 px-3 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 uppercase tracking-widest">
-              <Clipboard className="h-3.5 w-3.5 mr-1.5" /> <span className="hidden xs:inline">{t.report.actions.export}</span><span className="xs:hidden">PDF</span>
+              <Upload className="h-3.5 w-3.5 mr-1.5" /> <span className="hidden xs:inline">MULTIMEDIA</span>
             </Button>
           </div>
         </div>
@@ -287,8 +310,8 @@ export function ReportForm() {
         </TabsList>
 
         <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
                 <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
                   <User className="h-4 w-4 text-white" />
@@ -300,20 +323,8 @@ export function ReportForm() {
                     <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Nombre completo" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.number}</Label>
-                    <Input className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="-" />
-                  </div>
-                  <div className="space-y-2">
                     <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
                     <Input className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Club" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.rival}</Label>
-                    <Input className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="vs" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.competition}</Label>
-                    <Input className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Liga / Copa" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
@@ -328,16 +339,47 @@ export function ReportForm() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
-                    <Input className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Ej: ED, MCO" />
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#1b263b] px-4 py-3 flex items-center gap-3 border-b border-white/10">
+                  <Camera className="h-4 w-4 text-primary" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">MULTIMEDIA (STORAGE)</h2>
+                </div>
+                <CardContent className="pt-6 space-y-6 px-4 sm:px-8">
+                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-border/20 rounded-2xl p-8 bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*,video/*" />
+                    {isUploading ? (
+                      <div className="w-full space-y-4 text-center">
+                        <Activity className="h-10 w-10 text-primary animate-spin mx-auto" />
+                        <p className="text-xs font-black uppercase tracking-widest text-primary">Subiendo a Firebase... {Math.round(uploadProgress)}%</p>
+                        <Progress value={uploadProgress} className="h-2" />
+                      </div>
+                    ) : playerPhotoUrl ? (
+                      <div className="text-center space-y-3">
+                        <div className="relative h-32 w-32 mx-auto rounded-xl overflow-hidden border-2 border-primary shadow-2xl">
+                          <img src={playerPhotoUrl} alt="Player" className="h-full w-full object-cover" />
+                          <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
+                            <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
+                          </div>
+                        </div>
+                        <p className="text-[10px] font-black text-primary uppercase">¡Archivo subido con éxito!</p>
+                      </div>
+                    ) : (
+                      <div className="text-center space-y-2">
+                        <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm font-bold text-foreground">Subir Foto o Vídeo del Jugador</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Formatos: JPG, PNG, MP4 (Max 50MB)</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             <div className="space-y-6">
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl flex flex-col bg-card/40 backdrop-blur-md">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl flex flex-col bg-card/40 backdrop-blur-md h-full">
                 <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
                   <Target className="h-4 w-4 text-white" />
                   <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">2 {t.report.pitch.title}</h2>
@@ -349,25 +391,6 @@ export function ReportForm() {
             </div>
           </div>
 
-          <Card className="border-border/40 shadow-2xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-            <div className="bg-[#1b263b] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-              <Brain className="h-4 w-4 text-primary" />
-              <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">3 {t.report.globalProfile.title}</h2>
-            </div>
-            <CardContent className="pt-6 space-y-1.5 px-4 sm:px-10">
-              {Object.entries(t.report.globalProfile).filter(([k]) => k !== 'title').map(([key, label]) => (
-                <RatingRow 
-                  key={key} 
-                  kpi={label as string} 
-                  rating={ratings[key]}
-                  onRatingChange={(val) => handleRatingChange(key, val)}
-                  note={notes[key]}
-                  onNoteChange={(val) => handleNoteChange(key, val)}
-                />
-              ))}
-            </CardContent>
-          </Card>
-          
           <div className="flex justify-end mt-10">
             <Button onClick={() => setActiveTab("context")} className="w-full sm:w-auto px-12 py-7 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[14px] transition-all transform hover:scale-105 group">
               {t.report.actions.next} <ChevronRight className="ml-3 h-5 group-hover:translate-x-3 transition-transform" />
@@ -400,37 +423,6 @@ export function ReportForm() {
                       >
                         {label as string}
                       </Button>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <Label className="text-[9px] font-black text-primary uppercase tracking-widest">{t.report.matchContext.formation}</Label>
-                    <Input className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: 4-3-3" onChange={(e) => handleContextChange('formation', e.target.value)} />
-                  </div>
-                  <div className="space-y-4">
-                    <Label className="text-[9px] font-black text-primary uppercase tracking-widest">{t.report.matchContext.tempo}</Label>
-                    <div className="flex gap-2">
-                      {Object.entries(t.report.matchContext.tempos).map(([key, label]) => (
-                        <Button key={key} type="button" onClick={() => handleContextChange('tempo', key)} className={cn("flex-1 h-10 text-[9px] font-black uppercase", contextData.tempo === key ? "bg-primary text-primary-foreground" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-              <div className="bg-[#1b263b] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-                <Layers className="h-4 w-4 text-primary" />
-                <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.offBall.title}</h2>
-              </div>
-              <CardContent className="pt-6 space-y-8 px-4 sm:px-8">
-                <div className="space-y-4">
-                  <Label className="text-[9px] font-black text-primary uppercase tracking-widest">{t.report.offBall.noPossession}</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(t.report.offBall.actions).map(([key, label]) => (
-                      <Button key={key} size="sm" type="button" onClick={() => toggleContextMulti('offBallActions', key)} className={cn("h-10 px-4 text-[9px] font-black uppercase rounded-xl", ((contextData.offBallActions as string[]) || []).includes(key) ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
                     ))}
                   </div>
                 </div>
@@ -502,24 +494,6 @@ export function ReportForm() {
                         placeholder="Tipo de acción..."
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-[9px] font-black text-muted-foreground uppercase">{t.report.actions.result}</Label>
-                      <Input 
-                        value={row.result} 
-                        onChange={(e) => handleActionChange(row.id, 'result', e.target.value)} 
-                        className="h-9 bg-background/50 border-border/20 text-[11px]"
-                        placeholder="Resultado..."
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase">{t.report.actions.notes}</Label>
-                    <Input 
-                      value={row.notes} 
-                      onChange={(e) => handleActionChange(row.id, 'notes', e.target.value)} 
-                      className="h-9 bg-background/50 border-border/20 text-[11px] italic"
-                      placeholder="Observación..."
-                    />
                   </div>
                 </div>
               ))}
@@ -545,76 +519,23 @@ export function ReportForm() {
 
         <TabsContent value="evaluation" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#2e7d32] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-                  <Star className="h-4 w-4 text-white" />
-                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.final_evaluation.strengths.title}</h2>
-                </div>
-                <CardContent className="pt-6 space-y-6 px-4 sm:px-8">
-                  <div className="space-y-3">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.strengths_title}</Label>
-                    {[1,2,3].map(i => (
-                      <div key={i} className="flex items-center gap-3">
-                        <span className="text-[9px] font-bold text-muted-foreground w-4">{i}.</span>
-                        <Input className="h-10 bg-secondary/10 border-border/20 text-[11px]" placeholder="Fortaleza..." />
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-[#1b263b] backdrop-blur-md border-primary/20">
-                <div className="bg-primary/20 px-4 py-3 flex items-center gap-3 border-b border-white/5">
-                  <Award className="h-4 w-4 text-primary" />
-                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.final_evaluation.scout_rating.title}</h2>
-                </div>
-                <CardContent className="pt-6 px-4 pb-8">
-                   <div className="grid grid-cols-5 gap-2">
-                     {[
-                       { v: 1, l: 'MUY BAJO', c: 'bg-[#c62828]' },
-                       { v: 2, l: 'LIMITADO', c: 'bg-[#e65100]' },
-                       { v: 3, l: 'BUENO', c: 'bg-[#f9a825]' },
-                       { v: 4, l: 'ALTO', c: 'bg-[#2e7d32]' },
-                       { v: 5, l: 'ÉLITE', c: 'bg-[#1b5e20]' },
-                     ].map(r => (
-                       <button key={r.v} className={cn("flex flex-col items-center justify-center gap-1 h-20 rounded-xl transition-all border-2 border-transparent shadow-xl", r.c)}>
-                         <span className="text-2xl font-black text-white">{r.v}</span>
-                         <span className="text-[6px] font-black text-white/90 uppercase text-center px-1">{r.l}</span>
-                       </button>
-                     ))}
-                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="space-y-6">
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-                  <Star className="h-4 w-4 text-white" />
-                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.final_evaluation.summary_final.title}</h2>
-                </div>
-                <CardContent className="pt-6 space-y-4 px-4 sm:px-8">
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.desc}</Label>
-                    <Textarea className="min-h-[100px] bg-secondary/10 border-border/20 text-[11px]" placeholder="Impresión general..." />
-                  </div>
-                  <div className="space-y-4">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.rec}</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <Button className="h-14 bg-[#1b5e20] hover:bg-[#2e7d32] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg px-2">
-                        <span className="text-[8px] font-black uppercase leading-tight">FICHAJE INMEDIATO</span>
-                        <span className="text-[7px] opacity-70">6 - ÉLITE</span>
-                      </Button>
-                      <Button className="h-14 bg-[#2e7d32] hover:bg-[#388e3c] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg px-2">
-                        <span className="text-[8px] font-black uppercase leading-tight">SEGUIMIENTO</span>
-                        <span className="text-[7px] opacity-70">4 - ALTO</span>
-                      </Button>
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+              <div className="bg-[#2e7d32] px-4 py-3 flex items-center gap-3 border-b border-white/10">
+                <Star className="h-4 w-4 text-white" />
+                <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.final_evaluation.strengths.title}</h2>
+              </div>
+              <CardContent className="pt-6 space-y-6 px-4 sm:px-8">
+                <div className="space-y-3">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.strengths_title}</Label>
+                  {[1,2,3].map(i => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-[9px] font-bold text-muted-foreground w-4">{i}.</span>
+                      <Input className="h-10 bg-secondary/10 border-border/20 text-[11px]" placeholder="Fortaleza..." />
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
           <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 pt-6 border-t border-border/20">
             <Button variant="ghost" onClick={() => setActiveTab("actions")} className="order-2 sm:order-1 px-8 py-5 font-black text-xs uppercase text-muted-foreground hover:text-foreground">
@@ -683,4 +604,3 @@ export function ReportForm() {
     </div>
   );
 }
-
