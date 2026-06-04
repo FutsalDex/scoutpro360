@@ -16,8 +16,8 @@ export function LanguageSwitcher() {
   const { language, setLanguage } = useTranslation();
 
   const languages = [
-    { code: 'en', label: 'English', countryCode: 'GB' },
-    { code: 'es', label: 'Español', countryCode: 'ES' },
+    { code: 'en', label: 'English', flag: '🇬🇧' },
+    { code: 'es', label: 'Español', flag: '🇪🇸' },
   ];
 
   const currentLang = languages.find((l) => l.code === language);
@@ -26,8 +26,8 @@ export function LanguageSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="h-9 px-3 gap-3 bg-secondary/50 border-border/50 hover:bg-secondary">
-          <div className="flex items-center gap-1.5 font-black text-[11px] tracking-widest">
-            <span className="opacity-60">{currentLang?.countryCode}</span>
+          <div className="flex items-center gap-1.5 font-black text-[12px] tracking-widest">
+            <span className="text-base leading-none">{currentLang?.flag}</span>
             <span className="text-foreground">{currentLang?.code.toUpperCase()}</span>
           </div>
           <Globe className="h-3.5 w-3.5 text-muted-foreground" />
@@ -44,7 +44,7 @@ export function LanguageSwitcher() {
                 : 'hover:bg-white/5 text-foreground/80'
             }`}
           >
-            <span className="text-[10px] font-black opacity-60 w-5">{lang.countryCode}</span>
+            <span className="text-lg leading-none w-6">{lang.flag}</span>
             <span className="text-sm font-medium">{lang.label}</span>
           </DropdownMenuItem>
         ))}
