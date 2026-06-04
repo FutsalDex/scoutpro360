@@ -3,10 +3,10 @@
   "name": "scoutpro-360",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/FutsalDex",
+  "homepage": "https://github.com/FutsalDex/scoutpro-360",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FutsalDex.git"
+    "url": "https://github.com/FutsalDex/scoutpro-360.git"
   },
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
