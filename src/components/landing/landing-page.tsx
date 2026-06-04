@@ -324,7 +324,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             <h4 className="text-white font-bold uppercase tracking-widest text-xs">Conecta</h4>
             <div className="flex gap-4">
               <a 
-                href="https://github.com/FutsalDex" 
+                href="https://github.com/FutsalDex/scoutpro360" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer"
