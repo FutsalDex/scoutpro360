@@ -10,10 +10,11 @@ import { AnalyticsHub } from '@/components/scout/analytics-hub';
 import { PIMBenchmarking } from '@/components/scout/pim-benchmarking';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck, AlertCircle } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { Badge } from '@/components/ui/badge';
 
 type ViewState = 'dashboard' | 'report' | 'database' | 'mapping' | 'analytics' | 'benchmarking';
 
@@ -163,6 +164,15 @@ function AppShell({
                 <Settings className="h-4 w-4" />
                 <span className="text-sm">{t.sidebar.settings}</span>
               </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <div className="px-2 pt-2">
+                <Badge variant="destructive" className="h-8 w-full gap-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/20 flex items-center justify-start px-3">
+                  <div className="h-5 w-5 rounded-full bg-red-500 flex items-center justify-center text-[10px] font-black text-white">N</div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">1 Issue</span>
+                  <ChevronRight className="h-3 w-3 ml-auto opacity-50" />
+                </Badge>
+              </div>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton 

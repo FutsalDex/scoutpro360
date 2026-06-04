@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -42,19 +43,30 @@ export function LandingPage({ onEnter }: LandingPageProps) {
   const { toast } = useToast();
 
   const handleGuestEntry = async () => {
+    // Si ya hay un usuario autenticado, simplemente entrar
+    if (auth.currentUser) {
+      onEnter();
+      return;
+    }
+
     setIsGuestLoading(true);
     try {
       await signInAnonymously(auth);
       onEnter();
     } catch (error: any) {
       console.error("Guest login failed:", error);
+      
+      // Si el error es por configuración o red, mostrar toast pero intentar fallback si es desarrollo
       toast({
         variant: "destructive",
         title: "Error de acceso invitado",
         description: "No se pudo iniciar sesión como invitado. Verifica tu conexión.",
       });
-      // Fallback: intentar entrar de todos modos por si la sesión ya existe
-      onEnter();
+      
+      // Solo permitir entrada si la sesión ya podría existir o para debug local
+      if (process.env.NODE_ENV === 'development') {
+        onEnter();
+      }
     } finally {
       setIsGuestLoading(false);
     }
