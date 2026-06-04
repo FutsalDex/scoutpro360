@@ -182,6 +182,15 @@ export const translations = {
           potential: 'FUTURE POTENTIAL',
           risk: 'ADAPTATION RISK',
           philosophy: 'FITS PHILOSOPHY?',
+          options: {
+            yes: 'YES',
+            no: 'NO',
+            following: 'FOLLOWING',
+            high: 'HIGH',
+            medium: 'MEDIUM',
+            low: 'LOW',
+            elite: 'ELITE'
+          }
         },
         summary_final: {
           title: 'FINAL SUMMARY',
@@ -385,13 +394,22 @@ export const translations = {
           potential: 'POTENCIAL FUTURO',
           risk: 'RIESGO DE ADAPTACIÓN',
           philosophy: '¿ENCAJA EN LA FILOSOFÍA?',
+          options: {
+            yes: 'SÍ',
+            no: 'NO',
+            following: 'SEGUIMIENTO',
+            high: 'ALTO',
+            medium: 'MEDIO',
+            low: 'BAJO',
+            elite: 'ÉLITE'
+          }
         },
         summary_final: {
           title: 'RESUMEN FINAL',
           desc: 'DESCRIPCIÓN GENERAL DEL JUGADOR',
           comparative: 'COMPARATIVA (POSICIÓN / PERFIL)',
           rec: 'RECOMENDACIÓN FINAL',
-          additional: 'NOTAS ADICIONALES',
+          additional: 'ADDITIONAL NOTES',
         },
         scout_rating: {
           title: 'VALORACIÓN FINAL DEL SCOUT',

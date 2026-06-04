@@ -716,32 +716,55 @@ export function ReportForm() {
                   <Shield className="h-5 w-5 text-white" />
                   <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.sign_in.title}</h2>
                 </div>
-                <CardContent className="pt-8 space-y-6 px-8">
-                  <div className="space-y-3">
+                <CardContent className="pt-8 space-y-8 px-8 pb-10">
+                  <div className="space-y-4">
                     <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.fits_model}</Label>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1 h-9 rounded-full text-[10px] font-bold uppercase tracking-widest">SÍ</Button>
-                      <Button variant="outline" size="sm" className="flex-1 h-9 rounded-full text-[10px] font-bold uppercase tracking-widest">NO</Button>
-                      <Button variant="outline" size="sm" className="flex-1 h-9 rounded-full text-[10px] font-bold uppercase tracking-widest">SEGUIMIENTO</Button>
+                    <div className="flex flex-wrap gap-2">
+                      {[t.report.final_evaluation.sign_in.options.yes, t.report.final_evaluation.sign_in.options.no, t.report.final_evaluation.sign_in.options.following].map(opt => (
+                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                          {opt}
+                        </Button>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.impact}</Label>
-                      <div className="flex gap-1.5">
-                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[9px] font-bold uppercase">ALTO</Button>
-                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[9px] font-bold uppercase">MEDIO</Button>
-                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[9px] font-bold uppercase">BAJO</Button>
-                      </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.impact}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {[t.report.final_evaluation.sign_in.options.high, t.report.final_evaluation.sign_in.options.medium, t.report.final_evaluation.sign_in.options.low].map(opt => (
+                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                          {opt}
+                        </Button>
+                      ))}
                     </div>
-                    <div className="space-y-3">
-                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.potential}</Label>
-                      <div className="flex gap-1">
-                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">ÉLITE</Button>
-                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">ALTO</Button>
-                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">MEDIO</Button>
-                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">BAJO</Button>
-                      </div>
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.potential}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {[t.report.final_evaluation.sign_in.options.elite, t.report.final_evaluation.sign_in.options.high, t.report.final_evaluation.sign_in.options.medium, t.report.final_evaluation.sign_in.options.low].map(opt => (
+                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.risk}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {[t.report.final_evaluation.sign_in.options.high, t.report.final_evaluation.sign_in.options.medium, t.report.final_evaluation.sign_in.options.low].map(opt => (
+                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.philosophy}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {[t.report.final_evaluation.sign_in.options.yes, t.report.final_evaluation.sign_in.options.no].map(opt => (
+                        <Button key={opt} variant="outline" size="sm" className="px-8 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                          {opt}
+                        </Button>
+                      ))}
                     </div>
                   </div>
                 </CardContent>
