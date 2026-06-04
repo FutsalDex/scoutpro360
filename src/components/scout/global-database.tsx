@@ -16,8 +16,6 @@ const MOCK_EXTENDED_PLAYERS = [
   { id: '2', name: 'Nicolo Barella', age: 27, club: 'Inter Milan', nationality: 'ITA', value: '€75M', pim: 84, role: 'Mezzala', grade: 'A', status: 'Monitored' },
   { id: '3', name: 'Trent Alexander-Arnold', age: 25, club: 'Liverpool', nationality: 'ENG', value: '€70M', pim: 91, role: 'Inverted FB', grade: 'A', status: 'Target' },
   { id: '4', name: 'Florian Wirtz', age: 20, club: 'Bayer Leverkusen', nationality: 'GER', value: '€110M', pim: 94, role: 'Classic 10', grade: 'A+', status: 'Elite' },
-  { id: '5', name: 'Leny Yoro', age: 18, club: 'Lille OSC', nationality: 'FRA', value: '€45M', pim: 79, role: 'Ball-winning CB', grade: 'B+', status: 'Watchlist' },
-  { id: '6', name: 'Warren Zaïre-Emery', age: 18, club: 'PSG', nationality: 'FRA', value: '€60M', pim: 82, role: 'Box-to-Box', grade: 'A', status: 'Elite' },
 ];
 
 export function GlobalDatabase() {
@@ -25,135 +23,94 @@ export function GlobalDatabase() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500 pb-12 overflow-hidden px-1">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-bold text-foreground">{t.database.title}</h1>
-          <p className="text-muted-foreground text-sm">{t.database.subtitle}</p>
+          <h1 className="text-2xl sm:text-3xl font-headline font-bold text-foreground">{t.database.title}</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm">{t.database.subtitle}</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="h-11 bg-secondary/20 border-border/50 text-xs font-bold uppercase tracking-widest">
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button variant="outline" className="flex-1 sm:flex-none h-10 bg-secondary/20 border-border/50 text-[10px] font-bold uppercase tracking-widest">
             <Download className="h-4 w-4 mr-2" /> {t.database.export}
           </Button>
-          <Button className="h-11 bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest px-6 shadow-lg shadow-primary/20">
+          <Button className="flex-1 sm:flex-none h-10 bg-primary text-primary-foreground font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20">
             {t.database.add}
           </Button>
         </div>
       </div>
 
-      <Card className="border-border/40 bg-card/40 backdrop-blur-xl shadow-2xl">
-        <CardHeader className="p-6 border-b border-border/20">
-          <div className="flex flex-col lg:flex-row gap-4 justify-between">
-            <div className="relative w-full lg:w-[400px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder={t.database.search} 
-                className="pl-10 h-11 bg-background/50 border-border/50 text-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[140px] h-11 bg-background/50 text-[10px] font-bold uppercase">
-                  <SelectValue placeholder="Position" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Positions</SelectItem>
-                  <SelectItem value="fw">Forwards</SelectItem>
-                  <SelectItem value="mf">Midfielders</SelectItem>
-                  <SelectItem value="df">Defenders</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select defaultValue="pim">
-                <SelectTrigger className="w-[140px] h-11 bg-background/50 text-[10px] font-bold uppercase">
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pim">PIM Score</SelectItem>
-                  <SelectItem value="value">Market Value</SelectItem>
-                  <SelectItem value="age">Age</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" className="h-11 px-4 gap-2 text-primary font-bold text-xs uppercase tracking-widest">
-                <Filter className="h-4 w-4" /> {t.database.filters}
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-border/20 bg-secondary/10">
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.player}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.position}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{t.database.table.age}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.clubNat}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.value}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{t.database.table.pim}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{t.database.table.grade}</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.database.table.status}</th>
-                  <th className="px-6 py-4 w-10"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/10">
-                {MOCK_EXTENDED_PLAYERS.map(player => (
-                  <tr key={player.id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 rounded-lg border border-border/50">
-                          <AvatarImage src={`https://picsum.photos/seed/${player.id}/100`} />
-                          <AvatarFallback>{player.name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-bold text-sm text-foreground">{player.name}</p>
-                          <p className="text-[10px] text-muted-foreground uppercase font-black">{player.role}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant="outline" className="text-[10px] font-bold border-primary/30 text-primary bg-primary/10">
-                        {player.role.split(' ').pop()}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 text-center text-sm font-medium">{player.age}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-foreground">{player.club}</span>
-                        <span className="text-[10px] text-muted-foreground font-black">{player.nationality}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-black text-accent">{player.value}</td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="inline-flex flex-col items-center">
-                        <span className="text-base font-black text-primary font-headline leading-none">{player.pim}</span>
-                        <TrendingUp className="h-2.5 w-2.5 text-accent mt-1" />
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="h-9 w-9 rounded-lg bg-secondary/50 border border-border/50 flex items-center justify-center font-black text-foreground">
-                        {player.grade}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className={`h-1.5 w-1.5 rounded-full ${player.status === 'Priority' || player.status === 'Elite' ? 'bg-primary' : 'bg-muted-foreground'}`} />
-                        <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">{player.status}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col lg:flex-row gap-4 mb-6">
+        <div className="relative w-full lg:w-[400px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder={t.database.search} 
+            className="pl-10 h-11 bg-background/50 border-border/50 text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+          <Select defaultValue="all">
+            <SelectTrigger className="flex-1 sm:w-[140px] h-11 bg-background/50 text-[10px] font-bold uppercase">
+              <SelectValue placeholder="Position" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Positions</SelectItem>
+              <SelectItem value="fw">Forwards</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="ghost" className="h-11 px-4 gap-2 text-primary font-bold text-[10px] uppercase tracking-widest">
+            <Filter className="h-4 w-4" /> {t.database.filters}
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {MOCK_EXTENDED_PLAYERS.map(player => (
+          <Card key={player.id} className="border-border/40 bg-card/40 hover:bg-primary/5 transition-all group cursor-pointer overflow-hidden">
+            <CardContent className="p-5 space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12 rounded-xl border border-border/50 shadow-inner">
+                    <AvatarImage src={`https://picsum.photos/seed/${player.id}/100`} />
+                    <AvatarFallback>{player.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-sm text-foreground">{player.name}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-black">{player.role}</p>
+                  </div>
+                </div>
+                <div className="h-8 w-8 rounded-lg bg-secondary/50 border border-border/50 flex items-center justify-center font-black text-xs text-foreground">
+                  {player.grade}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 py-3 border-y border-border/10">
+                <div className="space-y-1">
+                  <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">{t.database.table.clubNat}</p>
+                  <p className="text-[11px] font-bold text-foreground truncate">{player.club}</p>
+                  <p className="text-[9px] text-muted-foreground">{player.nationality}</p>
+                </div>
+                <div className="space-y-1 text-right">
+                  <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">{t.database.table.value}</p>
+                  <p className="text-[13px] font-black text-accent">{player.value}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full ${player.status === 'Priority' || player.status === 'Elite' ? 'bg-primary' : 'bg-muted-foreground'}`} />
+                  <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">{player.status}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black text-primary font-headline">{player.pim}</span>
+                  <TrendingUp className="h-3 w-3 text-accent" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
