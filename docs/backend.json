@@ -42,11 +42,11 @@
   "firestore": {
     "players": {
       "schema": { "$ref": "#/entities/Player" },
-      "description": "Colección global de jugadores evaluados. Permite lectura/escritura a usuarios autenticados."
+      "description": "Colección global de jugadores evaluados. Permite lectura y escritura a cualquier usuario autenticado en la plataforma."
     },
     "reports": {
       "schema": { "$ref": "#/entities/ScoutingReport" },
-      "description": "Colección de informes detallados de scouting. Permite lectura/escritura a usuarios autenticados."
+      "description": "Colección de informes detallados de scouting. Permite lectura y escritura a cualquier usuario autenticado en la plataforma."
     }
   }
 }

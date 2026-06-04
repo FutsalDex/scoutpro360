@@ -28,7 +28,8 @@ export interface ScoutingReport {
 }
 
 /**
- * Guarda un nuevo jugador en Firestore
+ * Guarda un nuevo jugador en Firestore.
+ * El despliegue de reglas permitirá esta operación para usuarios autenticados.
  */
 export async function savePlayer(playerData: Omit<Player, 'id'>) {
   const colRef = collection(db, "players");
@@ -37,21 +38,22 @@ export async function savePlayer(playerData: Omit<Player, 'id'>) {
     createdAt: serverTimestamp()
   };
 
-  addDoc(colRef, data)
-    .catch(async (serverError) => {
-      const permissionError = new FirestorePermissionError({
-        path: colRef.path,
-        operation: 'create',
-        requestResourceData: data,
-      });
-      errorEmitter.emit('permission-error', permissionError);
+  try {
+    const docRef = await addDoc(colRef, data);
+    return docRef.id;
+  } catch (serverError: any) {
+    const permissionError = new FirestorePermissionError({
+      path: colRef.path,
+      operation: 'create',
+      requestResourceData: data,
     });
-    
-  return "pending-id"; 
+    errorEmitter.emit('permission-error', permissionError);
+    throw serverError;
+  }
 }
 
 /**
- * Obtiene todos los jugadores en tiempo real con manejo de permisos actualizado
+ * Obtiene todos los jugadores en tiempo real.
  */
 export function subscribeToPlayers(callback: (players: Player[]) => void) {
   const colRef = collection(db, "players");
@@ -77,7 +79,7 @@ export function subscribeToPlayers(callback: (players: Player[]) => void) {
 }
 
 /**
- * Guarda un informe de scouting en la colección reports
+ * Guarda un informe de scouting en la colección reports.
  */
 export async function saveReport(reportData: Omit<ScoutingReport, 'id'>) {
   const colRef = collection(db, "reports");
@@ -86,13 +88,15 @@ export async function saveReport(reportData: Omit<ScoutingReport, 'id'>) {
     createdAt: serverTimestamp()
   };
 
-  addDoc(colRef, data)
-    .catch(async (serverError) => {
-      const permissionError = new FirestorePermissionError({
-        path: colRef.path,
-        operation: 'create',
-        requestResourceData: data,
-      });
-      errorEmitter.emit('permission-error', permissionError);
+  try {
+    await addDoc(colRef, data);
+  } catch (serverError: any) {
+    const permissionError = new FirestorePermissionError({
+      path: colRef.path,
+      operation: 'create',
+      requestResourceData: data,
     });
+    errorEmitter.emit('permission-error', permissionError);
+    throw serverError;
+  }
 }
