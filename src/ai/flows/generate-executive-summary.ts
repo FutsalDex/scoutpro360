@@ -16,6 +16,7 @@ const ExecutiveSummaryGenerationInputSchema = z.object({
   tacticalRole: z.string().describe('The tactical role of the player being evaluated (e.g., Inverted Fullback, Deep-Lying Playmaker).'),
   metrics: z.record(z.string(), z.record(z.string(), z.union([z.number(), z.string()]))).describe('Detailed evaluations divided into Technical, Tactical, Physical, and Mental categories, with sub-metrics and their scores.').optional(),
   scoutNotes: z.string().describe('Comprehensive textual observations and notes from the scout report.'),
+  language: z.enum(['en', 'es']).describe('The language in which to generate the summary.').default('en'),
 });
 export type ExecutiveSummaryGenerationInput = z.infer<typeof ExecutiveSummaryGenerationInputSchema>;
 
@@ -54,11 +55,14 @@ const prompt = ai.definePrompt({
       tacticalRole: z.string(),
       formattedMetrics: z.string(),
       scoutNotes: z.string(),
+      language: z.string(),
     }),
   },
   output: { schema: ExecutiveSummaryGenerationOutputSchema },
   prompt: `You are an expert football analyst tasked with generating an objective executive summary from a scout's detailed report.
 Your goal is to synthesize the provided player metrics and textual observations into a concise, high-level overview, eliminating any subjective bias.
+
+The summary MUST be written in {{{language}}}.
 
 Player Name: {{{playerName}}}
 Tactical Role: {{{tacticalRole}}}
@@ -80,12 +84,14 @@ const executiveSummaryGenerationFlow = ai.defineFlow(
   },
   async (input) => {
     const formattedMetrics = await formatMetricsForPrompt(input.metrics);
+    const targetLanguage = input.language === 'es' ? 'Spanish' : 'English';
 
     const { output } = await prompt({
       playerName: input.playerName,
       tacticalRole: input.tacticalRole,
       formattedMetrics: formattedMetrics,
       scoutNotes: input.scoutNotes,
+      language: targetLanguage,
     });
     return output!;
   },

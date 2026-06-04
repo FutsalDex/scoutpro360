@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -9,9 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Sword, Award, Clipboard, Shield, Zap as ZapIcon, Heart, Save, Layers, Sun, Cloud, CloudRain, Thermometer, Wind, Plus, Trash2, Star } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Sun, Cloud, CloudRain, Wind, Clipboard, Star, Award } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
@@ -153,7 +151,7 @@ const EvaluationModule = ({
 
 export function ReportForm() {
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
@@ -238,7 +236,8 @@ export function ReportForm() {
         playerName: playerName || "Subject",
         tacticalRole: activeRole.name,
         metrics: { Technical: ratings },
-        scoutNotes: `Evaluated in roles: ${activeRole.name}. Global technical level: ${ratings.technicalLevel || 3}/5. Global tactical intelligence: ${ratings.tacticalIntel || 3}/5.`
+        scoutNotes: `Evaluated in roles: ${activeRole.name}. Global technical level: ${ratings.technicalLevel || 3}/5. Global tactical intelligence: ${ratings.tacticalIntel || 3}/5.`,
+        language: language as 'en' | 'es'
       });
       setSummary(result.summary);
     } catch (e) {
@@ -256,18 +255,20 @@ export function ReportForm() {
             <FileText className="h-7 w-7 text-primary" />
           </div>
           <div className="space-y-1">
-            <h1 className="text-2xl font-black font-headline uppercase tracking-tight text-foreground">{t.report.title}</h1>
+            <h1 className="text-3xl font-black font-headline uppercase tracking-tight text-foreground">{t.report.title}</h1>
             <p className="text-[11px] text-primary font-bold uppercase tracking-[0.25em]">{t.report.subtitle}</p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-4">
-          <Button variant="outline" className="h-11 px-6 bg-background/50 text-[11px] font-bold border-border/50 hover:bg-secondary transition-all" onClick={handleSaveReport}>
-            <Save className="h-4 w-4 mr-2.5" /> {t.report.actions.save}
-          </Button>
-          <Button variant="outline" className="h-11 px-6 bg-background/50 text-[11px] font-bold border-border/50 hover:bg-secondary transition-all">
-            <Clipboard className="h-4 w-4 mr-2.5" /> {t.report.actions.export}
-          </Button>
-          <Button className="h-11 px-10 bg-primary text-primary-foreground font-black text-[11px] shadow-2xl shadow-primary/20 rounded-lg hover:scale-105 transition-transform">
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            <Button variant="outline" className="h-11 px-6 bg-background/50 text-[10px] font-bold border-border/50 hover:bg-secondary transition-all uppercase tracking-widest" onClick={handleSaveReport}>
+              <Save className="h-4 w-4 mr-2.5" /> {t.report.actions.save}
+            </Button>
+            <Button variant="outline" className="h-11 px-6 bg-background/50 text-[10px] font-bold border-border/50 hover:bg-secondary transition-all uppercase tracking-widest">
+              <Clipboard className="h-4 w-4 mr-2.5" /> {t.report.actions.export}
+            </Button>
+          </div>
+          <Button className="h-12 w-full bg-primary text-primary-foreground font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 rounded-xl hover:scale-[1.02] transition-transform">
             {t.report.actions.submit}
           </Button>
         </div>
@@ -534,7 +535,7 @@ export function ReportForm() {
         <TabsContent value="technical" className="mt-10">
            <EvaluationModule 
              t={t}
-             icon={Sword} 
+             icon={Shield} 
              kpiSection={activeRole.kpis.technical} 
              nextTab="tactical" 
              prevTab="context"
@@ -688,7 +689,7 @@ export function ReportForm() {
                   )}
                 </div>
                 <Button 
-                  className="w-full h-16 font-black tracking-[0.25em] text-[16px] rounded-2xl shadow-2xl shadow-primary/30 uppercase transition-all hover:scale-[1.02]" 
+                  className="w-full h-16 bg-primary text-primary-foreground font-black tracking-[0.25em] text-[16px] rounded-2xl shadow-2xl shadow-primary/30 uppercase transition-all hover:scale-[1.02]" 
                   onClick={handleCalculatePIM}
                   disabled={isCalculatingPIM}
                 >
@@ -710,7 +711,7 @@ export function ReportForm() {
                 </div>
                 <Button 
                     variant="secondary" 
-                    className="w-full h-16 font-black tracking-[0.25em] text-[16px] rounded-2xl shadow-2xl border-accent/30 uppercase transition-all hover:scale-[1.02]"
+                    className="w-full h-16 font-black tracking-[0.25em] text-[14px] rounded-2xl shadow-2xl border-accent/30 uppercase transition-all hover:scale-[1.02]"
                     onClick={handleGenerateSummary}
                     disabled={isGeneratingSummary}
                 >
