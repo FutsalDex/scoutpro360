@@ -1,9 +1,10 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScoutDashboard } from '@/components/scout/dashboard';
 import { ReportForm } from '@/components/scout/report-form';
+import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
 import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,12 +12,33 @@ import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
 
 export default function Home() {
+  const [showApp, setShowApp] = useState(false);
   const [activeView, setActiveView] = useState<'dashboard' | 'report'>('dashboard');
   const { t } = useTranslation();
 
+  // Handle entry from Landing
+  const handleEnterApp = () => {
+    setShowApp(true);
+    window.scrollTo(0, 0);
+  };
+
+  const handleSignOut = () => {
+    setShowApp(false);
+    setActiveView('dashboard');
+  };
+
+  if (!showApp) {
+    return (
+      <>
+        <LandingPage onEnter={handleEnterApp} />
+        <Toaster />
+      </>
+    );
+  }
+
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-background font-body">
+      <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500">
         <Sidebar className="border-r border-border/50 shadow-2xl">
           <SidebarHeader className="p-6">
             <div className="flex items-center gap-3">
@@ -95,7 +117,10 @@ export default function Home() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton className="h-10 px-4 gap-4 text-destructive hover:bg-destructive/10">
+                <SidebarMenuButton 
+                  onClick={handleSignOut}
+                  className="h-10 px-4 gap-4 text-destructive hover:bg-destructive/10"
+                >
                   <LogOut className="h-4 w-4" />
                   <span className="text-sm">{t.sidebar.signOut}</span>
                 </SidebarMenuButton>
