@@ -1,0 +1,140 @@
+
+"use client"
+
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ShieldCheck, Plus, ArrowRightLeft, Target, Activity, Zap, Heart } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
+export function PIMBenchmarking() {
+  return (
+    <div className="space-y-8 animate-in zoom-in-95 duration-500 pb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-headline font-bold text-foreground">PIM Benchmarking</h1>
+          <p className="text-muted-foreground">Comparative analysis between identified prospects and squad benchmarks.</p>
+        </div>
+        <Button className="bg-primary text-primary-foreground font-black tracking-widest uppercase text-xs px-8 h-12 rounded-xl">
+          <Plus className="h-4 w-4 mr-2" /> New Comparison
+        </Button>
+      </div>
+
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Player 1 Card */}
+        <div className="lg:col-span-4">
+          <ComparisonPlayerCard 
+            name="Florian Wirtz" 
+            role="Classic 10" 
+            pim={94} 
+            color="border-primary" 
+            image="https://picsum.photos/seed/wirtz/200"
+          />
+        </div>
+
+        {/* VS Indicator */}
+        <div className="lg:col-span-4 flex flex-col items-center justify-center h-full space-y-8">
+          <div className="h-20 w-20 rounded-full border-4 border-primary/20 bg-secondary/30 flex items-center justify-center shadow-[0_0_30px_rgba(224,176,80,0.2)]">
+            <span className="text-3xl font-black font-headline text-foreground italic">VS</span>
+          </div>
+          <div className="w-full space-y-6">
+            <BenchMarkRow label="Tactical Intelligence" p1={92} p2={84} />
+            <BenchMarkRow label="Technical Execution" p1={96} p2={88} />
+            <BenchMarkRow label="Physical Presence" p1={74} p2={82} />
+            <BenchMarkRow label="Mental Resilience" p1={88} p2={91} />
+            <BenchMarkRow label="Recruitment Fit" p1={95} p2={78} />
+          </div>
+        </div>
+
+        {/* Player 2 Card */}
+        <div className="lg:col-span-4">
+          <ComparisonPlayerCard 
+            name="Squad Benchmark" 
+            role="Avg. Att. Midfielder" 
+            pim={82} 
+            color="border-accent" 
+            image="https://picsum.photos/seed/benchmark/200"
+            isBenchmark
+          />
+        </div>
+      </div>
+
+      <Card className="border-border/40 bg-secondary/5 overflow-hidden">
+        <CardContent className="p-8">
+          <div className="grid md:grid-cols-3 gap-12 text-center">
+            <div className="space-y-2">
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">PIM Delta</p>
+              <p className="text-4xl font-black font-headline text-primary">+12.0</p>
+              <p className="text-xs text-accent font-bold">Elite Prospect Territory</p>
+            </div>
+            <div className="space-y-2 border-x border-border/20">
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Market Upside</p>
+              <p className="text-4xl font-black font-headline text-foreground">€65M</p>
+              <p className="text-xs text-muted-foreground font-bold">Projected Value (2 yrs)</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Compatibility</p>
+              <p className="text-4xl font-black font-headline text-accent">95%</p>
+              <p className="text-xs text-muted-foreground font-bold">Fits Squad Profile</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ComparisonPlayerCard({ name, role, pim, color, image, isBenchmark }: { name: string, role: string, pim: number, color: string, image: string, isBenchmark?: boolean }) {
+  return (
+    <Card className={`border-2 ${color} bg-card/60 backdrop-blur-md overflow-hidden transition-all hover:scale-105`}>
+      <div className="p-8 text-center space-y-6">
+        <Avatar className="h-32 w-32 mx-auto border-4 border-background shadow-2xl rounded-2xl">
+          <AvatarImage src={image} />
+          <AvatarFallback>{name[0]}</AvatarFallback>
+        </Avatar>
+        <div>
+          <h3 className="text-2xl font-black font-headline text-foreground">{name}</h3>
+          <Badge variant="outline" className="mt-2 text-[10px] font-black uppercase tracking-widest border-primary/30 text-primary">
+            {role}
+          </Badge>
+        </div>
+        <div className="py-6 border-y border-border/20">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">Impact Metric</p>
+          <p className={`text-7xl font-black font-headline ${isBenchmark ? 'text-accent' : 'text-primary'} leading-none`}>{pim}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <MetricSmall icon={<Zap className="h-3.5 w-3.5" />} label="ATK" value={92} />
+          <MetricSmall icon={<ShieldCheck className="h-3.5 w-3.5" />} label="DEF" value={64} />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function BenchMarkRow({ label, p1, p2 }: { label: string, p1: number, p2: number }) {
+  return (
+    <div className="w-full space-y-2">
+      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+        <span className="text-primary">{p1}</span>
+        <span className="text-muted-foreground">{label}</span>
+        <span className="text-accent">{p2}</span>
+      </div>
+      <div className="h-1.5 w-full bg-secondary/30 rounded-full overflow-hidden flex">
+        <div className="h-full bg-primary" style={{ width: `${(p1 / (p1 + p2)) * 100}%` }} />
+        <div className="h-full bg-accent" style={{ width: `${(p2 / (p1 + p2)) * 100}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function MetricSmall({ icon, label, value }: { icon: any, label: string, value: number }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="text-muted-foreground">{icon}</div>
+      <span className="text-[9px] font-black text-muted-foreground uppercase">{label}</span>
+      <span className="text-sm font-black text-foreground">{value}</span>
+    </div>
+  );
+}

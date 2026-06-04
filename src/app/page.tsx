@@ -1,9 +1,13 @@
 
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ScoutDashboard } from '@/components/scout/dashboard';
 import { ReportForm } from '@/components/scout/report-form';
+import { GlobalDatabase } from '@/components/scout/global-database';
+import { TalentMapping } from '@/components/scout/talent-mapping';
+import { AnalyticsHub } from '@/components/scout/analytics-hub';
+import { PIMBenchmarking } from '@/components/scout/pim-benchmarking';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
 import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck } from "lucide-react";
@@ -11,12 +15,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
 
+type ViewState = 'dashboard' | 'report' | 'database' | 'mapping' | 'analytics' | 'benchmarking';
+
 export default function Home() {
   const [showApp, setShowApp] = useState(false);
-  const [activeView, setActiveView] = useState<'dashboard' | 'report'>('dashboard');
+  const [activeView, setActiveView] = useState<ViewState>('dashboard');
   const { t } = useTranslation();
 
-  // Handle entry from Landing
   const handleEnterApp = () => {
     setShowApp(true);
     window.scrollTo(0, 0);
@@ -35,6 +40,30 @@ export default function Home() {
       </>
     );
   }
+
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'dashboard': return <ScoutDashboard />;
+      case 'report': return <ReportForm />;
+      case 'database': return <GlobalDatabase />;
+      case 'mapping': return <TalentMapping />;
+      case 'analytics': return <AnalyticsHub />;
+      case 'benchmarking': return <PIMBenchmarking />;
+      default: return <ScoutDashboard />;
+    }
+  };
+
+  const getViewTitle = () => {
+    switch (activeView) {
+      case 'dashboard': return t.sidebar.commandCenter;
+      case 'report': return t.sidebar.liveReport;
+      case 'database': return t.sidebar.globalDatabase;
+      case 'mapping': return t.sidebar.talentMapping;
+      case 'analytics': return t.sidebar.analytics;
+      case 'benchmarking': return t.sidebar.pimBenchmarking;
+      default: return '';
+    }
+  };
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -79,13 +108,21 @@ export default function Home() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton className="h-12 px-4 gap-4">
+                  <SidebarMenuButton 
+                    isActive={activeView === 'database'}
+                    onClick={() => setActiveView('database')}
+                    className="h-12 px-4 gap-4"
+                  >
                     <Users className="h-5 w-5" />
                     <span className="font-medium">{t.sidebar.globalDatabase}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton className="h-12 px-4 gap-4">
+                  <SidebarMenuButton 
+                    isActive={activeView === 'mapping'}
+                    onClick={() => setActiveView('mapping')}
+                    className="h-12 px-4 gap-4"
+                  >
                     <Map className="h-5 w-5" />
                     <span className="font-medium">{t.sidebar.talentMapping}</span>
                   </SidebarMenuButton>
@@ -99,8 +136,22 @@ export default function Home() {
               </SidebarGroupLabel>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton className="h-12 px-4 gap-4 text-accent">
+                  <SidebarMenuButton 
+                    isActive={activeView === 'analytics'}
+                    onClick={() => setActiveView('analytics')}
+                    className="h-12 px-4 gap-4"
+                  >
                     <LineChart className="h-5 w-5" />
+                    <span className="font-medium">{t.sidebar.analytics}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    isActive={activeView === 'benchmarking'}
+                    onClick={() => setActiveView('benchmarking')}
+                    className="h-12 px-4 gap-4 text-accent"
+                  >
+                    <ShieldCheck className="h-5 w-5" />
                     <span className="font-medium">{t.sidebar.pimBenchmarking}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -138,7 +189,7 @@ export default function Home() {
                 <span className="text-muted-foreground">Main</span>
                 <ChevronRight className="h-3 w-3 text-muted-foreground" />
                 <span className="text-foreground capitalize">
-                  {activeView === 'dashboard' ? t.sidebar.commandCenter : t.sidebar.liveReport}
+                  {getViewTitle()}
                 </span>
               </div>
             </div>
@@ -157,7 +208,7 @@ export default function Home() {
           </header>
 
           <main className="p-8 max-w-[1400px] mx-auto w-full">
-            {activeView === 'dashboard' ? <ScoutDashboard /> : <ReportForm />}
+            {renderActiveView()}
           </main>
         </SidebarInset>
       </div>
