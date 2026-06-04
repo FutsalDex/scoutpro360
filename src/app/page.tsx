@@ -64,8 +64,11 @@ function AppShell({
     <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500">
       <Sidebar className="border-r border-border/50 shadow-2xl">
         <SidebarHeader className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 transform rotate-3">
+          <div 
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all active:scale-95 group"
+            onClick={handleSignOut}
+          >
+            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 transform rotate-3 group-hover:rotate-0 transition-transform">
               <ShieldCheck className="text-primary-foreground h-6 w-6" />
             </div>
             <div className="flex flex-col">
