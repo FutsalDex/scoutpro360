@@ -181,33 +181,33 @@ export default function Home() {
         </Sidebar>
 
         <SidebarInset className="bg-background relative">
-          <header className="h-16 border-b border-border/30 flex items-center justify-between px-8 sticky top-0 bg-background/80 backdrop-blur-xl z-50">
-            <div className="flex items-center gap-4">
+          <header className="h-16 border-b border-border/30 flex items-center justify-between px-4 sm:px-8 sticky top-0 bg-background/80 backdrop-blur-xl z-50">
+            <div className="flex items-center gap-2 sm:gap-4">
               <SidebarTrigger className="h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-secondary/50" />
-              <div className="h-4 w-[1px] bg-border mx-2" />
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <span className="text-muted-foreground">Main</span>
-                <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                <span className="text-foreground capitalize">
+              <div className="h-4 w-[1px] bg-border mx-1 sm:mx-2" />
+              <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium overflow-hidden whitespace-nowrap">
+                <span className="text-muted-foreground hidden xs:inline">Main</span>
+                <ChevronRight className="h-3 w-3 text-muted-foreground hidden xs:inline" />
+                <span className="text-foreground capitalize truncate max-w-[120px] sm:max-w-none">
                   {getViewTitle()}
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 sm:gap-6">
               <LanguageSwitcher />
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col text-right">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <div className="hidden md:flex flex-col text-right">
                   <span className="text-xs font-bold text-foreground">ScoutPro 360</span>
                   <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">360 Scouting Division</span>
                 </div>
-                <div className="h-9 w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform">
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform">
                   S
                 </div>
               </div>
             </div>
           </header>
 
-          <main className="p-8 max-w-[1400px] mx-auto w-full">
+          <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full">
             {renderActiveView()}
           </main>
         </SidebarInset>

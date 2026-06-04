@@ -14,18 +14,18 @@ export function PIMBenchmarking() {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-8 animate-in zoom-in-95 duration-500 pb-12">
+    <div className="space-y-6 sm:space-y-8 animate-in zoom-in-95 duration-500 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-bold text-foreground">{t.benchmarking.title}</h1>
-          <p className="text-muted-foreground">{t.benchmarking.subtitle}</p>
+          <h1 className="text-2xl sm:text-3xl font-headline font-bold text-foreground">{t.benchmarking.title}</h1>
+          <p className="text-sm text-muted-foreground">{t.benchmarking.subtitle}</p>
         </div>
-        <Button className="bg-primary text-primary-foreground font-black tracking-widest uppercase text-xs px-8 h-12 rounded-xl">
+        <Button className="w-full md:w-auto bg-primary text-primary-foreground font-black tracking-widest uppercase text-[10px] sm:text-xs px-6 h-10 sm:h-12 rounded-xl">
           <Plus className="h-4 w-4 mr-2" /> {t.benchmarking.new}
         </Button>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Player 1 Card */}
         <div className="lg:col-span-4">
           <ComparisonPlayerCard 
@@ -38,11 +38,11 @@ export function PIMBenchmarking() {
         </div>
 
         {/* VS Indicator */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-center h-full space-y-8">
-          <div className="h-20 w-20 rounded-full border-4 border-primary/20 bg-secondary/30 flex items-center justify-center shadow-[0_0_30px_rgba(224,176,80,0.2)]">
-            <span className="text-3xl font-black font-headline text-foreground italic">{t.benchmarking.vs}</span>
+        <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-6 sm:space-y-8 py-4">
+          <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-4 border-primary/20 bg-secondary/30 flex items-center justify-center shadow-[0_0_30px_rgba(224,176,80,0.2)]">
+            <span className="text-2xl sm:text-3xl font-black font-headline text-foreground italic">{t.benchmarking.vs}</span>
           </div>
-          <div className="w-full space-y-6">
+          <div className="w-full space-y-4 sm:space-y-6 px-2 sm:px-0">
             <BenchMarkRow label={t.benchmarking.tactical} p1={92} p2={84} />
             <BenchMarkRow label={t.benchmarking.technical} p1={96} p2={88} />
             <BenchMarkRow label={t.benchmarking.physical} p1={74} p2={82} />
@@ -65,22 +65,22 @@ export function PIMBenchmarking() {
       </div>
 
       <Card className="border-border/40 bg-secondary/5 overflow-hidden">
-        <CardContent className="p-8">
-          <div className="grid md:grid-cols-3 gap-12 text-center">
-            <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.delta}</p>
-              <p className="text-4xl font-black font-headline text-primary">+12.0</p>
-              <p className="text-xs text-accent font-bold">{t.benchmarking.territory}</p>
+        <CardContent className="p-6 sm:p-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center">
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.delta}</p>
+              <p className="text-3xl sm:text-4xl font-black font-headline text-primary">+12.0</p>
+              <p className="text-[10px] text-accent font-bold">{t.benchmarking.territory}</p>
             </div>
-            <div className="space-y-2 border-x border-border/20">
-              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.upside}</p>
-              <p className="text-4xl font-black font-headline text-foreground">€65M</p>
-              <p className="text-xs text-muted-foreground font-bold">{t.benchmarking.projected}</p>
+            <div className="space-y-1 py-4 md:py-0 border-y md:border-y-0 md:border-x border-border/20">
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.upside}</p>
+              <p className="text-3xl sm:text-4xl font-black font-headline text-foreground">€65M</p>
+              <p className="text-[10px] text-muted-foreground font-bold">{t.benchmarking.projected}</p>
             </div>
-            <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.compatibility}</p>
-              <p className="text-4xl font-black font-headline text-accent">95%</p>
-              <p className="text-xs text-muted-foreground font-bold">{t.benchmarking.squadProfile}</p>
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">{t.benchmarking.compatibility}</p>
+              <p className="text-3xl sm:text-4xl font-black font-headline text-accent">95%</p>
+              <p className="text-[10px] text-muted-foreground font-bold">{t.benchmarking.squadProfile}</p>
             </div>
           </div>
         </CardContent>
@@ -91,25 +91,25 @@ export function PIMBenchmarking() {
 
 function ComparisonPlayerCard({ name, role, pim, color, image, isBenchmark }: { name: string, role: string, pim: number, color: string, image: string, isBenchmark?: boolean }) {
   return (
-    <Card className={`border-2 ${color} bg-card/60 backdrop-blur-md overflow-hidden transition-all hover:scale-105`}>
-      <div className="p-8 text-center space-y-6">
-        <Avatar className="h-32 w-32 mx-auto border-4 border-background shadow-2xl rounded-2xl">
+    <Card className={`border-2 ${color} bg-card/60 backdrop-blur-md overflow-hidden transition-all hover:scale-[1.02]`}>
+      <div className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6">
+        <Avatar className="h-24 w-24 sm:h-32 sm:w-32 mx-auto border-4 border-background shadow-2xl rounded-2xl">
           <AvatarImage src={image} />
           <AvatarFallback>{name[0]}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="text-2xl font-black font-headline text-foreground">{name}</h3>
-          <Badge variant="outline" className="mt-2 text-[10px] font-black uppercase tracking-widest border-primary/30 text-primary">
+          <h3 className="text-xl sm:text-2xl font-black font-headline text-foreground truncate">{name}</h3>
+          <Badge variant="outline" className="mt-2 text-[8px] sm:text-[10px] font-black uppercase tracking-widest border-primary/30 text-primary">
             {role}
           </Badge>
         </div>
-        <div className="py-6 border-y border-border/20">
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">Impact Metric</p>
-          <p className={`text-7xl font-black font-headline ${isBenchmark ? 'text-accent' : 'text-primary'} leading-none`}>{pim}</p>
+        <div className="py-4 sm:py-6 border-y border-border/20">
+          <p className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1 sm:mb-2">Impact Metric</p>
+          <p className={`text-5xl sm:text-7xl font-black font-headline ${isBenchmark ? 'text-accent' : 'text-primary'} leading-none`}>{pim}</p>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <MetricSmall icon={<Zap className="h-3.5 w-3.5" />} label="ATK" value={92} />
-          <MetricSmall icon={<ShieldCheck className="h-3.5 w-3.5" />} label="DEF" value={64} />
+        <div className="grid grid-cols-2 gap-2 sm:gap-4">
+          <MetricSmall icon={<Zap className="h-3 sm:h-3.5 w-3 sm:w-3.5" />} label="ATK" value={92} />
+          <MetricSmall icon={<ShieldCheck className="h-3 sm:h-3.5 w-3 sm:w-3.5" />} label="DEF" value={64} />
         </div>
       </div>
     </Card>
@@ -118,13 +118,13 @@ function ComparisonPlayerCard({ name, role, pim, color, image, isBenchmark }: { 
 
 function BenchMarkRow({ label, p1, p2 }: { label: string, p1: number, p2: number }) {
   return (
-    <div className="w-full space-y-2">
-      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+    <div className="w-full space-y-1.5 sm:space-y-2">
+      <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase tracking-widest">
         <span className="text-primary">{p1}</span>
-        <span className="text-muted-foreground">{label}</span>
+        <span className="text-muted-foreground truncate px-2">{label}</span>
         <span className="text-accent">{p2}</span>
       </div>
-      <div className="h-1.5 w-full bg-secondary/30 rounded-full overflow-hidden flex">
+      <div className="h-1 sm:h-1.5 w-full bg-secondary/30 rounded-full overflow-hidden flex">
         <div className="h-full bg-primary" style={{ width: `${(p1 / (p1 + p2)) * 100}%` }} />
         <div className="h-full bg-accent" style={{ width: `${(p2 / (p1 + p2)) * 100}%` }} />
       </div>
@@ -134,10 +134,10 @@ function BenchMarkRow({ label, p1, p2 }: { label: string, p1: number, p2: number
 
 function MetricSmall({ icon, label, value }: { icon: any, label: string, value: number }) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-0.5 sm:gap-1">
       <div className="text-muted-foreground">{icon}</div>
-      <span className="text-[9px] font-black text-muted-foreground uppercase">{label}</span>
-      <span className="text-sm font-black text-foreground">{value}</span>
+      <span className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase">{label}</span>
+      <span className="text-xs sm:text-sm font-black text-foreground">{value}</span>
     </div>
   );
 }
