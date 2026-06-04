@@ -10,15 +10,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Star, Award, Plus, Camera, Video, Upload, CheckCircle2 } from "lucide-react";
-import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection } from "@/lib/types";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Star, Award, Plus, Camera, Video, Upload, CheckCircle2, Loader2 } from "lucide-react";
+import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type Player } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
 import { uploadFile } from "@/lib/services/storage-service";
+import { savePlayer, saveReport } from "@/lib/services/db-service";
 import { Progress } from "@/components/ui/progress";
+import { auth } from "@/lib/firebase/config";
 
 interface ActionRow {
   id: string;
@@ -156,15 +158,22 @@ export function ReportForm() {
   const { toast } = useToast();
   const { t, language } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [pimScore, setPimScore] = useState<number | null>(null);
   const [summary, setSummary] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [playerName, setPlayerName] = useState("");
+  const [clubName, setClubName] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [age, setAge] = useState<number>(20);
+  const [marketValue, setMarketValue] = useState("€1M");
+
   const [contextData, setContextData] = useState<Record<string, string | string[]>>({});
   const [actionRows, setActionRows] = useState<ActionRow[]>([
     { id: '1', min: '', action: '', result: '', notes: '' },
@@ -186,12 +195,6 @@ export function ReportForm() {
 
   const handleContextChange = (key: string, value: any) => {
     setContextData(prev => ({ ...prev, [key]: value }));
-  };
-
-  const toggleContextMulti = (key: string, value: string) => {
-    const current = (contextData[key] as string[]) || [];
-    const updated = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
-    handleContextChange(key, updated);
   };
 
   const handleActionChange = (id: string, field: keyof ActionRow, value: string) => {
@@ -218,13 +221,13 @@ export function ReportForm() {
       setPlayerPhotoUrl(url);
       toast({
         title: "Multimedia cargada",
-        description: "El archivo se ha subido correctamente a Firebase Storage.",
+        description: "El archivo se ha subido correctamente.",
       });
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error de carga",
-        description: "No se pudo subir el archivo. Revisa tu conexión.",
+        description: "No se pudo subir el archivo.",
       });
     } finally {
       setIsUploading(false);
@@ -257,7 +260,7 @@ export function ReportForm() {
         playerName: playerName || "Subject",
         tacticalRole: activeRole.name,
         metrics: { Technical: ratings },
-        scoutNotes: `Evaluated in roles: ${activeRole.name}. Global technical level: ${ratings.technicalLevel || 3}/5. Global tactical intelligence: ${ratings.tacticalIntel || 3}/5.`,
+        scoutNotes: `Evaluated in roles: ${activeRole.name}. Global technical level: ${ratings.technicalLevel || 3}/5.`,
         language: language as 'en' | 'es'
       });
       setSummary(result.summary);
@@ -265,6 +268,50 @@ export function ReportForm() {
       toast({ variant: "destructive", title: "Error generating summary" });
     } finally {
       setIsGeneratingSummary(false);
+    }
+  };
+
+  const handleSaveAll = async () => {
+    if (!playerName) {
+      toast({ variant: "destructive", title: "Nombre requerido", description: "Debes introducir el nombre del jugador." });
+      setActiveTab("player");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // 1. Guardar Jugador
+      const playerId = await savePlayer({
+        name: playerName,
+        age: age,
+        club: clubName || "Sin club",
+        nationality: nationality || "Desconocida",
+        marketValue: marketValue || "€0",
+        currentPIM: pimScore || 0,
+        tacticalRole: activeRole.name,
+        grade: (pimScore || 0) > 85 ? 'A' : (pimScore || 0) > 70 ? 'B' : 'C'
+      });
+
+      // 2. Guardar Informe
+      await saveReport({
+        playerId,
+        playerName,
+        scoutId: auth.currentUser?.uid || "guest",
+        scoutName: auth.currentUser?.email || "Invitado",
+        pimScore: pimScore || 0,
+        summary: summary,
+        ratings: ratings,
+        notes: notes,
+        createdAt: null
+      });
+
+      toast({ title: "¡Éxito!", description: "El jugador y el informe han sido guardados en Firestore." });
+      // Reset form if needed or redirect
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Error al guardar", description: "Ocurrió un error al persistir los datos." });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -282,16 +329,24 @@ export function ReportForm() {
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" className="flex-1 sm:flex-none h-10 px-3 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 uppercase tracking-widest">
-              <Save className="h-3.5 w-3.5 mr-1.5" /> <span className="hidden xs:inline">{t.report.actions.save}</span><span className="xs:hidden">Guardar</span>
-            </Button>
-            <Button variant="outline" className="flex-1 sm:flex-none h-10 px-3 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 uppercase tracking-widest">
-              <Upload className="h-3.5 w-3.5 mr-1.5" /> <span className="hidden xs:inline">MULTIMEDIA</span>
+            <Button 
+              variant="outline" 
+              className="flex-1 sm:flex-none h-10 px-3 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 uppercase tracking-widest"
+              onClick={handleSaveAll}
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
+              <span className="hidden xs:inline">{t.report.actions.save}</span>
+              <span className="xs:hidden">Guardar</span>
             </Button>
           </div>
         </div>
-        <Button className="h-11 sm:h-12 w-full bg-primary text-primary-foreground font-black text-[11px] sm:text-[12px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 rounded-xl">
-          {t.report.actions.submit}
+        <Button 
+          onClick={handleSaveAll} 
+          disabled={isSaving}
+          className="h-11 sm:h-12 w-full bg-primary text-primary-foreground font-black text-[11px] sm:text-[12px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 rounded-xl"
+        >
+          {isSaving ? "GUARDANDO..." : t.report.actions.submit}
         </Button>
       </div>
 
@@ -324,7 +379,11 @@ export function ReportForm() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
-                    <Input className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Club" />
+                    <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Club" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">NACIONALIDAD</Label>
+                    <Input value={nationality} onChange={(e) => setNationality(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="País" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
@@ -338,6 +397,16 @@ export function ReportForm() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">EDAD</Label>
+                      <Input type="number" value={age} onChange={(e) => setAge(parseInt(e.target.value))} className="h-10 bg-secondary/10 border-border/20 font-medium" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">VALOR MERCADO</Label>
+                      <Input value={marketValue} onChange={(e) => setMarketValue(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="€10M" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -353,7 +422,7 @@ export function ReportForm() {
                     {isUploading ? (
                       <div className="w-full space-y-4 text-center">
                         <Activity className="h-10 w-10 text-primary animate-spin mx-auto" />
-                        <p className="text-xs font-black uppercase tracking-widest text-primary">Subiendo a Firebase... {Math.round(uploadProgress)}%</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-primary">Subiendo... {Math.round(uploadProgress)}%</p>
                         <Progress value={uploadProgress} className="h-2" />
                       </div>
                     ) : playerPhotoUrl ? (

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { AuthModal } from "@/components/auth/auth-modal";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { 
   ShieldCheck, 
   ChevronRight, 
@@ -47,7 +49,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           </div>
 
           <nav className="hidden lg:flex items-center gap-8">
-            {['Características', 'Cómo funciona', 'Precios', 'FAQ', 'Contacto'].map((item) => (
+            {['Características', 'Cómo funciona', 'Precios', 'FAQ'].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                 {item}
               </a>
@@ -55,11 +57,17 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={onEnter} className="hidden sm:flex hover:bg-secondary/50 font-bold text-xs uppercase tracking-widest">
-              Entrar
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" className="hidden sm:flex hover:bg-secondary/50 font-bold text-xs uppercase tracking-widest border border-border/40">
+                  Acceso / Registro
+                </Button>
+              </DialogTrigger>
+              <AuthModal onAuthSuccess={onEnter} />
+            </Dialog>
+            
             <Button onClick={onEnter} className="bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-lg shadow-primary/20 font-bold text-xs uppercase tracking-widest px-6">
-              Comenzar Gratis
+              Entrar (Invitado)
             </Button>
             <button className="lg:hidden p-2 text-muted-foreground" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X /> : <Menu />}
@@ -72,13 +80,21 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       {isMenuOpen && (
         <div className="fixed inset-0 z-[90] bg-background pt-20 px-6 lg:hidden animate-in fade-in slide-in-from-top-4">
           <nav className="flex flex-col gap-6">
-            {['Características', 'Cómo funciona', 'Precios', 'FAQ', 'Contacto'].map((item) => (
+            {['Características', 'Cómo funciona', 'Precios', 'FAQ'].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>
                 {item}
               </a>
             ))}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="w-full h-14 text-lg font-bold bg-secondary text-secondary-foreground">
+                  Acceder / Registrarse
+                </Button>
+              </DialogTrigger>
+              <AuthModal onAuthSuccess={onEnter} />
+            </Dialog>
             <Button onClick={onEnter} className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground">
-              Entrar a la App
+              Entrar como Invitado
             </Button>
           </nav>
         </div>
@@ -99,11 +115,16 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             Plataforma profesional de análisis de jugadores con IA, multimedia y análisis táctico en tiempo real para organizaciones de élite.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Button onClick={onEnter} className="h-14 px-10 bg-primary text-primary-foreground text-base font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
-              Comenzar Ahora <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button variant="outline" className="h-14 px-10 border-border/50 text-base font-black uppercase tracking-widest hover:bg-secondary">
-              Ver Demo
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="h-14 px-10 bg-primary text-primary-foreground text-base font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
+                  Crear Cuenta Gratis <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </DialogTrigger>
+              <AuthModal onAuthSuccess={onEnter} />
+            </Dialog>
+            <Button variant="outline" onClick={onEnter} className="h-14 px-10 border-border/50 text-base font-black uppercase tracking-widest hover:bg-secondary">
+              Entrar (Demo)
             </Button>
           </div>
         </div>
@@ -296,10 +317,15 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           <h2 className="text-4xl md:text-6xl font-headline font-black uppercase tracking-tight">¿Listo para dominar <br />el mercado?</h2>
           <p className="text-xl text-muted-foreground font-medium">Únete a la nueva era del scouting digital y descubre el talento antes que nadie.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Button onClick={onEnter} className="h-16 px-12 bg-primary text-primary-foreground text-lg font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
-              Comenzar Gratis Ahora
-            </Button>
-            <Button variant="outline" className="h-16 px-12 text-lg font-black uppercase tracking-widest">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="h-16 px-12 bg-primary text-primary-foreground text-lg font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
+                  Comenzar Gratis Ahora
+                </Button>
+              </DialogTrigger>
+              <AuthModal onAuthSuccess={onEnter} />
+            </Dialog>
+            <Button variant="outline" onClick={onEnter} className="h-16 px-12 text-lg font-black uppercase tracking-widest">
               Agendar Demo
             </Button>
           </div>
@@ -318,8 +344,8 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               La plataforma definitiva para el scouting profesional de fútbol. Inteligencia, táctica y datos en un solo lugar.
             </p>
           </div>
-          <FooterColumn title="Plataforma" links={['Características', 'Precios', 'Demo', 'Blog']} />
-          <FooterColumn title="Soporte" links={['Contacto', 'FAQ', 'Documentación', 'Estado API']} />
+          <FooterColumn title="Plataforma" links={['Características', 'Precios', 'Demo']} />
+          <FooterColumn title="Soporte" links={['Contacto', 'FAQ', 'Documentación']} />
           <div className="space-y-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs">Conecta</h4>
             <div className="flex gap-4">
