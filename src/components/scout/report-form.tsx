@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -38,16 +39,16 @@ const RatingRow = ({
   note?: string,
   onNoteChange: (value: string) => void
 }) => (
-  <div className="flex items-center justify-between gap-4 py-1.5 border-b border-border/10 last:border-0 group">
-    <Label className="text-[10px] font-bold uppercase w-44 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors">{kpi}</Label>
-    <div className="flex gap-1.5 shrink-0">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 border-b border-border/10 last:border-0 group">
+    <Label className="text-[10px] font-bold uppercase sm:w-44 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors">{kpi}</Label>
+    <div className="flex gap-1.5 shrink-0 overflow-x-auto no-scrollbar py-1">
       {[1, 2, 3, 4, 5].map(num => (
         <button
           key={num}
           type="button"
           onClick={() => onRatingChange(num)}
           className={cn(
-            "h-8 w-8 rounded-full border border-border/40 text-[11px] font-bold flex items-center justify-center transition-all",
+            "h-8 w-8 rounded-full border border-border/40 text-[11px] font-bold flex items-center justify-center transition-all shrink-0",
             rating === num ? "bg-primary text-primary-foreground border-primary scale-110 shadow-lg" : "bg-secondary/20 hover:border-primary/50 text-muted-foreground"
           )}
         >
@@ -56,7 +57,7 @@ const RatingRow = ({
       ))}
     </div>
     <Input 
-      className="h-8 text-[11px] bg-secondary/5 border-none shadow-none focus-visible:ring-1 flex-grow ml-6 border-b border-border/20 rounded-none italic placeholder:opacity-40" 
+      className="h-8 text-[11px] bg-secondary/5 border-none shadow-none focus-visible:ring-1 flex-grow sm:ml-6 border-b border-border/20 rounded-none italic placeholder:opacity-40" 
       placeholder="Observación / contexto..." 
       value={note || ""}
       onChange={(e) => onNoteChange(e.target.value)}
@@ -95,11 +96,11 @@ const EvaluationModule = ({
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
       <div className={cn("grid grid-cols-1 gap-6", hasImpactColumn ? "lg:grid-cols-2" : "lg:max-w-5xl mx-auto")}>
         <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-          <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-2 border-b border-primary/20">
+          <div className="bg-[#1b263b] px-4 sm:px-5 py-3 flex items-center gap-2 border-b border-primary/20">
             <Icon className="h-4 w-4 text-primary" />
-            <h2 className="text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
+            <h2 className="text-[10px] sm:text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
           </div>
-          <CardContent className="pt-8 space-y-1.5">
+          <CardContent className="pt-4 sm:pt-8 space-y-1.5 px-4 sm:px-6">
             {kpiSection.observation.map(kpi => (
               <RatingRow 
                 key={kpi} 
@@ -115,11 +116,11 @@ const EvaluationModule = ({
 
         {hasImpactColumn && (
           <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-            <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-2 border-b border-accent/20">
+            <div className="bg-[#1b263b] px-4 sm:px-5 py-3 flex items-center gap-2 border-b border-accent/20">
               <Activity className="h-4 w-4 text-accent" />
-              <h2 className="text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
+              <h2 className="text-[10px] sm:text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
             </div>
-            <CardContent className="pt-8 space-y-1.5">
+            <CardContent className="pt-4 sm:pt-8 space-y-1.5 px-4 sm:px-6">
               {kpiSection.impact.map(kpi => (
                 <RatingRow 
                   key={kpi} 
@@ -135,11 +136,11 @@ const EvaluationModule = ({
         )}
       </div>
 
-      <div className="flex justify-between pt-10 max-w-5xl mx-auto">
-        <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 sm:pt-10 max-w-5xl mx-auto">
+        <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-6 py-4 sm:px-10 sm:py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
           <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
         </Button>
-        <Button onClick={() => setActiveTab(nextTab)} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+        <Button onClick={() => setActiveTab(nextTab)} className="px-10 py-5 sm:px-16 sm:py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[12px] sm:text-[13px] transition-all transform hover:scale-105">
           {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
         </Button>
       </div>
@@ -246,105 +247,105 @@ export function ReportForm() {
   };
 
   return (
-    <div className="space-y-8 pb-32 max-w-[1600px] mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card/80 backdrop-blur-xl p-8 rounded-2xl border border-border/50 shadow-2xl sticky top-20 z-40">
-        <div className="flex items-center gap-6">
-          <div className="h-14 w-14 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30 shadow-inner">
-            <FileText className="h-7 w-7 text-primary" />
+    <div className="space-y-6 sm:space-y-8 pb-32 max-w-[1600px] mx-auto w-full overflow-hidden">
+      <div className="flex flex-col gap-4 bg-card/80 backdrop-blur-xl p-4 sm:p-8 rounded-2xl border border-border/50 shadow-2xl sticky top-0 sm:top-20 z-40">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-6">
+            <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30 shadow-inner shrink-0">
+              <FileText className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
+            </div>
+            <div className="space-y-0.5 sm:space-y-1">
+              <h1 className="text-xl sm:text-3xl font-black font-headline uppercase tracking-tight text-foreground leading-tight">{t.report.title}</h1>
+              <p className="text-[9px] sm:text-[11px] text-primary font-bold uppercase tracking-[0.15em] sm:tracking-[0.25em]">{t.report.subtitle}</p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <h1 className="text-3xl font-black font-headline uppercase tracking-tight text-foreground">{t.report.title}</h1>
-            <p className="text-[11px] text-primary font-bold uppercase tracking-[0.25em]">{t.report.subtitle}</p>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="flex-1 sm:flex-none h-10 px-3 sm:px-6 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 hover:bg-secondary transition-all uppercase tracking-widest" onClick={handleSaveReport}>
+              <Save className="h-3.5 w-3.5 mr-1.5 sm:mr-2.5" /> <span className="hidden xs:inline">{t.report.actions.save}</span><span className="xs:hidden">Guardar</span>
+            </Button>
+            <Button variant="outline" className="flex-1 sm:flex-none h-10 px-3 sm:px-6 bg-background/50 text-[9px] sm:text-[10px] font-bold border-border/50 hover:bg-secondary transition-all uppercase tracking-widest">
+              <Clipboard className="h-3.5 w-3.5 mr-1.5 sm:mr-2.5" /> <span className="hidden xs:inline">{t.report.actions.export}</span><span className="xs:hidden">PDF</span>
+            </Button>
           </div>
         </div>
-        <div className="flex flex-col gap-3">
-          <div className="flex gap-3">
-            <Button variant="outline" className="h-11 px-6 bg-background/50 text-[10px] font-bold border-border/50 hover:bg-secondary transition-all uppercase tracking-widest" onClick={handleSaveReport}>
-              <Save className="h-4 w-4 mr-2.5" /> {t.report.actions.save}
-            </Button>
-            <Button variant="outline" className="h-11 px-6 bg-background/50 text-[10px] font-bold border-border/50 hover:bg-secondary transition-all uppercase tracking-widest">
-              <Clipboard className="h-4 w-4 mr-2.5" /> {t.report.actions.export}
-            </Button>
-          </div>
-          <Button className="h-12 w-full bg-primary text-primary-foreground font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 rounded-xl hover:scale-[1.02] transition-transform">
-            {t.report.actions.submit}
-          </Button>
-        </div>
+        <Button className="h-11 sm:h-12 w-full bg-primary text-primary-foreground font-black text-[11px] sm:text-[12px] uppercase tracking-[0.15em] sm:tracking-[0.2em] shadow-2xl shadow-primary/20 rounded-xl hover:scale-[1.01] transition-transform">
+          {t.report.actions.submit}
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full flex justify-between bg-secondary/15 h-14 p-1.5 border border-border/20 rounded-2xl overflow-x-auto no-scrollbar mb-10 shadow-inner">
-          {Object.entries(t.report.tabs).map(([key, label]) => (
+        <TabsList className="w-full flex bg-secondary/15 h-12 sm:h-14 p-1.5 border border-border/20 rounded-2xl overflow-x-auto no-scrollbar mb-6 sm:mb-10 shadow-inner">
+          {Object.entries(t.report.tabs).map(([key, label], idx) => (
             <TabsTrigger 
               key={key} 
               value={key} 
-              className="flex-1 text-[11px] font-black tracking-widest data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl transition-all rounded-xl h-full border border-transparent data-[state=active]:border-primary/20"
+              className="flex-1 min-w-[80px] sm:min-w-0 text-[9px] sm:text-[11px] font-black tracking-widest data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl transition-all rounded-xl h-full border border-transparent data-[state=active]:border-primary/20 whitespace-nowrap px-3"
             >
-              <span className="mr-2.5 opacity-40 font-code">{Object.keys(t.report.tabs).indexOf(key) + 1}</span>
+              <span className="mr-1.5 sm:mr-2.5 opacity-40 font-code">{idx + 1}</span>
               {label as string}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-            <div className="space-y-10">
+        <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6 sm:space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
+            <div className="space-y-6 sm:space-y-10">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                  <User className="h-5 w-5 text-white" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">1 {t.report.playerInfo.title}</h2>
+                <div className="bg-[#007b83] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">1 {t.report.playerInfo.title}</h2>
                 </div>
-                <CardContent className="pt-10 grid grid-cols-2 gap-6 px-8">
-                  <div className="col-span-1 space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
-                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-11 bg-secondary/10 border-border/20 focus:border-primary/50 transition-all font-medium" placeholder="Nombre completo" />
+                <CardContent className="pt-6 sm:pt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 px-4 sm:px-8">
+                  <div className="col-span-1 sm:col-span-2 space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
+                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 sm:h-11 bg-secondary/10 border-border/20 focus:border-primary/50 transition-all font-medium" placeholder="Nombre completo" />
                   </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.number}</Label>
-                    <Input className="h-11 bg-secondary/10 border-border/20 font-medium" placeholder="-" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.number}</Label>
+                    <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 font-medium" placeholder="-" />
                   </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
-                    <Input className="h-11 bg-secondary/10 border-border/20 font-medium" placeholder="Club" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
+                    <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 font-medium" placeholder="Club" />
                   </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.rival}</Label>
-                    <Input className="h-11 bg-secondary/10 border-border/20 font-medium" placeholder="vs" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.rival}</Label>
+                    <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 font-medium" placeholder="vs" />
                   </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.competition}</Label>
-                    <Input className="h-11 bg-secondary/10 border-border/20 font-medium" placeholder="Liga / Copa" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.competition}</Label>
+                    <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 font-medium" placeholder="Liga / Copa" />
                   </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.date}</Label>
-                    <Input type="date" className="h-11 bg-secondary/10 border-border/20" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.date}</Label>
+                    <Input type="date" className="h-10 sm:h-11 bg-secondary/10 border-border/20" />
                   </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.birthDate}</Label>
-                    <Input type="date" className="h-11 bg-secondary/10 border-border/20" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.birthDate}</Label>
+                    <Input type="date" className="h-10 sm:h-11 bg-secondary/10 border-border/20" />
                   </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.nationality}</Label>
-                    <Input className="h-11 bg-secondary/10 border-border/20 font-medium" placeholder="-" />
+                  <div className="space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.nationality}</Label>
+                    <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 font-medium" placeholder="-" />
                   </div>
-                  <div className="grid grid-cols-3 col-span-2 gap-6">
-                    <div className="space-y-2.5">
-                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.height}</Label>
-                      <Input className="h-11 bg-secondary/10 border-border/20 text-center font-bold" placeholder="-" />
+                  <div className="grid grid-cols-3 col-span-1 sm:col-span-2 gap-3 sm:gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.height}</Label>
+                      <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 text-center font-bold" placeholder="-" />
                     </div>
-                    <div className="space-y-2.5">
-                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.weight}</Label>
-                      <Input className="h-11 bg-secondary/10 border-border/20 text-center font-bold" placeholder="-" />
+                    <div className="space-y-2">
+                      <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.weight}</Label>
+                      <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 text-center font-bold" placeholder="-" />
                     </div>
-                    <div className="space-y-2.5">
-                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.minutes}</Label>
-                      <Input className="h-11 bg-secondary/10 border-border/20 text-center font-bold" placeholder="90" />
+                    <div className="space-y-2">
+                      <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.minutes}</Label>
+                      <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 text-center font-bold" placeholder="90" />
                     </div>
                   </div>
-                  <div className="col-span-1 space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
+                  <div className="col-span-1 space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
                     <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
-                      <SelectTrigger className="h-11 bg-secondary/10 border-border/20 text-[11px] font-black uppercase">
+                      <SelectTrigger className="h-10 sm:h-11 bg-secondary/10 border-border/20 text-[10px] sm:text-[11px] font-black uppercase">
                         <SelectValue placeholder="Seleccionar..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -354,32 +355,32 @@ export function ReportForm() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="col-span-1 space-y-2.5">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
-                    <Input className="h-11 bg-secondary/10 border-border/20 font-medium" placeholder="Ej: ED, MCO" />
+                  <div className="col-span-1 space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
+                    <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 font-medium" placeholder="Ej: ED, MCO" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            <div className="space-y-10">
+            <div className="space-y-6 sm:space-y-10">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl flex flex-col bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                  <Target className="h-5 w-5 text-white" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">2 {t.report.pitch.title}</h2>
+                <div className="bg-[#007b83] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">2 {t.report.pitch.title}</h2>
                 </div>
-                <CardContent className="pt-6 flex flex-col items-center justify-center flex-grow bg-transparent p-10">
+                <CardContent className="pt-4 sm:pt-6 flex flex-col items-center justify-center flex-grow bg-transparent p-4 sm:p-10">
                   <TacticalCanvas />
                 </CardContent>
               </Card>
 
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                  <Layers className="h-5 w-5 text-primary" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.roles.title}</h2>
+                <div className="bg-[#1b263b] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                  <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.roles.title}</h2>
                 </div>
-                <CardContent className="pt-10 p-8">
-                  <div className="flex flex-wrap gap-4">
+                <CardContent className="pt-6 sm:pt-10 p-4 sm:p-8">
+                  <div className="flex flex-wrap gap-2 sm:gap-4">
                     {Object.entries(t.report.roles).filter(([k]) => k !== 'title').map(([key, label]) => (
                       <Button 
                         key={key} 
@@ -388,7 +389,7 @@ export function ReportForm() {
                         type="button"
                         onClick={() => toggleRole(key)}
                         className={cn(
-                          "h-11 px-6 text-[11px] font-black uppercase rounded-full border-border/30 transition-all",
+                          "h-9 sm:h-11 px-4 sm:px-6 text-[9px] sm:text-[11px] font-black uppercase rounded-full border-border/30 transition-all",
                           selectedRoles.includes(key) 
                             ? "bg-primary text-primary-foreground border-primary shadow-2xl scale-105" 
                             : "bg-secondary/15 hover:bg-secondary/30 text-muted-foreground"
@@ -403,12 +404,12 @@ export function ReportForm() {
             </div>
           </div>
 
-          <Card className="border-border/40 shadow-2xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md mt-10">
-            <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-              <Brain className="h-5 w-5 text-primary" />
-              <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">3 {t.report.globalProfile.title}</h2>
+          <Card className="border-border/40 shadow-2xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md mt-6 sm:mt-10">
+            <div className="bg-[#1b263b] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+              <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">3 {t.report.globalProfile.title}</h2>
             </div>
-            <CardContent className="pt-10 space-y-1.5 px-10">
+            <CardContent className="pt-6 sm:pt-10 space-y-1.5 px-4 sm:px-10">
               {Object.entries(t.report.globalProfile).filter(([k]) => k !== 'title').map(([key, label]) => (
                 <RatingRow 
                   key={key} 
@@ -422,32 +423,33 @@ export function ReportForm() {
             </CardContent>
           </Card>
           
-          <div className="flex justify-end mt-16">
-            <Button onClick={() => setActiveTab("context")} className="px-20 py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[16px] transition-all transform hover:scale-105 group">
-              {t.report.actions.next} <ChevronRight className="ml-4 h-6 w-6 group-hover:translate-x-3 transition-transform" />
+          <div className="flex justify-end mt-10 sm:mt-16">
+            <Button onClick={() => setActiveTab("context")} className="w-full sm:w-auto px-12 sm:px-20 py-6 sm:py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[14px] sm:text-[16px] transition-all transform hover:scale-105 group">
+              {t.report.actions.next} <ChevronRight className="ml-3 sm:ml-4 h-5 w-5 sm:h-6 sm:w-6 group-hover:translate-x-3 transition-transform" />
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="context" className="animate-in fade-in slide-in-from-bottom-2 space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+        <TabsContent value="context" className="animate-in fade-in slide-in-from-bottom-2 space-y-6 sm:space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-              <div className="bg-[#007b83] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                <Target className="h-5 w-5 text-white" />
-                <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.matchContext.title}</h2>
+              <div className="bg-[#007b83] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.matchContext.title}</h2>
               </div>
-              <CardContent className="pt-10 space-y-10 px-8">
-                <div className="space-y-6">
-                  <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.matchContext.playStyle}</Label>
-                  <div className="flex flex-wrap gap-4">
+              <CardContent className="pt-6 sm:pt-10 space-y-8 sm:space-y-10 px-4 sm:px-8">
+                <div className="space-y-4 sm:space-y-6">
+                  <Label className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">{t.report.matchContext.playStyle}</Label>
+                  <div className="flex flex-wrap gap-2 sm:gap-4">
                     {Object.entries(t.report.matchContext.styles).map(([key, label]) => (
                       <Button
                         key={key}
                         variant="outline"
+                        size="sm"
                         type="button"
                         onClick={() => handleContextChange('playStyle', key)}
                         className={cn(
-                          "h-11 px-6 text-[10px] font-black uppercase rounded-full border-border/30 transition-all",
+                          "h-9 px-4 sm:h-11 sm:px-6 text-[9px] sm:text-[10px] font-black uppercase rounded-full border-border/30 transition-all",
                           contextData.playStyle === key ? "bg-primary text-primary-foreground border-primary shadow-xl" : "bg-secondary/15"
                         )}
                       >
@@ -456,34 +458,34 @@ export function ReportForm() {
                     ))}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.matchContext.formation}</Label>
-                    <Input className="h-11 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: 4-3-3" onChange={(e) => handleContextChange('formation', e.target.value)} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                  <div className="space-y-4 sm:space-y-6">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">{t.report.matchContext.formation}</Label>
+                    <Input className="h-10 sm:h-11 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: 4-3-3" onChange={(e) => handleContextChange('formation', e.target.value)} />
                   </div>
-                  <div className="space-y-6">
-                    <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.matchContext.tempo}</Label>
-                    <div className="flex gap-3">
+                  <div className="space-y-4 sm:space-y-6">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">{t.report.matchContext.tempo}</Label>
+                    <div className="flex gap-2 sm:gap-3">
                       {Object.entries(t.report.matchContext.tempos).map(([key, label]) => (
-                        <Button key={key} type="button" onClick={() => handleContextChange('tempo', key)} className={cn("flex-1 h-11 text-[10px] font-black uppercase", contextData.tempo === key ? "bg-primary text-primary-foreground" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
+                        <Button key={key} type="button" onClick={() => handleContextChange('tempo', key)} className={cn("flex-1 h-10 sm:h-11 text-[9px] sm:text-[10px] font-black uppercase", contextData.tempo === key ? "bg-primary text-primary-foreground" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
                       ))}
                     </div>
                   </div>
                 </div>
-                <div className="space-y-6">
-                  <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.matchContext.weather}</Label>
-                  <div className="flex flex-wrap gap-8 bg-secondary/10 p-6 rounded-2xl border border-border/10 shadow-inner">
-                    <button type="button" onClick={() => handleContextChange('weather', 'sun')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'sun' ? "text-primary scale-110" : "text-muted-foreground")}>
-                      <Sun className="h-5 w-5" /> {t.report.matchContext.weathers.sun}
+                <div className="space-y-4 sm:space-y-6">
+                  <Label className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">{t.report.matchContext.weather}</Label>
+                  <div className="flex flex-wrap gap-4 sm:gap-8 bg-secondary/10 p-4 sm:p-6 rounded-2xl border border-border/10 shadow-inner">
+                    <button type="button" onClick={() => handleContextChange('weather', 'sun')} className={cn("flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-black uppercase transition-all", contextData.weather === 'sun' ? "text-primary scale-110" : "text-muted-foreground")}>
+                      <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> {t.report.matchContext.weathers.sun}
                     </button>
-                    <button type="button" onClick={() => handleContextChange('weather', 'cloudy')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'cloudy' ? "text-primary scale-110" : "text-muted-foreground")}>
-                      <Cloud className="h-5 w-5" /> {t.report.matchContext.weathers.cloudy}
+                    <button type="button" onClick={() => handleContextChange('weather', 'cloudy')} className={cn("flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-black uppercase transition-all", contextData.weather === 'cloudy' ? "text-primary scale-110" : "text-muted-foreground")}>
+                      <Cloud className="h-4 w-4 sm:h-5 sm:w-5" /> {t.report.matchContext.weathers.cloudy}
                     </button>
-                    <button type="button" onClick={() => handleContextChange('weather', 'rain')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'rain' ? "text-primary scale-110" : "text-muted-foreground")}>
-                      <CloudRain className="h-5 w-5" /> {t.report.matchContext.weathers.rain}
+                    <button type="button" onClick={() => handleContextChange('weather', 'rain')} className={cn("flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-black uppercase transition-all", contextData.weather === 'rain' ? "text-primary scale-110" : "text-muted-foreground")}>
+                      <CloudRain className="h-4 w-4 sm:h-5 sm:w-5" /> {t.report.matchContext.weathers.rain}
                     </button>
-                    <button type="button" onClick={() => handleContextChange('weather', 'wind')} className={cn("flex items-center gap-3 text-[11px] font-black uppercase transition-all", contextData.weather === 'wind' ? "text-primary scale-110" : "text-muted-foreground")}>
-                      <Wind className="h-5 w-5" /> {t.report.matchContext.weathers.wind}
+                    <button type="button" onClick={() => handleContextChange('weather', 'wind')} className={cn("flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-black uppercase transition-all", contextData.weather === 'wind' ? "text-primary scale-110" : "text-muted-foreground")}>
+                      <Wind className="h-4 w-4 sm:h-5 sm:w-5" /> {t.report.matchContext.weathers.wind}
                     </button>
                   </div>
                 </div>
@@ -491,46 +493,46 @@ export function ReportForm() {
             </Card>
 
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-              <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                <Layers className="h-5 w-5 text-primary" />
-                <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.offBall.title}</h2>
+              <div className="bg-[#1b263b] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.offBall.title}</h2>
               </div>
-              <CardContent className="pt-10 space-y-10 px-8">
-                <div className="space-y-6">
-                  <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.offBall.noPossession}</Label>
-                  <div className="flex flex-wrap gap-4">
+              <CardContent className="pt-6 sm:pt-10 space-y-8 sm:space-y-10 px-4 sm:px-8">
+                <div className="space-y-4 sm:space-y-6">
+                  <Label className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">{t.report.offBall.noPossession}</Label>
+                  <div className="flex flex-wrap gap-2 sm:gap-4">
                     {Object.entries(t.report.offBall.actions).map(([key, label]) => (
-                      <Button key={key} type="button" onClick={() => toggleContextMulti('offBallActions', key)} className={cn("h-10 px-5 text-[10px] font-black uppercase rounded-xl transition-all", ((contextData.offBallActions as string[]) || []).includes(key) ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
+                      <Button key={key} size="sm" type="button" onClick={() => toggleContextMulti('offBallActions', key)} className={cn("h-9 px-4 sm:h-10 sm:px-5 text-[9px] sm:text-[10px] font-black uppercase rounded-xl transition-all", ((contextData.offBallActions as string[]) || []).includes(key) ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
                     ))}
                   </div>
                 </div>
-                <div className="space-y-6">
-                  <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.offBall.bodyLanguage}</Label>
-                  <div className="flex flex-wrap gap-3">
+                <div className="space-y-4 sm:space-y-6">
+                  <Label className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">{t.report.offBall.bodyLanguage}</Label>
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {Object.entries(t.report.offBall.bodyLanguages).map(([key, label]) => (
-                      <Button key={key} type="button" onClick={() => handleContextChange('bodyLanguage', key)} className={cn("h-10 px-5 text-[10px] font-black uppercase rounded-xl transition-all", contextData.bodyLanguage === key ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
+                      <Button key={key} size="sm" type="button" onClick={() => handleContextChange('bodyLanguage', key)} className={cn("h-9 px-4 sm:h-10 sm:px-5 text-[9px] sm:text-[10px] font-black uppercase rounded-xl transition-all", contextData.bodyLanguage === key ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary/15 text-muted-foreground")}>{label as string}</Button>
                     ))}
                   </div>
                 </div>
-                <div className="space-y-6">
-                  <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t.report.offBall.tacticalRole}</Label>
-                  <Textarea className="min-h-[140px] bg-secondary/10 border-border/20 text-[11px] leading-relaxed italic placeholder:opacity-40 rounded-xl" placeholder="Describe el rol táctico asignado..." onChange={(e) => handleContextChange('tacticalRoleDesc', e.target.value)} />
+                <div className="space-y-4 sm:space-y-6">
+                  <Label className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">{t.report.offBall.tacticalRole}</Label>
+                  <Textarea className="min-h-[120px] sm:min-h-[140px] bg-secondary/10 border-border/20 text-[10px] sm:text-[11px] leading-relaxed italic placeholder:opacity-40 rounded-xl" placeholder="Describe el rol táctico asignado..." onChange={(e) => handleContextChange('tacticalRoleDesc', e.target.value)} />
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <div className="flex justify-between mt-16 pt-10 border-t border-border/20">
-            <Button variant="ghost" onClick={() => setActiveTab("player")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground">
-              <ChevronLeft className="mr-4 h-5 w-5" /> {t.report.actions.previous}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 sm:mt-16 pt-6 sm:pt-10 border-t border-border/20">
+            <Button variant="ghost" onClick={() => setActiveTab("player")} className="order-2 sm:order-1 px-8 py-5 font-black text-xs sm:text-sm uppercase text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="mr-3 sm:mr-4 h-4 w-4 sm:h-5 sm:w-5" /> {t.report.actions.previous}
             </Button>
-            <Button onClick={() => setActiveTab("technical")} className="px-20 py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[16px] transition-all transform hover:scale-105">
-              {t.report.actions.next} <ChevronRight className="ml-4 h-6 w-6" />
+            <Button onClick={() => setActiveTab("technical")} className="order-1 sm:order-2 px-12 sm:px-20 py-6 sm:py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[14px] sm:text-[16px] transition-all transform hover:scale-105">
+              {t.report.actions.next} <ChevronRight className="ml-3 sm:ml-4 h-5 sm:w-5 sm:h-6 sm:w-6" />
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="technical" className="mt-10">
+        <TabsContent value="technical" className="mt-6 sm:mt-10">
            <EvaluationModule 
              t={t}
              icon={Shield} 
@@ -546,7 +548,7 @@ export function ReportForm() {
            />
         </TabsContent>
 
-        <TabsContent value="tactical" className="mt-10">
+        <TabsContent value="tactical" className="mt-6 sm:mt-10">
            <EvaluationModule 
              t={t}
              icon={Shield} 
@@ -562,7 +564,7 @@ export function ReportForm() {
            />
         </TabsContent>
 
-        <TabsContent value="physical" className="mt-10">
+        <TabsContent value="physical" className="mt-6 sm:mt-10">
            <EvaluationModule 
              t={t}
              icon={ZapIcon} 
@@ -578,7 +580,7 @@ export function ReportForm() {
            />
         </TabsContent>
 
-        <TabsContent value="mental" className="mt-10">
+        <TabsContent value="mental" className="mt-6 sm:mt-10">
            <EvaluationModule 
              t={t}
              icon={Heart} 
@@ -594,54 +596,54 @@ export function ReportForm() {
            />
         </TabsContent>
 
-        <TabsContent value="actions" className="mt-10 animate-in fade-in slide-in-from-bottom-2 space-y-10">
+        <TabsContent value="actions" className="mt-6 sm:mt-10 animate-in fade-in slide-in-from-bottom-2 space-y-6 sm:space-y-10">
           <Card className="border-border/40 shadow-2xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-            <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-4 border-b border-primary/20">
-              <Star className="h-5 w-5 text-primary fill-primary" />
-              <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.sections.actions_title}</h2>
+            <div className="bg-[#1b263b] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-primary/20">
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 text-primary fill-primary" />
+              <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.sections.actions_title}</h2>
             </div>
-            <CardContent className="p-0 overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[800px]">
+            <CardContent className="p-0 overflow-x-auto no-scrollbar">
+              <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
                   <tr className="bg-[#1b263b]/90 border-b border-white/5">
-                    <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white/70 w-20">{t.report.actions.min}</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white/70 w-52">{t.report.actions.action}</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white/70 w-52">{t.report.actions.result}</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white/70">{t.report.actions.notes}</th>
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/70 w-16 sm:w-20">{t.report.actions.min}</th>
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/70 w-44 sm:w-52">{t.report.actions.action}</th>
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/70 w-44 sm:w-52">{t.report.actions.result}</th>
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/70">{t.report.actions.notes}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {actionRows.map((row) => (
                     <tr key={row.id} className="hover:bg-white/5 transition-colors group">
-                      <td className="px-4 py-1.5">
+                      <td className="px-3 py-1.5">
                         <Input 
                           value={row.min} 
                           onChange={(e) => handleActionChange(row.id, 'min', e.target.value)} 
-                          className="h-9 bg-transparent border-none text-[11px] font-bold text-center placeholder:opacity-20"
+                          className="h-8 bg-transparent border-none text-[10px] sm:text-[11px] font-bold text-center placeholder:opacity-20"
                           placeholder="-' "
                         />
                       </td>
-                      <td className="px-4 py-1.5">
+                      <td className="px-3 py-1.5">
                         <Input 
                           value={row.action} 
                           onChange={(e) => handleActionChange(row.id, 'action', e.target.value)} 
-                          className="h-9 bg-transparent border-none text-[11px] font-medium placeholder:opacity-20"
+                          className="h-8 bg-transparent border-none text-[10px] sm:text-[11px] font-medium placeholder:opacity-20"
                           placeholder="Tipo de acción..."
                         />
                       </td>
-                      <td className="px-4 py-1.5">
+                      <td className="px-3 py-1.5">
                         <Input 
                           value={row.result} 
                           onChange={(e) => handleActionChange(row.id, 'result', e.target.value)} 
-                          className="h-9 bg-transparent border-none text-[11px] font-medium placeholder:opacity-20"
+                          className="h-8 bg-transparent border-none text-[10px] sm:text-[11px] font-medium placeholder:opacity-20"
                           placeholder="Resultado..."
                         />
                       </td>
-                      <td className="px-4 py-1.5">
+                      <td className="px-3 py-1.5">
                         <Input 
                           value={row.notes} 
                           onChange={(e) => handleActionChange(row.id, 'notes', e.target.value)} 
-                          className="h-9 bg-transparent border-none text-[11px] font-medium italic placeholder:opacity-20"
+                          className="h-8 bg-transparent border-none text-[10px] sm:text-[11px] font-medium italic placeholder:opacity-20"
                           placeholder="Observación / contexto..."
                         />
                       </td>
@@ -653,7 +655,7 @@ export function ReportForm() {
                 <Button 
                   onClick={handleAddActionRow} 
                   variant="ghost" 
-                  className="w-full h-11 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-all border-2 border-dashed border-border/20 hover:border-primary/50"
+                  className="w-full h-10 text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-all border-2 border-dashed border-border/20 hover:border-primary/50"
                 >
                   {t.report.actions.addEvent}
                 </Button>
@@ -661,107 +663,107 @@ export function ReportForm() {
             </CardContent>
           </Card>
 
-          <div className="flex justify-between mt-16 pt-10 border-t border-border/20">
-            <Button variant="ghost" onClick={() => setActiveTab("mental")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground">
-              <ChevronLeft className="mr-4 h-5 w-5" /> {t.report.actions.previous}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 sm:mt-16 pt-6 sm:pt-10 border-t border-border/20">
+            <Button variant="ghost" onClick={() => setActiveTab("mental")} className="order-2 sm:order-1 px-8 py-5 font-black text-xs sm:text-sm uppercase text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="mr-3 sm:mr-4 h-4 w-4 sm:h-5 sm:w-5" /> {t.report.actions.previous}
             </Button>
-            <Button onClick={() => setActiveTab("evaluation")} className="px-20 py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[16px] transition-all transform hover:scale-105">
+            <Button onClick={() => setActiveTab("evaluation")} className="order-1 sm:order-2 px-12 sm:px-20 py-6 sm:py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[14px] sm:text-[16px] transition-all transform hover:scale-105">
               {t.report.actions.next}
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="evaluation" className="mt-10 animate-in fade-in slide-in-from-bottom-2 space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="space-y-10">
+        <TabsContent value="evaluation" className="mt-6 sm:mt-10 animate-in fade-in slide-in-from-bottom-2 space-y-6 sm:space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
+            <div className="space-y-6 sm:space-y-10">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#2e7d32] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                  <Star className="h-5 w-5 text-white" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.strengths.title}</h2>
+                <div className="bg-[#2e7d32] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                  <Star className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.final_evaluation.strengths.title}</h2>
                 </div>
-                <CardContent className="pt-8 space-y-8 px-8">
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.strengths_title}</Label>
+                <CardContent className="pt-6 sm:pt-8 space-y-6 sm:space-y-8 px-4 sm:px-8">
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.strengths_title}</Label>
                     {[1,2,3,4].map(i => (
-                      <div key={i} className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-muted-foreground w-4">{i}.</span>
-                        <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Fortaleza..." />
+                      <div key={i} className="flex items-center gap-2 sm:gap-3">
+                        <span className="text-[9px] sm:text-[10px] font-bold text-muted-foreground w-4">{i}.</span>
+                        <Input className="h-9 sm:h-10 bg-secondary/10 border-border/20 text-[10px] sm:text-[11px]" placeholder="Fortaleza..." />
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.areas_title}</Label>
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.areas_title}</Label>
                     {[1,2,3,4].map(i => (
-                      <div key={i} className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-muted-foreground w-4">{i}.</span>
-                        <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Área a mejorar..." />
+                      <div key={i} className="flex items-center gap-2 sm:gap-3">
+                        <span className="text-[9px] sm:text-[10px] font-bold text-muted-foreground w-4">{i}.</span>
+                        <Input className="h-9 sm:h-10 bg-secondary/10 border-border/20 text-[10px] sm:text-[11px]" placeholder="Área a mejorar..." />
                       </div>
                     ))}
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.short_term}</Label>
-                      <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Desarrollo..." />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.short_term}</Label>
+                      <Input className="h-9 sm:h-10 bg-secondary/10 border-border/20 text-[10px] sm:text-[11px]" placeholder="Desarrollo..." />
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.long_term}</Label>
-                      <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Desarrollo..." />
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.long_term}</Label>
+                      <Input className="h-9 sm:h-10 bg-secondary/10 border-border/20 text-[10px] sm:text-[11px]" placeholder="Desarrollo..." />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                  <Shield className="h-5 w-5 text-white" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.sign_in.title}</h2>
+                <div className="bg-[#007b83] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.final_evaluation.sign_in.title}</h2>
                 </div>
-                <CardContent className="pt-8 space-y-8 px-8 pb-10">
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.fits_model}</Label>
+                <CardContent className="pt-6 sm:pt-8 space-y-6 sm:space-y-8 px-4 sm:px-8 pb-8 sm:pb-10">
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.fits_model}</Label>
                     <div className="flex flex-wrap gap-2">
                       {[t.report.final_evaluation.sign_in.options.yes, t.report.final_evaluation.sign_in.options.no, t.report.final_evaluation.sign_in.options.following].map(opt => (
-                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                        <Button key={opt} variant="outline" size="sm" className="px-4 sm:px-6 h-9 sm:h-10 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
                           {opt}
                         </Button>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.impact}</Label>
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.impact}</Label>
                     <div className="flex flex-wrap gap-2">
                       {[t.report.final_evaluation.sign_in.options.high, t.report.final_evaluation.sign_in.options.medium, t.report.final_evaluation.sign_in.options.low].map(opt => (
-                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                        <Button key={opt} variant="outline" size="sm" className="px-4 sm:px-6 h-9 sm:h-10 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
                           {opt}
                         </Button>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.potential}</Label>
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.potential}</Label>
                     <div className="flex flex-wrap gap-2">
                       {[t.report.final_evaluation.sign_in.options.elite, t.report.final_evaluation.sign_in.options.high, t.report.final_evaluation.sign_in.options.medium, t.report.final_evaluation.sign_in.options.low].map(opt => (
-                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                        <Button key={opt} variant="outline" size="sm" className="px-4 sm:px-6 h-9 sm:h-10 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
                           {opt}
                         </Button>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.risk}</Label>
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.risk}</Label>
                     <div className="flex flex-wrap gap-2">
                       {[t.report.final_evaluation.sign_in.options.high, t.report.final_evaluation.sign_in.options.medium, t.report.final_evaluation.sign_in.options.low].map(opt => (
-                        <Button key={opt} variant="outline" size="sm" className="px-6 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                        <Button key={opt} variant="outline" size="sm" className="px-4 sm:px-6 h-9 sm:h-10 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
                           {opt}
                         </Button>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.philosophy}</Label>
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.philosophy}</Label>
                     <div className="flex flex-wrap gap-2">
                       {[t.report.final_evaluation.sign_in.options.yes, t.report.final_evaluation.sign_in.options.no].map(opt => (
-                        <Button key={opt} variant="outline" size="sm" className="px-8 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
+                        <Button key={opt} variant="outline" size="sm" className="px-6 sm:px-8 h-9 sm:h-10 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border-border/40 bg-secondary/5 hover:bg-secondary/20">
                           {opt}
                         </Button>
                       ))}
@@ -771,39 +773,39 @@ export function ReportForm() {
               </Card>
             </div>
 
-            <div className="space-y-10">
+            <div className="space-y-6 sm:space-y-10">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-6 py-4 flex items-center gap-4 border-b border-white/10">
-                  <Star className="h-5 w-5 text-white" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.summary_final.title}</h2>
+                <div className="bg-[#007b83] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/10">
+                  <Star className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.final_evaluation.summary_final.title}</h2>
                 </div>
-                <CardContent className="pt-8 space-y-6 px-8">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.desc}</Label>
-                    <Textarea className="min-h-[100px] bg-secondary/10 border-border/20 text-[11px]" placeholder="Impresión general..." />
+                <CardContent className="pt-6 sm:pt-8 space-y-4 sm:space-y-6 px-4 sm:px-8">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.desc}</Label>
+                    <Textarea className="min-h-[80px] sm:min-h-[100px] bg-secondary/10 border-border/20 text-[10px] sm:text-[11px]" placeholder="Impresión general..." />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.comparative}</Label>
-                    <Input className="h-10 bg-secondary/10 border-border/20 text-[11px]" placeholder="Similar a..." />
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.comparative}</Label>
+                    <Input className="h-9 sm:h-10 bg-secondary/10 border-border/20 text-[10px] sm:text-[11px]" placeholder="Similar a..." />
                   </div>
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.rec}</Label>
-                    <div className="grid grid-cols-3 gap-3">
-                      <Button className="h-14 bg-[#1b5e20] hover:bg-[#2e7d32] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
-                        <span className="text-[9px] font-black uppercase leading-tight">FICHAJE INMEDIATO</span>
-                        <span className="text-[8px] opacity-70">6 - ÉLITE</span>
+                  <div className="space-y-3 sm:space-y-4">
+                    <Label className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.rec}</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                      <Button className="h-12 sm:h-14 bg-[#1b5e20] hover:bg-[#2e7d32] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[8px] sm:text-[9px] font-black uppercase leading-tight">FICHAJE INMEDIATO</span>
+                        <span className="text-[7px] sm:text-[8px] opacity-70">6 - ÉLITE</span>
                       </Button>
-                      <Button className="h-14 bg-[#2e7d32] hover:bg-[#388e3c] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
-                        <span className="text-[9px] font-black uppercase leading-tight">SEGUIMIENTO</span>
-                        <span className="text-[8px] opacity-70">4 - ALTO</span>
+                      <Button className="h-12 sm:h-14 bg-[#2e7d32] hover:bg-[#388e3c] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[8px] sm:text-[9px] font-black uppercase leading-tight">SEGUIMIENTO</span>
+                        <span className="text-[7px] sm:text-[8px] opacity-70">4 - ALTO</span>
                       </Button>
-                      <Button className="h-14 bg-[#e65100] hover:bg-[#ef6c00] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
-                        <span className="text-[9px] font-black uppercase leading-tight">MONITOR PRIORITARIO</span>
-                        <span className="text-[8px] opacity-70">3 - BUENO</span>
+                      <Button className="h-12 sm:h-14 bg-[#e65100] hover:bg-[#ef6c00] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[8px] sm:text-[9px] font-black uppercase leading-tight">MONITOR PRIORITARIO</span>
+                        <span className="text-[7px] sm:text-[8px] opacity-70">3 - BUENO</span>
                       </Button>
-                      <Button className="h-14 col-span-3 bg-[#c62828] hover:bg-[#d32f2f] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
-                        <span className="text-[11px] font-black uppercase leading-tight">REEVALUAR</span>
-                        <span className="text-[9px] opacity-70">2 - LIMITADO</span>
+                      <Button className="h-11 sm:h-14 sm:col-span-3 bg-[#c62828] hover:bg-[#d32f2f] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[10px] sm:text-[11px] font-black uppercase leading-tight">REEVALUAR</span>
+                        <span className="text-[8px] sm:text-[9px] opacity-70">2 - LIMITADO</span>
                       </Button>
                     </div>
                   </div>
@@ -811,12 +813,12 @@ export function ReportForm() {
               </Card>
 
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md border-primary/20">
-                <div className="bg-[#E0B050] px-6 py-4 flex items-center gap-4 border-b border-black/10">
-                  <Award className="h-5 w-5 text-[#1b263b]" />
-                  <h2 className="text-[12px] font-black text-[#1b263b] uppercase tracking-[0.2em]">{t.report.final_evaluation.scout_rating.title}</h2>
+                <div className="bg-[#E0B050] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-black/10">
+                  <Award className="h-4 w-4 sm:h-5 sm:w-5 text-[#1b263b]" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-[#1b263b] uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.final_evaluation.scout_rating.title}</h2>
                 </div>
-                <CardContent className="pt-8 px-8 pb-10">
-                   <div className="grid grid-cols-5 gap-3">
+                <CardContent className="pt-6 sm:pt-8 px-4 sm:px-8 pb-8 sm:pb-10">
+                   <div className="grid grid-cols-5 gap-1.5 sm:gap-3">
                      {[
                        { v: 1, l: 'MUY BAJO', c: 'bg-[#c62828]' },
                        { v: 2, l: 'LIMITADO', c: 'bg-[#e65100]' },
@@ -824,9 +826,9 @@ export function ReportForm() {
                        { v: 4, l: 'ALTO', c: 'bg-[#2e7d32]' },
                        { v: 5, l: 'ÉLITE', c: 'bg-[#1b5e20]' },
                      ].map(r => (
-                       <button key={r.v} className={cn("flex flex-col items-center justify-center gap-2 h-24 rounded-2xl transition-all hover:scale-105 border-2 border-transparent shadow-xl", r.c)}>
-                         <span className="text-3xl font-black text-white">{r.v}</span>
-                         <span className="text-[8px] font-black text-white/90 uppercase tracking-tighter">{r.l}</span>
+                       <button key={r.v} className={cn("flex flex-col items-center justify-center gap-1 sm:gap-2 h-16 sm:h-24 rounded-xl sm:rounded-2xl transition-all hover:scale-105 border-2 border-transparent shadow-xl", r.c)}>
+                         <span className="text-xl sm:text-3xl font-black text-white">{r.v}</span>
+                         <span className="text-[6px] sm:text-[8px] font-black text-white/90 uppercase tracking-tighter text-center px-1">{r.l}</span>
                        </button>
                      ))}
                    </div>
@@ -834,60 +836,62 @@ export function ReportForm() {
               </Card>
 
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-[#1b263b] backdrop-blur-md">
-                <div className="bg-primary/20 px-6 py-4 flex items-center gap-4 border-b border-white/5">
-                  <Target className="h-5 w-5 text-primary" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.decision.title}</h2>
+                <div className="bg-primary/20 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 border-b border-white/5">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em]">{t.report.final_evaluation.decision.title}</h2>
                 </div>
-                <CardContent className="pt-8 space-y-6 px-8">
-                   <div className="space-y-4">
-                     <Label className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.steps}</Label>
+                <CardContent className="pt-6 sm:pt-8 space-y-4 sm:space-y-6 px-4 sm:px-8">
+                   <div className="space-y-3 sm:space-y-4">
+                     <Label className="text-[9px] sm:text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.steps}</Label>
                      <div className="flex flex-wrap gap-2">
                        {['Informe completo', 'Análisis de vídeo', '2ª observación', 'Contactar referencias', 'Validación estadística', 'Revisión médica'].map(step => (
-                         <Button key={step} variant="outline" size="sm" className="h-8 rounded-full text-[9px] font-bold border-white/10 hover:bg-white/5">{step}</Button>
+                         <Button key={step} variant="outline" size="sm" className="h-7 sm:h-8 rounded-full text-[8px] sm:text-[9px] font-bold border-white/10 hover:bg-white/5 px-3">
+                           {step}
+                         </Button>
                        ))}
                      </div>
                    </div>
-                   <div className="grid grid-cols-2 gap-6">
-                     <div className="space-y-2">
-                       <Label className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.committee}</Label>
-                       <Input className="h-10 bg-white/5 border-white/10 text-[11px]" placeholder="Nombres..." />
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                     <div className="space-y-1.5 sm:space-y-2">
+                       <Label className="text-[9px] sm:text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.committee}</Label>
+                       <Input className="h-9 sm:h-10 bg-white/5 border-white/10 text-[10px] sm:text-[11px]" placeholder="Nombres..." />
                      </div>
-                     <div className="space-y-2">
-                       <Label className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.date}</Label>
-                       <Input type="date" className="h-10 bg-white/5 border-white/10 text-[11px]" />
+                     <div className="space-y-1.5 sm:space-y-2">
+                       <Label className="text-[9px] sm:text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.date}</Label>
+                       <Input type="date" className="h-9 sm:h-10 bg-white/5 border-white/10 text-[10px] sm:text-[11px]" />
                      </div>
                    </div>
                 </CardContent>
               </Card>
             </div>
           </div>
-          <div className="flex justify-between mt-16 pt-10 border-t border-border/20">
-            <Button variant="ghost" onClick={() => setActiveTab("actions")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground">
-              <ChevronLeft className="mr-4 h-5 w-5" /> {t.report.actions.previous}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 sm:mt-16 pt-6 sm:pt-10 border-t border-border/20">
+            <Button variant="ghost" onClick={() => setActiveTab("actions")} className="order-2 sm:order-1 px-8 py-5 font-black text-xs sm:text-sm uppercase text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="mr-3 sm:mr-4 h-4 w-4 sm:h-5 sm:w-5" /> {t.report.actions.previous}
             </Button>
-            <Button onClick={() => setActiveTab("analytics")} className="px-20 py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[16px] transition-all transform hover:scale-105">
+            <Button onClick={() => setActiveTab("analytics")} className="order-1 sm:order-2 px-12 sm:px-20 py-6 sm:py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[14px] sm:text-[16px] transition-all transform hover:scale-105">
               {t.report.actions.next}
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="mt-10 animate-in zoom-in-95 space-y-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <Card className="border-primary/20 bg-primary/5 shadow-inner p-12 rounded-3xl group hover:border-primary/40 transition-all border-2">
-              <div className="text-center space-y-10">
-                <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20 shadow-xl group-hover:scale-110 transition-transform">
-                  <Activity className="h-10 w-10 text-primary" />
+        <TabsContent value="analytics" className="mt-6 sm:mt-10 animate-in zoom-in-95 space-y-8 sm:space-y-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
+            <Card className="border-primary/20 bg-primary/5 shadow-inner p-6 sm:p-12 rounded-3xl group hover:border-primary/40 transition-all border-2">
+              <div className="text-center space-y-6 sm:space-y-10">
+                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20 shadow-xl group-hover:scale-110 transition-transform">
+                  <Activity className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-black font-headline uppercase tracking-[0.2em] text-foreground">{t.report.pim.title}</h3>
-                <div className="h-44 flex items-center justify-center">
+                <h3 className="text-xl sm:text-2xl font-black font-headline uppercase tracking-[0.15em] sm:tracking-[0.2em] text-foreground">{t.report.pim.title}</h3>
+                <div className="h-32 sm:h-44 flex items-center justify-center">
                   {pimScore !== null ? (
-                    <div className="text-[110px] font-black text-primary font-headline animate-in zoom-in-50 drop-shadow-[0_15px_40px_rgba(224,176,80,0.5)] leading-none">{pimScore}</div>
+                    <div className="text-[70px] sm:text-[110px] font-black text-primary font-headline animate-in zoom-in-50 drop-shadow-[0_15px_40px_rgba(224,176,80,0.5)] leading-none">{pimScore}</div>
                   ) : (
-                    <div className="text-muted-foreground/60 italic text-[15px] font-medium uppercase tracking-widest border border-dashed border-border/40 px-10 py-12 rounded-2xl">PIM no calculado</div>
+                    <div className="text-muted-foreground/60 italic text-[12px] sm:text-[15px] font-medium uppercase tracking-widest border border-dashed border-border/40 px-6 sm:px-10 py-8 sm:py-12 rounded-2xl">PIM no calculado</div>
                   )}
                 </div>
                 <Button 
-                  className="w-full h-16 bg-primary text-primary-foreground font-black tracking-[0.25em] text-[16px] rounded-2xl shadow-2xl shadow-primary/30 uppercase transition-all hover:scale-[1.02]" 
+                  className="w-full h-14 sm:h-16 bg-primary text-primary-foreground font-black tracking-[0.2em] sm:tracking-[0.25em] text-[14px] sm:text-[16px] rounded-2xl shadow-2xl shadow-primary/30 uppercase transition-all hover:scale-[1.02]" 
                   onClick={handleCalculatePIM}
                   disabled={isCalculatingPIM}
                 >
@@ -896,20 +900,20 @@ export function ReportForm() {
               </div>
             </Card>
 
-            <Card className="border-accent/20 bg-accent/5 shadow-inner p-12 rounded-3xl group hover:border-accent/40 transition-all border-2">
-              <div className="text-center space-y-10">
-                <div className="h-20 w-20 rounded-full bg-accent/10 flex items-center justify-center mx-auto border border-accent/20 shadow-xl group-hover:scale-110 transition-transform">
-                  <Award className="h-10 w-10 text-accent" />
+            <Card className="border-accent/20 bg-accent/5 shadow-inner p-6 sm:p-12 rounded-3xl group hover:border-accent/40 transition-all border-2">
+              <div className="text-center space-y-6 sm:space-y-10">
+                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-accent/10 flex items-center justify-center mx-auto border border-accent/20 shadow-xl group-hover:scale-110 transition-transform">
+                  <Award className="h-8 w-8 sm:h-10 sm:w-10 text-accent" />
                 </div>
-                <h3 className="text-2xl font-black font-headline uppercase tracking-[0.2em] text-foreground">{t.report.summary.title}</h3>
-                <div className="min-h-44 flex items-center justify-center border-2 border-dashed border-accent/30 rounded-2xl bg-background/50 p-8 text-left shadow-inner">
-                  <p className="text-[14px] text-foreground/90 italic leading-relaxed font-medium">
+                <h3 className="text-xl sm:text-2xl font-black font-headline uppercase tracking-[0.15em] sm:tracking-[0.2em] text-foreground">{t.report.summary.title}</h3>
+                <div className="min-h-[120px] sm:min-h-44 flex items-center justify-center border-2 border-dashed border-accent/30 rounded-2xl bg-background/50 p-6 sm:p-8 text-left shadow-inner">
+                  <p className="text-[12px] sm:text-[14px] text-foreground/90 italic leading-relaxed font-medium">
                     {summary || t.report.summary.placeholder}
                   </p>
                 </div>
                 <Button 
                     variant="secondary" 
-                    className="w-full h-16 font-black tracking-[0.25em] text-[14px] rounded-2xl shadow-2xl border-accent/30 uppercase transition-all hover:scale-[1.02]"
+                    className="w-full h-14 sm:h-16 font-black tracking-[0.2em] sm:tracking-[0.25em] text-[12px] sm:text-[14px] rounded-2xl shadow-2xl border-accent/30 uppercase transition-all hover:scale-[1.02]"
                     onClick={handleGenerateSummary}
                     disabled={isGeneratingSummary}
                 >
@@ -918,9 +922,9 @@ export function ReportForm() {
               </div>
             </Card>
           </div>
-          <div className="flex justify-start mt-16 pt-10 border-t border-border/20">
-            <Button variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground group">
-              <ChevronLeft className="mr-4 h-5 w-5 group-hover:-translate-x-2 transition-transform" /> {t.report.actions.previous}
+          <div className="flex justify-start mt-10 sm:mt-16 pt-6 sm:pt-10 border-t border-border/20">
+            <Button variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-8 py-5 font-black text-xs sm:text-sm uppercase text-muted-foreground hover:text-foreground group">
+              <ChevronLeft className="mr-3 sm:mr-4 h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-2 transition-transform" /> {t.report.actions.previous}
             </Button>
           </div>
         </TabsContent>

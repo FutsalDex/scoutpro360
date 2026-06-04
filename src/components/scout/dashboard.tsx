@@ -20,17 +20,17 @@ export function ScoutDashboard() {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-12">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-headline font-bold text-foreground">{t.dashboard.title}</h1>
           <p className="text-sm text-muted-foreground">{t.dashboard.subtitle}</p>
         </div>
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-          <Button variant="outline" className="flex-1 md:flex-none bg-background/50 backdrop-blur-sm border-border text-xs">
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+          <Button variant="outline" className="flex-1 md:flex-none bg-background/50 backdrop-blur-sm border-border text-xs h-10">
             <Search className="h-4 w-4 mr-2" /> {t.dashboard.search}
           </Button>
-          <Button className="flex-1 md:flex-none bg-primary text-primary-foreground shadow-lg shadow-primary/20 text-xs">
+          <Button className="flex-1 md:flex-none bg-primary text-primary-foreground shadow-lg shadow-primary/20 text-xs h-10">
             {t.dashboard.createReport}
           </Button>
         </div>
@@ -51,11 +51,11 @@ export function ScoutDashboard() {
               <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs text-primary">View All</Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y divide-border">
+          <CardContent className="p-0 overflow-x-auto">
+            <div className="divide-y divide-border min-w-full">
               {MOCK_PLAYERS.map(player => (
-                <div key={player.id} className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors cursor-pointer group">
-                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+                <div key={player.id} className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors cursor-pointer group min-w-max sm:min-w-0">
+                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden mr-4">
                     <Avatar className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg border-2 border-primary/20 bg-background shrink-0">
                       <AvatarImage src={`https://picsum.photos/seed/${player.id}/100`} />
                       <AvatarFallback className="font-bold">{player.name[0]}</AvatarFallback>
@@ -71,7 +71,7 @@ export function ScoutDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-                    <div className="text-right hidden xs:block">
+                    <div className="text-right">
                       <p className="text-[8px] sm:text-[10px] uppercase tracking-widest text-muted-foreground font-bold leading-none">PIM</p>
                       <p className="text-sm sm:text-lg font-headline font-bold text-accent">{player.currentPIM}</p>
                     </div>
@@ -110,7 +110,7 @@ function StatsCard({ title, value, icon, trend }: { title: string, value: string
       </div>
       <CardHeader className="p-4 pb-1">
         <div className="flex items-center justify-between">
-          <CardDescription className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest truncate">{title}</CardDescription>
+          <CardDescription className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest truncate mr-2">{title}</CardDescription>
           <div className="shrink-0">{React.cloneElement(icon as React.ReactElement, { size: 16 })}</div>
         </div>
         <CardTitle className="text-xl sm:text-3xl font-headline font-bold mt-1">{value}</CardTitle>
