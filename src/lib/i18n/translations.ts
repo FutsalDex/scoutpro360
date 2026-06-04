@@ -37,6 +37,7 @@ export const translations = {
         mental: 'MENTAL',
         actions: 'ACTIONS',
         evaluation: 'EVALUATION',
+        analytics: 'AI ANALYTICS',
       },
       sections: {
         technical_obs: 'TECHNICAL OBSERVATION',
@@ -165,6 +166,39 @@ export const translations = {
         placeholder: 'Generate an objective summary based on the report findings...',
         generate: 'GENERATE AI SUMMARY',
         generating: 'Analyzing Report...',
+      },
+      final_evaluation: {
+        strengths: {
+          title: 'STRENGTHS & AREAS TO IMPROVE',
+          strengths_title: 'MAIN STRENGTHS',
+          areas_title: 'AREAS TO IMPROVE',
+          short_term: 'SHORT TERM',
+          long_term: 'LONG TERM',
+        },
+        sign_in: {
+          title: 'SIGNING EVALUATION',
+          fits_model: 'FITS OUR MODEL?',
+          impact: 'IMMEDIATE IMPACT',
+          potential: 'FUTURE POTENTIAL',
+          risk: 'ADAPTATION RISK',
+          philosophy: 'FITS PHILOSOPHY?',
+        },
+        summary_final: {
+          title: 'FINAL SUMMARY',
+          desc: 'GENERAL PLAYER DESCRIPTION',
+          comparative: 'COMPARATIVE (POSITION / PROFILE)',
+          rec: 'FINAL RECOMMENDATION',
+          additional: 'ADDITIONAL NOTES',
+        },
+        scout_rating: {
+          title: 'FINAL SCOUT RATING',
+        },
+        decision: {
+          title: 'INTERNAL DECISION',
+          steps: 'NEXT STEPS',
+          committee: 'SCOUTING COMMITTEE',
+          date: 'DECISION DATE',
+        }
       }
     }
   },
@@ -206,6 +240,7 @@ export const translations = {
         mental: 'MENTAL',
         actions: 'ACCIONES',
         evaluation: 'EVALUACIÓN',
+        analytics: 'ANÁLISIS IA',
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
@@ -334,6 +369,39 @@ export const translations = {
         placeholder: 'Generar un resumen objetivo basado en los hallazgos del informe...',
         generate: 'GENERAR RESUMEN AI',
         generating: 'Analizando Informe...',
+      },
+      final_evaluation: {
+        strengths: {
+          title: 'FORTALEZAS Y ÁREAS DE MEJORA',
+          strengths_title: 'FORTALEZAS PRINCIPALES',
+          areas_title: 'ÁREAS A MEJORAR',
+          short_term: 'CORTO PLAZO',
+          long_term: 'LARGO PLAZO',
+        },
+        sign_in: {
+          title: 'EVALUACIÓN DE FICHAJE',
+          fits_model: '¿ENCAJA EN NUESTRO MODELO?',
+          impact: 'IMPACTO INMEDIATO',
+          potential: 'POTENCIAL FUTURO',
+          risk: 'RIESGO DE ADAPTACIÓN',
+          philosophy: '¿ENCAJA EN LA FILOSOFÍA?',
+        },
+        summary_final: {
+          title: 'RESUMEN FINAL',
+          desc: 'DESCRIPCIÓN GENERAL DEL JUGADOR',
+          comparative: 'COMPARATIVA (POSICIÓN / PERFIL)',
+          rec: 'RECOMENDACIÓN FINAL',
+          additional: 'NOTAS ADICIONALES',
+        },
+        scout_rating: {
+          title: 'VALORACIÓN FINAL DEL SCOUT',
+        },
+        decision: {
+          title: 'DECISIÓN INTERNA',
+          steps: 'PRÓXIMOS PASOS',
+          committee: 'COMITÉ DE SCOUTING',
+          date: 'FECHA DE DECISIÓN',
+        }
       }
     }
   }

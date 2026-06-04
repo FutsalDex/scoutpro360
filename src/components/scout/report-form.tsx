@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Sun, Cloud, CloudRain, Wind, Clipboard, Star, Award } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Sun, Cloud, CloudRain, Wind, Clipboard, Star, Award, Search, CheckCircle2 } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
@@ -25,7 +25,6 @@ interface ActionRow {
   notes: string;
 }
 
-// Subcomponente RatingRow extraído para evitar remontaos
 const RatingRow = ({ 
   kpi, 
   rating, 
@@ -65,7 +64,6 @@ const RatingRow = ({
   </div>
 );
 
-// Subcomponente EvaluationModule extraído para evitar remontaos
 const EvaluationModule = ({ 
   icon: Icon, 
   kpiSection, 
@@ -667,13 +665,190 @@ export function ReportForm() {
             <Button variant="ghost" onClick={() => setActiveTab("mental")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-4 h-5 w-5" /> {t.report.actions.previous}
             </Button>
-            <Button onClick={() => setActiveTab("evaluation")} className="px-20 py-8 bg-[#1b263b] text-white hover:bg-[#1b263b]/90 font-black shadow-2xl rounded-2xl text-[16px] transition-all transform hover:scale-105 border border-primary/20">
+            <Button onClick={() => setActiveTab("evaluation")} className="px-20 py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[16px] transition-all transform hover:scale-105">
               {t.report.actions.next}
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="evaluation" className="mt-10 animate-in zoom-in-95 space-y-12">
+        <TabsContent value="evaluation" className="mt-10 animate-in fade-in slide-in-from-bottom-2 space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div className="space-y-10">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#2e7d32] px-6 py-4 flex items-center gap-4 border-b border-white/10">
+                  <Star className="h-5 w-5 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.strengths.title}</h2>
+                </div>
+                <CardContent className="pt-8 space-y-8 px-8">
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.strengths_title}</Label>
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-muted-foreground w-4">{i}.</span>
+                        <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Fortaleza..." />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.areas_title}</Label>
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-muted-foreground w-4">{i}.</span>
+                        <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Área a mejorar..." />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.short_term}</Label>
+                      <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Desarrollo..." />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.long_term}</Label>
+                      <Input className="h-10 bg-secondary/10 border-border/20" placeholder="Desarrollo..." />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#007b83] px-6 py-4 flex items-center gap-4 border-b border-white/10">
+                  <Shield className="h-5 w-5 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.sign_in.title}</h2>
+                </div>
+                <CardContent className="pt-8 space-y-6 px-8">
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.fits_model}</Label>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="flex-1 h-9 rounded-full text-[10px] font-bold uppercase tracking-widest">SÍ</Button>
+                      <Button variant="outline" size="sm" className="flex-1 h-9 rounded-full text-[10px] font-bold uppercase tracking-widest">NO</Button>
+                      <Button variant="outline" size="sm" className="flex-1 h-9 rounded-full text-[10px] font-bold uppercase tracking-widest">SEGUIMIENTO</Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.impact}</Label>
+                      <div className="flex gap-1.5">
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[9px] font-bold uppercase">ALTO</Button>
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[9px] font-bold uppercase">MEDIO</Button>
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[9px] font-bold uppercase">BAJO</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.sign_in.potential}</Label>
+                      <div className="flex gap-1">
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">ÉLITE</Button>
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">ALTO</Button>
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">MEDIO</Button>
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-[8px] font-bold uppercase">BAJO</Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="space-y-10">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#007b83] px-6 py-4 flex items-center gap-4 border-b border-white/10">
+                  <Star className="h-5 w-5 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.summary_final.title}</h2>
+                </div>
+                <CardContent className="pt-8 space-y-6 px-8">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.desc}</Label>
+                    <Textarea className="min-h-[100px] bg-secondary/10 border-border/20 text-[11px]" placeholder="Impresión general..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.comparative}</Label>
+                    <Input className="h-10 bg-secondary/10 border-border/20 text-[11px]" placeholder="Similar a..." />
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.summary_final.rec}</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <Button className="h-14 bg-[#1b5e20] hover:bg-[#2e7d32] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[9px] font-black uppercase leading-tight">FICHAJE INMEDIATO</span>
+                        <span className="text-[8px] opacity-70">6 - ÉLITE</span>
+                      </Button>
+                      <Button className="h-14 bg-[#2e7d32] hover:bg-[#388e3c] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[9px] font-black uppercase leading-tight">SEGUIMIENTO</span>
+                        <span className="text-[8px] opacity-70">4 - ALTO</span>
+                      </Button>
+                      <Button className="h-14 bg-[#e65100] hover:bg-[#ef6c00] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[9px] font-black uppercase leading-tight">MONITOR PRIORITARIO</span>
+                        <span className="text-[8px] opacity-70">3 - BUENO</span>
+                      </Button>
+                      <Button className="h-14 col-span-3 bg-[#c62828] hover:bg-[#d32f2f] text-white flex flex-col items-center justify-center gap-0.5 rounded-xl shadow-lg">
+                        <span className="text-[11px] font-black uppercase leading-tight">REEVALUAR</span>
+                        <span className="text-[9px] opacity-70">2 - LIMITADO</span>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md border-primary/20">
+                <div className="bg-[#E0B050] px-6 py-4 flex items-center gap-4 border-b border-black/10">
+                  <Award className="h-5 w-5 text-[#1b263b]" />
+                  <h2 className="text-[12px] font-black text-[#1b263b] uppercase tracking-[0.2em]">{t.report.final_evaluation.scout_rating.title}</h2>
+                </div>
+                <CardContent className="pt-8 px-8 pb-10">
+                   <div className="grid grid-cols-5 gap-3">
+                     {[
+                       { v: 1, l: 'MUY BAJO', c: 'bg-[#c62828]' },
+                       { v: 2, l: 'LIMITADO', c: 'bg-[#e65100]' },
+                       { v: 3, l: 'BUENO', c: 'bg-[#f9a825]' },
+                       { v: 4, l: 'ALTO', c: 'bg-[#2e7d32]' },
+                       { v: 5, l: 'ÉLITE', c: 'bg-[#1b5e20]' },
+                     ].map(r => (
+                       <button key={r.v} className={cn("flex flex-col items-center justify-center gap-2 h-24 rounded-2xl transition-all hover:scale-105 border-2 border-transparent shadow-xl", r.c)}>
+                         <span className="text-3xl font-black text-white">{r.v}</span>
+                         <span className="text-[8px] font-black text-white/90 uppercase tracking-tighter">{r.l}</span>
+                       </button>
+                     ))}
+                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-[#1b263b] backdrop-blur-md">
+                <div className="bg-primary/20 px-6 py-4 flex items-center gap-4 border-b border-white/5">
+                  <Target className="h-5 w-5 text-primary" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">{t.report.final_evaluation.decision.title}</h2>
+                </div>
+                <CardContent className="pt-8 space-y-6 px-8">
+                   <div className="space-y-4">
+                     <Label className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.steps}</Label>
+                     <div className="flex flex-wrap gap-2">
+                       {['Informe completo', 'Análisis de vídeo', '2ª observación', 'Contactar referencias', 'Validación estadística', 'Revisión médica'].map(step => (
+                         <Button key={step} variant="outline" size="sm" className="h-8 rounded-full text-[9px] font-bold border-white/10 hover:bg-white/5">{step}</Button>
+                       ))}
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                       <Label className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.committee}</Label>
+                       <Input className="h-10 bg-white/5 border-white/10 text-[11px]" placeholder="Nombres..." />
+                     </div>
+                     <div className="space-y-2">
+                       <Label className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{t.report.final_evaluation.decision.date}</Label>
+                       <Input type="date" className="h-10 bg-white/5 border-white/10 text-[11px]" />
+                     </div>
+                   </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          <div className="flex justify-between mt-16 pt-10 border-t border-border/20">
+            <Button variant="ghost" onClick={() => setActiveTab("actions")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="mr-4 h-5 w-5" /> {t.report.actions.previous}
+            </Button>
+            <Button onClick={() => setActiveTab("analytics")} className="px-20 py-8 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[16px] transition-all transform hover:scale-105">
+              {t.report.actions.next}
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-10 animate-in zoom-in-95 space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <Card className="border-primary/20 bg-primary/5 shadow-inner p-12 rounded-3xl group hover:border-primary/40 transition-all border-2">
               <div className="text-center space-y-10">
@@ -721,7 +896,7 @@ export function ReportForm() {
             </Card>
           </div>
           <div className="flex justify-start mt-16 pt-10 border-t border-border/20">
-            <Button variant="ghost" onClick={() => setActiveTab("actions")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground group">
+            <Button variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-12 py-7 font-black text-sm uppercase text-muted-foreground hover:text-foreground group">
               <ChevronLeft className="mr-4 h-5 w-5 group-hover:-translate-x-2 transition-transform" /> {t.report.actions.previous}
             </Button>
           </div>
