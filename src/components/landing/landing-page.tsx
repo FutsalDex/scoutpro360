@@ -22,7 +22,8 @@ import {
   Globe,
   Users,
   LineChart,
-  Activity
+  Activity,
+  Github
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -320,8 +321,16 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           <FooterColumn title="Plataforma" links={['Características', 'Precios', 'Demo', 'Blog']} />
           <FooterColumn title="Soporte" links={['Contacto', 'FAQ', 'Documentación', 'Estado API']} />
           <div className="space-y-6">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs">Síguenos</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs">Conecta</h4>
             <div className="flex gap-4">
+              <a 
+                href="https://github.com/FutsalDex" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer"
+              >
+                <Github className="h-5 w-5" />
+              </a>
               {[Globe, Users, Star, Activity].map((Icon, i) => (
                 <div key={i} className="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer">
                   <Icon className="h-5 w-5" />
@@ -331,7 +340,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/5 text-center text-xs uppercase tracking-widest">
-          © 2026 ScoutPro360. Todos los derechos reservados.
+          © 2026 ScoutPro360 by FutsalDex. Todos los derechos reservados.
         </div>
       </footer>
     </div>
