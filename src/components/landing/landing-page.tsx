@@ -155,41 +155,65 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       </section>
 
       {/* 4. VISTA PREVIA DE INFORME REAL */}
-      <section className="py-24 px-6 bg-secondary/20">
+      <section className="py-24 px-6 bg-secondary/10">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl font-headline font-bold uppercase tracking-widest">Informe en Acción</h2>
-            <p className="text-muted-foreground">Ejemplo real de la interfaz de evaluación profesional</p>
+            <h2 className="text-4xl font-headline font-black uppercase tracking-widest">Informe en Acción</h2>
+            <p className="text-muted-foreground font-medium">Ejemplo real de la interfaz de evaluación profesional</p>
           </div>
-          <Card className="border-border/50 shadow-2xl overflow-hidden bg-card/50 backdrop-blur-sm animate-in zoom-in-95 duration-700">
-            <div className="bg-[#1b263b] p-6 border-b border-primary/20 flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-black uppercase tracking-widest text-white">Informe de Observación</h3>
-                <p className="text-[10px] text-primary font-bold uppercase tracking-[0.2em]">Confidencial • 360 Scouting</p>
+          
+          <Card className="border-border/40 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden bg-[#1b263b] animate-in zoom-in-95 duration-700">
+            {/* Informe Header */}
+            <div className="bg-[#1b263b] p-8 border-b border-primary/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">Informe de Observación</h3>
+                <p className="text-[11px] text-primary font-bold uppercase tracking-[0.3em]">Confidencial • 360 Scouting</p>
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-1.5">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className={cn("h-6 w-12 rounded bg-white/5 border border-white/10", i === 7 ? "bg-primary border-primary" : "")} />
+                  <div 
+                    key={i} 
+                    className={cn(
+                      "h-8 w-14 rounded-sm border transition-all", 
+                      i === 7 
+                        ? "bg-primary border-primary shadow-[0_0_15px_rgba(224,176,80,0.4)]" 
+                        : "bg-white/5 border-white/10"
+                    )} 
+                  />
                 ))}
               </div>
             </div>
-            <CardContent className="p-10 space-y-10">
-              <div className="grid md:grid-cols-2 gap-10">
-                <div className="space-y-6">
-                  <div className="h-4 w-32 bg-primary/20 rounded" />
-                  <div className="space-y-3">
+
+            <CardContent className="p-10 space-y-12 bg-[#0f172a]/40">
+              <div className="grid md:grid-cols-12 gap-10 items-center">
+                {/* Left Side: Skeleton Items */}
+                <div className="md:col-span-7 space-y-8">
+                  <div className="h-6 w-40 bg-primary/20 rounded-full" />
+                  <div className="space-y-4">
                     {[1, 2, 3].map(i => (
-                      <div key={i} className="h-10 w-full bg-secondary/30 rounded-lg flex items-center px-4 gap-3">
-                        <CheckCircle2 className="h-4 w-4 text-primary" />
-                        <div className="h-2 w-3/4 bg-muted/40 rounded" />
+                      <div key={i} className="flex items-center gap-5 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-colors">
+                        <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
+                          <CheckCircle2 className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <div className={cn("h-2 rounded-full bg-white/20", i === 1 ? "w-3/4" : i === 2 ? "w-1/2" : "w-2/3")} />
+                          <div className="h-1.5 w-1/4 rounded-full bg-white/10" />
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="flex flex-col items-center justify-center p-8 bg-primary/5 rounded-3xl border border-primary/10">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-4">PIM SCORE</span>
-                  <span className="text-7xl font-black text-primary font-headline drop-shadow-xl">88</span>
-                  <Badge className="mt-6 bg-[#2e7d32] text-white px-6">FICHAJE INMEDIATO</Badge>
+
+                {/* Right Side: Score Module */}
+                <div className="md:col-span-5">
+                  <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-[2.5rem] border border-white/10 shadow-inner relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80 mb-6">PIM SCORE</span>
+                    <span className="text-9xl font-black text-primary font-headline drop-shadow-[0_20px_50px_rgba(224,176,80,0.3)] leading-none">88</span>
+                    <Badge className="mt-10 bg-[#2e7d32] text-white px-8 py-2.5 text-xs font-black uppercase tracking-widest rounded-full shadow-lg shadow-[#2e7d32]/20">
+                      FICHAJE INMEDIATO
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </CardContent>
