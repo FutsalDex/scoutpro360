@@ -166,38 +166,48 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             {/* Informe Header */}
             <div className="bg-[#1b263b] p-8 border-b border-primary/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1">
-                <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">Informe de Observación</h3>
-                <p className="text-[11px] text-primary font-bold uppercase tracking-[0.3em]">Confidencial • 360 Scouting</p>
+                <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">INFORME DE OBSERVACIÓN</h3>
+                <p className="text-[11px] text-primary font-bold uppercase tracking-[0.3em]">CONFIDENCIAL • 360 SCOUTING</p>
               </div>
               <div className="flex gap-1.5">
-                {[...Array(8)].map((_, i) => (
+                {['JUG', 'CON', 'TEC', 'TAC', 'FIS', 'MEN', 'ACC', 'EVA'].map((tab, i) => (
                   <div 
-                    key={i} 
+                    key={tab} 
                     className={cn(
-                      "h-8 w-14 rounded-sm border transition-all", 
+                      "h-8 w-14 rounded-md border flex items-center justify-center transition-all", 
                       i === 7 
                         ? "bg-primary border-primary shadow-[0_0_15px_rgba(224,176,80,0.4)]" 
                         : "bg-white/5 border-white/10"
-                    )} 
-                  />
+                    )}
+                  >
+                    <span className={cn("text-[8px] font-black", i === 7 ? "text-primary-foreground" : "text-white/20")}>
+                      {tab}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
 
             <CardContent className="p-10 space-y-12 bg-[#0f172a]/40">
               <div className="grid md:grid-cols-12 gap-10 items-center">
-                {/* Left Side: Skeleton Items */}
+                {/* Left Side: Mock Evaluation Data */}
                 <div className="md:col-span-7 space-y-8">
-                  <div className="h-6 w-40 bg-primary/20 rounded-full" />
-                  <div className="space-y-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="flex items-center gap-5 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-colors">
-                        <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
-                          <CheckCircle2 className="h-4 w-4 text-primary" />
+                  <div className="h-7 px-5 bg-primary/20 border border-primary/30 rounded-full inline-flex items-center">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Análisis de Fortalezas</span>
+                  </div>
+                  <div className="space-y-5">
+                    {[
+                      { title: "Visión de juego periférica", sub: "Excelente lectura de líneas de pase" },
+                      { title: "Aceleración en último tercio", sub: "Cambio de ritmo determinante en 1vs1" },
+                      { title: "Disciplina táctica", sub: "Mantiene el bloque y coberturas eficientes" }
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-5 p-5 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-colors">
+                        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 shadow-lg shadow-primary/10">
+                          <CheckCircle2 className="h-5 w-5 text-primary" />
                         </div>
-                        <div className="flex-1 space-y-2">
-                          <div className={cn("h-2 rounded-full bg-white/20", i === 1 ? "w-3/4" : i === 2 ? "w-1/2" : "w-2/3")} />
-                          <div className="h-1.5 w-1/4 rounded-full bg-white/10" />
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-black text-white uppercase tracking-tight">{item.title}</p>
+                          <p className="text-[11px] text-muted-foreground italic font-medium">{item.sub}</p>
                         </div>
                       </div>
                     ))}
@@ -206,11 +216,11 @@ export function LandingPage({ onEnter }: LandingPageProps) {
 
                 {/* Right Side: Score Module */}
                 <div className="md:col-span-5">
-                  <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-[2.5rem] border border-white/10 shadow-inner relative overflow-hidden group">
+                  <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-[3rem] border border-white/10 shadow-inner relative overflow-hidden group">
                     <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80 mb-6">PIM SCORE</span>
                     <span className="text-9xl font-black text-primary font-headline drop-shadow-[0_20px_50px_rgba(224,176,80,0.3)] leading-none">88</span>
-                    <Badge className="mt-10 bg-[#2e7d32] text-white px-8 py-2.5 text-xs font-black uppercase tracking-widest rounded-full shadow-lg shadow-[#2e7d32]/20">
+                    <Badge className="mt-12 bg-[#2e7d32] text-white px-10 py-3 text-xs font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-[#2e7d32]/30 border-none">
                       FICHAJE INMEDIATO
                     </Badge>
                   </div>
