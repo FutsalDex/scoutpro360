@@ -33,12 +33,13 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
+      toast({ title: isLogin ? "Acceso concedido" : "Cuenta creada", description: "Bienvenido a ScoutPro 360." });
       onAuthSuccess();
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error de autenticación",
-        description: error.message,
+        description: error.code === 'auth/invalid-credential' ? "Credenciales incorrectas." : error.message,
       });
     } finally {
       setLoading(false);
@@ -50,6 +51,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+      toast({ title: "Acceso con Google", description: "Sincronización exitosa." });
       onAuthSuccess();
     } catch (error: any) {
       toast({
@@ -67,12 +69,13 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
     try {
       const provider = new OAuthProvider('apple.com');
       await signInWithPopup(auth, provider);
+      toast({ title: "Acceso con Apple", description: "Sincronización exitosa." });
       onAuthSuccess();
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error con Apple",
-        description: error.message,
+        description: "Asegúrate de tener configurado el Service ID en Firebase Console.",
       });
     } finally {
       setLoading(false);
