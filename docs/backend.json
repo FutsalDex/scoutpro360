@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "Player": {
@@ -37,16 +36,16 @@
     }
   },
   "auth": {
-    "providers": ["password", "google.com", "apple.com"]
+    "providers": ["password", "google.com", "apple.com", "anonymous"]
   },
   "firestore": {
     "players": {
       "schema": { "$ref": "#/entities/Player" },
-      "description": "Colección global de jugadores evaluados. Permite lectura y escritura a cualquier usuario autenticado en la plataforma."
+      "description": "Colección global de jugadores evaluados. Permite acceso de lectura y escritura a cualquier usuario autenticado (incluyendo anónimos) para prototipado rápido."
     },
     "reports": {
       "schema": { "$ref": "#/entities/ScoutingReport" },
-      "description": "Colección de informes detallados de scouting. Permite lectura y escritura a cualquier usuario autenticado en la plataforma."
+      "description": "Colección de informes detallados de scouting. Permite acceso de lectura y escritura a cualquier usuario autenticado."
     }
   }
 }

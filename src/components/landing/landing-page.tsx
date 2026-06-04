@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -25,9 +24,13 @@ import {
   Users,
   LineChart,
   Activity,
-  Github
+  Github,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { auth } from "@/lib/firebase/config";
+import { signInAnonymously } from "firebase/auth";
+import { useToast } from "@/hooks/use-toast";
 
 interface LandingPageProps {
   onEnter: () => void;
@@ -35,6 +38,27 @@ interface LandingPageProps {
 
 export function LandingPage({ onEnter }: LandingPageProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleGuestEntry = async () => {
+    setIsGuestLoading(true);
+    try {
+      await signInAnonymously(auth);
+      onEnter();
+    } catch (error: any) {
+      console.error("Guest login failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Error de acceso invitado",
+        description: "No se pudo iniciar sesión como invitado. Verifica tu conexión.",
+      });
+      // Fallback: intentar entrar de todos modos por si la sesión ya existe
+      onEnter();
+    } finally {
+      setIsGuestLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
@@ -66,8 +90,12 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               <AuthModal onAuthSuccess={onEnter} />
             </Dialog>
             
-            <Button onClick={onEnter} className="bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-lg shadow-primary/20 font-bold text-xs uppercase tracking-widest px-6">
-              Entrar (Invitado)
+            <Button 
+              onClick={handleGuestEntry} 
+              disabled={isGuestLoading}
+              className="bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-lg shadow-primary/20 font-bold text-xs uppercase tracking-widest px-6"
+            >
+              {isGuestLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Entrar (Invitado)'}
             </Button>
             <button className="lg:hidden p-2 text-muted-foreground" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X /> : <Menu />}
@@ -93,8 +121,8 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               </DialogTrigger>
               <AuthModal onAuthSuccess={onEnter} />
             </Dialog>
-            <Button onClick={onEnter} className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground">
-              Entrar como Invitado
+            <Button onClick={handleGuestEntry} disabled={isGuestLoading} className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground">
+              {isGuestLoading ? 'Cargando...' : 'Entrar como Invitado'}
             </Button>
           </nav>
         </div>
@@ -123,7 +151,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               </DialogTrigger>
               <AuthModal onAuthSuccess={onEnter} />
             </Dialog>
-            <Button variant="outline" onClick={onEnter} className="h-14 px-10 border-border/50 text-base font-black uppercase tracking-widest hover:bg-secondary">
+            <Button variant="outline" onClick={handleGuestEntry} className="h-14 px-10 border-border/50 text-base font-black uppercase tracking-widest hover:bg-secondary">
               Entrar (Demo)
             </Button>
           </div>
@@ -325,7 +353,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               </DialogTrigger>
               <AuthModal onAuthSuccess={onEnter} />
             </Dialog>
-            <Button variant="outline" onClick={onEnter} className="h-16 px-12 text-lg font-black uppercase tracking-widest">
+            <Button variant="outline" onClick={handleGuestEntry} disabled={isGuestLoading} className="h-16 px-12 text-lg font-black uppercase tracking-widest">
               Agendar Demo
             </Button>
           </div>

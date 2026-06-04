@@ -1,4 +1,3 @@
-
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -29,7 +28,7 @@ export interface ScoutingReport {
 
 /**
  * Guarda un nuevo jugador en Firestore.
- * El despliegue de reglas permitirá esta operación para usuarios autenticados.
+ * Acceso permitido a usuarios autenticados (incluyendo anónimos).
  */
 export async function savePlayer(playerData: Omit<Player, 'id'>) {
   const colRef = collection(db, "players");
