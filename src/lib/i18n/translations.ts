@@ -132,6 +132,9 @@ export const translations = {
       pdfKeyActions: 'KEY MATCH ACTIONS REGISTRY',
       pdfAiConclusions: 'CONCLUSIONS AND AI ANALYSIS',
       pdfPimEstimated: 'ESTIMATED PIM IMPACT',
+      pitch: {
+        title: 'TACTICAL POSITIONING',
+      },
       tabs: {
         player: 'PLAYER',
         context: 'CONTEXT',
@@ -386,6 +389,9 @@ export const translations = {
       pdfKeyActions: 'REGISTRO DE ACCIONES CLAVE',
       pdfAiConclusions: 'CONCLUSIONES Y ANÁLISIS IA',
       pdfPimEstimated: 'IMPACTO PIM ESTIMADO',
+      pitch: {
+        title: 'POSICIONAMIENTO TÁCTICO',
+      },
       tabs: {
         player: 'JUGADOR',
         context: 'CONTEXTO',
