@@ -1,24 +1,21 @@
-
 "use client"
 
 import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { MousePointer2, Flame, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Point } from "@/lib/types";
 
-interface Point {
-  x: number;
-  y: number;
+interface TacticalCanvasProps {
+  marker: Point;
+  onMarkerChange: (p: Point) => void;
+  heatmapPoints: Point[];
+  onHeatmapChange: (points: Point[]) => void;
 }
 
-type Mode = 'position' | 'heatmap';
-
-export function TacticalCanvas() {
+export function TacticalCanvas({ marker, onMarkerChange, heatmapPoints, onHeatmapChange }: TacticalCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [mode, setMode] = useState<Mode>('position');
-  // Posición inicial: centro del campo
-  const [marker, setMarker] = useState<Point>({ x: 200, y: 300 });
-  const [heatmapPoints, setHeatmapPoints] = useState<Point[]>([]);
+  const [mode, setMode] = useState<'position' | 'heatmap'>('position');
 
   const handleInteraction = (e: React.MouseEvent | React.TouchEvent) => {
     const svg = svgRef.current;
@@ -32,15 +29,15 @@ export function TacticalCanvas() {
     const y = Math.max(0, Math.min(600, ((clientY - rect.top) / rect.height) * 600));
     
     if (mode === 'position') {
-      setMarker({ x, y });
+      onMarkerChange({ x, y });
     } else {
-      setHeatmapPoints(prev => [...prev, { x, y }]);
+      onHeatmapChange([...heatmapPoints, { x, y }]);
     }
   };
 
   const clearHeatmap = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setHeatmapPoints([]);
+    onHeatmapChange([]);
   };
 
   return (
@@ -49,6 +46,7 @@ export function TacticalCanvas() {
       <div className="flex gap-2 p-1 bg-secondary/30 rounded-lg border border-border/50">
         <Button
           size="sm"
+          type="button"
           variant={mode === 'position' ? 'default' : 'ghost'}
           onClick={() => setMode('position')}
           className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2"
@@ -57,6 +55,7 @@ export function TacticalCanvas() {
         </Button>
         <Button
           size="sm"
+          type="button"
           variant={mode === 'heatmap' ? 'default' : 'ghost'}
           onClick={() => setMode('heatmap')}
           className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2"
@@ -65,6 +64,7 @@ export function TacticalCanvas() {
         </Button>
         <Button
           size="sm"
+          type="button"
           variant="ghost"
           onClick={clearHeatmap}
           className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2 text-destructive hover:text-destructive"
@@ -84,15 +84,12 @@ export function TacticalCanvas() {
           className="absolute inset-0 w-full h-full pointer-events-none"
         >
           <defs>
-            {/* Gradiente para los puntos de calor */}
             <radialGradient id="heatGradient">
               <stop offset="0%" stopColor="#ff0000" stopOpacity="0.6" />
               <stop offset="40%" stopColor="#ffcc00" stopOpacity="0.4" />
               <stop offset="70%" stopColor="#00ff00" stopOpacity="0.2" />
               <stop offset="100%" stopColor="#0000ff" stopOpacity="0" />
             </radialGradient>
-            
-            {/* Filtro de desenfoque para suavizar el calor */}
             <filter id="blurFilter">
               <feGaussianBlur in="SourceGraphic" stdDeviation="15" />
             </filter>
@@ -108,16 +105,13 @@ export function TacticalCanvas() {
             ))}
           </g>
 
-          {/* Pitch Markings */}
           <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
           <line x1="10" y1="300" x2="390" y2="300" stroke="white" strokeWidth="1.5" opacity="0.4" />
           <circle cx="200" cy="300" r="60" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
-          
-          {/* Areas */}
           <rect x="80" y="10" width="240" height="100" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
           <rect x="80" y="490" width="240" height="100" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
 
-          {/* Renderizado del Mapa de Calor */}
+          {/* Render Heatmap */}
           <g filter="url(#blurFilter)">
             {heatmapPoints.map((point, index) => (
               <circle 
@@ -130,7 +124,7 @@ export function TacticalCanvas() {
             ))}
           </g>
 
-          {/* Marcador del Jugador */}
+          {/* Player Marker */}
           <g transform={`translate(${marker.x}, ${marker.y})`} className="drop-shadow-2xl transition-all duration-300">
             <circle r="18" fill="white" opacity="0.9" />
             <circle r="14" fill="#E0B050" />
@@ -149,7 +143,6 @@ export function TacticalCanvas() {
           </g>
         </svg>
 
-        {/* Overlay Indicativo del Modo */}
         <div className="absolute top-2 right-2 flex items-center gap-2 pointer-events-none">
           <div className={cn(
             "h-2 w-2 rounded-full animate-pulse",

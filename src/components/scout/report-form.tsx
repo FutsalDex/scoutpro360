@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
 import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2 } from "lucide-react";
-import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport } from "@/lib/types";
+import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport, type Point } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
@@ -17,6 +17,11 @@ import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/l
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { serverTimestamp } from "firebase/firestore";
+
+interface ReportFormProps {
+  userProfile: UserProfile | null;
+  editingPlayerId: string | null;
+}
 
 const RatingRow = ({ 
   kpi, 
@@ -154,6 +159,10 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
 
+  // Pitch State
+  const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
+  const [heatmapPoints, setHeatmapPoints] = useState<Point[]>([]);
+
   // Form states
   const [playerName, setPlayerName] = useState("");
   const [dorsal, setDorsal] = useState("");
@@ -172,7 +181,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
 
-  // Carga de datos si estamos editando
   useEffect(() => {
     if (editingPlayerId) {
       const loadData = async () => {
@@ -204,13 +212,14 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           setRatings(report.ratings || {});
           setNotes(report.notes || {});
           setScoutName(report.scoutName || "");
+          if (report.pitchPosition) setPitchMarker(report.pitchPosition);
+          if (report.heatmapPoints) setHeatmapPoints(report.heatmapPoints);
         }
       };
       loadData();
     }
   }, [editingPlayerId]);
 
-  // Sincronizar el nombre del scout con el perfil de Firestore
   useEffect(() => {
     if (!editingPlayerId) {
       if (userProfile?.displayName) {
@@ -274,6 +283,8 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         minPlayed,
         physicalCondition,
         selectedRoles,
+        pitchPosition: pitchMarker,
+        heatmapPoints: heatmapPoints,
         createdAt: serverTimestamp()
       }, reportId || undefined);
 
@@ -330,6 +341,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
 
         <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
+            {/* 1 INFORMACIÓN DEL JUGADOR */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
@@ -345,7 +357,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dorsal}</Label>
                     <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="-" />
                   </div>
-
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
                     <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Club" />
@@ -354,7 +365,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.rival}</Label>
                     <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="vs" />
                   </div>
-
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.competition}</Label>
                     <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Liga / Copa" />
@@ -363,7 +373,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.matchDate}</Label>
                     <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20" />
                   </div>
-
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.birthDate}</Label>
                     <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20" />
@@ -381,7 +390,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.height}</Label>
                     <Input value={height} onChange={(e) => setHeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="-" />
@@ -390,7 +398,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.weight}</Label>
                     <Input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="-" />
                   </div>
-
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.minPlayed}</Label>
                     <Input value={minPlayed} onChange={(e) => setMinPlayed(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="90" />
@@ -399,7 +406,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.marketValue}</Label>
                     <Input value={marketValue} onChange={(e) => setMarketValue(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="€0" />
                   </div>
-
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
                     <Select value={activeRole.id} onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
@@ -417,7 +423,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
                     <Input value={secondaryPositions} onChange={(e) => setSecondaryPositions(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Ej: ED, MCO" />
                   </div>
-
                   <div className="col-span-1 sm:col-span-2 space-y-3">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dominantFoot}</Label>
                     <div className="flex gap-2">
@@ -434,7 +439,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                       ))}
                     </div>
                   </div>
-
                   <div className="col-span-1 sm:col-span-2 space-y-3">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.physicalCondition}</Label>
                     <div className="flex flex-wrap gap-2">
@@ -451,7 +455,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                       ))}
                     </div>
                   </div>
-
                   <div className="col-span-1 sm:col-span-2 space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.scout}</Label>
                     <Input value={scoutName} readOnly className="h-10 bg-secondary/5 border-border/10 cursor-not-allowed opacity-70" placeholder="Nombre del observador" />
@@ -460,6 +463,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </Card>
             </div>
 
+            {/* 2 POSICIÓN EN EL CAMPO */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
@@ -468,7 +472,12 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                 </div>
                 <CardContent className="p-8 flex flex-col items-center justify-center gap-6 flex-1">
                   <div className="w-full max-w-[360px] flex-1">
-                    <TacticalCanvas />
+                    <TacticalCanvas 
+                      marker={pitchMarker} 
+                      onMarkerChange={setPitchMarker}
+                      heatmapPoints={heatmapPoints}
+                      onHeatmapChange={setHeatmapPoints}
+                    />
                   </div>
                   <div className="text-center">
                     <p className="text-[11px] font-black uppercase text-foreground/80">{t.report.pitch.mark}</p>
@@ -478,6 +487,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </Card>
             </div>
 
+            {/* 3 PERFIL GENERAL (IMPRESIÓN GLOBAL) */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
@@ -498,6 +508,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </Card>
             </div>
 
+            {/* 4 ROLES Y FUNCIONES OBSERVADAS */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">

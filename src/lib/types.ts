@@ -4,6 +4,11 @@ export type UserRole = 'admin' | 'analista' | 'gestion' | 'invitado' | 'entrenad
 
 export type SubscriptionPlan = 'básico' | 'profesional' | 'enterprise';
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export interface UserProfile {
   uid: string;
   email: string;
@@ -62,6 +67,8 @@ export interface ScoutingReport {
   minPlayed?: string;
   physicalCondition?: string;
   selectedRoles?: string[];
+  pitchPosition?: Point;
+  heatmapPoints?: Point[];
   createdAt: any;
   updatedAt?: any;
 }
