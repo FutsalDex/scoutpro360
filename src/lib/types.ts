@@ -1,4 +1,16 @@
+
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'F';
+
+export type UserRole = 'admin' | 'analyst' | 'club' | 'guest';
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  organization?: string;
+  createdAt: any;
+}
 
 export interface Player {
   id: string;
@@ -51,7 +63,6 @@ export const TACTICAL_ROLES: TacticalRoleConfig[] = [
       }
     },
   },
-  // Default values for other roles to ensure consistency
   {
     id: 'deep-lying-playmaker',
     name: 'Deep-Lying Playmaker',

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Player": {
@@ -33,6 +34,20 @@
         "createdAt": { "type": "object" }
       },
       "required": ["playerId", "playerName", "scoutId", "pimScore"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Información extendida del usuario y sus permisos",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "analyst", "club", "guest"] },
+        "organization": { "type": "string" },
+        "createdAt": { "type": "object" }
+      },
+      "required": ["uid", "role"]
     }
   },
   "auth": {
@@ -41,11 +56,15 @@
   "firestore": {
     "players": {
       "schema": { "$ref": "#/entities/Player" },
-      "description": "Colección global de jugadores evaluados. Permite acceso de lectura y escritura a cualquier usuario autenticado (incluyendo anónimos) para prototipado rápido."
+      "description": "Colección global de jugadores evaluados."
     },
     "reports": {
       "schema": { "$ref": "#/entities/ScoutingReport" },
-      "description": "Colección de informes detallados de scouting. Permite acceso de lectura y escritura a cualquier usuario autenticado."
+      "description": "Colección de informes detallados de scouting."
+    },
+    "users": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Perfiles de usuario con roles y metadatos."
     }
   }
 }
