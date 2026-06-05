@@ -564,8 +564,8 @@ export const translations = {
         }
       },
       actions: {
-        next: 'Técnico →',
-        previous: '← Jugador',
+        next: 'Siguiente',
+        previous: 'Anterior',
         submit: 'ENVIAR INFORME FINAL',
         export: 'EXPORTAR A PDF',
         save: 'GUARDAR INFORME',

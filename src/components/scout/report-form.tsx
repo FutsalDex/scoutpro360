@@ -312,8 +312,13 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
       handleRatingChange('pim', Math.round(result.playerImpactMetric));
       handleNoteChange('pim_explanation', result.explanation);
       toast({ title: "PIM Calculado", description: `Impacto estimado: ${Math.round(result.playerImpactMetric)}%` });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "No se pudo calcular el PIM." });
+    } catch (error: any) {
+      console.error("AI Error:", error);
+      toast({ 
+        variant: "destructive", 
+        title: "Error de IA", 
+        description: error.message || "No se pudo calcular el PIM. Verifica tu conexión y los datos del informe." 
+      });
     } finally {
       setIsCalculatingPIM(false);
     }
@@ -335,7 +340,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
       const result = await generateExecutiveSummary({
         playerName,
         tacticalRole: activeRole.name,
-        scoutNotes: allScoutNotes,
+        scoutNotes: allScoutNotes || "Sin notas adicionales.",
         language: language as 'en' | 'es',
         metrics: {
           general: ratings
@@ -344,8 +349,13 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
 
       handleNoteChange('summary', result.summary);
       toast({ title: "Resumen Generado", description: "La IA ha finalizado el análisis." });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "No se pudo generar el resumen." });
+    } catch (error: any) {
+      console.error("AI Error:", error);
+      toast({ 
+        variant: "destructive", 
+        title: "Error de IA", 
+        description: error.message || "No se pudo generar el resumen." 
+      });
     } finally {
       setIsGeneratingSummary(false);
     }
