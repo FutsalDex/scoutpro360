@@ -7,10 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Star, Award, Plus, Camera, Video, Upload, CheckCircle2, Loader2 } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Star, Award, Plus, Camera, Video, Upload, CheckCircle2, Loader2, Globe } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type Player } from "@/lib/types";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
@@ -21,6 +21,7 @@ import { uploadFile } from "@/lib/services/storage-service";
 import { savePlayer, saveReport } from "@/lib/services/db-service";
 import { Progress } from "@/components/ui/progress";
 import { auth } from "@/lib/firebase/config";
+import { COUNTRIES_BY_REGION } from "@/lib/data/countries";
 
 interface ActionRow {
   id: string;
@@ -383,7 +384,25 @@ export function ReportForm() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">NACIONALIDAD</Label>
-                    <Input value={nationality} onChange={(e) => setNationality(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="País" />
+                    <Select value={nationality} onValueChange={setNationality}>
+                      <SelectTrigger className="h-10 bg-secondary/10 border-border/20 text-[11px] font-medium">
+                        <SelectValue placeholder="Seleccionar país..." />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {COUNTRIES_BY_REGION.map((region) => (
+                          <SelectGroup key={region.name}>
+                            <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-primary pt-4 pb-2">
+                              {region.name}
+                            </SelectLabel>
+                            {region.countries.map((country) => (
+                              <SelectItem key={country} value={country} className="text-xs">
+                                {country}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
