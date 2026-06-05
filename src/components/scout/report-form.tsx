@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
 import { savePlayer, saveReport } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 
 const RatingRow = ({ 
@@ -169,7 +170,18 @@ export function ReportForm() {
   const [secondaryPositions, setSecondaryPositions] = useState("");
   const [dominantFoot, setDominantFoot] = useState("");
   const [physicalCondition, setPhysicalCondition] = useState("");
-  const [scoutName, setScoutName] = useState(auth.currentUser?.displayName || "");
+  const [scoutName, setScoutName] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.displayName) {
+        setScoutName(user.displayName);
+      } else if (user && user.email) {
+        setScoutName(user.email.split('@')[0]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => ({ ...prev, [kpi]: value }));
@@ -391,7 +403,7 @@ export function ReportForm() {
 
                   <div className="col-span-1 sm:col-span-2 space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.scout}</Label>
-                    <Input value={scoutName} onChange={(e) => setScoutName(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Nombre del observador" />
+                    <Input value={scoutName} readOnly className="h-10 bg-secondary/5 border-border/10 cursor-not-allowed opacity-70" placeholder="Nombre del observador" />
                   </div>
                 </CardContent>
               </Card>
