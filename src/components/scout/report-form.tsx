@@ -88,13 +88,13 @@ const EvaluationModule = ({
   t: any
 }) => (
   <div className="space-y-6 w-full max-w-full overflow-hidden">
-    <div className="flex flex-col gap-6 w-full">
+    <div className="flex flex-col gap-6 w-full overflow-hidden">
       <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md w-full">
         <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
           <Icon className="h-5 w-5 text-primary" />
           <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_obs`]}</h2>
         </div>
-        <CardContent className="p-0 w-full">
+        <CardContent className="p-0 w-full overflow-hidden">
           {kpiSection.observation.map(kpi => (
             <RatingRow 
               key={kpi} 
@@ -114,7 +114,7 @@ const EvaluationModule = ({
             <Activity className="h-5 w-5 text-accent" />
             <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_impact`]}</h2>
           </div>
-          <CardContent className="p-0 w-full">
+          <CardContent className="p-0 w-full overflow-hidden">
             {kpiSection.impact.map(kpi => (
               <RatingRow 
                 key={kpi} 
@@ -230,7 +230,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const handleRemoveAction = (index: number) => setScoutingActions(scoutingActions.filter((_, i) => i !== index));
 
-  const handleCalculatePIM = async () => {
+  const handleCalculatePIM = async (e: React.MouseEvent) => {
+    e.preventDefault();
     setIsCalculatingPIM(true);
     try {
       const getSectionMetrics = (section: KPISection) => {
@@ -265,7 +266,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     }
   };
 
-  const handleGenerateSummary = async () => {
+  const handleGenerateSummary = async (e: React.MouseEvent) => {
+    e.preventDefault();
     if (!playerName) return toast({ variant: "destructive", title: "Error", description: "Nombre requerido." });
     setIsGeneratingSummary(true);
     try {
@@ -354,20 +356,20 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full">
-        <TabsList className="flex flex-wrap h-auto bg-secondary/15 p-1.5 border border-border/20 rounded-2xl w-full gap-1 mb-10 overflow-hidden">
+        <TabsList className="flex flex-wrap h-auto bg-secondary/15 p-1.5 border border-border/20 rounded-2xl w-full gap-1 mb-10 overflow-hidden justify-start">
           {Object.entries(t.report.tabs).map(([key, label]) => (
             <TabsTrigger 
               key={key} 
               value={key} 
-              className="flex-grow min-w-[100px] py-3 text-[10px] font-black uppercase tracking-tight data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all"
+              className="min-w-[100px] flex-1 py-3 text-[10px] font-black uppercase tracking-tight data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all"
             >
               {label as string}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        <TabsContent value="player" className="animate-in fade-in space-y-8 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        <TabsContent value="player" className="animate-in fade-in space-y-8 w-full overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full overflow-hidden">
             <Card className="border-border/40 shadow-2xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-8 py-5 flex items-center gap-3 border-b border-primary/20">
                 <User className="h-5 w-5 text-primary" />
@@ -420,7 +422,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <Target className="h-5 w-5 text-primary" />
                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
               </div>
-              <CardContent className="p-8 flex flex-col items-center justify-center">
+              <CardContent className="p-8 flex flex-col items-center justify-center overflow-hidden">
                 <TacticalCanvas marker={pitchMarker} onMarkerChange={setPitchMarker} heatmapPoints={heatmapPoints} onHeatmapChange={setHeatmapPoints} />
               </CardContent>
             </Card>
@@ -432,7 +434,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
         </TabsContent>
 
-        <TabsContent value="context" className="animate-in fade-in space-y-8 w-full">
+        <TabsContent value="context" className="animate-in fade-in space-y-8 w-full overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
               <div className="bg-[#1b263b] px-8 py-5 border-b border-primary/20 flex items-center gap-3">
@@ -490,20 +492,20 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
         </TabsContent>
 
-        <TabsContent value="technical" className="animate-in fade-in w-full">
+        <TabsContent value="technical" className="animate-in fade-in w-full overflow-hidden">
            <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
-        <TabsContent value="tactical" className="animate-in fade-in w-full">
+        <TabsContent value="tactical" className="animate-in fade-in w-full overflow-hidden">
            <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.tactical} nextTab="physical" prevTab="technical" tabType="tactical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
-        <TabsContent value="physical" className="animate-in fade-in w-full">
+        <TabsContent value="physical" className="animate-in fade-in w-full overflow-hidden">
            <EvaluationModule t={t} icon={ZapIcon} kpiSection={activeRole.kpis.physical} nextTab="mental" prevTab="tactical" tabType="physical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
-        <TabsContent value="mental" className="animate-in fade-in w-full">
+        <TabsContent value="mental" className="animate-in fade-in w-full overflow-hidden">
            <EvaluationModule t={t} icon={Heart} kpiSection={activeRole.kpis.mental} nextTab="actions" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
-        <TabsContent value="actions" className="animate-in fade-in space-y-8 w-full">
+        <TabsContent value="actions" className="animate-in fade-in space-y-8 w-full overflow-hidden">
           <Card className="border-border/40 shadow-2xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#1b263b] px-8 py-5 flex items-center gap-3 border-b border-primary/20">
               <Star className="h-5 w-5 text-primary fill-primary" />
@@ -511,15 +513,15 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             </div>
             <CardContent className="p-6 sm:p-10 space-y-6">
               {scoutingActions.map((action, idx) => (
-                <div key={idx} className="p-5 bg-secondary/10 rounded-2xl border border-border/10 space-y-4">
-                  <div className="flex justify-between items-center">
+                <div key={idx} className="p-5 bg-secondary/10 rounded-2xl border border-border/10 space-y-4 flex flex-col">
+                  <div className="flex justify-between items-center w-full">
                     <div className="flex items-center gap-4">
-                      <Label className="text-[10px] font-black uppercase text-primary tracking-widest">MINUTO</Label>
-                      <Input value={action.minute} onChange={(e) => handleUpdateAction(idx, 'minute', e.target.value)} className="h-10 w-24 bg-background/50 text-center font-black rounded-xl border-none" placeholder="--" />
+                      <Label className="text-[10px] font-black uppercase text-primary tracking-widest">MIN</Label>
+                      <Input value={action.minute} onChange={(e) => handleUpdateAction(idx, 'minute', e.target.value)} className="h-10 w-20 bg-background/50 text-center font-black rounded-xl border-none" placeholder="--" />
                     </div>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveAction(idx)} className="h-10 w-10 text-destructive"><Trash2 className="h-5 w-5" /></Button>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveAction(idx)} className="h-10 w-10 text-destructive shrink-0"><Trash2 className="h-5 w-5" /></Button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                     <Input placeholder="Acción" value={action.action} onChange={(e) => handleUpdateAction(idx, 'action', e.target.value)} className="h-11 bg-background/50 rounded-xl border-none font-bold" />
                     <Input placeholder="Resultado" value={action.result} onChange={(e) => handleUpdateAction(idx, 'result', e.target.value)} className="h-11 bg-background/50 rounded-xl border-none font-bold" />
                     <Input placeholder="Notas" value={action.notes} onChange={(e) => handleUpdateAction(idx, 'notes', e.target.value)} className="col-span-full h-11 bg-background/50 rounded-xl border-none font-bold italic" />
@@ -541,7 +543,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
         </TabsContent>
 
-        <TabsContent value="evaluation" className="animate-in fade-in space-y-8 w-full">
+        <TabsContent value="evaluation" className="animate-in fade-in space-y-8 w-full overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="border-border/40 rounded-3xl overflow-hidden bg-card/40 shadow-2xl">
               <div className="bg-[#1b263b] px-8 py-5 border-b border-primary/20 flex items-center gap-3">
@@ -572,7 +574,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="animate-in fade-in space-y-10 w-full">
+        <TabsContent value="analytics" className="animate-in fade-in space-y-10 w-full overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="border-primary/30 bg-[#1b263b]/60 shadow-2xl p-10 rounded-[3rem] border-2 flex flex-col justify-between min-h-[350px]">
               <div className="text-center space-y-8">
@@ -580,7 +582,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <h3 className="text-xl font-black uppercase tracking-[0.2em]">{t.report.pim.title}</h3>
                 <div className="text-8xl font-black text-primary drop-shadow-[0_20px_40px_rgba(224,176,80,0.3)]">{ratings['pim'] || "0"}</div>
               </div>
-              <Button type="button" onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="h-16 bg-primary text-primary-foreground font-black uppercase text-[15px] tracking-widest rounded-2xl shadow-2xl transition-all mt-8">
+              <Button type="button" onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="h-16 bg-primary text-primary-foreground font-black uppercase text-[15px] tracking-widest rounded-2xl shadow-xl transition-all mt-8">
                 {isCalculatingPIM ? <Loader2 className="h-7 w-7 animate-spin" /> : t.report.pim.calculate}
               </Button>
             </Card>
@@ -590,7 +592,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <h3 className="text-xl font-black uppercase tracking-[0.2em]">{t.report.summary.title}</h3>
                 {notes['summary'] && <div className="text-[11px] text-muted-foreground italic text-left p-6 bg-background/50 rounded-2xl max-h-[160px] overflow-y-auto leading-relaxed border border-white/5">{notes['summary']}</div>}
               </div>
-              <Button type="button" variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="h-16 font-black uppercase text-[13px] tracking-widest rounded-2xl shadow-2xl transition-all mt-8">
+              <Button type="button" variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="h-16 font-black uppercase text-[13px] tracking-widest rounded-2xl shadow-xl transition-all mt-8">
                 {isGeneratingSummary ? <Loader2 className="h-7 w-7 animate-spin" /> : t.report.summary.generate}
               </Button>
             </Card>

@@ -103,8 +103,8 @@ function AppShell({
   const isClub = role === 'gestion' || isAdmin;
 
   return (
-    <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500 overflow-x-hidden">
-      <Sidebar className="border-r border-border/50 shadow-2xl">
+    <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500 overflow-x-hidden relative">
+      <Sidebar className="border-r border-border/50 shadow-2xl overflow-x-hidden">
         <SidebarHeader className="p-6">
           <div 
             className={cn(
@@ -123,7 +123,7 @@ function AppShell({
           </div>
         </SidebarHeader>
 
-        <SidebarContent className="px-3">
+        <SidebarContent className="px-3 overflow-x-hidden">
           {isAdmin && (
             <SidebarGroup>
               <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary/80 mb-4 flex items-center gap-2">
@@ -250,7 +250,7 @@ function AppShell({
           )}
         </SidebarContent>
 
-        <SidebarFooter className="p-4 border-t border-border/20 space-y-2">
+        <SidebarFooter className="p-4 border-t border-border/20 space-y-2 overflow-x-hidden">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton 
@@ -276,15 +276,15 @@ function AppShell({
       </Sidebar>
 
       <SidebarInset className="bg-background relative overflow-x-hidden w-full flex-1">
-        <header className="h-16 border-b border-border/30 flex items-center justify-between px-4 sm:px-8 sticky top-0 bg-background/80 backdrop-blur-xl z-50">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="h-10 w-10 text-muted-foreground hover:text-foreground" />
-            <div className="h-4 w-[1px] bg-border mx-1" />
-            <span className="text-foreground text-xs sm:text-sm font-bold uppercase tracking-tight truncate max-w-[150px]">
+        <header className="h-16 border-b border-border/30 flex items-center justify-between px-4 sm:px-8 sticky top-0 bg-background/80 backdrop-blur-xl z-50 w-full overflow-hidden">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <SidebarTrigger className="h-10 w-10 text-muted-foreground hover:text-foreground shrink-0" />
+            <div className="h-4 w-[1px] bg-border mx-1 shrink-0" />
+            <span className="text-foreground text-xs sm:text-sm font-bold uppercase tracking-tight truncate max-w-[120px] sm:max-w-[200px]">
               {getViewTitle()}
             </span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-6 shrink-0">
             <LanguageSwitcher />
             <div className="flex items-center gap-2">
               <div 
@@ -297,9 +297,9 @@ function AppShell({
           </div>
         </header>
 
-        <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full overflow-x-hidden">
+        <main className="p-4 sm:p-8 max-w-full mx-auto w-full overflow-x-hidden">
           {needsProfileCompletion && (
-            <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
+            <div className="mb-8 animate-in slide-in-from-top-4 duration-500 max-w-full">
               <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 border-2">
                 <AlertTriangle className="h-5 w-5" />
                 <AlertTitle className="font-black uppercase tracking-widest text-destructive">
