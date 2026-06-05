@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useRef } from 'react';
@@ -21,7 +20,7 @@ import { uploadFile } from "@/lib/services/storage-service";
 import { savePlayer, saveReport } from "@/lib/services/db-service";
 import { Progress } from "@/components/ui/progress";
 import { auth } from "@/lib/firebase/config";
-import { COUNTRIES_BY_REGION } from "@/lib/data/countries";
+import { ALL_COUNTRIES } from "@/lib/data/countries";
 
 interface ActionRow {
   id: string;
@@ -65,7 +64,7 @@ const RatingRow = ({
     </div>
     <Input 
       className="h-9 text-[11px] bg-secondary/5 border-none shadow-none focus-visible:ring-1 border-b border-border/20 rounded-none italic placeholder:opacity-40" 
-      placeholder="Observación / contexto..." 
+      placeholder="Nota..." 
       value={note || ""}
       onChange={(e) => onNoteChange(e.target.value)}
     />
@@ -158,33 +157,31 @@ const EvaluationModule = ({
 export function ReportForm() {
   const { toast } = useToast();
   const { t, language } = useTranslation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
-  const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [pimScore, setPimScore] = useState<number | null>(null);
   const [summary, setSummary] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
+
+  // Form states
   const [playerName, setPlayerName] = useState("");
+  const [dorsal, setDorsal] = useState("");
   const [clubName, setClubName] = useState("");
+  const [rivalName, setRivalName] = useState("");
+  const [competition, setCompetition] = useState("");
+  const [matchDate, setMatchDate] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [nationality, setNationality] = useState("");
-  const [age, setAge] = useState<number>(20);
-  const [marketValue, setMarketValue] = useState("€1M");
-
-  const [contextData, setContextData] = useState<Record<string, string | string[]>>({});
-  const [actionRows, setActionRows] = useState<ActionRow[]>([
-    { id: '1', min: '', action: '', result: '', notes: '' },
-    { id: '2', min: '', action: '', result: '', notes: '' },
-  ]);
-
-  // Multimedia state
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [playerPhotoUrl, setPlayerPhotoUrl] = useState<string | null>(null);
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [minPlayed, setMinPlayed] = useState("90");
+  const [secondaryPositions, setSecondaryPositions] = useState("");
+  const [dominantFoot, setDominantFoot] = useState("");
+  const [physicalCondition, setPhysicalCondition] = useState("");
+  const [scoutName, setScoutName] = useState(auth.currentUser?.displayName || "");
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => ({ ...prev, [kpi]: value }));
@@ -192,84 +189,6 @@ export function ReportForm() {
 
   const handleNoteChange = (kpi: string, value: string) => {
     setNotes(prev => ({ ...prev, [kpi]: value }));
-  };
-
-  const handleContextChange = (key: string, value: any) => {
-    setContextData(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleActionChange = (id: string, field: keyof ActionRow, value: string) => {
-    setActionRows(prev => prev.map(row => row.id === id ? { ...row, [field]: value } : row));
-  };
-
-  const handleAddActionRow = () => {
-    setActionRows(prev => [...prev, { id: Date.now().toString(), min: '', action: '', result: '', notes: '' }]);
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      const fileName = `${Date.now()}_${file.name}`;
-      const path = `reports/multimedia/${fileName}`;
-      const url = await uploadFile(file, path, (progress) => {
-        setUploadProgress(progress);
-      });
-      setPlayerPhotoUrl(url);
-      toast({
-        title: "Multimedia cargada",
-        description: "El archivo se ha subido correctamente.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error de carga",
-        description: "No se pudo subir el archivo.",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleCalculatePIM = async () => {
-    setIsCalculatingPIM(true);
-    try {
-      const result = await calculatePlayerImpactMetric({
-        playerId: "p1",
-        currentEvaluation: {
-          tacticalRole: activeRole.name,
-          metrics: { technical: ratings, tactical: {}, physical: {}, mental: {} }
-        },
-        historicalClubData: JSON.stringify([{ tacticalRole: activeRole.name, avgPIM: 72 }])
-      });
-      setPimScore(result.playerImpactMetric);
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error calculating PIM" });
-    } finally {
-      setIsCalculatingPIM(false);
-    }
-  };
-
-  const handleGenerateSummary = async () => {
-    setIsGeneratingSummary(true);
-    try {
-      const result = await generateExecutiveSummary({
-        playerName: playerName || "Subject",
-        tacticalRole: activeRole.name,
-        metrics: { Technical: ratings },
-        scoutNotes: `Evaluated in roles: ${activeRole.name}. Global technical level: ${ratings.technicalLevel || 3}/5.`,
-        language: language as 'en' | 'es'
-      });
-      setSummary(result.summary);
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error generating summary" });
-    } finally {
-      setIsGeneratingSummary(false);
-    }
   };
 
   const handleSaveAll = async () => {
@@ -281,24 +200,22 @@ export function ReportForm() {
 
     setIsSaving(true);
     try {
-      // 1. Guardar Jugador
       const playerId = await savePlayer({
         name: playerName,
-        age: age,
+        age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
         club: clubName || "Sin club",
         nationality: nationality || "Desconocida",
-        marketValue: marketValue || "€0",
+        marketValue: "€0",
         currentPIM: pimScore || 0,
         tacticalRole: activeRole.name,
         grade: (pimScore || 0) > 85 ? 'A' : (pimScore || 0) > 70 ? 'B' : 'C'
       });
 
-      // 2. Guardar Informe
       await saveReport({
         playerId,
         playerName,
         scoutId: auth.currentUser?.uid || "guest",
-        scoutName: auth.currentUser?.email || "Invitado",
+        scoutName: scoutName || "Invitado",
         pimScore: pimScore || 0,
         summary: summary,
         ratings: ratings,
@@ -306,11 +223,9 @@ export function ReportForm() {
         createdAt: null
       });
 
-      toast({ title: "¡Éxito!", description: "El jugador y el informe han sido guardados en Firestore." });
-      // Reset form if needed or redirect
+      toast({ title: "¡Éxito!", description: "El informe ha sido guardado correctamente." });
     } catch (e) {
-      console.error(e);
-      toast({ variant: "destructive", title: "Error al guardar", description: "Ocurrió un error al persistir los datos." });
+      toast({ variant: "destructive", title: "Error al guardar" });
     } finally {
       setIsSaving(false);
     }
@@ -337,18 +252,10 @@ export function ReportForm() {
               disabled={isSaving}
             >
               {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
-              <span className="hidden xs:inline">{t.report.actions.save}</span>
-              <span className="xs:hidden">Guardar</span>
+              {t.report.actions.save}
             </Button>
           </div>
         </div>
-        <Button 
-          onClick={handleSaveAll} 
-          disabled={isSaving}
-          className="h-11 sm:h-12 w-full bg-primary text-primary-foreground font-black text-[11px] sm:text-[12px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 rounded-xl"
-        >
-          {isSaving ? "GUARDANDO..." : t.report.actions.submit}
-        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -365,130 +272,160 @@ export function ReportForm() {
           ))}
         </TabsList>
 
-        <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-                  <User className="h-4 w-4 text-white" />
-                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">1 {t.report.playerInfo.title}</h2>
-                </div>
-                <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 sm:px-6">
-                  <div className="col-span-1 sm:col-span-2 space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
-                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Nombre completo" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
-                    <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Club" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">NACIONALIDAD</Label>
-                    <Select value={nationality} onValueChange={setNationality}>
-                      <SelectTrigger className="h-10 bg-secondary/10 border-border/20 text-[11px] font-medium">
-                        <SelectValue placeholder="Seleccionar país..." />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        {COUNTRIES_BY_REGION.map((region) => (
-                          <SelectGroup key={region.name}>
-                            <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-primary pt-4 pb-2">
-                              {region.name}
-                            </SelectLabel>
-                            {region.countries.map((country) => (
-                              <SelectItem key={country} value={country} className="text-xs">
-                                {country}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
-                    <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
-                      <SelectTrigger className="h-10 bg-secondary/10 border-border/20 text-[10px] font-black uppercase">
-                        <SelectValue placeholder="Seleccionar..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TACTICAL_ROLES.map(role => (
-                          <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">EDAD</Label>
-                      <Input type="number" value={age} onChange={(e) => setAge(parseInt(e.target.value))} className="h-10 bg-secondary/10 border-border/20 font-medium" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">VALOR MERCADO</Label>
-                      <Input value={marketValue} onChange={(e) => setMarketValue(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="€10M" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#1b263b] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-                  <Camera className="h-4 w-4 text-primary" />
-                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">MULTIMEDIA (STORAGE)</h2>
-                </div>
-                <CardContent className="pt-6 space-y-6 px-4 sm:px-8">
-                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-border/20 rounded-2xl p-8 bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*,video/*" />
-                    {isUploading ? (
-                      <div className="w-full space-y-4 text-center">
-                        <Activity className="h-10 w-10 text-primary animate-spin mx-auto" />
-                        <p className="text-xs font-black uppercase tracking-widest text-primary">Subiendo... {Math.round(uploadProgress)}%</p>
-                        <Progress value={uploadProgress} className="h-2" />
-                      </div>
-                    ) : playerPhotoUrl ? (
-                      <div className="text-center space-y-3">
-                        <div className="relative h-32 w-32 mx-auto rounded-xl overflow-hidden border-2 border-primary shadow-2xl">
-                          <img src={playerPhotoUrl} alt="Player" className="h-full w-full object-cover" />
-                          <div className="absolute top-1 right-1 bg-primary rounded-full p-1">
-                            <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
-                          </div>
-                        </div>
-                        <p className="text-[10px] font-black text-primary uppercase">¡Archivo subido con éxito!</p>
-                      </div>
-                    ) : (
-                      <div className="text-center space-y-2">
-                        <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm font-bold text-foreground">Subir Foto o Vídeo del Jugador</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Formatos: JPG, PNG, MP4 (Max 50MB)</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+        <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-8">
+          {/* INFORMACIÓN DEL JUGADOR */}
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
+              <User className="h-4 w-4 text-white" />
+              <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.playerInfo.title}</h2>
             </div>
-
-            <div className="space-y-6">
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl flex flex-col bg-card/40 backdrop-blur-md h-full">
-                <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-                  <Target className="h-4 w-4 text-white" />
-                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">2 {t.report.pitch.title}</h2>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="md:col-span-3 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
+                  <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Nombre del jugador" />
                 </div>
-                <CardContent className="pt-4 flex flex-col items-center justify-center p-4">
-                  <TacticalCanvas />
-                </CardContent>
-              </Card>
+                <div className="space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dorsal}</Label>
+                  <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium text-center" placeholder="-" />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
+                  <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Club" />
+                </div>
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.rival}</Label>
+                  <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="vs" />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.competition}</Label>
+                  <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Liga / Copa" />
+                </div>
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.matchDate}</Label>
+                  <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.birthDate}</Label>
+                  <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" />
+                </div>
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.nationality}</Label>
+                  <Select value={nationality} onValueChange={setNationality}>
+                    <SelectTrigger className="h-10 bg-secondary/10 border-border/20 font-medium">
+                      <SelectValue placeholder="-" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ALL_COUNTRIES.map(country => (
+                        <SelectItem key={country} value={country}>{country}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.height}</Label>
+                  <Input value={height} onChange={(e) => setHeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium text-center" placeholder="-" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.weight}</Label>
+                  <Input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium text-center" placeholder="-" />
+                </div>
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.minPlayed}</Label>
+                  <Input value={minPlayed} onChange={(e) => setMinPlayed(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium text-center" placeholder="90" />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
+                  <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
+                    <SelectTrigger className="h-10 bg-secondary/10 border-border/20 text-[10px] font-black uppercase">
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TACTICAL_ROLES.map(role => (
+                        <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
+                  <Input value={secondaryPositions} onChange={(e) => setSecondaryPositions(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Ej: ED, MCO" />
+                </div>
+
+                <div className="md:col-span-4 space-y-3">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dominantFoot}</Label>
+                  <div className="flex gap-2">
+                    {['Derecho', 'Izquierdo', 'Ambos'].map(foot => (
+                      <Button
+                        key={foot}
+                        variant={dominantFoot === foot ? 'default' : 'outline'}
+                        onClick={() => setDominantFoot(foot)}
+                        className="h-8 rounded-full px-4 text-[10px] font-medium"
+                      >
+                        {foot}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="md:col-span-4 space-y-3">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.physicalCondition}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Excelente', 'Buena', 'Normal', 'Bajo su nivel', 'Lesionado'].map(cond => (
+                      <Button
+                        key={cond}
+                        variant={physicalCondition === cond ? 'default' : 'outline'}
+                        onClick={() => setPhysicalCondition(cond)}
+                        className="h-8 rounded-full px-4 text-[10px] font-medium"
+                      >
+                        {cond}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="md:col-span-4 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.scout}</Label>
+                  <Input value={scoutName} onChange={(e) => setScoutName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Nombre del observador" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* PERFIL GENERAL (IMPRESIÓN GLOBAL) */}
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-4 py-3 flex items-center gap-3 border-b border-white/10">
+              <Star className="h-4 w-4 text-white fill-white" />
+              <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.generalProfile.title}</h2>
             </div>
-          </div>
+            <CardContent className="p-0">
+              <div className="divide-y divide-border/10">
+                <RatingRow kpi={t.report.generalProfile.techLevel} rating={ratings['gen_tech']} onRatingChange={(v) => handleRatingChange('gen_tech', v)} note={notes['gen_tech']} onNoteChange={(v) => handleNoteChange('gen_tech', v)} />
+                <RatingRow kpi={t.report.generalProfile.tacticalIntel} rating={ratings['gen_tact']} onRatingChange={(v) => handleRatingChange('gen_tact', v)} note={notes['gen_tact']} onNoteChange={(v) => handleNoteChange('gen_tact', v)} />
+                <RatingRow kpi={t.report.generalProfile.physQuality} rating={ratings['gen_phys']} onRatingChange={(v) => handleRatingChange('gen_phys', v)} note={notes['gen_phys']} onNoteChange={(v) => handleNoteChange('gen_phys', v)} />
+                <RatingRow kpi={t.report.generalProfile.mentalStrength} rating={ratings['gen_ment']} onRatingChange={(v) => handleRatingChange('gen_ment', v)} note={notes['gen_ment']} onNoteChange={(v) => handleNoteChange('gen_ment', v)} />
+                <RatingRow kpi={t.report.generalProfile.compLevel} rating={ratings['gen_comp']} onRatingChange={(v) => handleRatingChange('gen_comp', v)} note={notes['gen_comp']} onNoteChange={(v) => handleNoteChange('gen_comp', v)} />
+                <RatingRow kpi={t.report.generalProfile.potential} rating={ratings['gen_pote']} onRatingChange={(v) => handleRatingChange('gen_pote', v)} note={notes['gen_pote']} onNoteChange={(v) => handleNoteChange('gen_pote', v)} />
+                <RatingRow kpi={t.report.generalProfile.currentLevel} rating={ratings['gen_curr']} onRatingChange={(v) => handleRatingChange('gen_curr', v)} note={notes['gen_curr']} onNoteChange={(v) => handleNoteChange('gen_curr', v)} />
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="flex justify-end mt-10">
             <Button onClick={() => setActiveTab("context")} className="w-full sm:w-auto px-12 py-7 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[14px] transition-all transform hover:scale-105 group">
-              {t.report.actions.next} <ChevronRight className="ml-3 h-5 group-hover:translate-x-3 transition-transform" />
+              {t.report.actions.next}
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="context" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
+        <TabsContent value="context" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
                 <Target className="h-4 w-4 text-white" />
                 <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.matchContext.title}</h2>
@@ -502,12 +439,8 @@ export function ReportForm() {
                         key={key}
                         variant="outline"
                         size="sm"
-                        type="button"
-                        onClick={() => handleContextChange('playStyle', key)}
-                        className={cn(
-                          "h-10 px-4 text-[9px] font-black uppercase rounded-full border-border/30",
-                          contextData.playStyle === key ? "bg-primary text-primary-foreground border-primary" : "bg-secondary/15"
-                        )}
+                        onClick={() => {}}
+                        className="h-10 px-4 text-[9px] font-black uppercase rounded-full border-border/30"
                       >
                         {label as string}
                       </Button>
@@ -516,40 +449,42 @@ export function ReportForm() {
                 </div>
               </CardContent>
             </Card>
+            <div className="space-y-6">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl flex flex-col bg-card/40 backdrop-blur-md h-full">
+                <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
+                  <Target className="h-4 w-4 text-white" />
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.pitch.title}</h2>
+                </div>
+                <CardContent className="pt-4 flex flex-col items-center justify-center p-4">
+                  <TacticalCanvas />
+                </CardContent>
+              </Card>
+            </div>
           </div>
-
           <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 pt-6 border-t border-border/20">
             <Button variant="ghost" onClick={() => setActiveTab("player")} className="order-2 sm:order-1 px-8 py-5 font-black text-xs uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-3 h-4" /> {t.report.actions.previous}
             </Button>
             <Button onClick={() => setActiveTab("technical")} className="order-1 sm:order-2 px-12 py-7 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[14px] transition-all transform hover:scale-105">
-              {t.report.actions.next} <ChevronRight className="ml-3 h-5" />
+              {t.report.actions.next}
             </Button>
           </div>
         </TabsContent>
 
         <TabsContent value="technical" className="mt-6">
-           <EvaluationModule 
-             t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab}
-           />
+           <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
         <TabsContent value="tactical" className="mt-6">
-           <EvaluationModule 
-             t={t} icon={Shield} kpiSection={activeRole.kpis.tactical} nextTab="physical" prevTab="technical" tabType="tactical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab}
-           />
+           <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.tactical} nextTab="physical" prevTab="technical" tabType="tactical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
         <TabsContent value="physical" className="mt-6">
-           <EvaluationModule 
-             t={t} icon={ZapIcon} kpiSection={activeRole.kpis.physical} nextTab="mental" prevTab="tactical" tabType="physical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab}
-           />
+           <EvaluationModule t={t} icon={ZapIcon} kpiSection={activeRole.kpis.physical} nextTab="mental" prevTab="tactical" tabType="physical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
         <TabsContent value="mental" className="mt-6">
-           <EvaluationModule 
-             t={t} icon={Heart} kpiSection={activeRole.kpis.mental} nextTab="actions" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab}
-           />
+           <EvaluationModule t={t} icon={Heart} kpiSection={activeRole.kpis.mental} nextTab="actions" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
         <TabsContent value="actions" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-6">
@@ -559,42 +494,11 @@ export function ReportForm() {
               <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.sections.actions_title}</h2>
             </div>
             <CardContent className="p-4 space-y-4">
-              {actionRows.map((row, idx) => (
-                <div key={row.id} className="p-4 bg-secondary/10 rounded-xl border border-border/10 space-y-4 animate-in slide-in-from-right-2" style={{ animationDelay: `${idx * 100}ms` }}>
-                  <div className="flex justify-between items-center border-b border-border/5 pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-primary">#{idx + 1}</span>
-                      <Input 
-                        value={row.min} 
-                        onChange={(e) => handleActionChange(row.id, 'min', e.target.value)} 
-                        className="h-8 w-16 bg-background/50 border-border/20 text-[11px] font-bold text-center"
-                        placeholder="MIN."
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-[9px] font-black text-muted-foreground uppercase">{t.report.actions.action}</Label>
-                      <Input 
-                        value={row.action} 
-                        onChange={(e) => handleActionChange(row.id, 'action', e.target.value)} 
-                        className="h-9 bg-background/50 border-border/20 text-[11px]"
-                        placeholder="Tipo de acción..."
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <Button 
-                onClick={handleAddActionRow} 
-                variant="ghost" 
-                className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-2 border-dashed border-border/20 hover:border-primary/50"
-              >
+              <Button variant="ghost" className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-2 border-dashed border-border/20">
                 <Plus className="h-4 w-4 mr-2" /> {t.report.actions.addEvent}
               </Button>
             </CardContent>
           </Card>
-
           <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 pt-6 border-t border-border/20">
             <Button variant="ghost" onClick={() => setActiveTab("mental")} className="order-2 sm:order-1 px-8 py-5 font-black text-xs uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-3 h-4" /> {t.report.actions.previous}
@@ -639,53 +543,20 @@ export function ReportForm() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="border-primary/20 bg-primary/5 shadow-inner p-6 sm:p-10 rounded-3xl border-2">
               <div className="text-center space-y-8">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20 shadow-xl">
-                  <Activity className="h-8 w-8 text-primary" />
-                </div>
                 <h3 className="text-xl sm:text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground">{t.report.pim.title}</h3>
-                <div className="h-32 flex items-center justify-center">
-                  {pimScore !== null ? (
-                    <div className="text-[70px] sm:text-[90px] font-black text-primary font-headline animate-in zoom-in-50 drop-shadow-[0_15px_40px_rgba(224,176,80,0.5)] leading-none">{pimScore}</div>
-                  ) : (
-                    <div className="text-muted-foreground/60 italic text-[12px] font-medium uppercase tracking-widest border border-dashed border-border/40 px-8 py-10 rounded-2xl">PIM no calculado</div>
-                  )}
-                </div>
-                <Button 
-                  className="w-full h-14 bg-primary text-primary-foreground font-black tracking-[0.2em] text-[14px] rounded-2xl shadow-2xl shadow-primary/30 uppercase transition-all hover:scale-[1.02]" 
-                  onClick={handleCalculatePIM}
-                  disabled={isCalculatingPIM}
-                >
-                  {isCalculatingPIM ? t.report.pim.calculating : t.report.pim.calculate}
+                <Button className="w-full h-14 bg-primary text-primary-foreground font-black tracking-[0.2em] text-[14px] rounded-2xl shadow-2xl" onClick={() => {}}>
+                  {t.report.pim.calculate}
                 </Button>
               </div>
             </Card>
-
             <Card className="border-accent/20 bg-accent/5 shadow-inner p-6 sm:p-10 rounded-3xl border-2">
               <div className="text-center space-y-8">
-                <div className="h-16 w-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto border border-accent/20 shadow-xl">
-                  <Award className="h-8 w-8 text-accent" />
-                </div>
                 <h3 className="text-xl sm:text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground">{t.report.summary.title}</h3>
-                <div className="min-h-[140px] flex items-center justify-center border-2 border-dashed border-accent/30 rounded-2xl bg-background/50 p-6 text-left shadow-inner">
-                  <p className="text-[12px] text-foreground/90 italic leading-relaxed font-medium">
-                    {summary || t.report.summary.placeholder}
-                  </p>
-                </div>
-                <Button 
-                    variant="secondary" 
-                    className="w-full h-14 font-black tracking-[0.2em] text-[12px] rounded-2xl shadow-2xl border-accent/30 uppercase transition-all hover:scale-[1.02]"
-                    onClick={handleGenerateSummary}
-                    disabled={isGeneratingSummary}
-                >
-                  {isGeneratingSummary ? t.report.summary.generating : t.report.summary.generate}
+                <Button variant="secondary" className="w-full h-14 font-black tracking-[0.2em] text-[12px] rounded-2xl shadow-2xl border-accent/30 uppercase" onClick={() => {}}>
+                  {t.report.summary.generate}
                 </Button>
               </div>
             </Card>
-          </div>
-          <div className="flex justify-start mt-10">
-            <Button variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-8 py-5 font-black text-xs uppercase text-muted-foreground hover:text-foreground group">
-              <ChevronLeft className="mr-3 h-4 group-hover:-translate-x-2 transition-transform" /> {t.report.actions.previous}
-            </Button>
           </div>
         </TabsContent>
       </Tabs>
