@@ -1,34 +1,21 @@
 "use client"
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Brain, Shield, Zap as ZapIcon, Heart, Save, Layers, Star, Award, Plus, Camera, Video, Upload, CheckCircle2, Loader2, Globe } from "lucide-react";
-import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type Player } from "@/lib/types";
-import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
-import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2 } from "lucide-react";
+import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
-import { uploadFile } from "@/lib/services/storage-service";
 import { savePlayer, saveReport } from "@/lib/services/db-service";
-import { Progress } from "@/components/ui/progress";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
-
-interface ActionRow {
-  id: string;
-  min: string;
-  action: string;
-  result: string;
-  notes: string;
-}
 
 const RatingRow = ({ 
   kpi, 
@@ -156,13 +143,11 @@ const EvaluationModule = ({
 
 export function ReportForm() {
   const { toast } = useToast();
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
   const [isSaving, setIsSaving] = useState(false);
-  const [pimScore, setPimScore] = useState<number | null>(null);
-  const [summary, setSummary] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -207,9 +192,9 @@ export function ReportForm() {
         club: clubName || "Sin club",
         nationality: nationality || "Desconocida",
         marketValue: marketValue || "€0",
-        currentPIM: pimScore || 0,
+        currentPIM: 0,
         tacticalRole: activeRole.name,
-        grade: (pimScore || 0) > 85 ? 'A' : (pimScore || 0) > 70 ? 'B' : 'C'
+        grade: 'C'
       });
 
       await saveReport({
@@ -217,8 +202,8 @@ export function ReportForm() {
         playerName,
         scoutId: auth.currentUser?.uid || "guest",
         scoutName: scoutName || "Invitado",
-        pimScore: pimScore || 0,
-        summary: summary,
+        pimScore: 0,
+        summary: "",
         ratings: ratings,
         notes: notes,
         createdAt: null
@@ -274,7 +259,6 @@ export function ReportForm() {
         </TabsList>
 
         <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-8">
-          {/* INFORMACIÓN DEL JUGADOR */}
           <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
               <User className="h-4 w-4 text-white" />
@@ -394,16 +378,10 @@ export function ReportForm() {
                     ))}
                   </div>
                 </div>
-
-                <div className="md:col-span-4 space-y-1.5">
-                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.scout}</Label>
-                  <Input value={scoutName} onChange={(e) => setScoutName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="Nombre del observador" />
-                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* PERFIL GENERAL (IMPRESIÓN GLOBAL) */}
           <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#1b263b] px-4 py-3 flex items-center gap-3 border-b border-white/10">
               <Star className="h-4 w-4 text-white fill-white" />
@@ -415,9 +393,7 @@ export function ReportForm() {
                 <RatingRow kpi={t.report.generalProfile.tacticalIntel} rating={ratings['gen_tact']} onRatingChange={(v) => handleRatingChange('gen_tact', v)} note={notes['gen_tact']} onNoteChange={(v) => handleNoteChange('gen_tact', v)} />
                 <RatingRow kpi={t.report.generalProfile.physQuality} rating={ratings['gen_phys']} onRatingChange={(v) => handleRatingChange('gen_phys', v)} note={notes['gen_phys']} onNoteChange={(v) => handleNoteChange('gen_phys', v)} />
                 <RatingRow kpi={t.report.generalProfile.mentalStrength} rating={ratings['gen_ment']} onRatingChange={(v) => handleRatingChange('gen_ment', v)} note={notes['gen_ment']} onNoteChange={(v) => handleNoteChange('gen_ment', v)} />
-                <RatingRow kpi={t.report.generalProfile.compLevel} rating={ratings['gen_comp']} onRatingChange={(v) => handleRatingChange('gen_comp', v)} note={notes['gen_comp']} onNoteChange={(v) => handleNoteChange('gen_comp', v)} />
                 <RatingRow kpi={t.report.generalProfile.potential} rating={ratings['gen_pote']} onRatingChange={(v) => handleRatingChange('gen_pote', v)} note={notes['gen_pote']} onNoteChange={(v) => handleNoteChange('gen_pote', v)} />
-                <RatingRow kpi={t.report.generalProfile.currentLevel} rating={ratings['gen_curr']} onRatingChange={(v) => handleRatingChange('gen_curr', v)} note={notes['gen_curr']} onNoteChange={(v) => handleNoteChange('gen_curr', v)} />
               </div>
             </CardContent>
           </Card>
@@ -445,7 +421,6 @@ export function ReportForm() {
                         key={key}
                         variant="outline"
                         size="sm"
-                        onClick={() => {}}
                         className="h-10 px-4 text-[9px] font-black uppercase rounded-full border-border/30"
                       >
                         {label as string}
@@ -455,17 +430,15 @@ export function ReportForm() {
                 </div>
               </CardContent>
             </Card>
-            <div className="space-y-6">
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl flex flex-col bg-card/40 backdrop-blur-md h-full">
-                <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
-                  <Target className="h-4 w-4 text-white" />
-                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.pitch.title}</h2>
-                </div>
-                <CardContent className="pt-4 flex flex-col items-center justify-center p-4">
-                  <TacticalCanvas />
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl flex flex-col bg-card/40 backdrop-blur-md">
+              <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
+                <Target className="h-4 w-4 text-white" />
+                <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.pitch.title}</h2>
+              </div>
+              <CardContent className="pt-4 flex flex-col items-center justify-center p-4">
+                <TacticalCanvas />
+              </CardContent>
+            </Card>
           </div>
           <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 pt-6 border-t border-border/20">
             <Button variant="ghost" onClick={() => setActiveTab("player")} className="order-2 sm:order-1 px-8 py-5 font-black text-xs uppercase text-muted-foreground hover:text-foreground">
@@ -517,7 +490,7 @@ export function ReportForm() {
 
         <TabsContent value="evaluation" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#2e7d32] px-4 py-3 flex items-center gap-3 border-b border-white/10">
                 <Star className="h-4 w-4 text-white" />
                 <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.final_evaluation.strengths.title}</h2>
@@ -550,7 +523,7 @@ export function ReportForm() {
             <Card className="border-primary/20 bg-primary/5 shadow-inner p-6 sm:p-10 rounded-3xl border-2">
               <div className="text-center space-y-8">
                 <h3 className="text-xl sm:text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground">{t.report.pim.title}</h3>
-                <Button className="w-full h-14 bg-primary text-primary-foreground font-black tracking-[0.2em] text-[14px] rounded-2xl shadow-2xl" onClick={() => {}}>
+                <Button className="w-full h-14 bg-primary text-primary-foreground font-black tracking-[0.2em] text-[14px] rounded-2xl shadow-2xl">
                   {t.report.pim.calculate}
                 </Button>
               </div>
@@ -558,7 +531,7 @@ export function ReportForm() {
             <Card className="border-accent/20 bg-accent/5 shadow-inner p-6 sm:p-10 rounded-3xl border-2">
               <div className="text-center space-y-8">
                 <h3 className="text-xl sm:text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground">{t.report.summary.title}</h3>
-                <Button variant="secondary" className="w-full h-14 font-black tracking-[0.2em] text-[12px] rounded-2xl shadow-2xl border-accent/30 uppercase" onClick={() => {}}>
+                <Button variant="secondary" className="w-full h-14 font-black tracking-[0.2em] text-[12px] rounded-2xl shadow-2xl border-accent/30 uppercase">
                   {t.report.summary.generate}
                 </Button>
               </div>
