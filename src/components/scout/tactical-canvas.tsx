@@ -41,15 +41,15 @@ export function TacticalCanvas({ marker, onMarkerChange, heatmapPoints, onHeatma
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-[450px] mx-auto gap-4">
-      {/* Controles de Herramientas */}
-      <div className="flex gap-2 p-1 bg-secondary/30 rounded-lg border border-border/50">
+    <div className="flex flex-col items-center w-full max-w-full mx-auto gap-4 px-1">
+      {/* Controles de Herramientas - Optimizados para móvil */}
+      <div className="flex flex-wrap justify-center gap-1 p-1 bg-secondary/30 rounded-lg border border-border/50 w-full">
         <Button
           size="sm"
           type="button"
           variant={mode === 'position' ? 'default' : 'ghost'}
           onClick={() => setMode('position')}
-          className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2"
+          className="h-7 px-2 text-[8px] sm:text-[10px] font-black uppercase tracking-tighter gap-1"
         >
           <MousePointer2 className="h-3 w-3" /> Posición
         </Button>
@@ -58,16 +58,16 @@ export function TacticalCanvas({ marker, onMarkerChange, heatmapPoints, onHeatma
           type="button"
           variant={mode === 'heatmap' ? 'default' : 'ghost'}
           onClick={() => setMode('heatmap')}
-          className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2"
+          className="h-7 px-2 text-[8px] sm:text-[10px] font-black uppercase tracking-tighter gap-1"
         >
-          <Flame className="h-3 w-3" /> Mapa de Calor
+          <Flame className="h-3 w-3" /> Mapa Calor
         </Button>
         <Button
           size="sm"
           type="button"
           variant="ghost"
           onClick={clearHeatmap}
-          className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2 text-destructive hover:text-destructive"
+          className="h-7 px-2 text-[8px] sm:text-[10px] font-black uppercase tracking-tighter gap-1 text-destructive hover:text-destructive"
         >
           <Trash2 className="h-3 w-3" /> Limpiar
         </Button>
@@ -148,15 +148,13 @@ export function TacticalCanvas({ marker, onMarkerChange, heatmapPoints, onHeatma
             "h-2 w-2 rounded-full animate-pulse",
             mode === 'position' ? "bg-primary" : "bg-red-500"
           )} />
-          <span className="text-[9px] font-bold text-white uppercase tracking-tighter opacity-60">
-            Modo: {mode === 'position' ? 'Posición' : 'Mapa de Calor'}
+          <span className="text-[8px] font-bold text-white uppercase tracking-tighter opacity-60">
+            {mode === 'position' ? 'Posición' : 'Calor'}
           </span>
         </div>
       </div>
-      <p className="text-[9px] text-muted-foreground uppercase tracking-widest text-center">
-        {mode === 'position' 
-          ? "Haz clic para ubicar la posición principal" 
-          : "Haz clic repetidamente para pintar las zonas de influencia"}
+      <p className="text-[9px] text-muted-foreground uppercase tracking-widest text-center italic opacity-60">
+        Haz clic para marcar el campo
       </p>
     </div>
   );
