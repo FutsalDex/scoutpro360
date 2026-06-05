@@ -237,20 +237,31 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     let totalFields = 0;
     let filledFields = 0;
 
-    // Info Personal (10 campos clave)
-    const personalFields = [playerName, dorsal, clubName, rivalName, competition, matchDate, nationality, birthDate, marketValue, activeRole.name];
+    // Info Personal y Contexto (15 campos clave)
+    const personalFields = [
+      playerName, dorsal, clubName, rivalName, competition, 
+      matchDate, nationality, birthDate, marketValue, activeRole.name,
+      notes['match_style'], notes['match_system'], notes['without_possession']
+    ];
     totalFields += personalFields.length;
     filledFields += personalFields.filter(f => !!f).length;
 
-    // Métricas (KPIs del Rol)
-    const kpiCount = [...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact, ...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact, ...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact, ...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact].length;
-    totalFields += kpiCount;
-    filledFields += Object.keys(ratings).filter(k => ratings[k] > 0).length;
+    // Métricas (KPIs de las 4 secciones principales)
+    const sections = [activeRole.kpis.technical, activeRole.kpis.tactical, activeRole.kpis.physical, activeRole.kpis.mental];
+    sections.forEach(sec => {
+      const kpis = [...sec.observation, ...sec.impact];
+      totalFields += kpis.length;
+      filledFields += kpis.filter(k => ratings[k] && ratings[k] > 0).length;
+    });
 
     // Notas de IA y Resumen
     const aiFields = [notes['pim_explanation'], notes['summary'], notes['player_general_desc']];
     totalFields += aiFields.length;
     filledFields += aiFields.filter(f => !!f).length;
+
+    // Acciones de partido (al menos 1 si hay partido)
+    totalFields += 1;
+    if (scoutingActions.length > 0) filledFields += 1;
 
     return (filledFields / totalFields) * 100;
   };
@@ -332,53 +343,141 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     setIsExporting(true);
     try {
       const doc = new jsPDF();
+      const primaryColor = [27, 38, 59];
+      const accentColor = [224, 176, 80];
       
-      // Header
-      doc.setFillColor(27, 38, 59);
-      doc.rect(0, 0, 210, 40, 'F');
-      doc.setTextColor(224, 176, 80);
-      doc.setFontSize(22);
+      // HEADER
+      doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.rect(0, 0, 210, 45, 'F');
+      doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+      doc.setFontSize(26);
       doc.setFont('helvetica', 'bold');
       doc.text("SCOUTPRO 360", 15, 25);
       doc.setFontSize(10);
-      doc.text("INFORME PROFESIONAL DE SCOUTING", 15, 33);
+      doc.text("INFORME TÉCNICO PROFESIONAL DE SCOUTING", 15, 35);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`FECHA EMISIÓN: ${new Date().toLocaleDateString()}`, 150, 35);
 
-      // Player Info
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(16);
-      doc.text(playerName.toUpperCase(), 15, 55);
-      doc.setFontSize(10);
-      doc.text(`Club: ${clubName} | Posición: ${activeRole.name}`, 15, 62);
+      // 1. FICHA TÉCNICA DEL JUGADOR
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setFontSize(18);
+      doc.text(playerName.toUpperCase(), 15, 60);
       
-      // Table of Info
       (doc as any).autoTable({
-        startY: 70,
-        head: [['Atributo', 'Valor']],
+        startY: 65,
+        head: [['Atributo', 'Información', 'Atributo', 'Información']],
         body: [
-          ['Nacionalidad', nationality],
-          ['Edad', birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 'N/A'],
-          ['Valor de Mercado', marketValue],
-          ['Dorsal', dorsal],
-          ['Competición', competition],
-          ['PIM Score', `${ratings['pim'] || 0}%`],
+          ['Dorsal', dorsal || 'N/A', 'Club Actual', clubName || 'N/A'],
+          ['Nacionalidad', nationality || 'N/A', 'Edad', birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 'N/A'],
+          ['Posición', activeRole.name, 'Valor Mercado', marketValue || 'N/A'],
+          ['Rival', rivalName || 'N/A', 'Competición', competition || 'N/A'],
+          ['Min. Jugados', minPlayed || 'N/A', 'Condición Física', physicalCondition || 'N/A'],
         ],
-        theme: 'striped',
-        headStyles: { fillColor: [27, 38, 59] }
+        theme: 'grid',
+        headStyles: { fillColor: primaryColor, textColor: [255, 255, 255], fontSize: 9 },
+        styles: { fontSize: 8, cellPadding: 2 }
       });
 
-      // Executive Summary
-      const summaryY = (doc as any).lastAutoTable.finalY + 15;
+      // 2. CONTEXTO TÁCTICO
+      const contextY = (doc as any).lastAutoTable.finalY + 10;
       doc.setFontSize(14);
-      doc.text("RESUMEN EJECUTIVO AI", 15, summaryY);
-      doc.setFontSize(10);
-      const splitSummary = doc.splitTextToSize(notes['summary'] || "Sin resumen generado.", 180);
-      doc.text(splitSummary, 15, summaryY + 7);
+      doc.text("CONTEXTO DEL PARTIDO", 15, contextY);
+      (doc as any).autoTable({
+        startY: contextY + 5,
+        body: [
+          ['Estilo de Juego', notes['match_style'] || 'N/A'],
+          ['Sistema / Formación', notes['match_system'] || 'N/A'],
+          ['Comportamiento sin Balón', notes['without_possession'] ? JSON.parse(notes['without_possession']).join(', ') : 'N/A']
+        ],
+        theme: 'plain',
+        styles: { fontSize: 8, cellPadding: 2 }
+      });
 
-      // Save
-      doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}_Report.pdf`);
-      toast({ title: "PDF Generado", description: "El informe profesional ha sido descargado." });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error PDF", description: "No se pudo generar el documento." });
+      // 3. ANÁLISIS POR SECCIONES (Técnico, Táctico, Físico, Mental)
+      const renderSectionTable = (title: string, kpiSec: KPISection, currentY: number) => {
+        doc.setFontSize(14);
+        doc.text(title, 15, currentY);
+        const rows = [...kpiSec.observation, ...kpiSec.impact].map(kpi => [
+          kpi, 
+          ratings[kpi] || '-', 
+          notes[kpi] || ''
+        ]);
+        (doc as any).autoTable({
+          startY: currentY + 5,
+          head: [['Métrica / KPI', 'Nota', 'Observaciones del Scout']],
+          body: rows,
+          theme: 'striped',
+          headStyles: { fillColor: primaryColor, fontSize: 9 },
+          styles: { fontSize: 7, cellPadding: 2 }
+        });
+        return (doc as any).lastAutoTable.finalY + 10;
+      };
+
+      let nextY = (doc as any).lastAutoTable.finalY + 15;
+      nextY = renderSectionTable("EVALUACIÓN TÉCNICA", activeRole.kpis.technical, nextY);
+      
+      if (nextY > 250) { doc.addPage(); nextY = 20; }
+      nextY = renderSectionTable("EVALUACIÓN TÁCTICA", activeRole.kpis.tactical, nextY);
+
+      if (nextY > 250) { doc.addPage(); nextY = 20; }
+      nextY = renderSectionTable("EVALUACIÓN FÍSICA", activeRole.kpis.physical, nextY);
+
+      if (nextY > 250) { doc.addPage(); nextY = 20; }
+      nextY = renderSectionTable("EVALUACIÓN MENTAL", activeRole.kpis.mental, nextY);
+
+      // 4. ACCIONES CLAVE
+      if (nextY > 230) { doc.addPage(); nextY = 20; }
+      doc.setFontSize(14);
+      doc.text("REGISTRO DE ACCIONES CLAVE", 15, nextY);
+      const actionRows = scoutingActions.map(a => [a.minute, a.action, a.result, a.notes]);
+      (doc as any).autoTable({
+        startY: nextY + 5,
+        head: [['Min', 'Acción', 'Resultado', 'Notas']],
+        body: actionRows,
+        theme: 'grid',
+        headStyles: { fillColor: primaryColor },
+        styles: { fontSize: 8 }
+      });
+
+      // 5. EVALUACIÓN FINAL Y AI
+      nextY = (doc as any).lastAutoTable.finalY + 15;
+      if (nextY > 230) { doc.addPage(); nextY = 20; }
+      
+      doc.setFontSize(14);
+      doc.text("CONCLUSIONES Y ANÁLISIS IA", 15, nextY);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text("IMPACTO PIM ESTIMADO: " + (ratings['pim'] || 0) + "%", 15, nextY + 10);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      const splitExp = doc.splitTextToSize(notes['pim_explanation'] || "No disponible.", 180);
+      doc.text(splitExp, 15, nextY + 18);
+      
+      nextY += (splitExp.length * 5) + 25;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text("RESUMEN EJECUTIVO AI", 15, nextY);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      const splitSumm = doc.splitTextToSize(notes['summary'] || "No generado.", 180);
+      doc.text(splitSumm, 15, nextY + 8);
+
+      // FOOTER PAGE NUMBER
+      const pageCount = (doc as any).internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Página ${i} de ${pageCount} | ScoutPro 360 - Confidencial`, 105, 290, { align: 'center' });
+      }
+
+      doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}_Informe_Completo.pdf`);
+      toast({ title: "PDF Generado", description: "El informe profesional ha sido descargado con éxito." });
+    } catch (e: any) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Error PDF", description: "No se pudo generar el documento técnico." });
     } finally {
       setIsExporting(false);
     }
