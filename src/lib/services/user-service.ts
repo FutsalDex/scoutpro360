@@ -32,8 +32,8 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
       }
       return existingProfile;
     } else {
-      // Determinar rol inicial
-      let role: UserRole = requestedRole || (isAnonymous ? 'guest' : 'analyst');
+      // Determinar rol inicial alineado con las reglas en español
+      let role: UserRole = requestedRole || (isAnonymous ? 'invitado' : 'analista');
       
       // Forzar rol admin para el email específico
       if (email === ADMIN_EMAIL) {
@@ -57,19 +57,19 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
       operation: 'get',
     });
     errorEmitter.emit('permission-error', permissionError);
-    // Retornar perfil temporal si hay error de permisos (posible en el primer login)
+    // Retornar perfil temporal si hay error de permisos
     return {
       uid,
       email: email || 'guest@scoutpro360.com',
       displayName: 'Usuario',
-      role: email === ADMIN_EMAIL ? 'admin' : (isAnonymous ? 'guest' : 'analyst'),
+      role: email === ADMIN_EMAIL ? 'admin' : (isAnonymous ? 'invitado' : 'analista'),
       createdAt: null
     };
   }
 }
 
 /**
- * Actualiza el perfil del usuario (ej: cambiar rol, admin solamente en teoría)
+ * Actualiza el perfil del usuario
  */
 export async function updateUserProfile(uid: string, updates: Partial<UserProfile>) {
   const userRef = doc(db, "users", uid);

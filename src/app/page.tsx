@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -70,12 +69,12 @@ function AppShell({
     }
   };
 
-  const role = userProfile?.role || 'guest';
+  const role = userProfile?.role || 'invitado';
   const isAdmin = role === 'admin';
   // Analistas, Entrenadores y Directores tienen acceso a Ops + Mapping
-  const isOpsRole = ['admin', 'analyst', 'coach', 'director'].includes(role);
-  // Club y Admin tienen acceso a Analytics
-  const isClub = role === 'club' || isAdmin;
+  const isOpsRole = ['admin', 'analista', 'entrenador', 'director'].includes(role);
+  // Gestión y Admin tienen acceso a Analytics
+  const isClub = role === 'gestion' || isAdmin;
 
   return (
     <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500">
@@ -286,9 +285,7 @@ export default function Home() {
   }, []);
 
   const handleEnterApp = () => {
-    // Si ya hay usuario por onAuthStateChanged, se activará showApp automáticamente
     if (!auth.currentUser) {
-      // Forzar redirección a Landing si no hay sesión
       setShowApp(false);
     }
   };

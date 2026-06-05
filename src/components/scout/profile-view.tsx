@@ -1,4 +1,3 @@
-
 "use client"
 
 import React from 'react';
@@ -17,20 +16,20 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
   const roleColors: Record<string, string> = {
     admin: "bg-red-500/20 text-red-500 border-red-500/30",
-    analyst: "bg-primary/20 text-primary border-primary/30",
-    coach: "bg-green-500/20 text-green-500 border-green-500/30",
+    analista: "bg-primary/20 text-primary border-primary/30",
+    entrenador: "bg-green-500/20 text-green-500 border-green-500/30",
     director: "bg-purple-500/20 text-purple-500 border-purple-500/30",
-    club: "bg-accent/20 text-accent border-accent/30",
-    guest: "bg-muted-foreground/20 text-muted-foreground border-muted-foreground/30"
+    gestion: "bg-accent/20 text-accent border-accent/30",
+    invitado: "bg-muted-foreground/20 text-muted-foreground border-muted-foreground/30"
   };
 
   const roleLabels: Record<string, string> = {
     admin: "Administrador",
-    analyst: "Analista",
-    coach: "Entrenador",
+    analista: "Analista",
+    entrenador: "Entrenador",
     director: "Director Deportivo",
-    club: "Gestión de Club",
-    guest: "Invitado"
+    gestion: "Gestión de Club",
+    invitado: "Invitado"
   };
 
   return (
@@ -48,7 +47,7 @@ export function ProfileView({ profile }: ProfileViewProps) {
               <AvatarFallback className="text-2xl font-bold">{profile.displayName?.[0] || 'U'}</AvatarFallback>
             </Avatar>
             <CardTitle className="text-xl font-bold">{profile.displayName}</CardTitle>
-            <Badge className={`mt-2 uppercase tracking-widest font-black text-[10px] px-4 py-1 ${roleColors[profile.role] || roleColors.guest}`}>
+            <Badge className={`mt-2 uppercase tracking-widest font-black text-[10px] px-4 py-1 ${roleColors[profile.role] || roleColors.invitado}`}>
               {roleLabels[profile.role] || profile.role}
             </Badge>
           </CardHeader>
@@ -90,12 +89,12 @@ export function ProfileView({ profile }: ProfileViewProps) {
                />
                <PermissionItem 
                  title="Informes en Vivo" 
-                 allowed={['admin', 'analyst', 'coach', 'director'].includes(profile.role)} 
+                 allowed={['admin', 'analista', 'entrenador', 'director'].includes(profile.role)} 
                  desc="Creación y edición de informes de scouting detallados con métricas IA."
                />
                <PermissionItem 
                  title="Base de Datos Global" 
-                 allowed={['admin', 'analyst', 'club', 'coach', 'director'].includes(profile.role)} 
+                 allowed={['admin', 'analista', 'gestion', 'entrenador', 'director'].includes(profile.role)} 
                  desc="Consulta y filtrado de la base de datos completa de prospectos."
                />
                <PermissionItem 
@@ -105,7 +104,7 @@ export function ProfileView({ profile }: ProfileViewProps) {
                />
                <PermissionItem 
                  title="Analytics & Benchmarking" 
-                 allowed={['admin', 'club'].includes(profile.role)} 
+                 allowed={['admin', 'gestion'].includes(profile.role)} 
                  desc="Análisis estratégico y comparativa avanzada de prospectos contra plantilla."
                />
              </div>

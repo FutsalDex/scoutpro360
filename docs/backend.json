@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "Player": {
@@ -43,7 +42,7 @@
         "uid": { "type": "string" },
         "email": { "type": "string" },
         "displayName": { "type": "string" },
-        "role": { "type": "string", "enum": ["admin", "analyst", "club", "guest", "coach", "director"] },
+        "role": { "type": "string", "enum": ["admin", "analista", "entrenador", "director", "gestion", "invitado"] },
         "organization": { "type": "string" },
         "createdAt": { "type": "object" }
       },

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -25,7 +24,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('analyst');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('analista');
   const { toast } = useToast();
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -36,7 +35,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // Crear perfil inmediatamente con el rol seleccionado
+        // Crear perfil inmediatamente con el rol seleccionado (usando las claves en español para las reglas)
         await getOrCreateUserProfile(userCredential.user.uid, email, false, selectedRole);
       }
       toast({ title: isLogin ? "Acceso concedido" : "Cuenta creada", description: "Bienvenido a ScoutPro 360." });
@@ -148,10 +147,10 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
                     <SelectValue placeholder="Selecciona tu rol" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#1b263b] border-border/40">
-                    <SelectItem value="analyst">Analista</SelectItem>
-                    <SelectItem value="coach">Entrenador</SelectItem>
+                    <SelectItem value="analista">Analista</SelectItem>
+                    <SelectItem value="entrenador">Entrenador</SelectItem>
                     <SelectItem value="director">Director deportivo</SelectItem>
-                    <SelectItem value="club">Gestión Club</SelectItem>
+                    <SelectItem value="gestion">Gestión Club</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

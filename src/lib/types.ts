@@ -1,7 +1,6 @@
-
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'F';
 
-export type UserRole = 'admin' | 'analyst' | 'club' | 'guest' | 'coach' | 'director';
+export type UserRole = 'admin' | 'analista' | 'gestion' | 'invitado' | 'entrenador' | 'director';
 
 export interface UserProfile {
   uid: string;

@@ -2,26 +2,50 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Reglas para la colección de jugadores
+    
+    // Función auxiliar para obtener el rol del usuario autenticado
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // Comprobación de rol de Administrador
+    function isAdmin() {
+      return request.auth != null && getUserRole() == 'admin';
+    }
+
+    // Comprobación de roles con acceso de edición (Analista, Entrenador, Director, Gestión)
+    function canWrite() {
+      return request.auth != null && 
+             (getUserRole() in ['admin', 'analista', 'entrenador', 'director', 'gestion']);
+    }
+
+    // Comprobación de roles de lectura (Todos los anteriores + Invitado)
+    function canRead() {
+      return request.auth != null && 
+             (getUserRole() in ['admin', 'analista', 'entrenador', 'director', 'gestion', 'invitado']);
+    }
+
+    // 1. Reglas para jugadores (players)
     match /players/{playerId} {
-      allow read, write: if request.auth != null;
+      allow read: if canRead();
+      allow write: if canWrite();
     }
     
-    // Reglas para la colección de informes
+    // 2. Reglas para informes (reports)
     match /reports/{reportId} {
-      allow read, write: if request.auth != null;
+      allow read: if canRead();
+      allow write: if canWrite();
     }
 
-    // Reglas para la colección de usuarios (perfiles)
+    // 3. Reglas para usuarios (users)
     match /users/{userId} {
-      // Cada usuario puede leer y escribir su propio perfil
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      // Los administradores pueden leer todos los perfiles
-      allow read: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      // Un usuario puede leer su propio perfil y los admins todos
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      // Solo el usuario puede editar su propio perfil (o admin)
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
     }
 
-    // Denegar por defecto cualquier otro acceso
+    // 4. Denegar por defecto
     match /{document=**} {
       allow read, write: if false;
     }
