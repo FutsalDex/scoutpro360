@@ -5,10 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2 } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport, type Point } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
@@ -242,6 +243,24 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
     setSelectedRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]);
   };
 
+  const toggleArrayNote = (key: string, value: string) => {
+    const current = notes[key] ? JSON.parse(notes[key]) : [];
+    const updated = current.includes(value) 
+      ? current.filter((v: string) => v !== value) 
+      : [...current, value];
+    handleNoteChange(key, JSON.stringify(updated));
+  };
+
+  const isSelectedInNote = (key: string, value: string) => {
+    if (!notes[key]) return false;
+    try {
+      const current = JSON.parse(notes[key]);
+      return Array.isArray(current) && current.includes(value);
+    } catch {
+      return false;
+    }
+  };
+
   const handleSaveAll = async () => {
     if (!playerName) {
       toast({ variant: "destructive", title: "Nombre requerido", description: "Debes introducir el nombre del jugador." });
@@ -296,6 +315,17 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
     }
   };
 
+  const WeatherIcon = ({ type }: { type: string }) => {
+    switch (type) {
+      case 'Sol': case 'Sun': return <Sun className="h-3 w-3" />;
+      case 'Nublado': case 'Cloudy': return <Cloud className="h-3 w-3" />;
+      case 'Lluvia': case 'Rain': return <CloudRain className="h-3 w-3" />;
+      case 'Frío': case 'Cold': return <Snowflake className="h-3 w-3" />;
+      case 'Viento': case 'Wind': return <Wind className="h-3 w-3" />;
+      default: return null;
+    }
+  };
+
   return (
     <div className="space-y-6 sm:space-y-8 pb-32 max-w-[1400px] mx-auto w-full px-1">
       <div className="flex flex-col gap-4 bg-card/80 backdrop-blur-xl p-4 sm:p-8 rounded-2xl border border-border/50 shadow-2xl sticky top-20 z-40">
@@ -340,7 +370,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         </TabsList>
 
         <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
             {/* 1 INFORMACIÓN DEL JUGADOR */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
@@ -348,7 +378,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                   <User className="h-4 w-4 text-white" />
                   <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">1 {t.report.playerInfo.title}</h2>
                 </div>
-                <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 sm:px-6 flex-1 overflow-auto">
+                <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 sm:px-6 flex-1 overflow-auto pb-6">
                   <div className="col-span-1 sm:col-span-2 space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
                     <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm" placeholder="Nombres del jugador" />
@@ -545,25 +575,122 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         </TabsContent>
 
         <TabsContent value="context" className="animate-in fade-in slide-in-from-bottom-2">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* CONTEXTO DEL PARTIDO */}
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full">
               <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Target className="h-4 w-4 text-white" />
                 <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.matchContext.title}</h2>
               </div>
-              <CardContent className="p-8 space-y-8">
-                <div className="space-y-4">
-                  <Label className="text-[11px] font-black text-primary uppercase tracking-widest">{t.report.matchContext.playStyle}</Label>
-                  <div className="flex flex-wrap gap-3">
-                    {Object.entries(t.report.matchContext.styles).map(([key, label]) => (
+              <CardContent className="p-6 sm:p-8 space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.gameStyle}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.styles.map((style: string) => (
                       <Button
-                        key={key}
+                        key={style}
                         type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-11 px-6 text-[10px] font-black uppercase rounded-full border-border/30 hover:border-primary"
+                        variant={notes['match_style'] === style ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('match_style', style)}
+                        className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
                       >
-                        {label as string}
+                        {style}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.system}</Label>
+                  <Input 
+                    value={notes['match_system'] || ""} 
+                    onChange={(e) => handleNoteChange('match_system', e.target.value)}
+                    className="h-10 bg-secondary/10 border-border/20 text-sm" 
+                    placeholder="Ej: 4-3-3, 4-2-3-1" 
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.tempo}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.tempos.map((tempo: string) => (
+                      <Button
+                        key={tempo}
+                        type="button"
+                        variant={notes['match_tempo'] === tempo ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('match_tempo', tempo)}
+                        className="h-9 px-6 text-[11px] font-bold rounded-full border-border/30"
+                      >
+                        {tempo}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.dominance}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.dominances.map((dom: string) => (
+                      <Button
+                        key={dom}
+                        type="button"
+                        variant={notes['team_dominance'] === dom ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('team_dominance', dom)}
+                        className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
+                      >
+                        {dom}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.score}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.scores.map((score: string) => (
+                      <Button
+                        key={score}
+                        type="button"
+                        variant={notes['match_score'] === score ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('match_score', score)}
+                        className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
+                      >
+                        {score}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.importance}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.importances.map((imp: string) => (
+                      <Button
+                        key={imp}
+                        type="button"
+                        variant={notes['match_importance'] === imp ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('match_importance', imp)}
+                        className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
+                      >
+                        {imp}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.weather}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.weathers.map((w: string) => (
+                      <Button
+                        key={w}
+                        type="button"
+                        variant={notes['weather'] === w ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('weather', w)}
+                        className="h-9 px-4 text-[10px] font-black uppercase rounded-full border-border/30 flex items-center gap-2"
+                      >
+                        <WeatherIcon type={w} />
+                        {w}
                       </Button>
                     ))}
                   </div>
@@ -571,14 +698,67 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </CardContent>
             </Card>
 
-            <div className="flex justify-between gap-4 pt-10">
-              <Button variant="ghost" onClick={() => setActiveTab("player")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
-                <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
-              </Button>
-              <Button onClick={() => setActiveTab("technical")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
-                {t.report.actions.next}
-              </Button>
-            </div>
+            {/* COMPORTAMIENTO SIN BALÓN */}
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full">
+              <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+                <Shield className="h-4 w-4 text-white" />
+                <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.matchContext.behaviorTitle}</h2>
+              </div>
+              <CardContent className="p-6 sm:p-8 space-y-8">
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.withoutPossession}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.behaviors.map((beh: string) => (
+                      <Button
+                        key={beh}
+                        type="button"
+                        variant={isSelectedInNote('without_possession', beh) ? 'default' : 'outline'}
+                        onClick={() => toggleArrayNote('without_possession', beh)}
+                        className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
+                      >
+                        {beh}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.bodyLanguage}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.matchContext.languages.map((lang: string) => (
+                      <Button
+                        key={lang}
+                        type="button"
+                        variant={isSelectedInNote('body_language', lang) ? 'default' : 'outline'}
+                        onClick={() => toggleArrayNote('body_language', lang)}
+                        className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
+                      >
+                        {lang}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.tacticalRoleInMatch}</Label>
+                  <Textarea 
+                    value={notes['behavior_tactical_role'] || ""}
+                    onChange={(e) => handleNoteChange('behavior_tactical_role', e.target.value)}
+                    className="min-h-[120px] bg-secondary/10 border-border/20 text-sm"
+                    placeholder={t.report.matchContext.placeholderRole}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-between gap-4 pt-10">
+            <Button variant="ghost" onClick={() => setActiveTab("player")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
+            </Button>
+            <Button onClick={() => setActiveTab("technical")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+              {t.report.actions.next}
+            </Button>
           </div>
         </TabsContent>
 

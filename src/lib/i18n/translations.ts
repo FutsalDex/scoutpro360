@@ -179,13 +179,26 @@ export const translations = {
       },
       matchContext: {
         title: 'MATCH CONTEXT',
-        playStyle: 'TEAM PLAY STYLE',
-        styles: {
-          possession: 'Possession',
-          counter: 'Counter-Attack',
-          highPress: 'High Press',
-          lowBlock: 'Low Block',
-        }
+        gameStyle: 'GAME STYLE',
+        system: 'SYSTEM / FORMATION',
+        tempo: 'MATCH TEMPO',
+        dominance: 'TEAM DOMINANCE',
+        score: 'SCORE WHEN OBSERVING',
+        importance: 'MATCH IMPORTANCE',
+        weather: 'WEATHER CONDITIONS',
+        behaviorTitle: 'BEHAVIOR WITHOUT BALL',
+        withoutPossession: 'WITHOUT POSSESSION',
+        bodyLanguage: 'BODY LANGUAGE',
+        tacticalRoleInMatch: 'PLAYER TACTICAL ROLE IN THIS MATCH',
+        placeholderRole: 'Describe the tactical role assigned to the player...',
+        styles: ['Possession', 'Counter-Attack', 'High Press', 'Direct', 'Defensive'],
+        tempos: ['Low', 'Medium', 'High'],
+        dominances: ['Dominant', 'Balanced', 'Underdog'],
+        scores: ['Winning', 'Drawing', 'Losing'],
+        importances: ['Low', 'Medium', 'High', 'Decisive'],
+        weathers: ['Sun', 'Cloudy', 'Rain', 'Cold', 'Wind'],
+        behaviors: ['Aggressive press', 'Central spaces', 'Close pass lines', 'Quick recovery', 'Block defense', 'Offer support', 'Reads game well', 'Maintains shape'],
+        languages: ['Positive', 'Competitive', 'Focused', 'Frustrated', 'Emotional', 'Reactive', 'Calm/Mature', 'Indifferent']
       },
       sections: {
         technical_obs: 'TECHNICAL OBSERVATION',
@@ -414,13 +427,26 @@ export const translations = {
       },
       matchContext: {
         title: 'CONTEXTO DEL PARTIDO',
-        playStyle: 'ESTILO DE JUEGO DEL EQUIPO',
-        styles: {
-          possession: 'Posesión',
-          counter: 'Contraataque',
-          highPress: 'Presión Alta',
-          lowBlock: 'Bloque Bajo',
-        }
+        gameStyle: 'ESTILO DE JUEGO',
+        system: 'SISTEMA / FORMACIÓN',
+        tempo: 'RITMO DEL PARTIDO',
+        dominance: 'DOMINIO DEL EQUIPO',
+        score: 'MARCADOR AL OBSERVAR',
+        importance: 'IMPORTANCIA DEL PARTIDO',
+        weather: 'CONDICIONES METEOROLÓGICAS',
+        behaviorTitle: 'COMPORTAMIENTO SIN BALÓN',
+        withoutPossession: 'SIN POSESIÓN',
+        bodyLanguage: 'LENGUAJE CORPORAL',
+        tacticalRoleInMatch: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
+        placeholderRole: 'Describe el rol táctico asignado al jugador...',
+        styles: ['Posesión', 'Contragolpe', 'Presión alta', 'Directo', 'Defensivo'],
+        tempos: ['Bajo', 'Medio', 'Alto'],
+        dominances: ['Dominante', 'Equilibrado', 'En desventaja'],
+        scores: ['Ganando', 'Empatando', 'Perdiendo'],
+        importances: ['Baja', 'Media', 'Alta', 'Decisiva'],
+        weathers: ['Sol', 'Nublado', 'Lluvia', 'Frío', 'Viento'],
+        behaviors: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
+        languages: ['Positivo', 'Competitivo', 'Concentrado', 'Frustrado', 'Emotivo', 'Reactivo', 'Tranquilo/Maduro', 'Indiferente']
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
@@ -440,8 +466,8 @@ export const translations = {
         }
       },
       actions: {
-        next: 'Contexto →',
-        previous: '← Volver',
+        next: 'Técnico →',
+        previous: '← Jugador',
         submit: 'ENVIAR INFORME FINAL',
         export: 'EXPORTAR A PDF',
         save: 'GUARDAR INFORME',
