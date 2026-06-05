@@ -3,7 +3,8 @@ export const translations = {
     sidebar: {
       operations: 'Operations',
       commandCenter: 'Command Center',
-      liveReport: 'Live Report',
+      liveReport: 'Player Report',
+      matchAnalysis: 'Match Analysis',
       globalDatabase: 'Global Database',
       talentMapping: 'Talent Mapping',
       analytics: 'Analytics',
@@ -309,7 +310,8 @@ export const translations = {
     sidebar: {
       operations: 'Operaciones',
       commandCenter: 'Centro de Mando',
-      liveReport: 'Informe en Vivo',
+      liveReport: 'Informe Jugador',
+      matchAnalysis: 'Análisis de Partido',
       globalDatabase: 'Base de Datos Global',
       talentMapping: 'Mapeo de Talento',
       analytics: 'Analítica',

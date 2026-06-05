@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScoutDashboard } from '@/components/scout/dashboard';
 import { ReportForm } from '@/components/scout/report-form';
+import { MatchAnalysis } from '@/components/scout/match-analysis';
 import { GlobalDatabase } from '@/components/scout/global-database';
 import { TalentMapping } from '@/components/scout/talent-mapping';
 import { AnalyticsHub } from '@/components/scout/analytics-hub';
@@ -11,7 +12,7 @@ import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, Briefcase, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, Briefcase, ShieldAlert, Video } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -21,7 +22,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { getOrCreateUserProfile } from '@/lib/services/user-service';
 import { UserProfile, UserRole } from '@/lib/types';
 
-type ViewState = 'dashboard' | 'report' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
+type ViewState = 'dashboard' | 'report' | 'match-analysis' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
 
 function AppShell({ 
   activeView, 
@@ -48,6 +49,7 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard />;
       case 'report': return <ReportForm />;
+      case 'match-analysis': return <MatchAnalysis />;
       case 'database': return <GlobalDatabase />;
       case 'mapping': return <TalentMapping />;
       case 'analytics': return <AnalyticsHub />;
@@ -62,6 +64,7 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return t.sidebar.commandCenter;
       case 'report': return t.sidebar.liveReport;
+      case 'match-analysis': return t.sidebar.matchAnalysis;
       case 'database': return t.sidebar.globalDatabase;
       case 'mapping': return t.sidebar.talentMapping;
       case 'analytics': return t.sidebar.analytics;
@@ -135,16 +138,28 @@ function AppShell({
               </SidebarMenuItem>
               
               {isOpsRole && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={activeView === 'report'} 
-                    onClick={() => handleNavClick('report')}
-                    className="h-12 px-4 gap-4"
-                  >
-                    <FilePlus className="h-5 w-5" />
-                    <span className="font-medium">{t.sidebar.liveReport}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'report'} 
+                      onClick={() => handleNavClick('report')}
+                      className="h-12 px-4 gap-4"
+                    >
+                      <FilePlus className="h-5 w-5" />
+                      <span className="font-medium">{t.sidebar.liveReport}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'match-analysis'} 
+                      onClick={() => handleNavClick('match-analysis')}
+                      className="h-12 px-4 gap-4"
+                    >
+                      <Video className="h-5 w-5" />
+                      <span className="font-medium">{t.sidebar.matchAnalysis}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
 
               {(isOpsRole || isClub) && (
