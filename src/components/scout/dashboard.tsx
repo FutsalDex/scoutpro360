@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Users, ClipboardCheck, ArrowUpRight, Search, Loader2 } from "lucide-react";
+import { TrendingUp, Users, ClipboardCheck, ArrowUpRight, Loader2 } from "lucide-react";
 import { Player } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers } from "@/lib/services/db-service";

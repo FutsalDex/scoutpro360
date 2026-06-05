@@ -12,11 +12,10 @@ import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, Briefcase, ShieldAlert, Video } from "lucide-react";
+import { LayoutDashboard, FilePlus, Users, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, Briefcase, ShieldAlert, Video } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { Badge } from '@/components/ui/badge';
 import { auth } from '@/lib/firebase/config';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { getOrCreateUserProfile } from '@/lib/services/user-service';
@@ -69,7 +68,7 @@ function AppShell({
       case 'mapping': return t.sidebar.talentMapping;
       case 'analytics': return t.sidebar.analytics;
       case 'benchmarking': return t.sidebar.pimBenchmarking;
-      case 'profile': return 'Perfil Personal';
+      case 'profile': return t.sidebar.personalProfile;
       case 'admin': return t.sidebar.adminPanel;
       default: return '';
     }
@@ -228,7 +227,7 @@ function AppShell({
                 className="h-12 px-4 gap-4 bg-secondary/30 border border-primary/20 hover:border-primary/50 transition-all rounded-xl shadow-lg"
               >
                 <UserCircle className="h-5 w-5 text-primary" />
-                <span className="font-bold text-sm tracking-tight">Perfil Personal</span>
+                <span className="font-bold text-sm tracking-tight">{t.sidebar.personalProfile}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
