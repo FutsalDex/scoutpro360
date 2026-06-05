@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Mail, Lock, Loader2, Briefcase } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Loader2, Briefcase, Eye, EyeOff } from 'lucide-react';
 import { getOrCreateUserProfile } from '@/lib/services/user-service';
 import { UserRole } from '@/lib/types';
 
@@ -24,6 +24,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>('analista');
   const { toast } = useToast();
 
@@ -127,13 +128,21 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
-                type="password" 
+                type={showPassword ? "text" : "password"} 
                 placeholder="••••••••" 
-                className="pl-10 h-12 bg-secondary/10"
+                className="pl-10 pr-10 h-12 bg-secondary/10"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground hover:text-primary transition-colors flex items-center justify-center"
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </div>
 
@@ -192,7 +201,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
             disabled={loading}
           >
             <svg className="h-4 w-4" viewBox="0 0 384 512">
-              <path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 21.8-88.5 21.8-11.4 0-51.1-20.8-82.3-20.8-45.6 0-101.3 33.4-124.7 94.6-24.9 65.1-6.1 161.8 21.1 228.4 20.6 48.6 51 93.3 93.1 93.3 24.5 0 34.6-13.4 72-13.4 37.6 0 46.8 13.4 72.8 13.4 44.5 0 71.4-41.1 92.4-76.3 26-44.4 36.4-86.8 36.8-89.2-.8-.4-71.1-27.4-71.1-107.1zm-40.8-186.1c16.2-19.1 27.2-45.5 24.2-72-21.7 1.1-48.4 14.5-64.3 32.7-14 15.9-26.6 43.1-23.4 68.7 24.3 1.8 47.1-10.4 63.5-29.4z" />
+              <path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 21.8-88.5 21.8-11.4 0-51.1-20.8-82.3-20.8-45.6 0-101.3 33.4-124.7 94.6-24.9 65.1-6.1 161.8 21.1 228.4 20.6 48.6 51 93.3 93.1 93.1 24.5 0 34.6-13.4 72-13.4 37.6 0 46.8 13.4 72.8 13.4 44.5 0 71.4-41.1 92.4-76.3 26-44.4 36.4-86.8 36.8-89.2-.8-.4-71.1-27.4-71.1-107.1zm-40.8-186.1c16.2-19.1 27.2-45.5 24.2-72-21.7 1.1-48.4 14.5-64.3 32.7-14 15.9-26.6 43.1-23.4 68.7 24.3 1.8 47.1-10.4 63.5-29.4z" />
             </svg>
             Apple
           </Button>
