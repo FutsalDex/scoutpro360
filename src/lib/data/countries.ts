@@ -5,47 +5,9 @@ export interface Region {
 
 export const COUNTRIES_BY_REGION: Region[] = [
   {
-    name: "Asia y Pacífico Sur",
+    name: "Países",
     countries: [
-      "Afganistán", "Arabia Saudí", "Australia", "Bahréin", "Bangladesh", "Brunéi", "Bután", "Camboya", "Catar", "China", 
-      "Corea (Rep. de)", "Emiratos Árabes Unidos", "Estado de Palestina", "Filipinas", "Fiyi", "India", "Indonesia", 
-      "Irak", "Irán", "Japón", "Jordania", "Kazajstán", "Kirguistán", "Kiribati", "Kuwait", "Líbano", "Malasia", 
-      "Maldivas", "Marshall (Islas)", "Micronesia (Estados Federados de)", "Mongolia", "Myanmar", "Nauru", "Nepal", 
-      "Nueva Zelanda", "Omán", "Pakistán", "Palaos", "Papúa Nueva Guinea", "RDP Lao", "Salomón (Islas)", "Samoa", 
-      "Singapur", "Siria", "Sri Lanka", "Tailandia", "Tayikistán", "Timor-Leste", "Tonga", "Turkmenistán", "Uzbekistán", 
-      "Vanuatu", "Vietnam", "Yemen"
-    ]
-  },
-  {
-    name: "Europa",
-    countries: [
-      "Albania", "Alemania", "Andorra", "Armenia", "Austria", "Azerbaiyán", "Belarrús", "Bosnia-Herzegovina", "Bulgaria", 
-      "Bélgica", "Chipre", "Croacia", "Dinamarca", "Eslovaquia", "Eslovenia", "España", "Estado de la Ciudad del Vaticano", 
-      "Estonia", "Finlandia", "Francia", "Georgia", "Grecia", "Hungría", "Irlanda", "Islandia", "Israel", "Italia", 
-      "Letonia", "Liechtenstein", "Lituania", "Luxemburgo", "Macedonia del Norte", "Malta", "Moldova", "Montenegro", 
-      "Mónaco", "Noruega", "Países Bajos", "Polonia", "Portugal", "Reino Unido", "Rep. Checa", "Rumania", "Rusia", 
-      "San Marino", "Serbia", "Suecia", "Suiza", "Türkiye", "Ucrania"
-    ]
-  },
-  {
-    name: "Las Américas",
-    countries: [
-      "Antigua y Barbuda", "Argentina", "Aruba", "Bahamas", "Barbados", "Belice", "Bolivia", "Brasil", "Canadá", "Chile", 
-      "Colombia", "Costa Rica", "Cuba", "Curazao", "Dominica", "Ecuador", "El Salvador", "Estados Unidos", "Granada", 
-      "Guatemala", "Guyana", "Haití", "Honduras", "Jamaica", "México", "Nicaragua", "Panamá", "Paraguay", "Perú", 
-      "Rep. Dominicana", "San Cristóbal y Nieves", "San Martín", "San Vicente y las Granadinas", "Santa Lucía", 
-      "Surinam", "Trinidad y Tobago", "Uruguay", "Venezuela"
-    ]
-  },
-  {
-    name: "África",
-    countries: [
-      "Angola", "Argelia", "Benín", "Botsuana", "Burkina Faso", "Burundi", "Cabo Verde", "Camerún", "Chad", "Comoras", 
-      "Congo", "Congo (Rep. Democrática del)", "Côte d'Ivoire", "Egipto", "Eritrea", "Eswatini", "Etiopía", "Gabón", 
-      "Gambia", "Ghana", "Guinea", "Guinea Bissau", "Guinea Ecuatorial", "Kenia", "Lesoto", "Liberia", "Libia", 
-      "Madagascar", "Malaui", "Malí", "Marruecos", "Mauricio", "Mauritania", "Mozambique", "Namibia", "Nigeria", 
-      "Níger", "Rep. Centroafricana", "Ruanda", "Santo Tomé y Príncipe", "Senegal", "Seychelles", "Sierra Leona", 
-      "Somalia", "Sudáfrica", "Sudán", "Sudán del Sur", "Tanzania", "Togo", "Túnez", "Uganda", "Yibuti", "Zambia", "Zimbabue"
+      "Afganistán", "Albania", "Alemania", "Andorra", "Angola", "Antigua y Barbuda", "Arabia Saudita", "Argelia", "Argentina", "Armenia", "Australia", "Austria", "Azerbaiyán", "Bahamas", "Bangladés", "Barbados", "Baréin", "Bélgica", "Belice", "Benín", "Bielorrusia", "Birmania", "Bolivia", "Bosnia y Herzegovina", "Botsuana", "Brasil", "Brunéi", "Bulgaria", "Burkina Faso", "Burundi", "Bután", "Cabo Verde", "Camboya", "Camerún", "Canadá", "Catar", "Chad", "Chile", "China", "Chipre", "Ciudad del Vaticano", "Colombia", "Comoras", "Corea del Norte", "Corea del Sur", "Costa de Marfil", "Costa Rica", "Croacia", "Cuba", "Dinamarca", "Dominica", "Ecuador", "Egipto", "El Salvador", "Emiratos Árabes Unidos", "Eritrea", "Eslovaquia", "Eslovenia", "España", "Estados Unidos", "Estonia", "Etiopía", "Filipinas", "Finlandia", "Fiyi", "Francia", "Gabón", "Gambia", "Georgia", "Ghana", "Granada", "Grecia", "Guatemala", "Guyana", "Guinea", "Guinea ecuatorial", "Guinea-Bisáu", "Haití", "Honduras", "Hungría", "India", "Indonesia", "Irak", "Irán", "Irlanda", "Islandia", "Islas Marshall", "Islas Salomón", "Israel", "Italia", "Jamaica", "Japón", "Jordania", "Kazajstán", "Kenia", "Kirguistán", "Kiribati", "Kuwait", "Laos", "Lesoto", "Letonia", "Líbano", "Liberia", "Libia", "Liechtenstein", "Lituania", "Luxemburgo", "Madagascar", "Malasia", "Malaui", "Maldivas", "Malí", "Malta", "Marruecos", "Mauricio", "Mauritania", "México", "Micronesia", "Moldavia", "Mónaco", "Mongolia", "Montenegro", "Mozambique", "Namibia", "Nauru", "Nepal", "Nicaragua", "Níger", "Nigeria", "Noruega", "Nueva Zelanda", "Omán", "Países Bajos", "Pakistán", "Palaos", "Panamá", "Papúa Nueva Guinea", "Paraguay", "Perú", "Polonia", "Portugal", "Reino Unido", "República Centroafricana", "República Checa", "República de Macedonia", "República del Congo", "República Democrática del Congo", "República Dominicana", "República Sudafricana", "Ruanda", "Rumanía", "Rusia", "Samoa", "San Cristóbal y Nieves", "San Marino", "San Vicente y las Granadinas", "Santa Lucía", "Santo Tomé y Príncipe", "Senegal", "Serbia", "Seychelles", "Sierra Leona", "Singapur", "Siria", "Somalia", "Sri Lanka", "Suazilandia", "Sudán", "Sudán del Sur", "Suecia", "Suiza", "Surinam", "Tailandia", "Tanzania", "Tayikistán", "Timor Oriental", "Togo", "Tonga", "Trinidad y Tobago", "Túnez", "Turkmenistán", "Turquía", "Tuvalu", "Ucrania", "Uganda", "Uruguay", "Uzbekistán", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Yibuti", "Zambia", "Zimbabue"
     ]
   }
 ];
