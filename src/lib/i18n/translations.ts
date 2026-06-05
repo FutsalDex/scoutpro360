@@ -30,7 +30,7 @@ export const translations = {
       }
     },
     dashboard: {
-      title: 'ScoutPro 360 Dashboard',
+      title: 'COMMAND CENTER',
       subtitle: 'Welcome back, Head Scout. Centralized intelligence for organizational talent acquisition.',
       search: 'Search Global Database',
       createReport: 'Create New Report',
@@ -337,7 +337,7 @@ export const translations = {
       }
     },
     dashboard: {
-      title: 'PANEL DE CONTROL SCOUTPRO 360',
+      title: 'CENTRO DE MANDO',
       subtitle: 'Bienvenido de nuevo, Jefe de Scouting. Inteligencia centralizada para la captación de talento organizacional.',
       search: 'Buscar en Base de Datos Global',
       createReport: 'CREAR NUEVO INFORME',

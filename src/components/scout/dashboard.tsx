@@ -34,11 +34,6 @@ export function ScoutDashboard() {
           <h1 className="text-2xl sm:text-4xl font-headline font-black text-foreground uppercase tracking-tight">{t.dashboard.title}</h1>
           <p className="text-sm text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-          <Button className="flex-1 md:flex-none bg-primary text-primary-foreground shadow-lg shadow-primary/30 text-xs font-bold uppercase tracking-widest h-12 px-8 rounded-xl">
-            {t.dashboard.createReport}
-          </Button>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
