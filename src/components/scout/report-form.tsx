@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -30,7 +31,7 @@ const RatingRow = ({
   note?: string,
   onNoteChange: (value: string) => void
 }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-border/10 last:border-0 group">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-border/10 last:border-0 group px-4 sm:px-6">
     <Label className="text-[11px] font-medium text-foreground sm:w-48 shrink-0">{kpi}</Label>
     <div className="flex items-center gap-4 flex-1">
       <div className="flex gap-1 shrink-0">
@@ -93,7 +94,7 @@ const EvaluationModule = ({
             <Icon className="h-4 w-4 text-primary" />
             <h2 className="text-[10px] sm:text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
           </div>
-          <CardContent className="pt-4 sm:pt-6 space-y-1 px-4 sm:px-6">
+          <CardContent className="p-0">
             {kpiSection.observation.map(kpi => (
               <RatingRow 
                 key={kpi} 
@@ -113,7 +114,7 @@ const EvaluationModule = ({
               <Activity className="h-4 w-4 text-accent" />
               <h2 className="text-[10px] sm:text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
             </div>
-            <CardContent className="pt-4 sm:pt-6 space-y-1 px-4 sm:px-6">
+            <CardContent className="p-0">
               {kpiSection.impact.map(kpi => (
                 <RatingRow 
                   key={kpi} 
@@ -264,54 +265,53 @@ export function ReportForm() {
         </TabsList>
 
         <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-            {/* COLUMNA 1: Info y Perfil */}
-            <div className="space-y-6">
-              {/* 1. INFORMACIÓN DEL JUGADOR */}
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
+            {/* ROW 1: 1 INFORMACIÓN y 2 POSICIÓN */}
+            <div className="h-full">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
+                <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
                   <User className="h-4 w-4 text-white" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">1 {t.report.playerInfo.title}</h2>
+                  <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">1 {t.report.playerInfo.title}</h2>
                 </div>
-                <CardContent className="p-6 grid grid-cols-2 gap-4">
-                  <div className="col-span-2 sm:col-span-1 space-y-1.5">
+                <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 sm:px-6 flex-1 overflow-auto">
+                  <div className="col-span-1 sm:col-span-2 space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
-                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Nombre del jugador" />
+                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm" placeholder="Nombres del jugador" />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dorsal}</Label>
                     <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="-" />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
                     <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Club" />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.rival}</Label>
                     <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="vs" />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.competition}</Label>
                     <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Liga / Copa" />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.matchDate}</Label>
                     <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20" />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.birthDate}</Label>
                     <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20" />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.nationality}</Label>
                     <Select value={nationality} onValueChange={setNationality}>
                       <SelectTrigger className="h-10 bg-secondary/10 border-border/20">
                         <SelectValue placeholder="-" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px]">
                         {ALL_COUNTRIES.map(country => (
                           <SelectItem key={country} value={country}>{country}</SelectItem>
                         ))}
@@ -319,25 +319,25 @@ export function ReportForm() {
                     </Select>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.height}</Label>
                     <Input value={height} onChange={(e) => setHeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="-" />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.weight}</Label>
                     <Input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="-" />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.minPlayed}</Label>
                     <Input value={minPlayed} onChange={(e) => setMinPlayed(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-center" placeholder="90" />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.marketValue}</Label>
                     <Input value={marketValue} onChange={(e) => setMarketValue(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="€0" />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
                     <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
                       <SelectTrigger className="h-10 bg-secondary/10 border-border/20">
@@ -350,20 +350,21 @@ export function ReportForm() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
                     <Input value={secondaryPositions} onChange={(e) => setSecondaryPositions(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Ej: ED, MCO" />
                   </div>
 
-                  <div className="col-span-2 space-y-3">
+                  <div className="col-span-1 sm:col-span-2 space-y-3">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dominantFoot}</Label>
                     <div className="flex gap-2">
                       {['Derecho', 'Izquierdo', 'Ambos'].map(foot => (
                         <Button
                           key={foot}
+                          type="button"
                           variant={dominantFoot === foot ? 'default' : 'outline'}
                           onClick={() => setDominantFoot(foot)}
-                          className="h-9 rounded-full px-6 text-[11px] font-bold"
+                          className="h-9 rounded-full px-5 text-[11px] font-bold border-border/40"
                         >
                           {foot}
                         </Button>
@@ -371,15 +372,16 @@ export function ReportForm() {
                     </div>
                   </div>
 
-                  <div className="col-span-2 space-y-3">
+                  <div className="col-span-1 sm:col-span-2 space-y-3">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.physicalCondition}</Label>
                     <div className="flex flex-wrap gap-2">
                       {['Excelente', 'Buena', 'Normal', 'Bajo su nivel', 'Lesionado'].map(cond => (
                         <Button
                           key={cond}
+                          type="button"
                           variant={physicalCondition === cond ? 'default' : 'outline'}
                           onClick={() => setPhysicalCondition(cond)}
-                          className="h-9 rounded-full px-6 text-[11px] font-bold"
+                          className="h-9 rounded-full px-5 text-[11px] font-bold border-border/40"
                         >
                           {cond}
                         </Button>
@@ -387,20 +389,40 @@ export function ReportForm() {
                     </div>
                   </div>
 
-                  <div className="col-span-2 space-y-1.5">
+                  <div className="col-span-1 sm:col-span-2 space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.scout}</Label>
                     <Input value={scoutName} onChange={(e) => setScoutName(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Nombre del observador" />
                   </div>
                 </CardContent>
               </Card>
+            </div>
 
-              {/* 3. PERFIL GENERAL (IMPRESIÓN GLOBAL) */}
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+            <div className="h-full">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
+                <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
+                  <Target className="h-4 w-4 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">2 {t.report.pitch.title}</h2>
+                </div>
+                <CardContent className="p-8 flex flex-col items-center justify-center gap-6 flex-1">
+                  <div className="w-full max-w-[360px] flex-1">
+                    <TacticalCanvas />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[11px] font-black uppercase text-foreground/80">{t.report.pitch.mark}</p>
+                    <p className="text-[10px] text-muted-foreground">{t.report.pitch.click}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* ROW 2: 3 PERFIL y 4 ROLES */}
+            <div className="h-full">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
+                <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
                   <Star className="h-4 w-4 text-white fill-white" />
                   <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">3 {t.report.generalProfile.title}</h2>
                 </div>
-                <CardContent className="p-0">
+                <CardContent className="p-0 flex-1 overflow-auto">
                   <div className="divide-y divide-border/10">
                     <RatingRow kpi={t.report.generalProfile.techLevel} rating={ratings['gen_tech']} onRatingChange={(v) => handleRatingChange('gen_tech', v)} note={notes['gen_tech']} onNoteChange={(v) => handleNoteChange('gen_tech', v)} />
                     <RatingRow kpi={t.report.generalProfile.tacticalIntel} rating={ratings['gen_tact']} onRatingChange={(v) => handleRatingChange('gen_tact', v)} note={notes['gen_tact']} onNoteChange={(v) => handleNoteChange('gen_tact', v)} />
@@ -414,39 +436,24 @@ export function ReportForm() {
               </Card>
             </div>
 
-            {/* COLUMNA 2: Pizarra y Roles */}
-            <div className="space-y-6">
-              {/* 2. POSICIÓN EN EL CAMPO */}
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
-                  <Target className="h-4 w-4 text-white" />
-                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">2 {t.report.pitch.title}</h2>
-                </div>
-                <CardContent className="p-8 flex flex-col items-center justify-center gap-4">
-                  <div className="w-full max-w-[360px]">
-                    <TacticalCanvas />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[11px] font-black uppercase text-foreground/80">{t.report.pitch.mark}</p>
-                    <p className="text-[10px] text-muted-foreground">{t.report.pitch.click}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 4. ROLES Y FUNCIONES OBSERVADAS */}
-              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-                <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+            <div className="h-full">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
+                <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
                   <Activity className="h-4 w-4 text-white" />
                   <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">4 {t.report.roles.title}</h2>
                 </div>
-                <CardContent className="p-6">
-                  <div className="flex flex-wrap gap-2 justify-center">
+                <CardContent className="p-8 flex items-start justify-center flex-1">
+                  <div className="flex flex-wrap gap-2.5 justify-center max-w-lg">
                     {t.report.roles.items.map((role: string) => (
                       <Button
                         key={role}
+                        type="button"
                         variant={selectedRoles.includes(role) ? 'default' : 'outline'}
                         onClick={() => toggleRole(role)}
-                        className="h-9 rounded-full px-4 text-[11px] font-medium border-border/40"
+                        className={cn(
+                          "h-10 rounded-full px-5 text-[11px] font-bold border-border/40 transition-all",
+                          selectedRoles.includes(role) ? "bg-primary text-primary-foreground border-primary" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
+                        )}
                       >
                         {role}
                       </Button>
@@ -478,6 +485,7 @@ export function ReportForm() {
                     {Object.entries(t.report.matchContext.styles).map(([key, label]) => (
                       <Button
                         key={key}
+                        type="button"
                         variant="outline"
                         size="sm"
                         className="h-11 px-6 text-[10px] font-black uppercase rounded-full border-border/30 hover:border-primary"
