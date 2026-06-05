@@ -48,7 +48,7 @@ function AppShell({
   const renderActiveView = () => {
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard />;
-      case 'report': return <ReportForm />;
+      case 'report': return <ReportForm userProfile={userProfile} />;
       case 'match-analysis': return <MatchAnalysis />;
       case 'database': return <GlobalDatabase />;
       case 'mapping': return <TalentMapping />;

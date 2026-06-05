@@ -10,14 +10,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
 import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2 } from "lucide-react";
-import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection } from "@/lib/types";
+import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
 import { savePlayer, saveReport } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
-import { onAuthStateChanged } from "firebase/auth";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
+
+interface ReportFormProps {
+  userProfile: UserProfile | null;
+}
 
 const RatingRow = ({ 
   kpi, 
@@ -143,7 +146,7 @@ const EvaluationModule = ({
   );
 };
 
-export function ReportForm() {
+export function ReportForm({ userProfile }: ReportFormProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
   
@@ -172,16 +175,14 @@ export function ReportForm() {
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
 
+  // Sincronizar el nombre del scout con el perfil de Firestore
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.displayName) {
-        setScoutName(user.displayName);
-      } else if (user && user.email) {
-        setScoutName(user.email.split('@')[0]);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+    if (userProfile?.displayName) {
+      setScoutName(userProfile.displayName);
+    } else if (userProfile?.email) {
+      setScoutName(userProfile.email.split('@')[0]);
+    }
+  }, [userProfile]);
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => ({ ...prev, [kpi]: value }));
@@ -278,7 +279,6 @@ export function ReportForm() {
 
         <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
-            {/* ROW 1: 1 INFORMACIÓN y 2 POSICIÓN */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
@@ -427,7 +427,6 @@ export function ReportForm() {
               </Card>
             </div>
 
-            {/* ROW 2: 3 PERFIL y 4 ROLES */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
