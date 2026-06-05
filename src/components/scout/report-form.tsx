@@ -402,7 +402,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.setDrawColor(50, 50, 50);
       doc.setLineWidth(0.4);
       
-      // Estructura básica del campo (sin .arc() para evitar errores)
+      // Estructura básica del campo (Círculos y Rectángulos nativos)
       doc.rect(pitchX, pitchTop, pitchW, pitchH); 
       doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); // Línea media
       doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10); // Círculo central
@@ -415,6 +415,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
       doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
 
+      // Función de mapeo corregida: Top-Left App -> Top-Left PDF
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
         y: pitchTop + (p.x / 400) * pitchH
