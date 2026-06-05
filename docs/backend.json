@@ -44,6 +44,16 @@
         "displayName": { "type": "string" },
         "role": { "type": "string", "enum": ["admin", "analista", "entrenador", "director", "gestion", "invitado"] },
         "organization": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "nationality": { "type": "string" },
+        "socials": {
+          "type": "object",
+          "properties": {
+            "twitter": { "type": "string" },
+            "linkedin": { "type": "string" },
+            "instagram": { "type": "string" }
+          }
+        },
         "createdAt": { "type": "object" }
       },
       "required": ["uid", "role"]

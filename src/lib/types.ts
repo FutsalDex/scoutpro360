@@ -8,6 +8,13 @@ export interface UserProfile {
   displayName: string;
   role: UserRole;
   organization?: string;
+  phoneNumber?: string;
+  nationality?: string;
+  socials?: {
+    twitter?: string;
+    linkedin?: string;
+    instagram?: string;
+  };
   createdAt: any;
 }
 
