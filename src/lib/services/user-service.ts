@@ -1,4 +1,3 @@
-
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -12,8 +11,11 @@ import { UserProfile, UserRole } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
+const ADMIN_EMAIL = 'admin.scoutpro360@gmail.com';
+
 /**
  * Obtiene o crea el perfil de un usuario en Firestore.
+ * Si el email coincide con el ADMIN_EMAIL, se le asigna el rol de administrador automáticamente.
  */
 export async function getOrCreateUserProfile(uid: string, email: string, isAnonymous: boolean, requestedRole?: UserRole): Promise<UserProfile> {
   const userRef = doc(db, "users", uid);
@@ -22,14 +24,27 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
     const userSnap = await getDoc(userRef);
     
     if (userSnap.exists()) {
-      return userSnap.data() as UserProfile;
+      const existingProfile = userSnap.data() as UserProfile;
+      // Verificación de seguridad adicional: si el email es el admin, asegurar que tiene el rol
+      if (email === ADMIN_EMAIL && existingProfile.role !== 'admin') {
+        await updateUserProfile(uid, { role: 'admin' });
+        return { ...existingProfile, role: 'admin' };
+      }
+      return existingProfile;
     } else {
-      // Crear perfil por defecto
+      // Determinar rol inicial
+      let role: UserRole = requestedRole || (isAnonymous ? 'guest' : 'analyst');
+      
+      // Forzar rol admin para el email específico
+      if (email === ADMIN_EMAIL) {
+        role = 'admin';
+      }
+
       const newProfile: UserProfile = {
         uid,
         email: email || (isAnonymous ? 'guest@scoutpro360.com' : ''),
         displayName: isAnonymous ? 'Invitado' : (email ? email.split('@')[0] : 'Scout'),
-        role: requestedRole || (isAnonymous ? 'guest' : 'analyst'),
+        role: role,
         createdAt: serverTimestamp()
       };
       
@@ -47,7 +62,7 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
       uid,
       email: email || 'guest@scoutpro360.com',
       displayName: 'Usuario',
-      role: isAnonymous ? 'guest' : 'analyst',
+      role: email === ADMIN_EMAIL ? 'admin' : (isAnonymous ? 'guest' : 'analyst'),
       createdAt: null
     };
   }
