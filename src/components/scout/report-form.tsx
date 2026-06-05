@@ -415,10 +415,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
       doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
 
-      // Función de mapeo corregida: Top-Left App -> Top-Left PDF
+      /**
+       * Mapeo de coordenadas Corregido:
+       * App Arriba (y=0) -> PDF Izquierda (x=pitchX)
+       * App Izquierda (x=0) -> PDF Abajo (y=pitchTop + pitchH)
+       */
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
-        y: pitchTop + (p.x / 400) * pitchH
+        y: pitchTop + ((400 - p.x) / 400) * pitchH
       });
 
       // Heatmap
