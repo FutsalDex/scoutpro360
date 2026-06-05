@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Brain, Sparkles, Trash2 } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Brain, Sparkles, Trash2, Download } from "lucide-react";
 import { TACTICAL_ROLES, type KPISection, type UserProfile, type ScoutingReport, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
@@ -21,6 +21,8 @@ import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { serverTimestamp } from "firebase/firestore";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const RatingRow = ({ 
   kpi, 
@@ -149,6 +151,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
@@ -230,6 +233,28 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const handleRemoveAction = (index: number) => setScoutingActions(scoutingActions.filter((_, i) => i !== index));
 
+  const calculateCompletionPercentage = () => {
+    let totalFields = 0;
+    let filledFields = 0;
+
+    // Info Personal (10 campos clave)
+    const personalFields = [playerName, dorsal, clubName, rivalName, competition, matchDate, nationality, birthDate, marketValue, activeRole.name];
+    totalFields += personalFields.length;
+    filledFields += personalFields.filter(f => !!f).length;
+
+    // Métricas (KPIs del Rol)
+    const kpiCount = [...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact, ...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact, ...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact, ...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact].length;
+    totalFields += kpiCount;
+    filledFields += Object.keys(ratings).filter(k => ratings[k] > 0).length;
+
+    // Notas de IA y Resumen
+    const aiFields = [notes['pim_explanation'], notes['summary'], notes['player_general_desc']];
+    totalFields += aiFields.length;
+    filledFields += aiFields.filter(f => !!f).length;
+
+    return (filledFields / totalFields) * 100;
+  };
+
   const handleCalculatePIM = async (e: React.MouseEvent) => {
     e.preventDefault();
     setIsCalculatingPIM(true);
@@ -293,6 +318,72 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     }
   };
 
+  const handleExportPDF = async () => {
+    const completion = calculateCompletionPercentage();
+    if (completion < 90) {
+      toast({
+        variant: "destructive",
+        title: "Informe Incompleto",
+        description: `Se requiere el 90% de los campos rellenados para emitir el PDF profesional. Actual: ${Math.round(completion)}%`
+      });
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFillColor(27, 38, 59);
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setTextColor(224, 176, 80);
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text("SCOUTPRO 360", 15, 25);
+      doc.setFontSize(10);
+      doc.text("INFORME PROFESIONAL DE SCOUTING", 15, 33);
+
+      // Player Info
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(16);
+      doc.text(playerName.toUpperCase(), 15, 55);
+      doc.setFontSize(10);
+      doc.text(`Club: ${clubName} | Posición: ${activeRole.name}`, 15, 62);
+      
+      // Table of Info
+      (doc as any).autoTable({
+        startY: 70,
+        head: [['Atributo', 'Valor']],
+        body: [
+          ['Nacionalidad', nationality],
+          ['Edad', birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 'N/A'],
+          ['Valor de Mercado', marketValue],
+          ['Dorsal', dorsal],
+          ['Competición', competition],
+          ['PIM Score', `${ratings['pim'] || 0}%`],
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [27, 38, 59] }
+      });
+
+      // Executive Summary
+      const summaryY = (doc as any).lastAutoTable.finalY + 15;
+      doc.setFontSize(14);
+      doc.text("RESUMEN EJECUTIVO AI", 15, summaryY);
+      doc.setFontSize(10);
+      const splitSummary = doc.splitTextToSize(notes['summary'] || "Sin resumen generado.", 180);
+      doc.text(splitSummary, 15, summaryY + 7);
+
+      // Save
+      doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}_Report.pdf`);
+      toast({ title: "PDF Generado", description: "El informe profesional ha sido descargado." });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error PDF", description: "No se pudo generar el documento." });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleSaveAll = async () => {
     if (!playerName) {
       toast({ variant: "destructive", title: "Nombre requerido" });
@@ -342,15 +433,32 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             </div>
             <div className="space-y-0.5 min-w-0 overflow-hidden">
               <h1 className="text-base sm:text-2xl font-black font-headline uppercase tracking-tight text-foreground truncate">
-                {editingPlayerId ? playerName : t.report.title}
+                {playerName || t.report.title}
               </h1>
-              <p className="text-[8px] sm:text-[10px] text-primary font-black uppercase tracking-[0.2em] truncate">{t.report.subtitle}</p>
+              <p className="text-[8px] sm:text-[10px] text-primary font-black uppercase tracking-[0.2em] truncate">EVALUACIÓN CONFIDENCIAL 360 SCOUTING</p>
             </div>
           </div>
-          <Button type="button" onClick={handleSaveAll} disabled={isSaving} className="w-full md:w-auto h-10 sm:h-12 px-6 bg-primary text-primary-foreground font-black text-[10px] sm:text-[11px] uppercase tracking-widest rounded-xl shadow-lg">
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-            {t.report.actions.save}
-          </Button>
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={handleExportPDF} 
+              disabled={isExporting} 
+              className="flex-1 md:flex-none h-10 sm:h-12 px-6 border-primary/30 text-primary font-black text-[10px] sm:text-[11px] uppercase tracking-widest rounded-xl"
+            >
+              {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+              {t.report.actions.export}
+            </Button>
+            <Button 
+              type="button" 
+              onClick={handleSaveAll} 
+              disabled={isSaving} 
+              className="flex-1 md:flex-none h-10 sm:h-12 px-6 bg-primary text-primary-foreground font-black text-[10px] sm:text-[11px] uppercase tracking-widest rounded-xl shadow-lg"
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              {t.report.actions.save}
+            </Button>
+          </div>
         </div>
       </div>
 
