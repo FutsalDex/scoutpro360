@@ -135,9 +135,9 @@ export const translations = {
         analytics: 'AI ANALYTICS',
       },
       playerInfo: {
-        title: 'PLAYER DATA',
+        title: 'PLAYER INFORMATION',
         name: 'FULL NAME',
-        dorsal: 'JERSEY',
+        dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
         competition: 'COMPETITION',
@@ -165,7 +165,17 @@ export const translations = {
         currentLevel: 'Current level',
       },
       pitch: {
-        title: 'TACTICAL POSITIONING',
+        title: 'POSITION ON THE PITCH',
+        mark: 'Mark primary position on the pitch',
+        click: 'Click to mark player position',
+      },
+      roles: {
+        title: 'OBSERVED ROLES & FUNCTIONS',
+        items: [
+          'Build-up play', 'Progression', 'Final third', 'Defensive eq.', 'Pressing',
+          'Transitions', 'Press. after loss', 'Space occ.', 'Ball carrying', 'Aerial play',
+          'Finishing', 'Creativity', 'Leadership', 'Set pieces'
+        ]
       },
       matchContext: {
         title: 'MATCH CONTEXT',
@@ -385,7 +395,17 @@ export const translations = {
         currentLevel: 'Nivel actual',
       },
       pitch: {
-        title: 'POSICIONAMIENTO TÁCTICO',
+        title: 'POSICIÓN EN EL CAMPO',
+        mark: 'Marcar posición principal en el campo',
+        click: 'Haz clic para marcar la posición del jugador',
+      },
+      roles: {
+        title: 'ROLES Y FUNCIONES OBSERVADAS',
+        items: [
+          'Juego de construcción', 'Progresión', 'Último tercio', 'Eq. defensivo', 'Presión',
+          'Transiciones', 'Pres. tras pérdida', 'Ocup. espacios', 'Transporte balón', 'Juego aéreo',
+          'Definición/Final.', 'Creatividad', 'Liderazgo', 'Balones parados'
+        ]
       },
       matchContext: {
         title: 'CONTEXTO DEL PARTIDO',
@@ -415,7 +435,7 @@ export const translations = {
         }
       },
       actions: {
-        next: 'Continuar →',
+        next: 'Contexto →',
         previous: '← Volver',
         submit: 'ENVIAR INFORME FINAL',
         export: 'EXPORTAR A PDF',
