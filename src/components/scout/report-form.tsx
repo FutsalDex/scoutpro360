@@ -386,45 +386,73 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         styles: { fontSize: 8, cellPadding: 2 }
       });
 
-      // --- Tactical Pitch Drawing Section ---
+      // --- NEW Horizontal Tactical Pitch ---
       const pitchY = (doc as any).lastAutoTable.finalY + 15;
-      if (pitchY > 200) { doc.addPage(); }
-      const currentPitchY = pitchY > 200 ? 20 : pitchY;
+      if (pitchY > 180) { doc.addPage(); }
+      const currentPitchY = pitchY > 180 ? 20 : pitchY;
       
       doc.setFontSize(14);
-      doc.text("POSICIÓN TÁCTICA Y MAPA DE CALOR", 15, currentPitchY);
+      doc.text("POSICIÓN TÁCTICA (CAMPO PROFESIONAL)", 15, currentPitchY);
       
-      const pitchW = 60;
-      const pitchH = 90;
-      const pitchX = 75; // Roughly centered
+      const pitchW = 120; // Width on PDF
+      const pitchH = 80;  // Height on PDF
+      const pitchX = 45;  // Center X
       const pitchTop = currentPitchY + 5;
       
-      // Scale factors (UI is 400x600)
-      const scaleX = pitchW / 400;
-      const scaleY = pitchH / 600;
-
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.5);
-      doc.rect(pitchX, pitchTop, pitchW, pitchH); // Boundary
-      doc.line(pitchX, pitchTop + pitchH/2, pitchX + pitchW, pitchTop + pitchH/2); // Halfway line
-      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10 * scaleY); // Center circle
+      // Drawing Horizontal Pitch (Mirroring the provided clean image style)
+      doc.setDrawColor(50, 50, 50);
+      doc.setLineWidth(0.4);
       
-      // Areas
-      doc.rect(pitchX + 10, pitchTop, pitchW - 20, 15 * scaleY); // Penalty box top
-      doc.rect(pitchX + 10, pitchTop + pitchH - (15 * scaleY), pitchW - 20, 15 * scaleY); // Penalty box bottom
+      // Boundary
+      doc.rect(pitchX, pitchTop, pitchW, pitchH); 
+      
+      // Halfway line
+      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH);
+      
+      // Center circle
+      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10);
+      doc.setFillColor(50, 50, 50);
+      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 0.8, 'F'); // Center spot
+      
+      // Goal areas & Penalty boxes (Left)
+      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); // Penalty box
+      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  // Goal box
+      doc.arc(pitchX + 11, pitchTop + pitchH/2, 10, -Math.PI/2, Math.PI/2, true); // Penalty arc
+      
+      // Goal areas & Penalty boxes (Right)
+      doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
+      doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
+      doc.arc(pitchX + pitchW - 11, pitchTop + pitchH/2, 10, Math.PI/2, -Math.PI/2, true); // Penalty arc
 
-      // Draw Heatmap Points
-      doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
-      heatmapPoints.forEach(p => {
-        doc.circle(pitchX + (p.x * scaleX), pitchTop + (p.y * scaleY), 2, 'F');
+      // Corner arcs
+      const cornerR = 3;
+      doc.arc(pitchX, pitchTop, cornerR, 0, Math.PI/2);
+      doc.arc(pitchX + pitchW, pitchTop, cornerR, Math.PI/2, Math.PI);
+      doc.arc(pitchX + pitchW, pitchTop + pitchH, cornerR, Math.PI, 3*Math.PI/2);
+      doc.arc(pitchX, pitchTop + pitchH, cornerR, 3*Math.PI/2, 0);
+
+      // Mapping Coordinates from UI (400x600 Vertical) to PDF (Horizontal 120x80)
+      // UI X (Horizontal) 0-400 maps to PDF Y (Vertical inside pitch)
+      // UI Y (Vertical) 0-600 maps to PDF X (Horizontal inside pitch)
+      const mapPoint = (p: Point) => ({
+        x: pitchX + (p.y / 600) * pitchW,
+        y: pitchTop + (p.x / 400) * pitchH
       });
 
-      // Draw Player Marker
+      // Heatmap Points
+      doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+      heatmapPoints.forEach(p => {
+        const mapped = mapPoint(p);
+        doc.circle(mapped.x, mapped.y, 1.5, 'F');
+      });
+
+      // Player Marker
+      const mappedMarker = mapPoint(pitchMarker);
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.circle(pitchX + (pitchMarker.x * scaleX), pitchTop + (pitchMarker.y * scaleY), 4, 'F');
+      doc.circle(mappedMarker.x, mappedMarker.y, 4, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(6);
-      doc.text("ID", pitchX + (pitchMarker.x * scaleX) - 1.5, pitchTop + (pitchMarker.y * scaleY) + 1.5);
+      doc.text("ID", mappedMarker.x - 1.5, mappedMarker.y + 1.5);
 
       let nextY = pitchTop + pitchH + 15;
       // ---------------------------------------
