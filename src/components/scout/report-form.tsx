@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind, Brain, Sparkles } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind, Brain, Sparkles, AlertCircle } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport, type Point } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
@@ -874,31 +874,283 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="evaluation" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
-              <div className="bg-[#2e7d32] px-5 py-3 flex items-center gap-3 border-b border-white/10">
-                <Star className="h-4 w-4 text-white" />
-                <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.final_evaluation.strengths.title}</h2>
-              </div>
-              <CardContent className="p-8 space-y-6">
-                <div className="space-y-4">
-                  <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">{t.report.final_evaluation.strengths.strengths_title}</Label>
-                  {[1,2,3].map(i => (
-                    <div key={i} className="flex items-center gap-4">
-                      <span className="text-[11px] font-bold text-muted-foreground w-4">{i}.</span>
-                      <Input 
-                        className="h-11 bg-secondary/10 border-border/20 text-[12px]" 
-                        placeholder="Fortaleza..." 
-                        value={notes[`strength_${i}`] || ""}
-                        onChange={(e) => handleNoteChange(`strength_${i}`, e.target.value)}
-                      />
-                    </div>
-                  ))}
+        <TabsContent value="evaluation" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="space-y-8">
+              {/* FORTALEZAS Y ÁREAS DE MEJORA */}
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#2e7d32] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+                  <Star className="h-4 w-4 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.evaluation.strengths.title}</h2>
                 </div>
-              </CardContent>
-            </Card>
+                <CardContent className="p-8 space-y-8">
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.strengths.main}</Label>
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="flex items-center gap-4">
+                        <span className="text-[11px] font-bold text-muted-foreground w-4">{i}.</span>
+                        <Input 
+                          className="h-10 bg-secondary/10 border-border/20 text-xs" 
+                          placeholder="Fortaleza..." 
+                          value={notes[`strength_${i}`] || ""}
+                          onChange={(e) => handleNoteChange(`strength_${i}`, e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.strengths.areas}</Label>
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="flex items-center gap-4">
+                        <span className="text-[11px] font-bold text-muted-foreground w-4">{i}.</span>
+                        <Input 
+                          className="h-10 bg-secondary/10 border-border/20 text-xs" 
+                          placeholder="Área a mejorar..." 
+                          value={notes[`area_${i}`] || ""}
+                          onChange={(e) => handleNoteChange(`area_${i}`, e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/10">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.strengths.shortTerm}</Label>
+                      <Input value={notes['short_term'] || ""} onChange={(e) => handleNoteChange('short_term', e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-xs" placeholder="Desarrollo..." />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.strengths.longTerm}</Label>
+                      <Input value={notes['long_term'] || ""} onChange={(e) => handleNoteChange('long_term', e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-xs" placeholder="Desarrollo..." />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* EVALUACIÓN DE FICHAJE */}
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+                  <Shield className="h-4 w-4 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.evaluation.recruitment.title}</h2>
+                </div>
+                <CardContent className="p-8 space-y-6">
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.recruitment.fitsModel}</Label>
+                    <div className="flex gap-2">
+                      {['Sí', 'No', 'Seguimiento'].map(opt => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant={notes['fit_model'] === opt ? 'default' : 'outline'}
+                          onClick={() => handleNoteChange('fit_model', opt)}
+                          className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.recruitment.immediateImpact}</Label>
+                    <div className="flex gap-2">
+                      {['Alto', 'Medio', 'Bajo'].map(opt => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant={notes['immediate_impact'] === opt ? 'default' : 'outline'}
+                          onClick={() => handleNoteChange('immediate_impact', opt)}
+                          className="h-9 px-6 text-[11px] font-bold rounded-full border-border/30"
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.recruitment.potential}</Label>
+                    <div className="flex gap-2">
+                      {['Élite', 'Alto', 'Medio', 'Bajo'].map(opt => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant={notes['future_potential'] === opt ? 'default' : 'outline'}
+                          onClick={() => handleNoteChange('future_potential', opt)}
+                          className="h-9 px-4 text-[11px] font-bold rounded-full border-border/30"
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.recruitment.risk}</Label>
+                    <div className="flex gap-2">
+                      {['Alto', 'Medio', 'Bajo'].map(opt => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant={notes['adaptation_risk'] === opt ? 'default' : 'outline'}
+                          onClick={() => handleNoteChange('adaptation_risk', opt)}
+                          className="h-9 px-6 text-[11px] font-bold rounded-full border-border/30"
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.recruitment.fitsPhilosophy}</Label>
+                    <div className="flex gap-2">
+                      {['Sí', 'No'].map(opt => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant={notes['fits_philosophy'] === opt ? 'default' : 'outline'}
+                          onClick={() => handleNoteChange('fits_philosophy', opt)}
+                          className="h-9 px-8 text-[11px] font-bold rounded-full border-border/30"
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="space-y-8">
+              {/* RESUMEN FINAL */}
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+                  <Activity className="h-4 w-4 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.evaluation.finalSummary.title}</h2>
+                </div>
+                <CardContent className="p-8 space-y-6">
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.finalSummary.playerDesc}</Label>
+                    <Textarea value={notes['player_general_desc'] || ""} onChange={(e) => handleNoteChange('player_general_desc', e.target.value)} className="min-h-[100px] bg-secondary/10 border-border/20 text-xs" placeholder="Impresión general..." />
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.finalSummary.comparative}</Label>
+                    <Input value={notes['comparative'] || ""} onChange={(e) => handleNoteChange('comparative', e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-xs" placeholder="Similar a..." />
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.finalSummary.recommendation}</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <Button 
+                        variant={notes['final_recommendation'] === 'immediate' ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('final_recommendation', 'immediate')}
+                        className={cn("h-16 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'immediate' ? "bg-[#2e7d32] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-tight">{t.report.evaluation.finalSummary.options.immediate}</span>
+                        <span className="text-[8px] font-bold opacity-60 uppercase">{t.report.evaluation.finalSummary.options.elite}</span>
+                      </Button>
+                      <Button 
+                        variant={notes['final_recommendation'] === 'follow' ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('final_recommendation', 'follow')}
+                        className={cn("h-16 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'follow' ? "bg-[#007b83] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-tight">{t.report.evaluation.finalSummary.options.follow}</span>
+                        <span className="text-[8px] font-bold opacity-60 uppercase">{t.report.evaluation.finalSummary.options.high}</span>
+                      </Button>
+                      <Button 
+                        variant={notes['final_recommendation'] === 'monitor' ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('final_recommendation', 'monitor')}
+                        className={cn("h-16 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'monitor' ? "bg-[#e65100] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-tight">{t.report.evaluation.finalSummary.options.monitor}</span>
+                        <span className="text-[8px] font-bold opacity-60 uppercase">{t.report.evaluation.finalSummary.options.good}</span>
+                      </Button>
+                      <Button 
+                        variant={notes['final_recommendation'] === 'reevaluate' ? 'default' : 'outline'}
+                        onClick={() => handleNoteChange('final_recommendation', 'reevaluate')}
+                        className={cn("col-span-1 sm:col-span-2 lg:col-span-3 h-14 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'reevaluate' ? "bg-[#c62828] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-tight">{t.report.evaluation.finalSummary.options.reevaluate}</span>
+                        <span className="text-[8px] font-bold opacity-60 uppercase">{t.report.evaluation.finalSummary.options.limited}</span>
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.finalSummary.additionalNotes}</Label>
+                    <Textarea value={notes['additional_scout_notes'] || ""} onChange={(e) => handleNoteChange('additional_scout_notes', e.target.value)} className="min-h-[80px] bg-secondary/10 border-border/20 text-xs" placeholder="Contrato, agente, idiomas, situación familiar..." />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* VALORACIÓN FINAL DEL SCOUT */}
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#fbc02d] px-5 py-3 flex items-center gap-3 border-b border-white/10">
+                  <Heart className="h-4 w-4 text-white" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.evaluation.finalRating.title}</h2>
+                </div>
+                <CardContent className="p-8 space-y-8 text-center">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.finalRating.legend}</p>
+                  <div className="flex gap-2 justify-center">
+                    {[
+                      { v: 1, c: '#c62828' },
+                      { v: 2, c: '#e65100' },
+                      { v: 3, c: '#fbc02d' },
+                      { v: 4, c: '#2e7d32' },
+                      { v: 5, c: '#00695c' }
+                    ].map((item, idx) => (
+                      <Button
+                        key={item.v}
+                        type="button"
+                        onClick={() => handleRatingChange('final_scout_rating', item.v)}
+                        className={cn(
+                          "flex-1 h-20 flex flex-col gap-1 rounded-xl border-none transition-all transform hover:scale-105",
+                          ratings['final_scout_rating'] === item.v ? "scale-110 shadow-2xl z-10 opacity-100" : "opacity-40"
+                        )}
+                        style={{ backgroundColor: item.c }}
+                      >
+                        <span className="text-2xl font-black font-headline text-white">{item.v}</span>
+                        <span className="text-[8px] font-black text-white uppercase tracking-tight leading-none">{t.report.evaluation.finalRating.labels[idx]}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* DECISIÓN INTERNA */}
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-[#1b263b] text-white">
+                <div className="bg-white/5 px-5 py-3 flex items-center gap-3 border-b border-white/10">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.evaluation.internalDecision.title}</h2>
+                </div>
+                <CardContent className="p-8 space-y-8">
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-bold text-white/60 uppercase tracking-widest">{t.report.evaluation.internalDecision.nextSteps}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {t.report.evaluation.internalDecision.steps.map((step: string) => (
+                        <Button
+                          key={step}
+                          type="button"
+                          variant={isSelectedInNote('next_steps', step) ? 'default' : 'outline'}
+                          onClick={() => toggleArrayNote('next_steps', step)}
+                          className={cn(
+                            "h-9 px-4 text-[10px] font-bold rounded-full border-white/10 transition-all",
+                            isSelectedInNote('next_steps', step) ? "bg-primary text-primary-foreground border-primary" : "bg-white/5 text-white/40 hover:text-white"
+                          )}
+                        >
+                          {step}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+                    <div className="space-y-3">
+                      <Label className="text-[10px] font-bold text-white/60 uppercase tracking-widest">{t.report.evaluation.internalDecision.committee}</Label>
+                      <Input value={notes['scouting_committee'] || ""} onChange={(e) => handleNoteChange('scouting_committee', e.target.value)} className="h-11 bg-white/5 border-white/10 text-xs text-white" placeholder="Nombres..." />
+                    </div>
+                    <div className="space-y-3">
+                      <Label className="text-[10px] font-bold text-white/60 uppercase tracking-widest">{t.report.evaluation.internalDecision.date}</Label>
+                      <Input type="date" value={notes['decision_date'] || ""} onChange={(e) => handleNoteChange('decision_date', e.target.value)} className="h-11 bg-white/5 border-white/10 text-xs text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
+
           <div className="flex justify-between gap-4 pt-10">
             <Button variant="ghost" onClick={() => setActiveTab("actions")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}

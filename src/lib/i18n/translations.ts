@@ -211,10 +211,59 @@ export const translations = {
         mental_impact: 'MATCH IMPACT',
         actions_title: 'KEY MATCH ACTIONS REGISTRY',
       },
-      final_evaluation: {
+      evaluation: {
         strengths: {
-          title: 'FINAL STRENGTHS',
-          strengths_title: 'KEY STRENGTHS',
+          title: 'STRENGTHS AND AREAS FOR IMPROVEMENT',
+          main: 'MAIN STRENGTHS',
+          areas: 'AREAS TO IMPROVE',
+          shortTerm: 'SHORT TERM',
+          longTerm: 'LONG TERM',
+        },
+        finalSummary: {
+          title: 'FINAL SUMMARY',
+          playerDesc: 'GENERAL PLAYER DESCRIPTION',
+          comparative: 'COMPARATIVE (POSITION / PROFILE)',
+          recommendation: 'FINAL RECOMMENDATION',
+          additionalNotes: 'ADDITIONAL NOTES',
+          options: {
+            immediate: 'Immediate signing',
+            follow: 'Follow-up',
+            monitor: 'Priority monitor',
+            reevaluate: 'Re-evaluate',
+            elite: '5 - ELITE',
+            high: '4 - HIGH',
+            good: '3 - GOOD',
+            limited: '2 - LIMITED',
+          }
+        },
+        recruitment: {
+          title: 'RECRUITMENT EVALUATION',
+          fitsModel: 'FITS OUR MODEL?',
+          immediateImpact: 'IMMEDIATE IMPACT',
+          futurePotential: 'FUTURE POTENTIAL',
+          risk: 'ADAPTATION RISK',
+          fitsPhilosophy: 'FITS PHILOSOPHY?',
+          options: {
+            yes: 'Yes',
+            no: 'No',
+            follow: 'Follow-up',
+            high: 'High',
+            medium: 'Medium',
+            low: 'Low',
+            elite: 'Elite'
+          }
+        },
+        finalRating: {
+          title: 'FINAL SCOUT RATING',
+          legend: '1 = Very low · 2 = Limited · 3 = Good · 4 = High · 5 = Elite',
+          labels: ['VERY LOW', 'LIMITED', 'GOOD', 'HIGH', 'ELITE']
+        },
+        internalDecision: {
+          title: 'INTERNAL DECISION',
+          nextSteps: 'NEXT STEPS',
+          committee: 'SCOUTING COMMITTEE',
+          date: 'DECISION DATE',
+          steps: ['Full report', 'Video analysis', '2nd observation', 'Contact refs', 'Statistical validation', 'Medical review']
         }
       },
       actions: {
@@ -459,10 +508,59 @@ export const translations = {
         mental_impact: 'IMPACTO EN EL PARTIDO',
         actions_title: 'REGISTRO DE ACCIONES CLAVE',
       },
-      final_evaluation: {
+      evaluation: {
         strengths: {
-          title: 'FORTALEZAS FINALES',
-          strengths_title: 'FORTALEZAS CLAVE',
+          title: 'FORTALEZAS Y ÁREAS DE MEJORA',
+          main: 'FORTALEZAS PRINCIPALES',
+          areas: 'ÁREAS A MEJORAR',
+          shortTerm: 'CORTO PLAZO',
+          longTerm: 'LARGO PLAZO',
+        },
+        finalSummary: {
+          title: 'RESUMEN FINAL',
+          playerDesc: 'DESCRIPCIÓN GENERAL DEL JUGADOR',
+          comparative: 'COMPARATIVA (POSICIÓN / PERFIL)',
+          recommendation: 'RECOMENDACIÓN FINAL',
+          additionalNotes: 'NOTAS ADICIONALES',
+          options: {
+            immediate: 'Fichaje inmediato',
+            follow: 'Seguimiento',
+            monitor: 'Monitor prioritario',
+            reevaluate: 'Reevaluar',
+            elite: '5 - ÉLITE',
+            high: '4 - ALTO',
+            good: '3 - BUENO',
+            limited: '2 - LIMITADO',
+          }
+        },
+        recruitment: {
+          title: 'EVALUACIÓN DE FICHAJE',
+          fitsModel: '¿ENCAJA EN NUESTRO MODELO?',
+          immediateImpact: 'IMPACTO INMEDIATO',
+          futurePotential: 'POTENCIAL FUTURO',
+          risk: 'RIESGO DE ADAPTACIÓN',
+          fitsPhilosophy: '¿ENCAJA EN LA FILOSOFÍA?',
+          options: {
+            yes: 'Sí',
+            no: 'No',
+            follow: 'Seguimiento',
+            high: 'Alto',
+            medium: 'Medio',
+            low: 'Bajo',
+            elite: 'Élite'
+          }
+        },
+        finalRating: {
+          title: 'VALORACIÓN FINAL DEL SCOUT',
+          legend: '1 = Muy bajo · 2 = Limitado · 3 = Bueno · 4 = Alto · 5 = Élite',
+          labels: ['MUY BAJO', 'LIMITADO', 'BUENO', 'ALTO', 'ÉLITE']
+        },
+        internalDecision: {
+          title: 'DECISIÓN INTERNA',
+          nextSteps: 'PRÓXIMOS PASOS',
+          committee: 'COMITÉ DE SCOUTING',
+          date: 'FECHA DE DECISIÓN',
+          steps: ['Informe completo', 'Análisis de vídeo', '2ª observación', 'Contactar referencias', 'Validación estadística', 'Revisión médica']
         }
       },
       actions: {
