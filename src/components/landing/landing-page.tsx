@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -143,15 +142,15 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         <div className="max-w-5xl mx-auto text-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="flex justify-center">
             <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-xs font-bold tracking-widest uppercase">
-              Scouts • Entrenadores • Directores Deportivos
+              Scouting • Análisis Táctico • Gestión de Talento
             </Badge>
           </div>
           <h1 className="text-5xl md:text-7xl font-headline font-black tracking-tight leading-[1.1]">
-            Inteligencia Total para <br />
-            <span className="text-primary italic">Análisis de Partidos</span>
+            Análisis de <span className="text-primary italic">Talento y Partidos</span> <br />
+            en un Solo Lugar
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
-            No es solo scouting. Es una herramienta integral para que <strong>Entrenadores y Directores Deportivos</strong> analicen el rendimiento táctico en vivo y tomen decisiones basadas en datos de élite.
+            La plataforma definitiva para que <strong>Scouts, Entrenadores y Directores Deportivos</strong> identifiquen el talento élite y analicen el rendimiento táctico con inteligencia artificial.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Dialog>
@@ -163,7 +162,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               <AuthModal onAuthSuccess={onEnter} />
             </Dialog>
             <Button variant="outline" onClick={handleGuestEntry} className="h-14 px-10 border-border/50 text-base font-black uppercase tracking-widest hover:bg-secondary">
-              Ver Demo de Análisis
+              Ver Demo de Scouting
             </Button>
           </div>
         </div>
@@ -178,20 +177,20 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <FeatureCard 
             icon={<ClipboardList className="text-primary" />} 
-            title="Análisis para Entrenadores" 
-            desc="Métricas de rendimiento táctico específicas para evaluar el cumplimiento de roles en el sistema de juego."
+            title="Detección de Talento" 
+            desc="Métricas avanzadas (PIM) para identificar jugadores con alto potencial de impacto inmediato en el club."
             borderColor="border-primary/40"
           />
           <FeatureCard 
             icon={<Brain className="text-accent" />} 
-            title="Soporte a la Dirección" 
-            desc="Dashboards estratégicos para Directores Deportivos con comparativas de mercado y ROI de talento."
+            title="Análisis para Entrenadores" 
+            desc="Evaluación del cumplimiento de roles tácticos y rendimiento en vivo durante los partidos."
             borderColor="border-accent/40"
           />
           <FeatureCard 
             icon={<Video className="text-[#E91E63]" />} 
-            title="Análisis de Partidos Live" 
-            desc="Toma de datos en tiempo real desde la grada con sincronización inmediata a la nube del club."
+            title="Dirección Deportiva" 
+            desc="Dashboards estratégicos con comparativas de mercado y benchmarking para validar cada fichaje."
             borderColor="border-[#E91E63]/40"
           />
           <FeatureCard 
@@ -219,7 +218,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       <section className="py-24 px-6 bg-secondary/10">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-4">
-            <h2 className="text-4xl font-headline font-black uppercase tracking-widest">Análisis Táctico en Vivo</h2>
+            <h2 className="text-4xl font-headline font-black uppercase tracking-widest">Scouting de Jugadores</h2>
             <p className="text-muted-foreground font-medium">La herramienta definitiva para el cuerpo técnico y la dirección deportiva</p>
           </div>
           
@@ -227,8 +226,8 @@ export function LandingPage({ onEnter }: LandingPageProps) {
             {/* Informe Header */}
             <div className="bg-[#1b263b] p-8 border-b border-primary/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1">
-                <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">EVALUACIÓN DE RENDIMIENTO</h3>
-                <p className="text-[11px] text-primary font-bold uppercase tracking-[0.3em]">MÓDULO DE ENTRENADOR • SCOUTPRO 360</p>
+                <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">EVALUACIÓN DE TALENTO</h3>
+                <p className="text-[11px] text-primary font-bold uppercase tracking-[0.3em]">MÓDULO DE SCOUTING • SCOUTPRO 360</p>
               </div>
               <div className="flex gap-1.5">
                 {['TAC', 'POS', 'INT', 'DEC', 'FIS', 'MEN', 'ACC', 'PIM'].map((tab, i) => (
@@ -253,7 +252,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               <div className="grid md:grid-cols-12 gap-10 items-center">
                 <div className="md:col-span-7 space-y-8">
                   <div className="h-7 px-5 bg-primary/20 border border-primary/30 rounded-full inline-flex items-center">
-                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Insights para el Entrenador</span>
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Análisis de Jugador de Élite</span>
                   </div>
                   <div className="space-y-5">
                     {[
@@ -277,10 +276,10 @@ export function LandingPage({ onEnter }: LandingPageProps) {
                 <div className="md:col-span-5">
                   <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-[3rem] border border-white/10 shadow-inner relative overflow-hidden group">
                     <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80 mb-6">IMPACTO TÁCTICO</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80 mb-6">PIM SCORE (TALENTO)</span>
                     <span className="text-9xl font-black text-primary font-headline drop-shadow-[0_20px_50px_rgba(224,176,80,0.3)] leading-none">94</span>
                     <Badge className="mt-12 bg-[#2e7d32] text-white px-10 py-3 text-xs font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-[#2e7d32]/30 border-none">
-                      RENDIMIENTO ÉLITE
+                      PROSPECTO TOP
                     </Badge>
                   </div>
                 </div>
@@ -298,10 +297,10 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         </div>
         <div className="grid md:grid-cols-1 gap-4">
           <Accordion type="single" collapsible className="w-full space-y-4">
-            <FaqItem value="q1" question="¿Es solo para scouts?" answer="En absoluto. ScoutPro360 ha sido diseñada para ser la mano derecha de Entrenadores y Directores Deportivos, permitiendo analizar partidos propios o de rivales con la misma profundidad técnica." />
-            <FaqItem value="q2" question="¿Cómo ayuda a un Director Deportivo?" answer="Ofrece una visión global del mercado y de la plantilla, permitiendo bencharmking instantáneo para validar si un fichaje realmente mejora el nivel medio del equipo en una posición específica." />
-            <FaqItem value="q3" question="¿Puedo usarlo durante un partido?" answer="Sí, la interfaz está optimizada para tablets y smartphones, lo que permite a los asistentes técnicos o scouts capturar datos y eventos clave sin perderse ni un segundo de la acción." />
-            <FaqItem value="q4" question="¿Qué es el PIM Score?" answer="El Player Impact Metric es un algoritmo de IA que procesa más de 45 variables tácticas y técnicas para dar una puntuación objetiva del impacto de un jugador en el modelo de juego del club." />
+            <FaqItem value="q1" question="¿Analiza el talento de forma objetiva?" answer="Sí. ScoutPro360 utiliza el algoritmo PIM (Player Impact Metric) para procesar variables tácticas y técnicas, eliminando sesgos subjetivos en la captación de jugadores." />
+            <FaqItem value="q2" question="¿Cómo ayuda a un Director Deportivo?" answer="Ofrece una visión global del mercado y de la plantilla, permitiendo benchmarking instantáneo para validar si un fichaje realmente mejora el nivel medio del equipo." />
+            <FaqItem value="q3" question="¿Puedo usarlo durante un partido?" answer="Sí, la interfaz está optimizada para tablets y smartphones, lo que permite a los asistentes técnicos capturar datos y eventos clave sin perderse ni un segundo de la acción." />
+            <FaqItem value="q4" question="¿Es útil para entrenadores?" answer="Absolutamente. Permite evaluar si los jugadores están cumpliendo los roles tácticos asignados y detectar debilidades en el modelo de juego en tiempo real." />
           </Accordion>
         </div>
       </section>
@@ -351,7 +350,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       <section className="py-32 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary/20 animate-pulse pointer-events-none" />
         <div className="max-w-4xl mx-auto text-center space-y-10 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-headline font-black uppercase tracking-tight">Potencia tu Toma <br />de Decisiones</h2>
+          <h2 className="text-4xl md:text-6xl font-headline font-black uppercase tracking-tight">Potencia tu <br />Análisis de Talento</h2>
           <p className="text-xl text-muted-foreground font-medium">Únete a la nueva era del análisis deportivo y eleva el nivel competitivo de tu equipo.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Dialog>
@@ -378,7 +377,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               <span className="text-xl font-headline font-bold text-white tracking-tight">ScoutPro<span className="text-primary">360</span></span>
             </div>
             <p className="text-sm leading-relaxed">
-              La plataforma definitiva para el scouting y el análisis táctico profesional de fútbol.
+              La plataforma definitiva para el scouting, el análisis de talento y el rendimiento táctico profesional.
             </p>
           </div>
           <FooterColumn title="Plataforma" links={['Características', 'Precios', 'Demo']} />
