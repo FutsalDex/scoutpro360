@@ -333,8 +333,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   return (
     <div className="space-y-6 pb-32 w-full max-w-full overflow-x-hidden">
-      {/* HEADER STICKY */}
-      <div className="bg-card/90 backdrop-blur-xl p-4 sm:p-10 rounded-3xl border border-border/50 shadow-2xl sticky top-16 z-40 w-full mb-6">
+      {/* HEADER: Solo sticky en desktop para evitar overlap en móvil */}
+      <div className="bg-card/90 backdrop-blur-xl p-4 sm:p-10 rounded-3xl border border-border/50 shadow-2xl sm:sticky sm:top-16 z-40 w-full mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <div className="h-10 w-10 sm:h-16 sm:w-16 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
@@ -355,7 +355,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* TABS LIST REDISEÑADO PARA VISIBILIDAD TOTAL (GRID 3x3) */}
+        {/* TABS LIST: Grid 3x3 fijo, sin solapamiento */}
         <TabsList className="grid grid-cols-3 h-auto bg-secondary/20 p-1.5 border border-border/20 rounded-2xl w-full gap-1.5 mb-8">
           {Object.entries(t.report.tabs).map(([key, label]) => (
             <TabsTrigger 
@@ -417,7 +417,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </CardContent>
             </Card>
 
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md">
+            <Card className="border-border/40 shadow-xl rounded-3xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20 rounded-t-3xl">
                 <Target className="h-5 w-5 text-primary" />
                 <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
