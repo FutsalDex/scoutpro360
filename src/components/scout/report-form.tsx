@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind, Brain, Sparkles } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport, type Point } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
@@ -18,6 +19,8 @@ import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/l
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { serverTimestamp } from "firebase/firestore";
+import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
+import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 
 interface ReportFormProps {
   userProfile: UserProfile | null;
@@ -150,7 +153,7 @@ const EvaluationModule = ({
 
 export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
@@ -159,6 +162,10 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
+
+  // AI states
+  const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   // Pitch State
   const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
@@ -258,6 +265,73 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
       return Array.isArray(current) && current.includes(value);
     } catch {
       return false;
+    }
+  };
+
+  const handleCalculatePIM = async () => {
+    setIsCalculatingPIM(true);
+    try {
+      const getSectionMetrics = (section: KPISection) => {
+        const result: Record<string, number> = {};
+        [...section.observation, ...section.impact].forEach(kpi => {
+          if (ratings[kpi]) result[kpi] = ratings[kpi];
+        });
+        return result;
+      };
+
+      const result = await calculatePlayerImpactMetric({
+        playerId: editingPlayerId || "temp-player",
+        currentEvaluation: {
+          tacticalRole: activeRole.name,
+          metrics: {
+            technical: getSectionMetrics(activeRole.kpis.technical),
+            tactical: getSectionMetrics(activeRole.kpis.tactical),
+            physical: getSectionMetrics(activeRole.kpis.physical),
+            mental: getSectionMetrics(activeRole.kpis.mental),
+          }
+        },
+        historicalClubData: JSON.stringify({ avgPim: 75, topPim: 92, clubStyle: "Possession" })
+      });
+
+      handleRatingChange('pim', Math.round(result.playerImpactMetric));
+      handleNoteChange('pim_explanation', result.explanation);
+      toast({ title: "PIM Calculado", description: `Impacto estimado: ${Math.round(result.playerImpactMetric)}%` });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "No se pudo calcular el PIM." });
+    } finally {
+      setIsCalculatingPIM(false);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!playerName) {
+      toast({ variant: "destructive", title: "Error", description: "Introduce el nombre del jugador." });
+      return;
+    }
+    
+    setIsGeneratingSummary(true);
+    try {
+      const allScoutNotes = Object.entries(notes)
+        .filter(([key]) => !['summary', 'pim_explanation'].includes(key))
+        .map(([key, val]) => `${key}: ${val}`)
+        .join('\n');
+
+      const result = await generateExecutiveSummary({
+        playerName,
+        tacticalRole: activeRole.name,
+        scoutNotes: allScoutNotes,
+        language: language as 'en' | 'es',
+        metrics: {
+          general: ratings
+        }
+      });
+
+      handleNoteChange('summary', result.summary);
+      toast({ title: "Resumen Generado", description: "La IA ha finalizado el análisis." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "No se pudo generar el resumen." });
+    } finally {
+      setIsGeneratingSummary(false);
     }
   };
 
@@ -837,23 +911,67 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
 
         <TabsContent value="analytics" className="mt-6 animate-in zoom-in-95 space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="border-primary/20 bg-primary/5 shadow-inner p-10 rounded-3xl border-2">
-              <div className="text-center space-y-8">
-                <h3 className="text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground">{t.report.pim.title}</h3>
-                <Button className="w-full h-16 bg-primary text-primary-foreground font-black tracking-[0.2em] text-[15px] rounded-2xl shadow-2xl transform hover:scale-105 transition-all">
-                  {t.report.pim.calculate}
-                </Button>
+            <Card className="border-primary/20 bg-[#1b263b]/60 shadow-xl p-10 rounded-3xl border-2 flex flex-col justify-between min-h-[300px]">
+              <div className="text-center space-y-4">
+                <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Brain className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground leading-tight">
+                  {t.report.pim.title}
+                </h3>
+                {ratings['pim'] && (
+                  <div className="py-4 animate-in zoom-in duration-500">
+                    <p className="text-6xl font-black font-headline text-primary">{ratings['pim']}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">Impact score calculated</p>
+                  </div>
+                )}
               </div>
+              
+              <Button 
+                onClick={handleCalculatePIM}
+                disabled={isCalculatingPIM}
+                className="w-full h-16 bg-primary text-primary-foreground font-black tracking-[0.2em] text-[15px] rounded-2xl shadow-2xl transform hover:scale-105 transition-all"
+              >
+                {isCalculatingPIM ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.pim.calculate}
+              </Button>
             </Card>
-            <Card className="border-accent/20 bg-accent/5 shadow-inner p-10 rounded-3xl border-2">
-              <div className="text-center space-y-8">
-                <h3 className="text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground">{t.report.summary.title}</h3>
-                <Button variant="secondary" className="w-full h-16 font-black tracking-[0.2em] text-[13px] rounded-2xl shadow-2xl border-accent/30 uppercase transform hover:scale-105 transition-all">
-                  {t.report.summary.generate}
-                </Button>
+
+            <Card className="border-accent/20 bg-[#1b263b]/60 shadow-xl p-10 rounded-3xl border-2 flex flex-col justify-between min-h-[300px]">
+              <div className="text-center space-y-4">
+                <div className="h-16 w-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Sparkles className="h-8 w-8 text-accent" />
+                </div>
+                <h3 className="text-2xl font-black font-headline uppercase tracking-[0.15em] text-foreground leading-tight">
+                  {t.report.summary.title}
+                </h3>
+                {notes['summary'] && (
+                  <div className="text-left p-4 bg-background/40 rounded-xl border border-border/10 mt-4 max-h-[200px] overflow-auto animate-in fade-in duration-500">
+                    <p className="text-xs text-muted-foreground leading-relaxed italic">"{notes['summary']}"</p>
+                  </div>
+                )}
               </div>
+
+              <Button 
+                variant="secondary" 
+                onClick={handleGenerateSummary}
+                disabled={isGeneratingSummary}
+                className="w-full h-16 font-black tracking-[0.2em] text-[13px] rounded-2xl shadow-2xl border-accent/30 uppercase transform hover:scale-105 transition-all bg-secondary/80 hover:bg-secondary text-foreground"
+              >
+                {isGeneratingSummary ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.summary.generate}
+              </Button>
             </Card>
           </div>
+
+          {notes['pim_explanation'] && (
+            <Card className="border-border/40 bg-card/40 p-8 rounded-2xl animate-in slide-in-from-bottom-4">
+              <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                <Brain className="h-4 w-4" /> Justificación Técnica de la IA
+              </h4>
+              <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+                {notes['pim_explanation']}
+              </p>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>
