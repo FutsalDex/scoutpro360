@@ -49,7 +49,7 @@ async function formatMetricsForPrompt(metrics: ExecutiveSummaryGenerationInput['
 
 const prompt = ai.definePrompt({
   name: 'executiveSummaryPrompt',
-  model: 'googleai/gemini-1.5-flash',
+  model: 'googleai/gemini-1.5-pro',
   input: {
     schema: z.object({
       playerName: z.string(),
