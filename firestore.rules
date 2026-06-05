@@ -2,17 +2,26 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permitir lectura y escritura en la colección de jugadores a cualquier usuario autenticado (incluyendo anónimos)
+    // Reglas para la colección de jugadores
     match /players/{playerId} {
       allow read, write: if request.auth != null;
     }
     
-    // Permitir lectura y escritura en la colección de informes a cualquier usuario autenticado
+    // Reglas para la colección de informes
     match /reports/{reportId} {
       allow read, write: if request.auth != null;
     }
 
-    // Por defecto, denegar todo lo demás
+    // Reglas para la colección de usuarios (perfiles)
+    match /users/{userId} {
+      // Cada usuario puede leer y escribir su propio perfil
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Los administradores pueden leer todos los perfiles
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Denegar por defecto cualquier otro acceso
     match /{document=**} {
       allow read, write: if false;
     }
