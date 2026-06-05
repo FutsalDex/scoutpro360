@@ -18,6 +18,7 @@ const CalculatePlayerImpactMetricInputSchema = z.object({
     }),
   }),
   historicalClubData: z.string(),
+  language: z.enum(['en', 'es']).default('en'),
 });
 export type CalculatePlayerImpactMetricInput = z.infer<typeof CalculatePlayerImpactMetricInputSchema>;
 
@@ -37,10 +38,12 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
       physical: z.string(),
       mental: z.string(),
       historicalClubData: z.string(),
+      language: z.string(),
     })
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
   prompt: `You are an expert football scout. Calculate PIM (0-100).
+Provide the explanation in {{{language}}}.
 Tactical Role: {{{tacticalRole}}}
 Technical: {{{technical}}}
 Tactical: {{{tactical}}}
@@ -57,6 +60,7 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
     physical: JSON.stringify(input.currentEvaluation.metrics.physical),
     mental: JSON.stringify(input.currentEvaluation.metrics.mental),
     historicalClubData: input.historicalClubData,
+    language: input.language === 'es' ? 'Spanish' : 'English',
   });
   return output!;
 }

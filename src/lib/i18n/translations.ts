@@ -123,6 +123,15 @@ export const translations = {
     report: {
       title: 'Match Observation Report',
       subtitle: 'Confidential 360 Scouting Assessment',
+      pdfHeader: 'PROFESSIONAL TECHNICAL SCOUTING REPORT',
+      pdfEmissionDate: 'EMISSION DATE',
+      pdfAttribute: 'Attribute',
+      pdfInformation: 'Information',
+      pdfMatchContext: 'MATCH CONTEXT',
+      pdfTacticalPosition: 'TACTICAL POSITION (PROFESSIONAL PITCH)',
+      pdfKeyActions: 'KEY MATCH ACTIONS REGISTRY',
+      pdfAiConclusions: 'CONCLUSIONS AND AI ANALYSIS',
+      pdfPimEstimated: 'ESTIMATED PIM IMPACT',
       tabs: {
         player: 'PLAYER',
         context: 'CONTEXT',
@@ -140,7 +149,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETICIÓN',
+        competition: 'COMPETITION',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -153,29 +162,6 @@ export const translations = {
         dominantFoot: 'DOMINANT FOOT',
         physicalCondition: 'PHYSICAL CONDITION',
         scout: 'SCOUT',
-      },
-      generalProfile: {
-        title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
-        techLevel: 'Technical level',
-        tacticalIntel: 'Tactical intelligence',
-        physQuality: 'Physical quality',
-        mentalStrength: 'Mental strength',
-        compLevel: 'Competitive level',
-        potential: 'Potential',
-        currentLevel: 'Current level',
-      },
-      pitch: {
-        title: 'POSITION ON THE PITCH',
-        mark: 'Mark primary position on the pitch',
-        click: 'Click to mark player position',
-      },
-      roles: {
-        title: 'OBSERVED ROLES & FUNCTIONS',
-        items: [
-          'Build-up play', 'Progression', 'Final third', 'Defensive eq.', 'Pressing',
-          'Transitions', 'Press. after loss', 'Space occ.', 'Ball carrying', 'Aerial play',
-          'Finishing', 'Creativity', 'Leadership', 'Set pieces'
-        ]
       },
       matchContext: {
         title: 'MATCH CONTEXT',
@@ -235,35 +221,6 @@ export const translations = {
             good: '3 - GOOD',
             limited: '2 - LIMITED',
           }
-        },
-        recruitment: {
-          title: 'RECRUITMENT EVALUATION',
-          fitsModel: 'FITS OUR MODEL?',
-          immediateImpact: 'IMMEDIATE IMPACT',
-          futurePotential: 'FUTURE POTENTIAL',
-          risk: 'ADAPTATION RISK',
-          fitsPhilosophy: 'FITS PHILOSOPHY?',
-          options: {
-            yes: 'Yes',
-            no: 'No',
-            follow: 'Follow-up',
-            high: 'High',
-            medium: 'Medium',
-            low: 'Low',
-            elite: 'Elite'
-          }
-        },
-        finalRating: {
-          title: 'FINAL SCOUT RATING',
-          legend: '1 = Very low · 2 = Limited · 3 = Good · 4 = High · 5 = Elite',
-          labels: ['VERY LOW', 'LIMITED', 'GOOD', 'HIGH', 'ELITE']
-        },
-        internalDecision: {
-          title: 'INTERNAL DECISION',
-          nextSteps: 'NEXT STEPS',
-          committee: 'SCOUTING COMMITTEE',
-          date: 'DECISION DATE',
-          steps: ['Full report', 'Video analysis', '2nd observation', 'Contact refs', 'Statistical validation', 'Medical review']
         }
       },
       actions: {
@@ -420,6 +377,15 @@ export const translations = {
     report: {
       title: 'Informe de Observación de Partido',
       subtitle: 'Evaluación Confidencial 360 Scouting',
+      pdfHeader: 'INFORME TÉCNICO PROFESIONAL DE SCOUTING',
+      pdfEmissionDate: 'FECHA EMISIÓN',
+      pdfAttribute: 'Atributo',
+      pdfInformation: 'Información',
+      pdfMatchContext: 'CONTEXTO DEL PARTIDO',
+      pdfTacticalPosition: 'POSICIÓN TÁCTICA (CAMPO PROFESIONAL)',
+      pdfKeyActions: 'REGISTRO DE ACCIONES CLAVE',
+      pdfAiConclusions: 'CONCLUSIONES Y ANÁLISIS IA',
+      pdfPimEstimated: 'IMPACTO PIM ESTIMADO',
       tabs: {
         player: 'JUGADOR',
         context: 'CONTEXTO',
@@ -450,29 +416,6 @@ export const translations = {
         dominantFoot: 'PIE DOMINANTE',
         physicalCondition: 'CONDICIÓN FÍSICA',
         scout: 'SCOUT',
-      },
-      generalProfile: {
-        title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
-        techLevel: 'Nivel técnico',
-        tacticalIntel: 'Inteligencia táctica',
-        physQuality: 'Calidad física',
-        mentalStrength: 'Fortaleza mental',
-        compLevel: 'Nivel competitivo',
-        potential: 'Potencial',
-        currentLevel: 'Nivel actual',
-      },
-      pitch: {
-        title: 'POSICIÓN EN EL CAMPO',
-        mark: 'Marcar posición principal en el campo',
-        click: 'Haz clic para marcar la posición del jugador',
-      },
-      roles: {
-        title: 'ROLES Y FUNCIONES OBSERVADAS',
-        items: [
-          'Juego de construcción', 'Progresión', 'Último tercio', 'Eq. defensivo', 'Presión',
-          'Transiciones', 'Pres. tras pérdida', 'Ocup. espacios', 'Transporte balón', 'Juego aéreo',
-          'Definición/Final.', 'Creatividad', 'Liderazgo', 'Balones parados'
-        ]
       },
       matchContext: {
         title: 'CONTEXTO DEL PARTIDO',
@@ -532,35 +475,6 @@ export const translations = {
             good: '3 - BUENO',
             limited: '2 - LIMITADO',
           }
-        },
-        recruitment: {
-          title: 'EVALUACIÓN DE FICHAJE',
-          fitsModel: '¿ENCAJA EN NUESTRO MODELO?',
-          immediateImpact: 'IMPACTO INMEDIATO',
-          futurePotential: 'POTENCIAL FUTURO',
-          risk: 'RIESGO DE ADAPTACIÓN',
-          fitsPhilosophy: '¿ENCAJA EN LA FILOSOFÍA?',
-          options: {
-            yes: 'Sí',
-            no: 'No',
-            follow: 'Seguimiento',
-            high: 'Alto',
-            medium: 'Medio',
-            low: 'Bajo',
-            elite: 'Élite'
-          }
-        },
-        finalRating: {
-          title: 'VALORACIÓN FINAL DEL SCOUT',
-          legend: '1 = Muy bajo · 2 = Limitado · 3 = Bueno · 4 = Alto · 5 = Élite',
-          labels: ['MUY BAJO', 'LIMITADO', 'BUENO', 'ALTO', 'ÉLITE']
-        },
-        internalDecision: {
-          title: 'DECISIÓN INTERNA',
-          nextSteps: 'PRÓXIMOS PASOS',
-          committee: 'COMITÉ DE SCOUTING',
-          date: 'FECHA DE DECISIÓN',
-          steps: ['Informe completo', 'Análisis de vídeo', '2ª observación', 'Contactar referencias', 'Validación estadística', 'Revisión médica']
         }
       },
       actions: {

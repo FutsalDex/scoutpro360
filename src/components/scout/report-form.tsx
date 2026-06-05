@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -240,7 +239,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     const personalFields = [
       playerName, dorsal, clubName, rivalName, competition, 
       matchDate, nationality, birthDate, marketValue, activeRole.name,
-      notes['match_style'], notes['match_system'], notes['without_possession']
+      notes['match_style'], notes['match_system']
     ];
     totalFields += personalFields.length;
     filledFields += personalFields.filter(f => !!f).length;
@@ -251,13 +250,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       totalFields += kpis.length;
       filledFields += kpis.filter(k => ratings[k] && ratings[k] > 0).length;
     });
-
-    const aiFields = [notes['pim_explanation'], notes['summary'], notes['player_general_desc']];
-    totalFields += aiFields.length;
-    filledFields += aiFields.filter(f => !!f).length;
-
-    totalFields += 1;
-    if (scoutingActions.length > 0) filledFields += 1;
 
     return (filledFields / totalFields) * 100;
   };
@@ -285,14 +277,15 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             mental: getSectionMetrics(activeRole.kpis.mental),
           }
         },
-        historicalClubData: JSON.stringify({ avgPim: 75, topPim: 92, clubStyle: "Possession" })
+        historicalClubData: JSON.stringify({ avgPim: 75, topPim: 92, clubStyle: "Possession" }),
+        language: language as 'en' | 'es'
       });
       
       handleRatingChange('pim', Math.round(result.playerImpactMetric));
       handleNoteChange('pim_explanation', result.explanation);
-      toast({ title: "PIM Calculado", description: `Impacto estimado: ${Math.round(result.playerImpactMetric)}%` });
+      toast({ title: t.report.pim.title, description: `${result.playerImpactMetric}%` });
     } catch (error: any) {
-      toast({ variant: "destructive", title: "Error de IA", description: error.message || "Fallo en el cálculo." });
+      toast({ variant: "destructive", title: "Error", description: error.message });
     } finally {
       setIsCalculatingPIM(false);
     }
@@ -300,7 +293,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const handleGenerateSummary = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!playerName) return toast({ variant: "destructive", title: "Error", description: "Nombre requerido." });
+    if (!playerName) return toast({ variant: "destructive", title: "Error", description: "Name required" });
     setIsGeneratingSummary(true);
     try {
       const allScoutNotes = Object.entries(notes)
@@ -311,15 +304,15 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const result = await generateExecutiveSummary({
         playerName,
         tacticalRole: activeRole.name,
-        scoutNotes: allScoutNotes || "Sin notas.",
+        scoutNotes: allScoutNotes || "No notes.",
         language: language as 'en' | 'es',
         metrics: { general: ratings }
       });
       
       handleNoteChange('summary', result.summary);
-      toast({ title: "Resumen Generado" });
+      toast({ title: t.report.summary.title });
     } catch (error: any) {
-      toast({ variant: "destructive", title: "Error de IA", description: error.message || "Error al generar resumen." });
+      toast({ variant: "destructive", title: "Error", description: error.message });
     } finally {
       setIsGeneratingSummary(false);
     }
@@ -330,8 +323,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     if (completion < 75) {
       toast({
         variant: "destructive",
-        title: "Informe Incompleto",
-        description: `Se requiere el 75% de los campos rellenados para emitir el PDF profesional. Actual: ${Math.round(completion)}%`
+        title: "Incomplete",
+        description: `${Math.round(completion)}% / 75%`
       });
       return;
     }
@@ -349,9 +342,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.setFont('helvetica', 'bold');
       doc.text("SCOUTPRO 360", 15, 25);
       doc.setFontSize(10);
-      doc.text("INFORME TÉCNICO PROFESIONAL DE SCOUTING", 15, 35);
+      doc.text(t.report.pdfHeader, 15, 35);
       doc.setTextColor(255, 255, 255);
-      doc.text(`FECHA EMISIÓN: ${new Date().toLocaleDateString()}`, 150, 35);
+      doc.text(`${t.report.pdfEmissionDate}: ${new Date().toLocaleDateString()}`, 150, 35);
 
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.setFontSize(18);
@@ -359,40 +352,35 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       
       (doc as any).autoTable({
         startY: 65,
-        head: [['Atributo', 'Información', 'Atributo', 'Información']],
+        head: [[t.report.pdfAttribute, t.report.pdfInformation, t.report.pdfAttribute, t.report.pdfInformation]],
         body: [
-          ['Dorsal', dorsal || 'N/A', 'Club Actual', clubName || 'N/A'],
-          ['Nacionalidad', nationality || 'N/A', 'Edad', birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 'N/A'],
-          ['Posición', activeRole.name, 'Valor Mercado', marketValue || 'N/A'],
-          ['Rival', rivalName || 'N/A', 'Competición', competition || 'N/A'],
-          ['Min. Jugados', minPlayed || 'N/A', 'Condición Física', physicalCondition || 'N/A'],
+          [t.report.playerInfo.dorsal, dorsal || 'N/A', t.report.playerInfo.club, clubName || 'N/A'],
+          [t.report.playerInfo.nationality, nationality || 'N/A', t.report.playerInfo.birthDate, birthDate || 'N/A'],
+          [t.report.playerInfo.primaryPos, activeRole.name, t.report.playerInfo.marketValue, marketValue || 'N/A'],
+          [t.report.playerInfo.rival, rivalName || 'N/A', t.report.playerInfo.competition, competition || 'N/A'],
         ],
         theme: 'grid',
-        headStyles: { fillColor: primaryColor, textColor: [255, 255, 255], fontSize: 9 },
-        styles: { fontSize: 8, cellPadding: 2 }
+        headStyles: { fillColor: primaryColor, textColor: [255, 255, 255] }
       });
 
       const contextY = (doc as any).lastAutoTable.finalY + 10;
       doc.setFontSize(14);
-      doc.text("CONTEXTO DEL PARTIDO", 15, contextY);
+      doc.text(t.report.pdfMatchContext, 15, contextY);
       (doc as any).autoTable({
         startY: contextY + 5,
         body: [
-          ['Estilo de Juego', notes['match_style'] || 'N/A'],
-          ['Sistemas / Formación', notes['match_system'] || 'N/A'],
-          ['Comportamiento sin Balón', notes['without_possession'] ? JSON.parse(notes['without_possession']).join(', ') : 'N/A']
+          [t.report.matchContext.gameStyle, notes['match_style'] || 'N/A'],
+          [t.report.matchContext.system, notes['match_system'] || 'N/A'],
         ],
-        theme: 'plain',
-        styles: { fontSize: 8, cellPadding: 2 }
+        theme: 'plain'
       });
 
-      // --- Pizarra Táctica Profesional (Horizontal) ---
       const pitchY = (doc as any).lastAutoTable.finalY + 15;
       if (pitchY > 180) { doc.addPage(); }
       const currentPitchY = pitchY > 180 ? 20 : pitchY;
       
       doc.setFontSize(14);
-      doc.text("POSICIÓN TÁCTICA (CAMPO PROFESIONAL)", 15, currentPitchY);
+      doc.text(t.report.pdfTacticalPosition, 15, currentPitchY);
       
       const pitchW = 120;
       const pitchH = 80;
@@ -400,39 +388,27 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const pitchTop = currentPitchY + 5;
       
       doc.setDrawColor(50, 50, 50);
-      doc.setLineWidth(0.4);
-      
-      // Estructura básica del campo (Círculos y Rectángulos nativos)
       doc.rect(pitchX, pitchTop, pitchW, pitchH); 
-      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); // Línea media
-      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10); // Círculo central
+      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); 
+      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10);
       
-      // Áreas (Izquierda)
-      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); // Área grande
-      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  // Área pequeña
+      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); 
+      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  
       
-      // Áreas (Derecha)
       doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
       doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
 
-      /**
-       * Mapeo de coordenadas Corregido:
-       * App Arriba (y=0) -> PDF Izquierda (x=pitchX)
-       * App Izquierda (x=0) -> PDF Abajo (y=pitchTop + pitchH)
-       */
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
         y: pitchTop + ((400 - p.x) / 400) * pitchH
       });
 
-      // Heatmap
       doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
       heatmapPoints.forEach(p => {
         const mapped = mapPoint(p);
         doc.circle(mapped.x, mapped.y, 1.5, 'F');
       });
 
-      // Marcador de Jugador
       const mappedMarker = mapPoint(pitchMarker);
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.circle(mappedMarker.x, mappedMarker.y, 4, 'F');
@@ -447,78 +423,64 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         doc.setFontSize(14);
         doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.text(title, 15, currentY);
-        const rows = [...kpiSec.observation, ...kpiSec.impact].map(kpi => [
-          kpi, 
-          ratings[kpi] || '-', 
-          notes[kpi] || ''
-        ]);
+        const rows = [...kpiSec.observation, ...kpiSec.impact].map(kpi => [kpi, ratings[kpi] || '-', notes[kpi] || '']);
         (doc as any).autoTable({
           startY: currentY + 5,
-          head: [['Métrica / KPI', 'Nota', 'Observaciones del Scout']],
+          head: [[t.report.pdfAttribute, t.report.actions.result, t.report.actions.notes]],
           body: rows,
           theme: 'striped',
-          headStyles: { fillColor: primaryColor, fontSize: 9 },
-          styles: { fontSize: 7, cellPadding: 2 }
+          headStyles: { fillColor: primaryColor }
         });
         return (doc as any).lastAutoTable.finalY + 10;
       };
 
-      nextY = renderSectionTable("EVALUACIÓN TÉCNICA", activeRole.kpis.technical, nextY);
-      nextY = renderSectionTable("EVALUACIÓN TÁCTICA", activeRole.kpis.tactical, nextY);
-      nextY = renderSectionTable("EVALUACIÓN FÍSICA", activeRole.kpis.physical, nextY);
-      nextY = renderSectionTable("EVALUACIÓN MENTAL", activeRole.kpis.mental, nextY);
+      nextY = renderSectionTable(t.report.sections.technical_obs, activeRole.kpis.technical, nextY);
+      nextY = renderSectionTable(t.report.sections.tactical_obs, activeRole.kpis.tactical, nextY);
+      nextY = renderSectionTable(t.report.sections.physical_obs, activeRole.kpis.physical, nextY);
+      nextY = renderSectionTable(t.report.sections.mental_obs, activeRole.kpis.mental, nextY);
 
       if (nextY > 230) { doc.addPage(); nextY = 20; }
       doc.setFontSize(14);
-      doc.text("REGISTRO DE ACCIONES CLAVE", 15, nextY);
+      doc.text(t.report.pdfKeyActions, 15, nextY);
       const actionRows = scoutingActions.map(a => [a.minute, a.action, a.result, a.notes]);
       (doc as any).autoTable({
         startY: nextY + 5,
-        head: [['Min', 'Acción', 'Resultado', 'Notas']],
+        head: [[t.report.actions.min, t.report.actions.action, t.report.actions.result, t.report.actions.notes]],
         body: actionRows,
         theme: 'grid',
-        headStyles: { fillColor: primaryColor },
-        styles: { fontSize: 8 }
+        headStyles: { fillColor: primaryColor }
       });
 
       nextY = (doc as any).lastAutoTable.finalY + 15;
       if (nextY > 230) { doc.addPage(); nextY = 20; }
       
       doc.setFontSize(14);
-      doc.text("CONCLUSIONES Y ANÁLISIS IA", 15, nextY);
+      doc.text(t.report.pdfAiConclusions, 15, nextY);
       
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text("IMPACTO PIM ESTIMADO: " + (ratings['pim'] || 0) + "%", 15, nextY + 10);
+      doc.text(`${t.report.pdfPimEstimated}: ` + (ratings['pim'] || 0) + "%", 15, nextY + 10);
       
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
-      const splitExp = doc.splitTextToSize(notes['pim_explanation'] || "No disponible.", 180);
+      const splitExp = doc.splitTextToSize(notes['pim_explanation'] || "-", 180);
       doc.text(splitExp, 15, nextY + 18);
       
       nextY += (splitExp.length * 5) + 25;
       if (nextY > 260) { doc.addPage(); nextY = 20; }
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text("RESUMEN EJECUTIVO AI", 15, nextY);
+      doc.text(t.report.summary.title, 15, nextY);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
-      const splitSumm = doc.splitTextToSize(notes['summary'] || "No generado.", 180);
+      const splitSumm = doc.splitTextToSize(notes['summary'] || "-", 180);
       doc.text(splitSumm, 15, nextY + 8);
 
-      const pageCount = (doc as any).internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Página ${i} de ${pageCount} | ScoutPro 360 - Confidencial`, 105, 290, { align: 'center' });
-      }
-
-      doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}_Informe_Completo.pdf`);
-      toast({ title: "PDF Generado", description: "El informe profesional ha sido descargado con éxito." });
+      doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}.pdf`);
+      toast({ title: "PDF Generated" });
     } catch (e: any) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error PDF", description: "No se pudo generar el documento técnico." });
+      toast({ variant: "destructive", title: "Error PDF" });
     } finally {
       setIsExporting(false);
     }
@@ -526,7 +488,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const handleSaveAll = async () => {
     if (!playerName) {
-      toast({ variant: "destructive", title: "Nombre requerido" });
+      toast({ variant: "destructive", title: "Name required" });
       setActiveTab("player");
       return;
     }
@@ -535,8 +497,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const playerId = await savePlayer({
         name: playerName,
         age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
-        club: clubName || "Sin club",
-        nationality: nationality || "Desconocida",
+        club: clubName || "No club",
+        nationality: nationality || "Unknown",
         marketValue: marketValue || "€0",
         currentPIM: ratings['pim'] || 0,
         tacticalRole: activeRole.name,
@@ -546,7 +508,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       
       await saveReport({
         playerId, playerName, scoutId: auth.currentUser?.uid || "guest",
-        scoutName: scoutName || "Invitado",
+        scoutName: scoutName || "Guest",
         pimScore: ratings['pim'] || 0,
         summary: notes['summary'] || "",
         ratings: ratings, notes: notes, actions: scoutingActions,
@@ -555,9 +517,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         createdAt: serverTimestamp()
       }, reportId || undefined);
       
-      toast({ title: "Guardado Correctamente" });
+      toast({ title: "Saved" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Error al guardar" });
+      toast({ variant: "destructive", title: "Error saving" });
     } finally {
       setIsSaving(false);
     }
