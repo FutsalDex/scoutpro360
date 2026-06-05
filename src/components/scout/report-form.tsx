@@ -34,18 +34,18 @@ const RatingRow = ({
   note?: string,
   onNoteChange: (value: string) => void
 }) => (
-  <div className="flex flex-col py-6 border-b border-border/10 last:border-0 px-4 sm:px-8 w-full gap-4">
+  <div className="flex flex-col py-6 border-b border-border/10 last:border-0 px-4 sm:px-8 w-full gap-4 overflow-hidden">
     <Label className="text-[11px] font-black text-foreground uppercase tracking-wider">{kpi}</Label>
-    <div className="flex flex-col items-start md:items-center gap-4 w-full">
-      <div className="flex gap-1.5 w-full md:w-auto overflow-hidden">
+    <div className="flex flex-col items-start gap-4 w-full">
+      <div className="flex gap-1.5 w-full overflow-hidden">
         {[1, 2, 3, 4, 5].map(num => (
           <button
             key={num}
             type="button"
             onClick={() => onRatingChange(num)}
             className={cn(
-              "h-10 flex-1 md:w-10 rounded-xl border border-border/40 text-[11px] font-black flex items-center justify-center transition-all",
-              rating === num ? "bg-primary text-primary-foreground border-primary shadow-lg scale-105" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
+              "h-10 flex-1 rounded-xl border border-border/40 text-[11px] font-black flex items-center justify-center transition-all",
+              rating === num ? "bg-primary text-primary-foreground border-primary shadow-lg" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
             )}
           >
             {num}
@@ -53,7 +53,7 @@ const RatingRow = ({
         ))}
       </div>
       <Input 
-        className="h-10 text-[11px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 border-b border-border/20 rounded-md italic placeholder:opacity-40 flex-1 w-full" 
+        className="h-10 text-[11px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 border-b border-border/20 rounded-md italic placeholder:opacity-40 w-full" 
         placeholder="Observación técnica..." 
         value={note || ""}
         onChange={(e) => onNoteChange(e.target.value)}
@@ -88,13 +88,13 @@ const EvaluationModule = ({
   t: any
 }) => (
   <div className="space-y-6 w-full max-w-full overflow-x-hidden">
-    <div className="flex flex-col gap-6 w-full">
+    <div className="flex flex-col gap-6 w-full overflow-x-hidden">
       <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md w-full">
         <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
           <Icon className="h-5 w-5 text-primary" />
           <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_obs`]}</h2>
         </div>
-        <CardContent className="p-0 w-full">
+        <CardContent className="p-0 w-full overflow-x-hidden">
           {kpiSection.observation.map(kpi => (
             <RatingRow 
               key={kpi} 
@@ -114,7 +114,7 @@ const EvaluationModule = ({
             <Activity className="h-5 w-5 text-accent" />
             <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_impact`]}</h2>
           </div>
-          <CardContent className="p-0 w-full">
+          <CardContent className="p-0 w-full overflow-x-hidden">
             {kpiSection.impact.map(kpi => (
               <RatingRow 
                 key={kpi} 
@@ -337,7 +337,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] truncate">{t.report.subtitle}</p>
             </div>
           </div>
-          <Button onClick={handleSaveAll} disabled={isSaving} className="w-full md:w-auto h-14 px-10 bg-primary text-primary-foreground font-black text-[12px] uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-transform">
+          <Button type="button" onClick={handleSaveAll} disabled={isSaving} className="w-full md:w-auto h-14 px-10 bg-primary text-primary-foreground font-black text-[12px] uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 transition-all">
             {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5 mr-3" />}
             {t.report.actions.save}
           </Button>
@@ -358,7 +358,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsList>
 
         <TabsContent value="player" className="animate-in fade-in space-y-8 w-full overflow-x-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full overflow-x-hidden">
             <Card className="border-border/40 shadow-2xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-8 py-5 flex items-center gap-3 border-b border-primary/20">
                 <User className="h-5 w-5 text-primary" />
@@ -417,14 +417,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             </Card>
           </div>
           <div className="flex justify-end pt-10">
-            <Button type="button" onClick={() => setActiveTab("context")} className="h-16 px-16 bg-primary text-primary-foreground font-black uppercase text-[13px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto">
+            <Button type="button" onClick={() => setActiveTab("context")} className="h-16 px-16 bg-primary text-primary-foreground font-black uppercase text-[13px] rounded-2xl shadow-xl shadow-primary/20 transition-all w-full sm:w-auto">
               {t.report.actions.next} <ChevronRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </TabsContent>
 
         <TabsContent value="context" className="animate-in fade-in space-y-8 w-full overflow-x-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-x-hidden">
             <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
               <div className="bg-[#1b263b] px-8 py-5 border-b border-primary/20 flex items-center gap-3">
                 <Target className="h-5 w-5 text-primary" />
@@ -542,7 +542,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsContent>
 
         <TabsContent value="evaluation" className="animate-in fade-in space-y-8 w-full overflow-x-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-x-hidden">
             <Card className="border-border/40 rounded-3xl overflow-hidden bg-card/40 shadow-2xl">
               <div className="bg-[#1b263b] px-8 py-5 border-b border-primary/20 flex items-center gap-3">
                 <Star className="h-5 w-5 text-primary" />
@@ -573,7 +573,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsContent>
 
         <TabsContent value="analytics" className="animate-in fade-in space-y-10 w-full overflow-x-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-x-hidden">
             <Card className="border-primary/30 bg-[#1b263b]/60 shadow-2xl p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border-2 flex flex-col justify-between min-h-[350px] relative overflow-hidden group">
               <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="text-center space-y-8 relative z-10">
@@ -581,7 +581,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <h3 className="text-lg sm:text-xl font-black uppercase tracking-[0.2em]">{t.report.pim.title}</h3>
                 <div className="text-6xl sm:text-8xl font-black text-primary animate-in zoom-in-50 duration-700 drop-shadow-[0_20px_40px_rgba(224,176,80,0.3)] leading-none">{ratings['pim'] || "0"}</div>
               </div>
-              <Button type="button" onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="h-16 bg-primary text-primary-foreground font-black uppercase text-[15px] tracking-widest rounded-2xl shadow-2xl active:scale-95 transition-all mt-10">
+              <Button type="button" onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="h-16 bg-primary text-primary-foreground font-black uppercase text-[15px] tracking-widest rounded-2xl shadow-2xl transition-all mt-10">
                 {isCalculatingPIM ? <Loader2 className="h-7 w-7 animate-spin" /> : t.report.pim.calculate}
               </Button>
             </Card>
@@ -592,7 +592,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <h3 className="text-lg sm:text-xl font-black uppercase tracking-[0.2em]">{t.report.summary.title}</h3>
                 {notes['summary'] && <div className="text-[10px] sm:text-[11px] text-muted-foreground italic text-left p-4 sm:p-6 bg-background/50 rounded-2xl max-h-[160px] overflow-y-auto leading-relaxed border border-white/5 animate-in fade-in duration-500">{notes['summary']}</div>}
               </div>
-              <Button type="button" variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="h-16 font-black uppercase text-[13px] tracking-widest rounded-2xl shadow-2xl active:scale-95 transition-all mt-8">
+              <Button type="button" variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="h-16 font-black uppercase text-[13px] tracking-widest rounded-2xl shadow-2xl transition-all mt-8">
                 {isGeneratingSummary ? <Loader2 className="h-7 w-7 animate-spin" /> : t.report.summary.generate}
               </Button>
             </Card>
