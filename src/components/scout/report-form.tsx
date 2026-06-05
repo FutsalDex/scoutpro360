@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind, Brain, Sparkles, AlertCircle, Trash2 } from "lucide-react";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind, Brain, Sparkles, AlertCircle, Trash2, CheckCircle2 } from "lucide-react";
 import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport, type Point, type ScoutingAction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
@@ -39,18 +39,18 @@ const RatingRow = ({
   note?: string,
   onNoteChange: (value: string) => void
 }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-border/10 last:border-0 group px-4 sm:px-6">
-    <Label className="text-[11px] font-medium text-foreground sm:w-48 shrink-0">{kpi}</Label>
-    <div className="flex items-center gap-4 flex-1">
-      <div className="flex gap-1 shrink-0">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-b border-border/10 last:border-0 group px-4 sm:px-6">
+    <Label className="text-[11px] font-bold text-foreground sm:w-48 shrink-0 uppercase tracking-tight">{kpi}</Label>
+    <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 w-full">
+      <div className="flex gap-1 shrink-0 justify-center sm:justify-start w-full sm:w-auto">
         {[1, 2, 3, 4, 5].map(num => (
           <button
             key={num}
             type="button"
             onClick={() => onRatingChange(num)}
             className={cn(
-              "h-7 w-7 rounded-full border border-border/40 text-[10px] font-bold flex items-center justify-center transition-all",
-              rating === num ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
+              "h-8 w-8 rounded-full border border-border/40 text-[10px] font-bold flex items-center justify-center transition-all",
+              rating === num ? "bg-primary text-primary-foreground border-primary shadow-lg scale-110" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
             )}
           >
             {num}
@@ -58,8 +58,8 @@ const RatingRow = ({
         ))}
       </div>
       <Input 
-        className="h-8 text-[11px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 border-b border-border/20 rounded-md italic placeholder:opacity-40 flex-1" 
-        placeholder="Nota..." 
+        className="h-9 text-[11px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 border-b border-border/20 rounded-md italic placeholder:opacity-40 flex-1 w-full" 
+        placeholder="Añadir nota técnica..." 
         value={note || ""}
         onChange={(e) => onNoteChange(e.target.value)}
       />
@@ -100,7 +100,7 @@ const EvaluationModule = ({
         <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
           <div className="bg-[#1b263b] px-4 sm:px-5 py-3 flex items-center gap-2 border-b border-primary/20">
             <Icon className="h-4 w-4 text-primary" />
-            <h2 className="text-[10px] sm:text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
+            <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
           </div>
           <CardContent className="p-0">
             {kpiSection.observation.map(kpi => (
@@ -120,7 +120,7 @@ const EvaluationModule = ({
           <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#1b263b] px-4 sm:px-5 py-3 flex items-center gap-2 border-b border-accent/20">
               <Activity className="h-4 w-4 text-accent" />
-              <h2 className="text-[10px] sm:text-[11px] font-bold text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
+              <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
             </div>
             <CardContent className="p-0">
               {kpiSection.impact.map(kpi => (
@@ -163,15 +163,12 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
 
-  // AI states
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
-  // Pitch State
   const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
   const [heatmapPoints, setHeatmapPoints] = useState<Point[]>([]);
 
-  // Form states
   const [playerName, setPlayerName] = useState("");
   const [dorsal, setDorsal] = useState("");
   const [clubName, setClubName] = useState("");
@@ -251,7 +248,8 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
     setSelectedRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]);
   };
 
-  const handleAddAction = () => {
+  const handleAddAction = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     setScoutingActions([...scoutingActions, { minute: "", action: "", result: "", notes: "" }]);
   };
 
@@ -427,14 +425,14 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-32 max-w-[1400px] mx-auto w-full px-1 overflow-x-hidden">
+    <div className="space-y-6 sm:space-y-8 pb-32 max-w-full mx-auto w-full px-1 overflow-x-hidden">
       <div className="flex flex-col gap-4 bg-card/80 backdrop-blur-xl p-4 sm:p-8 rounded-2xl border border-border/50 shadow-2xl sticky top-16 z-40">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
             <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
               <FileText className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
             </div>
-            <div className="space-y-0.5 sm:space-y-1">
+            <div className="space-y-0.5 sm:space-y-1 overflow-hidden">
               <h1 className="text-xl sm:text-3xl font-black font-headline uppercase tracking-tight text-foreground leading-tight truncate max-w-[200px] sm:max-w-none">
                 {editingPlayerId ? `${playerName}` : t.report.title}
               </h1>
@@ -457,8 +455,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Mobile-friendly TabsList with horizontal scroll */}
-        <div className="w-full overflow-x-auto no-scrollbar pb-4 mb-4">
+        <div className="w-full overflow-x-auto no-scrollbar pb-2 mb-6">
           <TabsList className="flex bg-secondary/15 h-auto p-1.5 border border-border/20 rounded-2xl shadow-inner min-w-max">
             {Object.entries(t.report.tabs).map(([key, label], idx) => (
               <TabsTrigger 
@@ -475,7 +472,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
 
         <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-            {/* 1 INFORMACIÓN DEL JUGADOR */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
@@ -557,51 +553,18 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
                     <Input value={secondaryPositions} onChange={(e) => setSecondaryPositions(e.target.value)} className="h-10 bg-secondary/10 border-border/20" placeholder="Ej: ED, MCO" />
                   </div>
-                  <div className="col-span-1 sm:col-span-2 space-y-3">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dominantFoot}</Label>
-                    <div className="flex gap-2">
-                      {['Derecho', 'Izquierdo', 'Ambos'].map(foot => (
-                        <Button
-                          key={foot}
-                          type="button"
-                          variant={dominantFoot === foot ? 'default' : 'outline'}
-                          onClick={() => setDominantFoot(foot)}
-                          className="h-9 rounded-full px-5 text-[11px] font-bold border-border/40"
-                        >
-                          {foot}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="col-span-1 sm:col-span-2 space-y-3">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.physicalCondition}</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {['Excelente', 'Buena', 'Normal', 'Bajo su nivel', 'Lesionado'].map(cond => (
-                        <Button
-                          key={cond}
-                          type="button"
-                          variant={physicalCondition === cond ? 'default' : 'outline'}
-                          onClick={() => setPhysicalCondition(cond)}
-                          className="h-9 rounded-full px-5 text-[11px] font-bold border-border/40"
-                        >
-                          {cond}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* 2 POSICIÓN EN EL CAMPO */}
             <div className="h-full">
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full flex flex-col">
                 <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10 shrink-0">
                   <Target className="h-4 w-4 text-white" />
                   <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">2 {t.report.pitch.title}</h2>
                 </div>
-                <CardContent className="p-8 flex flex-col items-center justify-center gap-6 flex-1">
-                  <div className="w-full max-w-[360px] flex-1">
+                <CardContent className="p-4 sm:p-8 flex flex-col items-center justify-center gap-6 flex-1">
+                  <div className="w-full max-w-full sm:max-w-[360px] flex-1">
                     <TacticalCanvas 
                       marker={pitchMarker} 
                       onMarkerChange={setPitchMarker}
@@ -609,7 +572,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                       onHeatmapChange={setHeatmapPoints}
                     />
                   </div>
-                  <div className="text-center">
+                  <div className="text-center px-4">
                     <p className="text-[11px] font-black uppercase text-foreground/80">{t.report.pitch.mark}</p>
                     <p className="text-[10px] text-muted-foreground">{t.report.pitch.click}</p>
                   </div>
@@ -619,7 +582,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           </div>
 
           <div className="flex justify-end mt-10">
-            <Button type="button" onClick={() => setActiveTab("context")} className="px-16 py-7 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[15px] transition-all transform hover:scale-105">
+            <Button type="button" onClick={() => setActiveTab("context")} className="px-16 py-7 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[15px] transition-all transform hover:scale-105 w-full sm:w-auto">
               {t.report.actions.next}
             </Button>
           </div>
@@ -627,7 +590,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
 
         <TabsContent value="context" className="animate-in fade-in slide-in-from-bottom-2">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-            {/* CONTEXTO DEL PARTIDO */}
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full">
               <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Target className="h-4 w-4 text-white" />
@@ -650,7 +612,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     ))}
                   </div>
                 </div>
-
                 <div className="space-y-3">
                   <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.system}</Label>
                   <Input 
@@ -660,7 +621,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     placeholder="Ej: 4-3-3, 4-2-3-1" 
                   />
                 </div>
-
                 <div className="space-y-3">
                   <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.tempo}</Label>
                   <div className="flex flex-wrap gap-2">
@@ -677,28 +637,9 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     ))}
                   </div>
                 </div>
-
-                <div className="space-y-3">
-                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.weather}</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {t.report.matchContext.weathers.map((w: string) => (
-                      <Button
-                        key={w}
-                        type="button"
-                        variant={notes['weather'] === w ? 'default' : 'outline'}
-                        onClick={() => handleNoteChange('weather', w)}
-                        className="h-9 px-4 text-[10px] font-black uppercase rounded-full border-border/30 flex items-center gap-2"
-                      >
-                        <WeatherIcon type={w} />
-                        {w}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
-            {/* COMPORTAMIENTO SIN BALÓN */}
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md h-full">
               <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Shield className="h-4 w-4 text-white" />
@@ -721,7 +662,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     ))}
                   </div>
                 </div>
-
                 <div className="space-y-4">
                   <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.matchContext.bodyLanguage}</Label>
                   <div className="flex flex-wrap gap-2">
@@ -862,7 +802,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         <TabsContent value="evaluation" className="mt-6 animate-in fade-in slide-in-from-bottom-2 space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             <div className="space-y-8">
-              {/* FORTALEZAS Y ÁREAS DE MEJORA */}
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
                 <div className="bg-[#2e7d32] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                   <Star className="h-4 w-4 text-white" />
@@ -900,7 +839,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                 </CardContent>
               </Card>
 
-              {/* EVALUACIÓN DE FICHAJE */}
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
                 <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                   <Shield className="h-4 w-4 text-white" />
@@ -944,7 +882,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
             </div>
 
             <div className="space-y-8">
-              {/* RESUMEN FINAL */}
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
                 <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                   <Activity className="h-4 w-4 text-white" />
@@ -981,7 +918,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                 </CardContent>
               </Card>
 
-              {/* VALORACIÓN FINAL DEL SCOUT */}
               <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
                 <div className="bg-[#fbc02d] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                   <Heart className="h-4 w-4 text-white" />
@@ -1044,7 +980,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                   </div>
                 )}
               </div>
-              
               <Button 
                 type="button"
                 onClick={handleCalculatePIM}
@@ -1069,7 +1004,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                   </div>
                 )}
               </div>
-
               <Button 
                 type="button"
                 variant="secondary" 
