@@ -22,6 +22,7 @@ export type ExecutiveSummaryGenerationOutput = z.infer<typeof ExecutiveSummaryGe
 
 const prompt = ai.definePrompt({
   name: 'executiveSummaryPrompt',
+  model: 'googleai/gemini-1.5-flash',
   input: {
     schema: z.object({
       playerName: z.string(),
