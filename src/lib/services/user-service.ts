@@ -5,6 +5,10 @@ import {
   doc, 
   getDoc, 
   setDoc, 
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
   serverTimestamp 
 } from "firebase/firestore";
 import { UserProfile, UserRole } from "@/lib/types";
@@ -66,6 +70,31 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
       createdAt: null
     };
   }
+}
+
+/**
+ * Obtiene todos los usuarios en tiempo real (Solo para admins)
+ */
+export function subscribeToUsers(callback: (users: UserProfile[]) => void) {
+  const colRef = collection(db, "users");
+  const q = query(colRef, orderBy("createdAt", "desc"));
+  
+  return onSnapshot(
+    q, 
+    (snapshot) => {
+      const users = snapshot.docs.map(doc => ({
+        ...doc.data()
+      })) as UserProfile[];
+      callback(users);
+    },
+    async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: colRef.path,
+        operation: 'list',
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    }
+  );
 }
 
 /**

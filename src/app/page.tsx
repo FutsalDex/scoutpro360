@@ -8,9 +8,10 @@ import { TalentMapping } from '@/components/scout/talent-mapping';
 import { AnalyticsHub } from '@/components/scout/analytics-hub';
 import { PIMBenchmarking } from '@/components/scout/pim-benchmarking';
 import { ProfileView } from '@/components/scout/profile-view';
+import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, Briefcase } from "lucide-react";
+import { LayoutDashboard, FilePlus, Users, Settings, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, Briefcase, ShieldAlert } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -20,7 +21,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { getOrCreateUserProfile } from '@/lib/services/user-service';
 import { UserProfile, UserRole } from '@/lib/types';
 
-type ViewState = 'dashboard' | 'report' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile';
+type ViewState = 'dashboard' | 'report' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
 
 function AppShell({ 
   activeView, 
@@ -52,6 +53,7 @@ function AppShell({
       case 'analytics': return <AnalyticsHub />;
       case 'benchmarking': return <PIMBenchmarking />;
       case 'profile': return <ProfileView profile={userProfile} />;
+      case 'admin': return <AdminPanel />;
       default: return <ScoutDashboard />;
     }
   };
@@ -65,15 +67,14 @@ function AppShell({
       case 'analytics': return t.sidebar.analytics;
       case 'benchmarking': return t.sidebar.pimBenchmarking;
       case 'profile': return 'Perfil Personal';
+      case 'admin': return t.sidebar.adminPanel;
       default: return '';
     }
   };
 
   const role = userProfile?.role || 'invitado';
   const isAdmin = role === 'admin';
-  // Analistas, Entrenadores y Directores tienen acceso a Ops + Mapping
   const isOpsRole = ['admin', 'analista', 'entrenador', 'director'].includes(role);
-  // Gestión y Admin tienen acceso a Analytics
   const isClub = role === 'gestion' || isAdmin;
 
   return (
@@ -97,6 +98,26 @@ function AppShell({
         </SidebarHeader>
 
         <SidebarContent className="px-3">
+          {isAdmin && (
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary/80 mb-4 flex items-center gap-2">
+                <ShieldAlert className="h-3 w-3" /> {t.sidebar.administration}
+              </SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    isActive={activeView === 'admin'} 
+                    onClick={() => handleNavClick('admin')}
+                    className="h-12 px-4 gap-4 bg-primary/5 border border-primary/20 hover:bg-primary/10"
+                  >
+                    <ShieldCheck className="h-5 w-5 text-primary" />
+                    <span className="font-black text-primary uppercase tracking-widest text-[11px]">{t.sidebar.adminPanel}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          )}
+
           <SidebarGroup>
             <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-4">
               {t.sidebar.operations}
@@ -181,32 +202,18 @@ function AppShell({
               </SidebarMenu>
             </SidebarGroup>
           )}
-
-          <SidebarGroup className="mt-6">
-            <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-4">
-              Usuario
-            </SidebarGroupLabel>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={activeView === 'profile'}
-                  onClick={() => handleNavClick('profile')}
-                  className="h-12 px-4 gap-4"
-                >
-                  <UserCircle className="h-5 w-5" />
-                  <span className="font-medium">Perfil Personal</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="p-4 border-t border-border/20">
+        <SidebarFooter className="p-4 border-t border-border/20 space-y-2">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton className="h-10 px-4 gap-4 text-muted-foreground hover:text-foreground">
-                <Settings className="h-4 w-4" />
-                <span className="text-sm">{t.sidebar.settings}</span>
+              <SidebarMenuButton 
+                isActive={activeView === 'profile'}
+                onClick={() => handleNavClick('profile')}
+                className="h-12 px-4 gap-4 bg-secondary/30 border border-primary/20 hover:border-primary/50 transition-all rounded-xl shadow-lg"
+              >
+                <UserCircle className="h-5 w-5 text-primary" />
+                <span className="font-bold text-sm tracking-tight">Perfil Personal</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -215,7 +222,7 @@ function AppShell({
                 className="h-10 px-4 gap-4 text-destructive hover:bg-destructive/10"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="text-sm">{t.sidebar.signOut}</span>
+                <span className="text-sm font-medium">{t.sidebar.signOut}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

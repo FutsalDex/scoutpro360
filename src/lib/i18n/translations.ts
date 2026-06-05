@@ -10,6 +10,23 @@ export const translations = {
       pimBenchmarking: 'PIM Benchmarking',
       settings: 'Settings',
       signOut: 'Sign Out',
+      adminPanel: 'Admin Panel',
+      administration: 'Administration',
+    },
+    admin: {
+      title: 'Admin Command Center',
+      subtitle: 'System oversight and user management.',
+      stats: {
+        totalUsers: 'Registered Users',
+        activeReports: 'Total Reports',
+        globalPlayers: 'Players in DB',
+      },
+      userTable: {
+        user: 'User Identity',
+        role: 'Assigned Role',
+        org: 'Organization',
+        joined: 'Joined Date',
+      }
     },
     dashboard: {
       title: 'ScoutPro 360 Dashboard',
@@ -287,6 +304,23 @@ export const translations = {
       pimBenchmarking: 'Benchmarking PIM',
       settings: 'Configuración',
       signOut: 'Cerrar Sesión',
+      adminPanel: 'Panel Admin',
+      administration: 'Administración',
+    },
+    admin: {
+      title: 'Centro de Mando Administrativo',
+      subtitle: 'Supervisión del sistema y gestión de usuarios.',
+      stats: {
+        totalUsers: 'Usuarios Registrados',
+        activeReports: 'Informes Totales',
+        globalPlayers: 'Jugadores en DB',
+      },
+      userTable: {
+        user: 'Identidad de Usuario',
+        role: 'Rol Asignado',
+        org: 'Organización',
+        joined: 'Fecha Registro',
+      }
     },
     dashboard: {
       title: 'Panel ScoutPro 360',
