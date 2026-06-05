@@ -2,11 +2,14 @@ export type Grade = 'A' | 'B' | 'C' | 'D' | 'F';
 
 export type UserRole = 'admin' | 'analista' | 'gestion' | 'invitado' | 'entrenador' | 'director';
 
+export type SubscriptionPlan = 'básico' | 'profesional' | 'enterprise';
+
 export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
   role: UserRole;
+  subscriptionPlan?: SubscriptionPlan;
   organization?: string;
   phoneNumber?: string;
   nationality?: string;
@@ -33,6 +36,19 @@ export interface Player {
 export interface KPISection {
   observation: string[];
   impact: string[];
+}
+
+export interface ScoutingReport {
+  id?: string;
+  playerId: string;
+  playerName: string;
+  scoutId: string;
+  scoutName: string;
+  pimScore: number;
+  summary: string;
+  ratings: Record<string, number>;
+  notes: Record<string, string>;
+  createdAt: any;
 }
 
 export interface TacticalRoleConfig {

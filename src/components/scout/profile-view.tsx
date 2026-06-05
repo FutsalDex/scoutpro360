@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -9,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Shield, Briefcase, Mail, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2 } from "lucide-react";
-import { UserProfile, UserRole } from "@/lib/types";
+import { User, Shield, Briefcase, Mail, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, CheckCircle2, Zap } from "lucide-react";
+import { UserProfile, UserRole, SubscriptionPlan } from "@/lib/types";
 import { updateUserProfile } from "@/lib/services/user-service";
 import { useToast } from "@/hooks/use-toast";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
@@ -25,7 +24,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
 
-  // Sincronizar formData cuando el perfil carga o cambia (por la suscripción en tiempo real)
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -46,10 +44,8 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
   const handleSave = () => {
     setLoading(true);
-    // Siguiendo las directrices: actualización optimista sin await
     updateUserProfile(profile.uid, formData);
     
-    // Asumimos éxito por la actualización de caché local de Firestore
     setTimeout(() => {
       setIsEditing(false);
       setLoading(false);
@@ -77,6 +73,14 @@ export function ProfileView({ profile }: ProfileViewProps) {
     gestion: "Gestión de Club",
     invitado: "Invitado"
   };
+
+  const planInfo: Record<SubscriptionPlan, { name: string, price: string, color: string, icon: any }> = {
+    'básico': { name: 'Plan Básico', price: '$29/mes', color: 'text-muted-foreground', icon: CreditCard },
+    'profesional': { name: 'Plan Profesional', price: '$99/mes', color: 'text-primary', icon: Zap },
+    'enterprise': { name: 'Plan Enterprise', price: 'Consultar', color: 'text-accent', icon: Shield }
+  };
+
+  const currentPlan = planInfo[profile.subscriptionPlan || 'básico'];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
@@ -258,39 +262,64 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
         <Card className="lg:col-span-2 border-border/40 bg-card/40 backdrop-blur-md rounded-2xl shadow-2xl h-fit">
           <CardHeader className="border-b border-border/10 p-8">
-            <CardTitle className="text-lg font-black uppercase tracking-widest flex items-center gap-3">
-              <Shield className="h-5 w-5 text-primary" /> Permisos y Accesos
-            </CardTitle>
-            <CardDescription className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Resumen de tus capacidades según tu rol actual.</CardDescription>
+            <div className="flex items-center gap-3">
+              <Shield className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg font-black uppercase tracking-widest">
+                Permisos y Accesos
+              </CardTitle>
+            </div>
+            <CardDescription className="text-xs uppercase tracking-widest font-bold text-muted-foreground">
+              Resumen de tus capacidades según tu rol y plan actual.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="p-8">
+          <CardContent className="p-8 space-y-8">
+             {/* Sección de Suscripción */}
+             <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between group hover:bg-primary/10 transition-all">
+                <div className="flex items-center gap-5">
+                   <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/10">
+                      <currentPlan.icon className="h-6 w-6" />
+                   </div>
+                   <div>
+                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Plan Actual</p>
+                      <h4 className={`text-lg font-black uppercase tracking-tight ${currentPlan.color}`}>{currentPlan.name}</h4>
+                   </div>
+                </div>
+                <div className="text-right">
+                   <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Estado</p>
+                   <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-bold text-foreground">Nodo Activo</span>
+                   </div>
+                </div>
+             </div>
+
              <div className="space-y-6">
                {profile.role === 'admin' && (
                  <PermissionItem 
-                   title="Acceso Total" 
+                   title="Acceso Maestro" 
                    allowed={true} 
-                   desc="Capacidad para gestionar usuarios, roles y configuraciones críticas del sistema."
+                   desc="Control total del sistema, gestión de red y auditoría de informes."
                  />
                )}
                <PermissionItem 
                  title="Informes en Vivo" 
                  allowed={['admin', 'analista', 'entrenador', 'director'].includes(profile.role)} 
-                 desc="Creación y edición de informes de scouting detallados con métricas IA."
+                 desc="Creación de informes 360 con métricas IA y registro táctico."
                />
                <PermissionItem 
                  title="Base de Datos Global" 
-                 allowed={['admin', 'analista', 'gestion', 'entrenador', 'director'].includes(profile.role)} 
-                 desc="Consulta y filtrado de la base de datos completa de prospectos."
+                 allowed={profile.subscriptionPlan !== 'básico' || profile.role === 'admin'} 
+                 desc="Acceso completo al repositorio de 15,000+ prospectos internacionales."
                />
                <PermissionItem 
                  title="Mapeo de Talento" 
                  allowed={true} 
-                 desc="Visualización geoespacial de la red de captación."
+                 desc="Visualización geoespacial de la red de captación en tiempo real."
                />
                <PermissionItem 
                  title="Analytics & Benchmarking" 
-                 allowed={['admin', 'gestion'].includes(profile.role)} 
-                 desc="Análisis estratégico y comparativa avanzada de prospectos contra plantilla."
+                 allowed={profile.subscriptionPlan === 'enterprise' || profile.role === 'admin'} 
+                 desc="Modelado estratégico y comparación de prospectos contra plantilla."
                />
              </div>
           </CardContent>
@@ -337,8 +366,8 @@ function PermissionItem({ title, allowed, desc }: { title: string, allowed: bool
       <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-lg ${allowed ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
         <Shield className="h-4 w-4" />
       </div>
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
+      <div className="space-y-1 flex-1">
+        <div className="flex items-center justify-between">
           <p className="text-sm font-black uppercase tracking-tight group-hover:text-primary transition-colors">{title}</p>
           <Badge variant={allowed ? "default" : "destructive"} className="text-[8px] h-4 py-0 font-black uppercase tracking-tighter rounded-sm">
             {allowed ? 'Habilitado' : 'Restringido'}

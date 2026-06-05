@@ -1,4 +1,3 @@
-
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -12,7 +11,7 @@ import {
   onSnapshot,
   serverTimestamp 
 } from "firebase/firestore";
-import { UserProfile, UserRole } from "@/lib/types";
+import { UserProfile, UserRole, SubscriptionPlan } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -31,14 +30,21 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
     if (userSnap.exists()) {
       const existingProfile = userSnap.data() as UserProfile;
       if (email === ADMIN_EMAIL && existingProfile.role !== 'admin') {
-        updateUserProfile(uid, { role: 'admin' });
-        return { ...existingProfile, role: 'admin' };
+        updateUserProfile(uid, { role: 'admin', subscriptionPlan: 'enterprise' });
+        return { ...existingProfile, role: 'admin', subscriptionPlan: 'enterprise' };
       }
       return existingProfile;
     } else {
       let role: UserRole = requestedRole || (isAnonymous ? 'invitado' : 'analista');
+      let plan: SubscriptionPlan = 'básico';
+
       if (email === ADMIN_EMAIL) {
         role = 'admin';
+        plan = 'enterprise';
+      } else if (role === 'gestion' || role === 'director') {
+        plan = 'enterprise';
+      } else if (role === 'analista' || role === 'entrenador') {
+        plan = 'profesional';
       }
 
       const newProfile: UserProfile = {
@@ -46,6 +52,7 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
         email: email || (isAnonymous ? 'guest@scoutpro360.com' : ''),
         displayName: isAnonymous ? 'Invitado' : (email ? email.split('@')[0] : 'Scout'),
         role: role,
+        subscriptionPlan: plan,
         createdAt: serverTimestamp()
       };
       
@@ -63,6 +70,7 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
       email: email || 'guest@scoutpro360.com',
       displayName: 'Usuario',
       role: email === ADMIN_EMAIL ? 'admin' : (isAnonymous ? 'invitado' : 'analista'),
+      subscriptionPlan: 'básico',
       createdAt: null
     };
   }
