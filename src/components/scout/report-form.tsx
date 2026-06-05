@@ -175,6 +175,7 @@ export function ReportForm() {
   const [matchDate, setMatchDate] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [nationality, setNationality] = useState("");
+  const [marketValue, setMarketValue] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [minPlayed, setMinPlayed] = useState("90");
@@ -205,7 +206,7 @@ export function ReportForm() {
         age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
         club: clubName || "Sin club",
         nationality: nationality || "Desconocida",
-        marketValue: "€0",
+        marketValue: marketValue || "€0",
         currentPIM: pimScore || 0,
         tacticalRole: activeRole.name,
         grade: (pimScore || 0) > 85 ? 'A' : (pimScore || 0) > 70 ? 'B' : 'C'
@@ -326,6 +327,10 @@ export function ReportForm() {
                   </Select>
                 </div>
 
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.marketValue}</Label>
+                  <Input value={marketValue} onChange={(e) => setMarketValue(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium" placeholder="€0" />
+                </div>
                 <div className="space-y-1.5">
                   <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.height}</Label>
                   <Input value={height} onChange={(e) => setHeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium text-center" placeholder="-" />
@@ -334,6 +339,7 @@ export function ReportForm() {
                   <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.weight}</Label>
                   <Input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium text-center" placeholder="-" />
                 </div>
+
                 <div className="md:col-span-2 space-y-1.5">
                   <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.minPlayed}</Label>
                   <Input value={minPlayed} onChange={(e) => setMinPlayed(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-medium text-center" placeholder="90" />
