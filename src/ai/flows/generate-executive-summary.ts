@@ -37,7 +37,7 @@ async function formatMetricsForPrompt(metrics: ExecutiveSummaryGenerationInput['
       const subMetrics = metrics[category];
       if (typeof subMetrics === 'object' && subMetrics !== null) {
         for (const subMetric in subMetrics) {
-          if (Object.prototype.hasOwnProperty.call(subMetrics, subMetric)) {
+          if (Object.prototype.hasOwnProperty.call(subMetric, subMetrics)) {
             formatted += `- ${subMetric.charAt(0).toUpperCase() + subMetric.slice(1)}: ${subMetrics[subMetric]}\n`;
           }
         }
@@ -49,7 +49,6 @@ async function formatMetricsForPrompt(metrics: ExecutiveSummaryGenerationInput['
 
 const prompt = ai.definePrompt({
   name: 'executiveSummaryPrompt',
-  model: 'googleai/gemini-1.5-flash',
   input: {
     schema: z.object({
       playerName: z.string(),

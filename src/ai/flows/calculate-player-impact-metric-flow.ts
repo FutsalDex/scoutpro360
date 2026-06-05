@@ -33,7 +33,6 @@ export type CalculatePlayerImpactMetricOutput = z.infer<typeof CalculatePlayerIm
 
 const calculatePlayerImpactMetricPrompt = ai.definePrompt({
   name: 'calculatePlayerImpactMetricPrompt',
-  model: 'googleai/gemini-1.5-flash',
   input: {
     schema: z.object({
       tacticalRole: z.string(),
