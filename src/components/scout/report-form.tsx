@@ -323,7 +323,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     if (completion < 75) {
       toast({
         variant: "destructive",
-        title: "Incomplete",
+        title: t.report.actions.incomplete || "Incompleto",
         description: `${Math.round(completion)}% / 75%`
       });
       return;
@@ -477,7 +477,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.text(splitSumm, 15, nextY + 8);
 
       doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}.pdf`);
-      toast({ title: "PDF Generated" });
+      toast({ title: t.report.actions.exported || "PDF Generado" });
     } catch (e: any) {
       console.error(e);
       toast({ variant: "destructive", title: "Error PDF" });

@@ -43,7 +43,9 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
   prompt: `You are an expert football scout. Calculate PIM (0-100).
-Provide the explanation in {{{language}}}.
+STRICTLY provide the explanation in {{{language}}}. Do not use any other language than {{{language}}}.
+It is CRITICAL that the explanation is written entirely in {{{language}}}.
+
 Tactical Role: {{{tacticalRole}}}
 Technical: {{{technical}}}
 Tactical: {{{tactical}}}

@@ -32,7 +32,9 @@ const prompt = ai.definePrompt({
     }),
   },
   output: { schema: ExecutiveSummaryGenerationOutputSchema },
-  prompt: `Generate a concise summary in {{{language}}}.
+  prompt: `Generate a professional and concise summary STRICTLY in {{{language}}}. Use professional football scouting terminology in {{{language}}}.
+It is CRITICAL that the summary is written entirely in {{{language}}}.
+
 Player: {{{playerName}}}
 Role: {{{tacticalRole}}}
 Metrics: {{{formattedMetrics}}}
