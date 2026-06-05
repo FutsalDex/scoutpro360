@@ -81,8 +81,10 @@ function AppShell({
       <Sidebar className="border-r border-border/50 shadow-2xl">
         <SidebarHeader className="p-6">
           <div 
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all active:scale-95 group"
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all active:scale-95 group focus:outline-none focus:ring-2 focus:ring-primary rounded-xl"
             onClick={() => handleNavClick('dashboard')}
+            role="link"
+            aria-label="Ir al inicio"
           >
             <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 transform rotate-3 group-hover:rotate-0 transition-transform">
               <ShieldCheck className="text-primary-foreground h-6 w-6" />
