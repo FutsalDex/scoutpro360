@@ -10,7 +10,11 @@ import { Player } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers } from "@/lib/services/db-service";
 
-export function ScoutDashboard() {
+interface ScoutDashboardProps {
+  onEditPlayer: (id: string) => void;
+}
+
+export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
   const { t } = useTranslation();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +85,11 @@ export function ScoutDashboard() {
             ) : (
               <div className="divide-y divide-border/20 min-w-full">
                 {players.length > 0 ? players.map(player => (
-                  <div key={player.id} className="flex items-center justify-between p-6 hover:bg-secondary/30 transition-colors cursor-pointer group min-w-max sm:min-w-0">
+                  <div 
+                    key={player.id} 
+                    className="flex items-center justify-between p-6 hover:bg-secondary/30 transition-colors cursor-pointer group min-w-max sm:min-w-0"
+                    onClick={() => onEditPlayer(player.id)}
+                  >
                     <div className="flex items-center gap-3 sm:gap-6 overflow-hidden mr-4">
                       <Avatar className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl border-2 border-primary/20 bg-background shrink-0 shadow-lg">
                         <AvatarImage src={`https://picsum.photos/seed/${player.id}/100`} />

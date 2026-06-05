@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -10,16 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
 import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2 } from "lucide-react";
-import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile } from "@/lib/types";
+import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
-import { savePlayer, saveReport } from "@/lib/services/db-service";
+import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 
 interface ReportFormProps {
   userProfile: UserProfile | null;
+  editingPlayerId?: string | null;
 }
 
 const RatingRow = ({ 
@@ -146,7 +146,7 @@ const EvaluationModule = ({
   );
 };
 
-export function ReportForm({ userProfile }: ReportFormProps) {
+export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
   
@@ -156,6 +156,7 @@ export function ReportForm({ userProfile }: ReportFormProps) {
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [reportId, setReportId] = useState<string | null>(null);
 
   // Form states
   const [playerName, setPlayerName] = useState("");
@@ -175,14 +176,42 @@ export function ReportForm({ userProfile }: ReportFormProps) {
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
 
+  // Carga de datos si estamos editando
+  useEffect(() => {
+    if (editingPlayerId) {
+      const loadData = async () => {
+        const player = await getPlayer(editingPlayerId);
+        const report = await getLatestReportForPlayer(editingPlayerId);
+
+        if (player) {
+          setPlayerName(player.name);
+          setClubName(player.club);
+          setNationality(player.nationality);
+          setMarketValue(player.marketValue);
+          setActiveRole(TACTICAL_ROLES.find(r => r.name === player.tacticalRole) || TACTICAL_ROLES[0]);
+        }
+
+        if (report) {
+          setReportId(report.id || null);
+          setRatings(report.ratings || {});
+          setNotes(report.notes || {});
+          setScoutName(report.scoutName);
+        }
+      };
+      loadData();
+    }
+  }, [editingPlayerId]);
+
   // Sincronizar el nombre del scout con el perfil de Firestore
   useEffect(() => {
-    if (userProfile?.displayName) {
-      setScoutName(userProfile.displayName);
-    } else if (userProfile?.email) {
-      setScoutName(userProfile.email.split('@')[0]);
+    if (!editingPlayerId) {
+      if (userProfile?.displayName) {
+        setScoutName(userProfile.displayName);
+      } else if (userProfile?.email) {
+        setScoutName(userProfile.email.split('@')[0]);
+      }
     }
-  }, [userProfile]);
+  }, [userProfile, editingPlayerId]);
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => ({ ...prev, [kpi]: value }));
@@ -211,22 +240,22 @@ export function ReportForm({ userProfile }: ReportFormProps) {
         club: clubName || "Sin club",
         nationality: nationality || "Desconocida",
         marketValue: marketValue || "€0",
-        currentPIM: 0,
+        currentPIM: ratings['pim'] || 0,
         tacticalRole: activeRole.name,
         grade: 'C'
-      });
+      }, editingPlayerId || undefined);
 
       await saveReport({
         playerId,
         playerName,
         scoutId: auth.currentUser?.uid || "guest",
         scoutName: scoutName || "Invitado",
-        pimScore: 0,
-        summary: "",
+        pimScore: ratings['pim'] || 0,
+        summary: notes['summary'] || "",
         ratings: ratings,
         notes: notes,
-        createdAt: null
-      });
+        createdAt: serverTimestamp()
+      }, reportId || undefined);
 
       toast({ title: "¡Éxito!", description: "El informe ha sido guardado correctamente." });
     } catch (e) {
@@ -245,7 +274,9 @@ export function ReportForm({ userProfile }: ReportFormProps) {
               <FileText className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
             </div>
             <div className="space-y-0.5 sm:space-y-1">
-              <h1 className="text-xl sm:text-3xl font-black font-headline uppercase tracking-tight text-foreground leading-tight">{t.report.title}</h1>
+              <h1 className="text-xl sm:text-3xl font-black font-headline uppercase tracking-tight text-foreground leading-tight">
+                {editingPlayerId ? `EDITANDO: ${playerName}` : t.report.title}
+              </h1>
               <p className="text-[9px] sm:text-[11px] text-primary font-bold uppercase tracking-[0.25em]">{t.report.subtitle}</p>
             </div>
           </div>
@@ -351,7 +382,7 @@ export function ReportForm({ userProfile }: ReportFormProps) {
 
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
-                    <Select onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
+                    <Select value={activeRole.id} onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
                       <SelectTrigger className="h-10 bg-secondary/10 border-border/20">
                         <SelectValue placeholder="Seleccionar..." />
                       </SelectTrigger>
@@ -571,7 +602,12 @@ export function ReportForm({ userProfile }: ReportFormProps) {
                   {[1,2,3].map(i => (
                     <div key={i} className="flex items-center gap-4">
                       <span className="text-[11px] font-bold text-muted-foreground w-4">{i}.</span>
-                      <Input className="h-11 bg-secondary/10 border-border/20 text-[12px]" placeholder="Fortaleza..." />
+                      <Input 
+                        className="h-11 bg-secondary/10 border-border/20 text-[12px]" 
+                        placeholder="Fortaleza..." 
+                        value={notes[`strength_${i}`] || ""}
+                        onChange={(e) => handleNoteChange(`strength_${i}`, e.target.value)}
+                      />
                     </div>
                   ))}
                 </div>

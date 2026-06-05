@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -12,7 +11,11 @@ import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers } from "@/lib/services/db-service";
 import { Player } from "@/lib/types";
 
-export function GlobalDatabase() {
+interface GlobalDatabaseProps {
+  onEditPlayer: (id: string) => void;
+}
+
+export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
@@ -65,7 +68,11 @@ export function GlobalDatabase() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredPlayers.length > 0 ? filteredPlayers.map(player => (
-            <Card key={player.id} className="border-border/40 bg-card/40 hover:bg-primary/5 transition-all group cursor-pointer overflow-hidden">
+            <Card 
+              key={player.id} 
+              className="border-border/40 bg-card/40 hover:bg-primary/5 transition-all group cursor-pointer overflow-hidden"
+              onClick={() => onEditPlayer(player.id)}
+            >
               <CardContent className="p-5 space-y-4">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">

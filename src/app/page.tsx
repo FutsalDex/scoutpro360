@@ -29,12 +29,16 @@ function AppShell({
   activeView, 
   setActiveView, 
   handleSignOut,
-  userProfile
+  userProfile,
+  editingPlayerId,
+  setEditingPlayerId
 }: { 
   activeView: ViewState, 
   setActiveView: (view: ViewState) => void,
   handleSignOut: () => void,
-  userProfile: UserProfile | null
+  userProfile: UserProfile | null,
+  editingPlayerId: string | null,
+  setEditingPlayerId: (id: string | null) => void
 }) {
   const { t } = useTranslation();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -51,31 +55,37 @@ function AppShell({
 
   const handleNavClick = (view: ViewState) => {
     if (needsProfileCompletion && view !== 'profile') return;
+    if (view !== 'report') setEditingPlayerId(null);
     setActiveView(view);
     if (isMobile) {
       setOpenMobile(false);
     }
   };
 
+  const handleEditPlayer = (playerId: string) => {
+    setEditingPlayerId(playerId);
+    setActiveView('report');
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
-      case 'dashboard': return <ScoutDashboard />;
-      case 'report': return <ReportForm userProfile={userProfile} />;
+      case 'dashboard': return <ScoutDashboard onEditPlayer={handleEditPlayer} />;
+      case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
-      case 'database': return <GlobalDatabase />;
+      case 'database': return <GlobalDatabase onEditPlayer={handleEditPlayer} />;
       case 'mapping': return <TalentMapping />;
       case 'analytics': return <AnalyticsHub />;
       case 'benchmarking': return <PIMBenchmarking />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
-      default: return <ScoutDashboard />;
+      default: return <ScoutDashboard onEditPlayer={handleEditPlayer} />;
     }
   };
 
   const getViewTitle = () => {
     switch (activeView) {
       case 'dashboard': return t.sidebar.commandCenter;
-      case 'report': return t.sidebar.liveReport;
+      case 'report': return editingPlayerId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
       case 'match-analysis': return t.sidebar.matchAnalysis;
       case 'database': return t.sidebar.globalDatabase;
       case 'mapping': return t.sidebar.talentMapping;
@@ -325,6 +335,7 @@ export default function Home() {
   const [activeView, setActiveView] = useState<ViewState>('dashboard');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     let unsubscribeProfile: (() => void) | null = null;
@@ -364,6 +375,7 @@ export default function Home() {
     await signOut(auth);
     setShowApp(false);
     setActiveView('dashboard');
+    setEditingPlayerId(null);
   };
 
   if (loading) {
@@ -393,6 +405,8 @@ export default function Home() {
         setActiveView={setActiveView} 
         handleSignOut={handleSignOut}
         userProfile={userProfile}
+        editingPlayerId={editingPlayerId}
+        setEditingPlayerId={setEditingPlayerId}
       />
       <Toaster />
     </SidebarProvider>
