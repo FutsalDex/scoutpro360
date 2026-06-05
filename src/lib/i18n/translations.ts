@@ -134,6 +134,25 @@ export const translations = {
         evaluation: 'EVALUATION',
         analytics: 'AI ANALYTICS',
       },
+      playerInfo: {
+        title: 'PLAYER DATA',
+        name: 'FULL NAME',
+        club: 'CLUB',
+        primaryPos: 'PRIMARY POSITION',
+      },
+      pitch: {
+        title: 'TACTICAL POSITIONING',
+      },
+      matchContext: {
+        title: 'MATCH CONTEXT',
+        playStyle: 'TEAM PLAY STYLE',
+        styles: {
+          possession: 'Possession',
+          counter: 'Counter-Attack',
+          highPress: 'High Press',
+          lowBlock: 'Low Block',
+        }
+      },
       sections: {
         technical_obs: 'TECHNICAL OBSERVATION',
         technical_impact: 'MATCH IMPACT',
@@ -144,6 +163,12 @@ export const translations = {
         mental_obs: 'MENTAL OBSERVATION',
         mental_impact: 'MATCH IMPACT',
         actions_title: 'KEY MATCH ACTIONS REGISTRY',
+      },
+      final_evaluation: {
+        strengths: {
+          title: 'FINAL STRENGTHS',
+          strengths_title: 'KEY STRENGTHS',
+        }
       },
       actions: {
         next: 'Next',
@@ -288,7 +313,7 @@ export const translations = {
       territory: 'Territorio de Prospecto Élite',
       upside: 'Potencial de Mercado',
       projected: 'Valor Proyectado (2 años)',
-      compatibility: 'Compatibilidad',
+      compatibility: 'Compatibility',
       squadProfile: 'Encaja en el perfil del equipo'
     },
     report: {
@@ -305,6 +330,25 @@ export const translations = {
         evaluation: 'EVALUACIÓN',
         analytics: 'ANÁLISIS IA',
       },
+      playerInfo: {
+        title: 'DATOS DEL JUGADOR',
+        name: 'NOMBRE COMPLETO',
+        club: 'CLUB',
+        primaryPos: 'POSICIÓN PRINCIPAL',
+      },
+      pitch: {
+        title: 'POSICIONAMIENTO TÁCTICO',
+      },
+      matchContext: {
+        title: 'CONTEXTO DEL PARTIDO',
+        playStyle: 'ESTILO DE JUEGO DEL EQUIPO',
+        styles: {
+          possession: 'Posesión',
+          counter: 'Contraataque',
+          highPress: 'Presión Alta',
+          lowBlock: 'Bloque Bajo',
+        }
+      },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
         technical_impact: 'IMPACTO EN EL PARTIDO',
@@ -315,6 +359,12 @@ export const translations = {
         mental_obs: 'OBSERVACIÓN MENTAL',
         mental_impact: 'IMPACTO EN EL PARTIDO',
         actions_title: 'REGISTRO DE ACCIONES CLAVE',
+      },
+      final_evaluation: {
+        strengths: {
+          title: 'FORTALEZAS FINALES',
+          strengths_title: 'FORTALEZAS CLAVE',
+        }
       },
       actions: {
         next: 'Continuar →',
