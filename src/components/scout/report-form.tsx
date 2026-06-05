@@ -34,8 +34,8 @@ const RatingRow = ({
   note?: string,
   onNoteChange: (value: string) => void
 }) => (
-  <div className="flex flex-col py-6 border-b border-border/10 last:border-0 px-4 sm:px-8 w-full gap-4 overflow-hidden">
-    <Label className="text-[11px] font-black text-foreground uppercase tracking-wider">{kpi}</Label>
+  <div className="flex flex-col py-4 sm:py-6 border-b border-border/10 last:border-0 px-4 sm:px-8 w-full gap-4 overflow-hidden">
+    <Label className="text-[10px] sm:text-[11px] font-black text-foreground uppercase tracking-wider">{kpi}</Label>
     <div className="flex flex-col items-start gap-4 w-full">
       <div className="flex flex-wrap gap-2 w-full">
         {[1, 2, 3, 4, 5].map(num => (
@@ -44,7 +44,7 @@ const RatingRow = ({
             type="button"
             onClick={() => onRatingChange(num)}
             className={cn(
-              "h-10 flex-1 min-w-[44px] rounded-xl border border-border/40 text-[11px] font-black flex items-center justify-center transition-all",
+              "h-10 flex-1 min-w-[40px] rounded-xl border border-border/40 text-[10px] sm:text-[11px] font-black flex items-center justify-center transition-all",
               rating === num ? "bg-primary text-primary-foreground border-primary shadow-lg" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
             )}
           >
@@ -53,7 +53,7 @@ const RatingRow = ({
         ))}
       </div>
       <Input 
-        className="h-10 text-[11px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 border-b border-border/20 rounded-md italic placeholder:opacity-40 w-full" 
+        className="h-10 text-[10px] sm:text-[11px] bg-secondary/10 border-none shadow-none focus-visible:ring-1 border-b border-border/20 rounded-md italic placeholder:opacity-40 w-full" 
         placeholder="Observación técnica..." 
         value={note || ""}
         onChange={(e) => onNoteChange(e.target.value)}
@@ -92,7 +92,7 @@ const EvaluationModule = ({
       <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md w-full">
         <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
           <Icon className="h-5 w-5 text-primary" />
-          <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_obs`]}</h2>
+          <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest truncate">{t.report.sections[`${tabType}_obs`]}</h2>
         </div>
         <CardContent className="p-0 w-full">
           {kpiSection.observation.map(kpi => (
@@ -112,7 +112,7 @@ const EvaluationModule = ({
         <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md w-full">
           <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-accent/20">
             <Activity className="h-5 w-5 text-accent" />
-            <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_impact`]}</h2>
+            <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest truncate">{t.report.sections[`${tabType}_impact`]}</h2>
           </div>
           <CardContent className="p-0 w-full">
             {kpiSection.impact.map(kpi => (
@@ -356,12 +356,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full overflow-x-hidden">
-        <TabsList className="grid grid-cols-3 sm:flex sm:flex-wrap h-auto bg-secondary/15 p-1.5 border border-border/20 rounded-2xl w-full gap-1 mb-10 overflow-hidden justify-start sm:justify-center">
+        <TabsList className="grid grid-cols-3 h-auto bg-secondary/15 p-1 border border-border/20 rounded-2xl w-full gap-1 mb-10 sm:flex sm:flex-wrap sm:justify-center sm:p-1.5 overflow-visible">
           {Object.entries(t.report.tabs).map(([key, label]) => (
             <TabsTrigger 
               key={key} 
               value={key} 
-              className="px-2 py-2 sm:px-6 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-tight data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all text-center"
+              className="px-1 py-2 sm:px-6 sm:py-3 text-[8px] sm:text-[10px] font-black uppercase tracking-tight data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all text-center truncate"
             >
               {label as string}
             </TabsTrigger>
@@ -373,7 +373,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 shadow-2xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                 <User className="h-5 w-5 text-primary" />
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.playerInfo.title}</h2>
+                <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t.report.playerInfo.title}</h2>
               </div>
               <CardContent className="pt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="col-span-full space-y-2">
@@ -420,7 +420,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 shadow-2xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md h-fit">
               <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                 <Target className="h-5 w-5 text-primary" />
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
+                <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
               </div>
               <CardContent className="p-4 sm:p-8 flex flex-col items-center justify-center">
                 <TacticalCanvas marker={pitchMarker} onMarkerChange={setPitchMarker} heatmapPoints={heatmapPoints} onHeatmapChange={setHeatmapPoints} />
@@ -439,11 +439,11 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
               <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20 flex items-center gap-3">
                 <Target className="h-5 w-5 text-primary" />
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.matchContext.title}</h2>
+                <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t.report.matchContext.title}</h2>
               </div>
               <CardContent className="p-6 sm:p-8 space-y-8">
                 <div className="space-y-4">
-                  <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">{t.report.matchContext.gameStyle}</Label>
+                  <Label className="text-[10px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-widest">{t.report.matchContext.gameStyle}</Label>
                   <div className="flex flex-wrap gap-2">
                     {t.report.matchContext.styles.map((style: string) => (
                       <Button key={style} type="button" variant={notes['match_style'] === style ? 'default' : 'outline'} onClick={() => handleNoteChange('match_style', style)} className="h-10 px-4 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all">
@@ -453,7 +453,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <Label className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">{t.report.matchContext.system}</Label>
+                  <Label className="text-[10px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-widest">{t.report.matchContext.system}</Label>
                   <Input value={notes['match_system'] || ""} onChange={(e) => handleNoteChange('match_system', e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Ej: 4-3-3" />
                 </div>
               </CardContent>
@@ -461,7 +461,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 bg-card/40 rounded-3xl overflow-hidden shadow-2xl">
               <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20 flex items-center gap-3">
                 <Shield className="h-5 w-5 text-primary" />
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.matchContext.behaviorTitle}</h2>
+                <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t.report.matchContext.behaviorTitle}</h2>
               </div>
               <CardContent className="p-6 sm:p-8 space-y-6">
                 <div className="flex flex-wrap gap-2">
@@ -509,7 +509,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           <Card className="border-border/40 shadow-2xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
               <Star className="h-5 w-5 text-primary fill-primary" />
-              <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections.actions_title}</h2>
+              <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t.report.sections.actions_title}</h2>
             </div>
             <CardContent className="p-4 sm:p-10 space-y-6">
               {scoutingActions.map((action, idx) => (
@@ -548,7 +548,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 rounded-3xl overflow-hidden bg-card/40 shadow-2xl">
               <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20 flex items-center gap-3">
                 <Star className="h-5 w-5 text-primary" />
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.evaluation.strengths.title}</h2>
+                <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t.report.evaluation.strengths.title}</h2>
               </div>
               <CardContent className="p-6 sm:p-8 space-y-4">
                 {[1,2,3,4].map(i => <Input key={i} className="h-12 bg-secondary/10 border-border/20 rounded-xl font-bold" placeholder={`Punto clave ${i}...`} value={notes[`strength_${i}`] || ""} onChange={(e) => handleNoteChange(`strength_${i}`, e.target.value)} />)}
@@ -557,7 +557,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 rounded-3xl overflow-hidden bg-card/40 shadow-2xl">
               <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20 flex items-center gap-3">
                 <Activity className="h-5 w-5 text-primary" />
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.evaluation.finalSummary.title}</h2>
+                <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t.report.evaluation.finalSummary.title}</h2>
               </div>
               <CardContent className="p-6 sm:p-8">
                 <Textarea value={notes['player_general_desc'] || ""} onChange={(e) => handleNoteChange('player_general_desc', e.target.value)} className="min-h-[220px] bg-secondary/10 border-border/20 rounded-2xl p-6 text-sm italic" placeholder="Resumen general..." />
