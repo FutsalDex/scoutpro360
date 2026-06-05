@@ -16,11 +16,7 @@ import { cn } from "@/lib/utils";
 import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
-
-interface ReportFormProps {
-  userProfile: UserProfile | null;
-  editingPlayerId?: string | null;
-}
+import { serverTimestamp } from "firebase/firestore";
 
 const RatingRow = ({ 
   kpi, 
@@ -184,18 +180,30 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         const report = await getLatestReportForPlayer(editingPlayerId);
 
         if (player) {
-          setPlayerName(player.name);
-          setClubName(player.club);
-          setNationality(player.nationality);
-          setMarketValue(player.marketValue);
+          setPlayerName(player.name || "");
+          setClubName(player.club || "");
+          setNationality(player.nationality || "");
+          setMarketValue(player.marketValue || "");
+          setBirthDate(player.birthDate || "");
+          setHeight(player.height || "");
+          setWeight(player.weight || "");
+          setDominantFoot(player.dominantFoot || "");
+          setSecondaryPositions(player.secondaryPositions || "");
           setActiveRole(TACTICAL_ROLES.find(r => r.name === player.tacticalRole) || TACTICAL_ROLES[0]);
         }
 
         if (report) {
           setReportId(report.id || null);
+          setDorsal(report.dorsal || "");
+          setRivalName(report.rivalName || "");
+          setCompetition(report.competition || "");
+          setMatchDate(report.matchDate || "");
+          setMinPlayed(report.minPlayed || "90");
+          setPhysicalCondition(report.physicalCondition || "");
+          setSelectedRoles(report.selectedRoles || []);
           setRatings(report.ratings || {});
           setNotes(report.notes || {});
-          setScoutName(report.scoutName);
+          setScoutName(report.scoutName || "");
         }
       };
       loadData();
@@ -242,7 +250,12 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         marketValue: marketValue || "€0",
         currentPIM: ratings['pim'] || 0,
         tacticalRole: activeRole.name,
-        grade: 'C'
+        grade: 'C',
+        birthDate,
+        height,
+        weight,
+        dominantFoot,
+        secondaryPositions
       }, editingPlayerId || undefined);
 
       await saveReport({
@@ -254,6 +267,13 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         summary: notes['summary'] || "",
         ratings: ratings,
         notes: notes,
+        dorsal,
+        rivalName,
+        competition,
+        matchDate,
+        minPlayed,
+        physicalCondition,
+        selectedRoles,
         createdAt: serverTimestamp()
       }, reportId || undefined);
 

@@ -31,6 +31,13 @@ export interface Player {
   currentPIM: number;
   tacticalRole: string;
   grade: Grade;
+  birthDate?: string;
+  height?: string;
+  weight?: string;
+  dominantFoot?: string;
+  secondaryPositions?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface KPISection {
@@ -48,7 +55,15 @@ export interface ScoutingReport {
   summary: string;
   ratings: Record<string, number>;
   notes: Record<string, string>;
+  dorsal?: string;
+  rivalName?: string;
+  competition?: string;
+  matchDate?: string;
+  minPlayed?: string;
+  physicalCondition?: string;
+  selectedRoles?: string[];
   createdAt: any;
+  updatedAt?: any;
 }
 
 export interface TacticalRoleConfig {
