@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -13,14 +12,16 @@ import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, FilePlus, Users, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, Briefcase, ShieldAlert, Video } from "lucide-react";
+import { LayoutDashboard, FilePlus, Users, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { auth } from '@/lib/firebase/config';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { getOrCreateUserProfile, subscribeToUserProfile } from '@/lib/services/user-service';
-import { UserProfile, UserRole } from '@/lib/types';
+import { UserProfile } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type ViewState = 'dashboard' | 'report' | 'match-analysis' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
 
@@ -38,7 +39,18 @@ function AppShell({
   const { t } = useTranslation();
   const { isMobile, setOpenMobile } = useSidebar();
 
+  const isProfileComplete = userProfile?.displayName && userProfile?.phoneNumber && userProfile?.nationality;
+  const isAnonymous = auth.currentUser?.isAnonymous;
+  const needsProfileCompletion = !isAnonymous && !isProfileComplete;
+
+  useEffect(() => {
+    if (needsProfileCompletion && activeView !== 'profile') {
+      setActiveView('profile');
+    }
+  }, [needsProfileCompletion, activeView, setActiveView]);
+
   const handleNavClick = (view: ViewState) => {
+    if (needsProfileCompletion && view !== 'profile') return;
     setActiveView(view);
     if (isMobile) {
       setOpenMobile(false);
@@ -85,10 +97,11 @@ function AppShell({
       <Sidebar className="border-r border-border/50 shadow-2xl">
         <SidebarHeader className="p-6">
           <div 
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all active:scale-95 group focus:outline-none focus:ring-2 focus:ring-primary rounded-xl"
+            className={cn(
+              "flex items-center gap-3 transition-all rounded-xl",
+              needsProfileCompletion ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:opacity-80 active:scale-95 group"
+            )}
             onClick={() => handleNavClick('dashboard')}
-            role="link"
-            aria-label="Ir a Inicio"
           >
             <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 transform rotate-3 group-hover:rotate-0 transition-transform">
               <ShieldCheck className="text-primary-foreground h-6 w-6" />
@@ -111,7 +124,8 @@ function AppShell({
                   <SidebarMenuButton 
                     isActive={activeView === 'admin'} 
                     onClick={() => handleNavClick('admin')}
-                    className="h-12 px-4 gap-4 bg-primary/5 border border-primary/20 hover:bg-primary/10"
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4 bg-primary/5 border border-primary/20 hover:bg-primary/10", needsProfileCompletion && "opacity-30")}
                   >
                     <ShieldCheck className="h-5 w-5 text-primary" />
                     <span className="font-black text-primary uppercase tracking-widest text-[11px]">{t.sidebar.adminPanel}</span>
@@ -130,7 +144,8 @@ function AppShell({
                 <SidebarMenuButton 
                   isActive={activeView === 'dashboard'} 
                   onClick={() => handleNavClick('dashboard')}
-                  className="h-12 px-4 gap-4"
+                  disabled={needsProfileCompletion}
+                  className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                 >
                   <LayoutDashboard className="h-5 w-5" />
                   <span className="font-medium">{t.sidebar.commandCenter}</span>
@@ -143,7 +158,8 @@ function AppShell({
                     <SidebarMenuButton 
                       isActive={activeView === 'report'} 
                       onClick={() => handleNavClick('report')}
-                      className="h-12 px-4 gap-4"
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                     >
                       <FilePlus className="h-5 w-5" />
                       <span className="font-medium">{t.sidebar.liveReport}</span>
@@ -153,7 +169,8 @@ function AppShell({
                     <SidebarMenuButton 
                       isActive={activeView === 'match-analysis'} 
                       onClick={() => handleNavClick('match-analysis')}
-                      className="h-12 px-4 gap-4"
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                     >
                       <Video className="h-5 w-5" />
                       <span className="font-medium">{t.sidebar.matchAnalysis}</span>
@@ -167,7 +184,8 @@ function AppShell({
                   <SidebarMenuButton 
                     isActive={activeView === 'database'}
                     onClick={() => handleNavClick('database')}
-                    className="h-12 px-4 gap-4"
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                   >
                     <Users className="h-5 w-5" />
                     <span className="font-medium">{t.sidebar.globalDatabase}</span>
@@ -179,7 +197,8 @@ function AppShell({
                 <SidebarMenuButton 
                   isActive={activeView === 'mapping'}
                   onClick={() => handleNavClick('mapping')}
-                  className="h-12 px-4 gap-4"
+                  disabled={needsProfileCompletion}
+                  className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                 >
                   <Map className="h-5 w-5" />
                   <span className="font-medium">{t.sidebar.talentMapping}</span>
@@ -198,7 +217,8 @@ function AppShell({
                   <SidebarMenuButton 
                     isActive={activeView === 'analytics'}
                     onClick={() => handleNavClick('analytics')}
-                    className="h-12 px-4 gap-4"
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                   >
                     <LineChart className="h-5 w-5" />
                     <span className="font-medium">{t.sidebar.analytics}</span>
@@ -208,7 +228,8 @@ function AppShell({
                   <SidebarMenuButton 
                     isActive={activeView === 'benchmarking'}
                     onClick={() => handleNavClick('benchmarking')}
-                    className="h-12 px-4 gap-4 text-accent"
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
                   >
                     <ShieldCheck className="h-5 w-5" />
                     <span className="font-medium">{t.sidebar.pimBenchmarking}</span>
@@ -269,7 +290,7 @@ function AppShell({
                 </span>
               </div>
               <div 
-                onClick={() => setActiveView('profile')}
+                onClick={() => handleNavClick('profile')}
                 className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform overflow-hidden"
               >
                 {userProfile?.displayName ? userProfile.displayName[0].toUpperCase() : 'S'}
@@ -279,6 +300,19 @@ function AppShell({
         </header>
 
         <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full">
+          {needsProfileCompletion && (
+            <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
+              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 border-2">
+                <AlertTriangle className="h-5 w-5" />
+                <AlertTitle className="font-black uppercase tracking-widest text-destructive">
+                  {t.profile.pendingTitle}
+                </AlertTitle>
+                <AlertDescription className="font-medium italic">
+                  {t.profile.pendingDesc}
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
           {renderActiveView()}
         </main>
       </SidebarInset>

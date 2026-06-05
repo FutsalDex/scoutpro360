@@ -140,7 +140,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETITION',
+        competition: 'COMPETICIÓN',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -227,6 +227,11 @@ export const translations = {
         generate: 'GENERATE AI SUMMARY',
         generating: 'Analyzing Report...',
       }
+    },
+    profile: {
+      pendingTitle: 'Profile Activation Required',
+      pendingDesc: 'To use the professional network, you must complete your full name, phone number, and country.',
+      action: 'Complete Profile',
     }
   },
   es: {
@@ -457,6 +462,11 @@ export const translations = {
         generate: 'GENERAR RESUMEN AI',
         generating: 'Analizando Informe...',
       }
+    },
+    profile: {
+      pendingTitle: 'Se requiere activación de perfil',
+      pendingDesc: 'Para utilizar la red profesional, debes completar tu nombre completo, teléfono y país.',
+      action: 'Completar Perfil',
     }
   }
 };
