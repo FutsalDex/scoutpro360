@@ -356,12 +356,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full overflow-x-hidden">
-        <TabsList className="flex flex-wrap h-auto bg-secondary/15 p-1.5 border border-border/20 rounded-2xl w-full gap-1 mb-10 overflow-hidden justify-start sm:justify-center">
+        <TabsList className="grid grid-cols-3 sm:flex sm:flex-wrap h-auto bg-secondary/15 p-1.5 border border-border/20 rounded-2xl w-full gap-1 mb-10 overflow-hidden justify-start sm:justify-center">
           {Object.entries(t.report.tabs).map(([key, label]) => (
             <TabsTrigger 
               key={key} 
               value={key} 
-              className="px-3 py-2 sm:px-6 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-tight data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all"
+              className="px-2 py-2 sm:px-6 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-tight data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all text-center"
             >
               {label as string}
             </TabsTrigger>
@@ -429,7 +429,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
           <div className="flex justify-end pt-10">
             <Button type="button" onClick={() => setActiveTab("context")} className="h-14 px-16 bg-primary text-primary-foreground font-black uppercase text-[13px] rounded-2xl shadow-xl transition-all w-full sm:w-auto">
-              {t.report.actions.next} <ChevronRight className="ml-2 h-5 w-5" />
+              {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </TabsContent>
