@@ -52,37 +52,14 @@
     --sidebar-border: 221 30% 25%;
     --sidebar-ring: 40 71% 59%;
   }
-
-  .dark {
-    /* Same as root as we want a single high-end dark institutional feel */
-    --background: 221 37% 10%;
-    --foreground: 210 40% 98%;
-    --card: 221 37% 12%;
-    --card-foreground: 210 40% 98%;
-    --popover: 221 37% 10%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 40 71% 59%;
-    --primary-foreground: 221 37% 10%;
-    --secondary: 221 30% 20%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 221 30% 20%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 191 75% 59%;
-    --accent-foreground: 221 37% 10%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 221 30% 25%;
-    --input: 221 30% 25%;
-    --ring: 40 71% 59%;
-  }
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground font-body;
+  html, body {
+    @apply bg-background text-foreground font-body overflow-x-hidden w-full;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline font-semibold tracking-tight;

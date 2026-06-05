@@ -275,33 +275,21 @@ function AppShell({
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="bg-background relative overflow-x-hidden">
+      <SidebarInset className="bg-background relative overflow-x-hidden w-full flex-1">
         <header className="h-16 border-b border-border/30 flex items-center justify-between px-4 sm:px-8 sticky top-0 bg-background/80 backdrop-blur-xl z-50">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <SidebarTrigger className="h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-secondary/50" />
-            <div className="h-4 w-[1px] bg-border mx-1 sm:mx-2" />
-            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium overflow-hidden whitespace-nowrap">
-              <span className="text-muted-foreground hidden xs:inline">Main</span>
-              <ChevronRight className="h-3 w-3 text-muted-foreground hidden xs:inline" />
-              <span className="text-foreground capitalize truncate max-w-[120px] sm:max-w-none">
-                {getViewTitle()}
-              </span>
-            </div>
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="h-10 w-10 text-muted-foreground hover:text-foreground" />
+            <div className="h-4 w-[1px] bg-border mx-1" />
+            <span className="text-foreground text-xs sm:text-sm font-bold uppercase tracking-tight truncate max-w-[150px]">
+              {getViewTitle()}
+            </span>
           </div>
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-6">
             <LanguageSwitcher />
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="hidden md:flex flex-col text-right">
-                <span className="text-xs font-bold text-foreground truncate max-w-[150px]">
-                  {userProfile?.displayName || 'ScoutPro 360'}
-                </span>
-                <span className="text-[10px] text-primary font-bold uppercase tracking-tighter">
-                  {userProfile?.role || 'Guest'}
-                </span>
-              </div>
+            <div className="flex items-center gap-2">
               <div 
                 onClick={() => handleNavClick('profile')}
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform overflow-hidden"
+                className="h-8 w-8 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center font-bold text-primary text-xs cursor-pointer hover:scale-105 transition-transform"
               >
                 {userProfile?.displayName ? userProfile.displayName[0].toUpperCase() : 'S'}
               </div>
@@ -323,7 +311,9 @@ function AppShell({
               </Alert>
             </div>
           )}
-          {renderActiveView()}
+          <div className="w-full overflow-x-hidden">
+            {renderActiveView()}
+          </div>
         </main>
       </SidebarInset>
     </div>
@@ -339,13 +329,9 @@ export default function Home() {
 
   useEffect(() => {
     let unsubscribeProfile: (() => void) | null = null;
-
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Asegurar que el perfil exista en Firestore
         await getOrCreateUserProfile(user.uid, user.email || '', user.isAnonymous);
-        
-        // Suscribirse a cambios en tiempo real del perfil
         unsubscribeProfile = subscribeToUserProfile(user.uid, (profile) => {
           setUserProfile(profile);
           setShowApp(true);
@@ -358,7 +344,6 @@ export default function Home() {
         setLoading(false);
       }
     });
-
     return () => {
       unsubscribeAuth();
       if (unsubscribeProfile) unsubscribeProfile();
@@ -366,9 +351,7 @@ export default function Home() {
   }, []);
 
   const handleEnterApp = () => {
-    if (!auth.currentUser) {
-      setShowApp(false);
-    }
+    if (!auth.currentUser) setShowApp(false);
   };
 
   const handleSignOut = async () => {
@@ -384,19 +367,12 @@ export default function Home() {
         <div className="h-12 w-12 rounded-xl bg-primary animate-pulse flex items-center justify-center">
           <ShieldCheck className="text-primary-foreground h-6 w-6" />
         </div>
-        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">Sincronizando ScoutPro 360...</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sincronizando ScoutPro 360...</p>
       </div>
     );
   }
 
-  if (!showApp) {
-    return (
-      <>
-        <LandingPage onEnter={handleEnterApp} />
-        <Toaster />
-      </>
-    );
-  }
+  if (!showApp) return <><LandingPage onEnter={handleEnterApp} /><Toaster /></>;
 
   return (
     <SidebarProvider defaultOpen={true}>
