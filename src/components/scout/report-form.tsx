@@ -34,17 +34,17 @@ const RatingRow = ({
   note?: string,
   onNoteChange: (value: string) => void
 }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-b border-border/10 last:border-0 group px-4 sm:px-6">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-b border-border/10 last:border-0 group px-4 sm:px-6 w-full">
     <Label className="text-[11px] font-bold text-foreground sm:w-48 shrink-0 uppercase tracking-tight">{kpi}</Label>
-    <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 w-full">
-      <div className="flex gap-1 shrink-0 justify-center sm:justify-start w-full sm:w-auto">
+    <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 w-full max-w-full overflow-hidden">
+      <div className="flex gap-1 shrink-0 justify-between sm:justify-start w-full sm:w-auto">
         {[1, 2, 3, 4, 5].map(num => (
           <button
             key={num}
             type="button"
             onClick={() => onRatingChange(num)}
             className={cn(
-              "h-8 w-8 rounded-full border border-border/40 text-[10px] font-bold flex items-center justify-center transition-all",
+              "h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border/40 text-[10px] font-bold flex items-center justify-center transition-all",
               rating === num ? "bg-primary text-primary-foreground border-primary shadow-lg scale-110" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
             )}
           >
@@ -90,14 +90,14 @@ const EvaluationModule = ({
   const hasImpactColumn = tabType === 'technical' || tabType === 'tactical' || tabType === 'physical' || tabType === 'mental';
   
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-      <div className="flex flex-col gap-6">
-        <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 w-full overflow-x-hidden">
+      <div className="flex flex-col gap-6 w-full">
+        <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
           <div className="bg-[#1b263b] px-4 sm:px-5 py-3 flex items-center gap-2 border-b border-primary/20">
             <Icon className="h-4 w-4 text-primary" />
             <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider">{t.report.sections[`${tabType}_obs`]}</h2>
           </div>
-          <CardContent className="p-0">
+          <CardContent className="p-0 w-full">
             {kpiSection.observation.map(kpi => (
               <RatingRow 
                 key={kpi} 
@@ -112,12 +112,12 @@ const EvaluationModule = ({
         </Card>
 
         {hasImpactColumn && kpiSection.impact && kpiSection.impact.length > 0 && (
-          <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
             <div className="bg-[#1b263b] px-4 sm:px-5 py-3 flex items-center gap-2 border-b border-accent/20">
               <Activity className="h-4 w-4 text-accent" />
               <h2 className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider">{t.report.sections[`${tabType}_impact`]}</h2>
             </div>
-            <CardContent className="p-0">
+            <CardContent className="p-0 w-full">
               {kpiSection.impact.map(kpi => (
                 <RatingRow 
                   key={kpi} 
@@ -134,10 +134,10 @@ const EvaluationModule = ({
       </div>
 
       <div className="flex justify-between gap-4 pt-10">
-        <Button type="button" variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-6 sm:px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+        <Button type="button" variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-4 sm:px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
           <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
         </Button>
-        <Button type="button" onClick={() => setActiveTab(nextTab)} className="px-10 sm:px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+        <Button type="button" onClick={() => setActiveTab(nextTab)} className="px-6 sm:px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
           {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
@@ -242,32 +242,6 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
 
   const handleRemoveAction = (index: number) => {
     setScoutingActions(scoutingActions.filter((_, i) => i !== index));
-  };
-
-  const toggleArrayNote = (key: string, value: string) => {
-    const currentStr = notes[key];
-    let current = [];
-    try {
-      current = currentStr ? JSON.parse(currentStr) : [];
-      if (!Array.isArray(current)) current = [];
-    } catch {
-      current = [];
-    }
-    const updated = current.includes(value) 
-      ? current.filter((v: string) => v !== value) 
-      : [...current, value];
-    handleNoteChange(key, JSON.stringify(updated));
-  };
-
-  const isSelectedInNote = (key: string, value: string) => {
-    const currentStr = notes[key];
-    if (!currentStr) return false;
-    try {
-      const current = JSON.parse(currentStr);
-      return Array.isArray(current) && current.includes(value);
-    } catch {
-      return false;
-    }
   };
 
   const handleCalculatePIM = async () => {
@@ -399,18 +373,18 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-32 max-w-full mx-auto w-full px-1 overflow-x-hidden">
-      <div className="flex flex-col gap-4 bg-card/80 backdrop-blur-xl p-4 sm:p-8 rounded-2xl border border-border/50 shadow-2xl sticky top-16 z-40">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-6 sm:space-y-8 pb-32 w-full max-w-full overflow-x-hidden px-1">
+      <div className="flex flex-col gap-4 bg-card/80 backdrop-blur-xl p-4 sm:p-8 rounded-2xl border border-border/50 shadow-2xl sticky top-16 z-40 w-full overflow-x-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
           <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
             <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
               <FileText className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
             </div>
-            <div className="space-y-0.5 sm:space-y-1 overflow-hidden">
-              <h1 className="text-xl sm:text-3xl font-black font-headline uppercase tracking-tight text-foreground leading-tight truncate max-w-[200px] sm:max-w-none">
+            <div className="space-y-0.5 sm:space-y-1 overflow-hidden min-w-0">
+              <h1 className="text-xl sm:text-3xl font-black font-headline uppercase tracking-tight text-foreground leading-tight truncate">
                 {editingPlayerId ? `${playerName}` : t.report.title}
               </h1>
-              <p className="text-[9px] sm:text-[11px] text-primary font-bold uppercase tracking-[0.25em]">{t.report.subtitle}</p>
+              <p className="text-[9px] sm:text-[11px] text-primary font-bold uppercase tracking-[0.25em] truncate">{t.report.subtitle}</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -428,25 +402,24 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="w-full overflow-x-auto no-scrollbar pb-2 mb-6">
-          <TabsList className="flex bg-secondary/15 h-auto p-1.5 border border-border/20 rounded-2xl shadow-inner min-w-max">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full overflow-x-hidden">
+        <div className="w-full mb-6">
+          <TabsList className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 bg-secondary/15 h-auto p-1 border border-border/20 rounded-2xl shadow-inner w-full gap-1">
             {Object.entries(t.report.tabs).map(([key, label], idx) => (
               <TabsTrigger 
                 key={key} 
                 value={key} 
-                className="flex-none px-5 text-[9px] sm:text-[11px] font-black tracking-widest data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all rounded-lg h-11 border border-transparent m-1"
+                className="px-1 py-2 text-[8px] sm:text-[10px] font-black tracking-tighter sm:tracking-widest data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all rounded-lg h-9 border border-transparent truncate"
               >
-                <span className="mr-1.5 opacity-40 font-code">{idx + 1}</span>
                 {label as string}
               </TabsTrigger>
             ))}
           </TabsList>
         </div>
 
-        <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+        <TabsContent value="player" className="animate-in fade-in slide-in-from-bottom-2 space-y-6 w-full overflow-x-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
               <div className="bg-[#007b83] px-4 py-3 flex items-center gap-3 border-b border-white/10">
                 <User className="h-4 w-4 text-white" />
                 <h2 className="text-[10px] sm:text-[12px] font-black text-white uppercase tracking-[0.15em]">1 {t.report.playerInfo.title}</h2>
@@ -513,22 +486,19 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </CardContent>
             </Card>
 
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
               <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Target className="h-4 w-4 text-white" />
                 <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">2 {t.report.pitch.title}</h2>
               </div>
               <CardContent className="p-4 sm:p-8 flex flex-col items-center justify-center gap-6">
-                <div className="w-full max-w-[360px]">
+                <div className="w-full max-w-full sm:max-w-[360px]">
                   <TacticalCanvas 
                     marker={pitchMarker} 
                     onMarkerChange={setPitchMarker}
                     heatmapPoints={heatmapPoints}
                     onHeatmapChange={setHeatmapPoints}
                   />
-                </div>
-                <div className="text-center px-4">
-                  <p className="text-[11px] font-black uppercase text-foreground/80">{t.report.pitch.mark}</p>
                 </div>
               </CardContent>
             </Card>
@@ -541,9 +511,9 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="context" className="animate-in fade-in slide-in-from-bottom-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+        <TabsContent value="context" className="animate-in fade-in slide-in-from-bottom-2 w-full overflow-x-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
               <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Target className="h-4 w-4 text-white" />
                 <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.matchContext.title}</h2>
@@ -558,7 +528,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                         type="button"
                         variant={notes['match_style'] === style ? 'default' : 'outline'}
                         onClick={() => handleNoteChange('match_style', style)}
-                        className="h-9 px-4 text-[11px] font-bold rounded-full"
+                        className="h-8 px-3 text-[10px] font-bold rounded-full"
                       >
                         {style}
                       </Button>
@@ -572,7 +542,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </CardContent>
             </Card>
 
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
               <div className="bg-[#1b263b] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Shield className="h-4 w-4 text-white" />
                 <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.matchContext.behaviorTitle}</h2>
@@ -585,9 +555,17 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                       <Button
                         key={beh}
                         type="button"
-                        variant={isSelectedInNote('without_possession', beh) ? 'default' : 'outline'}
-                        onClick={() => toggleArrayNote('without_possession', beh)}
-                        className="h-9 px-4 text-[11px] font-bold rounded-full"
+                        variant={notes['without_possession'] && notes['without_possession'].includes(beh) ? 'default' : 'outline'}
+                        onClick={() => {
+                           let current = notes['without_possession'] ? JSON.parse(notes['without_possession']) : [];
+                           if (current.includes(beh)) {
+                             current = current.filter((i: string) => i !== beh);
+                           } else {
+                             current.push(beh);
+                           }
+                           handleNoteChange('without_possession', JSON.stringify(current));
+                        }}
+                        className="h-8 px-3 text-[10px] font-bold rounded-full"
                       >
                         {beh}
                       </Button>
@@ -598,79 +576,72 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
             </Card>
           </div>
           <div className="flex justify-between gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="px-6 py-6 font-bold text-[11px] uppercase text-muted-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="px-4 py-6 font-bold text-[11px] uppercase text-muted-foreground">
               <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
             </Button>
-            <Button type="button" onClick={() => setActiveTab("technical")} className="px-10 py-6 bg-primary text-primary-foreground font-bold rounded-xl text-[13px]">
+            <Button type="button" onClick={() => setActiveTab("technical")} className="px-6 py-6 bg-primary text-primary-foreground font-bold rounded-xl text-[13px]">
               {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="technical" className="mt-6">
+        <TabsContent value="technical" className="mt-6 w-full overflow-x-hidden">
            <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
-        <TabsContent value="tactical" className="mt-6">
+        <TabsContent value="tactical" className="mt-6 w-full overflow-x-hidden">
            <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.tactical} nextTab="physical" prevTab="technical" tabType="tactical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
-        <TabsContent value="physical" className="mt-6">
+        <TabsContent value="physical" className="mt-6 w-full overflow-x-hidden">
            <EvaluationModule t={t} icon={ZapIcon} kpiSection={activeRole.kpis.physical} nextTab="mental" prevTab="tactical" tabType="physical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
-        <TabsContent value="mental" className="mt-6">
+        <TabsContent value="mental" className="mt-6 w-full overflow-x-hidden">
            <EvaluationModule t={t} icon={Heart} kpiSection={activeRole.kpis.mental} nextTab="actions" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
-        <TabsContent value="actions" className="mt-6 space-y-6">
-          <Card className="border-border/40 shadow-2xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+        <TabsContent value="actions" className="mt-6 space-y-6 w-full overflow-x-hidden">
+          <Card className="border-border/40 shadow-2xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md w-full">
             <div className="bg-[#1b263b] px-4 py-3 flex items-center gap-3 border-b border-primary/20">
               <Star className="h-4 w-4 text-primary fill-primary" />
               <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.sections.actions_title}</h2>
             </div>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto w-full">
-                <table className="w-full min-w-[600px]">
-                  <thead className="bg-[#1b263b] border-b border-border/10">
-                    <tr>
-                      <th className="text-left p-4 text-[10px] font-black uppercase text-white w-20">{t.report.actions.min}</th>
-                      <th className="text-left p-4 text-[10px] font-black uppercase text-white w-48">{t.report.actions.action}</th>
-                      <th className="text-left p-4 text-[10px] font-black uppercase text-white w-40">{t.report.actions.result}</th>
-                      <th className="text-left p-4 text-[10px] font-black uppercase text-white">{t.report.actions.notes}</th>
-                      <th className="w-12"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/10">
-                    {scoutingActions.map((action, idx) => (
-                      <tr key={idx} className="hover:bg-white/5 transition-colors">
-                        <td className="p-3">
-                          <Input value={action.minute} onChange={(e) => handleUpdateAction(idx, 'minute', e.target.value)} className="h-9 bg-transparent border-none text-[11px] font-bold text-center" />
-                        </td>
-                        <td className="p-3">
-                          <Input value={action.action} onChange={(e) => handleUpdateAction(idx, 'action', e.target.value)} className="h-9 bg-transparent border-none text-[11px]" />
-                        </td>
-                        <td className="p-3">
-                          <Input value={action.result} onChange={(e) => handleUpdateAction(idx, 'result', e.target.value)} className="h-9 bg-transparent border-none text-[11px]" />
-                        </td>
-                        <td className="p-3">
-                          <Input value={action.notes} onChange={(e) => handleUpdateAction(idx, 'notes', e.target.value)} className="h-9 bg-transparent border-none text-[11px]" />
-                        </td>
-                        <td className="p-3">
-                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveAction(idx)}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <CardContent className="p-4 w-full">
+              <div className="space-y-4 w-full">
+                {scoutingActions.map((action, idx) => (
+                  <div key={idx} className="p-4 bg-secondary/10 rounded-xl border border-border/10 space-y-4 animate-in slide-in-from-right-4 duration-300">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <Label className="text-[10px] font-black uppercase text-primary">Min.</Label>
+                        <Input value={action.minute} onChange={(e) => handleUpdateAction(idx, 'minute', e.target.value)} className="h-8 w-16 bg-background/50 text-center text-xs font-bold" placeholder="--" />
+                      </div>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveAction(idx)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-black uppercase text-muted-foreground">{t.report.actions.action}</Label>
+                        <Input value={action.action} onChange={(e) => handleUpdateAction(idx, 'action', e.target.value)} className="h-9 bg-background/50 text-xs" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-black uppercase text-muted-foreground">{t.report.actions.result}</Label>
+                        <Input value={action.result} onChange={(e) => handleUpdateAction(idx, 'result', e.target.value)} className="h-9 bg-background/50 text-xs" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[9px] font-black uppercase text-muted-foreground">{t.report.actions.notes}</Label>
+                      <Input value={action.notes} onChange={(e) => handleUpdateAction(idx, 'notes', e.target.value)} className="h-9 bg-background/50 text-xs" />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="p-4 bg-secondary/10">
+              <div className="mt-6">
                 <Button 
                   type="button"
                   variant="ghost" 
-                  className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-2 border-dashed border-border/20 rounded-xl"
+                  className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-2 border-dashed border-border/20 rounded-xl hover:bg-primary/5 hover:border-primary/40 transition-all"
                   onClick={handleAddAction}
                 >
                   <Plus className="h-4 w-4 mr-2" /> {t.report.actions.addEvent}
@@ -679,29 +650,29 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
             </CardContent>
           </Card>
           <div className="flex justify-between gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("mental")} className="px-6 py-6 font-bold text-[11px] uppercase text-muted-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("mental")} className="px-4 py-6 font-bold text-[11px] uppercase text-muted-foreground">
               <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
             </Button>
-            <Button type="button" onClick={() => setActiveTab("evaluation")} className="px-10 py-6 bg-primary text-primary-foreground font-bold rounded-xl text-[13px]">
+            <Button type="button" onClick={() => setActiveTab("evaluation")} className="px-6 py-6 bg-primary text-primary-foreground font-bold rounded-xl text-[13px]">
               {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="evaluation" className="mt-6 space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+        <TabsContent value="evaluation" className="mt-6 space-y-8 w-full overflow-x-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
               <div className="bg-[#2e7d32] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Star className="h-4 w-4 text-white" />
                 <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.evaluation.strengths.title}</h2>
               </div>
-              <CardContent className="p-6 sm:p-8 space-y-8">
-                <div className="space-y-4">
+              <CardContent className="p-6 sm:p-8 space-y-8 w-full">
+                <div className="space-y-4 w-full">
                   <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.strengths.main}</Label>
                   {[1,2,3,4].map(i => (
                     <Input 
                       key={i}
-                      className="h-10 bg-secondary/10 text-xs" 
+                      className="h-10 bg-secondary/10 text-xs w-full" 
                       placeholder={`Fortaleza ${i}`} 
                       value={notes[`strength_${i}`] || ""}
                       onChange={(e) => handleNoteChange(`strength_${i}`, e.target.value)}
@@ -711,55 +682,55 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </CardContent>
             </Card>
 
-            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md w-full">
               <div className="bg-[#007b83] px-5 py-3 flex items-center gap-3 border-b border-white/10">
                 <Activity className="h-4 w-4 text-white" />
                 <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.evaluation.finalSummary.title}</h2>
               </div>
-              <CardContent className="p-6 sm:p-8 space-y-6">
-                <div className="space-y-3">
+              <CardContent className="p-6 sm:p-8 space-y-6 w-full">
+                <div className="space-y-3 w-full">
                   <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.finalSummary.playerDesc}</Label>
-                  <Textarea value={notes['player_general_desc'] || ""} onChange={(e) => handleNoteChange('player_general_desc', e.target.value)} className="min-h-[100px] bg-secondary/10" />
+                  <Textarea value={notes['player_general_desc'] || ""} onChange={(e) => handleNoteChange('player_general_desc', e.target.value)} className="min-h-[100px] bg-secondary/10 w-full" />
                 </div>
               </CardContent>
             </Card>
           </div>
           <div className="flex justify-between gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="px-6 py-6 font-bold text-[11px] uppercase text-muted-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="px-4 py-6 font-bold text-[11px] uppercase text-muted-foreground">
               <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
             </Button>
-            <Button type="button" onClick={() => setActiveTab("analytics")} className="px-10 py-6 bg-primary text-primary-foreground font-bold rounded-xl text-[13px]">
+            <Button type="button" onClick={() => setActiveTab("analytics")} className="px-6 py-6 bg-primary text-primary-foreground font-bold rounded-xl text-[13px]">
               {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="mt-6 space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="border-primary/20 bg-[#1b263b]/60 shadow-xl p-6 sm:p-10 rounded-3xl border-2 flex flex-col justify-between min-h-[300px]">
+        <TabsContent value="analytics" className="mt-6 space-y-8 w-full overflow-x-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+            <Card className="border-primary/20 bg-[#1b263b]/60 shadow-xl p-6 sm:p-10 rounded-3xl border-2 flex flex-col justify-between min-h-[300px] w-full">
               <div className="text-center space-y-4">
                 <Brain className="h-8 w-8 text-primary mx-auto" />
                 <h3 className="text-xl font-black uppercase tracking-[0.15em] text-foreground">{t.report.pim.title}</h3>
                 {ratings['pim'] && <p className="text-5xl font-black text-primary">{ratings['pim']}</p>}
               </div>
-              <Button type="button" onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="w-full h-16 bg-primary text-primary-foreground font-black text-[15px] rounded-2xl shadow-2xl">
+              <Button type="button" onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="w-full h-16 bg-primary text-primary-foreground font-black text-[15px] rounded-2xl shadow-2xl mt-8">
                 {isCalculatingPIM ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.pim.calculate}
               </Button>
             </Card>
 
-            <Card className="border-accent/20 bg-[#1b263b]/60 shadow-xl p-6 sm:p-10 rounded-3xl border-2 flex flex-col justify-between min-h-[300px]">
+            <Card className="border-accent/20 bg-[#1b263b]/60 shadow-xl p-6 sm:p-10 rounded-3xl border-2 flex flex-col justify-between min-h-[300px] w-full">
               <div className="text-center space-y-4">
                 <Sparkles className="h-8 w-8 text-accent mx-auto" />
                 <h3 className="text-xl font-black uppercase tracking-[0.15em] text-foreground">{t.report.summary.title}</h3>
                 {notes['summary'] && <p className="text-xs text-muted-foreground italic text-left p-4 bg-background/40 rounded-xl overflow-auto max-h-[150px]">{notes['summary']}</p>}
               </div>
-              <Button type="button" variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="w-full h-16 font-black text-[13px] rounded-2xl shadow-2xl">
+              <Button type="button" variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="w-full h-16 font-black text-[13px] rounded-2xl shadow-2xl mt-8">
                 {isGeneratingSummary ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.summary.generate}
               </Button>
             </Card>
           </div>
           <div className="flex justify-start gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-6 py-6 font-bold text-[11px] uppercase text-muted-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-4 py-6 font-bold text-[11px] uppercase text-muted-foreground">
               <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
             </Button>
           </div>

@@ -103,7 +103,7 @@ function AppShell({
   const isClub = role === 'gestion' || isAdmin;
 
   return (
-    <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500">
+    <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500 overflow-x-hidden">
       <Sidebar className="border-r border-border/50 shadow-2xl">
         <SidebarHeader className="p-6">
           <div 
@@ -275,7 +275,7 @@ function AppShell({
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="bg-background relative">
+      <SidebarInset className="bg-background relative overflow-x-hidden">
         <header className="h-16 border-b border-border/30 flex items-center justify-between px-4 sm:px-8 sticky top-0 bg-background/80 backdrop-blur-xl z-50">
           <div className="flex items-center gap-2 sm:gap-4">
             <SidebarTrigger className="h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-secondary/50" />
@@ -309,7 +309,7 @@ function AppShell({
           </div>
         </header>
 
-        <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full">
+        <main className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full overflow-x-hidden">
           {needsProfileCompletion && (
             <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
               <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 border-2">
