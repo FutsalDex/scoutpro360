@@ -379,14 +379,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         startY: contextY + 5,
         body: [
           ['Estilo de Juego', notes['match_style'] || 'N/A'],
-          ['Sistema / Formación', notes['match_system'] || 'N/A'],
+          ['Sistemas / Formación', notes['match_system'] || 'N/A'],
           ['Comportamiento sin Balón', notes['without_possession'] ? JSON.parse(notes['without_possession']).join(', ') : 'N/A']
         ],
         theme: 'plain',
         styles: { fontSize: 8, cellPadding: 2 }
       });
 
-      // --- NEW Horizontal Tactical Pitch ---
+      // --- Pizarra Táctica Profesional (Horizontal) ---
       const pitchY = (doc as any).lastAutoTable.finalY + 15;
       if (pitchY > 180) { doc.addPage(); }
       const currentPitchY = pitchY > 180 ? 20 : pitchY;
@@ -394,59 +394,40 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.setFontSize(14);
       doc.text("POSICIÓN TÁCTICA (CAMPO PROFESIONAL)", 15, currentPitchY);
       
-      const pitchW = 120; // Width on PDF
-      const pitchH = 80;  // Height on PDF
-      const pitchX = 45;  // Center X
+      const pitchW = 120;
+      const pitchH = 80;
+      const pitchX = 45;
       const pitchTop = currentPitchY + 5;
       
-      // Drawing Horizontal Pitch (Mirroring the provided clean image style)
       doc.setDrawColor(50, 50, 50);
       doc.setLineWidth(0.4);
       
-      // Boundary
+      // Estructura básica del campo (sin .arc() para evitar errores)
       doc.rect(pitchX, pitchTop, pitchW, pitchH); 
+      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); // Línea media
+      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10); // Círculo central
       
-      // Halfway line
-      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH);
+      // Áreas (Izquierda)
+      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); // Área grande
+      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  // Área pequeña
       
-      // Center circle
-      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10);
-      doc.setFillColor(50, 50, 50);
-      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 0.8, 'F'); // Center spot
-      
-      // Goal areas & Penalty boxes (Left)
-      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); // Penalty box
-      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  // Goal box
-      doc.arc(pitchX + 11, pitchTop + pitchH/2, 10, -Math.PI/2, Math.PI/2, true); // Penalty arc
-      
-      // Goal areas & Penalty boxes (Right)
+      // Áreas (Derecha)
       doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
       doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
-      doc.arc(pitchX + pitchW - 11, pitchTop + pitchH/2, 10, Math.PI/2, -Math.PI/2, true); // Penalty arc
 
-      // Corner arcs
-      const cornerR = 3;
-      doc.arc(pitchX, pitchTop, cornerR, 0, Math.PI/2);
-      doc.arc(pitchX + pitchW, pitchTop, cornerR, Math.PI/2, Math.PI);
-      doc.arc(pitchX + pitchW, pitchTop + pitchH, cornerR, Math.PI, 3*Math.PI/2);
-      doc.arc(pitchX, pitchTop + pitchH, cornerR, 3*Math.PI/2, 0);
-
-      // Mapping Coordinates from UI (400x600 Vertical) to PDF (Horizontal 120x80)
-      // UI X (Horizontal) 0-400 maps to PDF Y (Vertical inside pitch)
-      // UI Y (Vertical) 0-600 maps to PDF X (Horizontal inside pitch)
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
         y: pitchTop + (p.x / 400) * pitchH
       });
 
-      // Heatmap Points
+      // Heatmap
       doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
       heatmapPoints.forEach(p => {
         const mapped = mapPoint(p);
         doc.circle(mapped.x, mapped.y, 1.5, 'F');
       });
 
-      // Player Marker
+      // Marcador de Jugador
       const mappedMarker = mapPoint(pitchMarker);
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.circle(mappedMarker.x, mappedMarker.y, 4, 'F');
@@ -455,7 +436,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.text("ID", mappedMarker.x - 1.5, mappedMarker.y + 1.5);
 
       let nextY = pitchTop + pitchH + 15;
-      // ---------------------------------------
 
       const renderSectionTable = (title: string, kpiSec: KPISection, currentY: number) => {
         if (currentY > 260) { doc.addPage(); currentY = 20; }
