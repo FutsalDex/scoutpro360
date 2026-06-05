@@ -43,7 +43,7 @@
         "uid": { "type": "string" },
         "email": { "type": "string" },
         "displayName": { "type": "string" },
-        "role": { "type": "string", "enum": ["admin", "analyst", "club", "guest"] },
+        "role": { "type": "string", "enum": ["admin", "analyst", "club", "guest", "coach", "director"] },
         "organization": { "type": "string" },
         "createdAt": { "type": "object" }
       },

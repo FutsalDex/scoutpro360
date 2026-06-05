@@ -15,7 +15,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 /**
  * Obtiene o crea el perfil de un usuario en Firestore.
  */
-export async function getOrCreateUserProfile(uid: string, email: string, isAnonymous: boolean): Promise<UserProfile> {
+export async function getOrCreateUserProfile(uid: string, email: string, isAnonymous: boolean, requestedRole?: UserRole): Promise<UserProfile> {
   const userRef = doc(db, "users", uid);
   
   try {
@@ -29,7 +29,7 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
         uid,
         email: email || (isAnonymous ? 'guest@scoutpro360.com' : ''),
         displayName: isAnonymous ? 'Invitado' : (email ? email.split('@')[0] : 'Scout'),
-        role: isAnonymous ? 'guest' : 'analyst', // Por defecto analista para nuevos registros
+        role: requestedRole || (isAnonymous ? 'guest' : 'analyst'),
         createdAt: serverTimestamp()
       };
       

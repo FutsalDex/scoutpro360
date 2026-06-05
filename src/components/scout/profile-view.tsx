@@ -15,11 +15,22 @@ interface ProfileViewProps {
 export function ProfileView({ profile }: ProfileViewProps) {
   if (!profile) return null;
 
-  const roleColors = {
+  const roleColors: Record<string, string> = {
     admin: "bg-red-500/20 text-red-500 border-red-500/30",
     analyst: "bg-primary/20 text-primary border-primary/30",
+    coach: "bg-green-500/20 text-green-500 border-green-500/30",
+    director: "bg-purple-500/20 text-purple-500 border-purple-500/30",
     club: "bg-accent/20 text-accent border-accent/30",
     guest: "bg-muted-foreground/20 text-muted-foreground border-muted-foreground/30"
+  };
+
+  const roleLabels: Record<string, string> = {
+    admin: "Administrador",
+    analyst: "Analista",
+    coach: "Entrenador",
+    director: "Director Deportivo",
+    club: "Gestión de Club",
+    guest: "Invitado"
   };
 
   return (
@@ -34,11 +45,11 @@ export function ProfileView({ profile }: ProfileViewProps) {
           <CardHeader className="text-center p-8 bg-secondary/20">
             <Avatar className="h-24 w-24 mx-auto border-4 border-primary/30 shadow-2xl mb-4">
               <AvatarImage src={`https://picsum.photos/seed/${profile.uid}/200`} />
-              <AvatarFallback className="text-2xl font-bold">{profile.displayName[0]}</AvatarFallback>
+              <AvatarFallback className="text-2xl font-bold">{profile.displayName?.[0] || 'U'}</AvatarFallback>
             </Avatar>
             <CardTitle className="text-xl font-bold">{profile.displayName}</CardTitle>
-            <Badge className={`mt-2 uppercase tracking-widest font-black text-[10px] px-4 py-1 ${roleColors[profile.role]}`}>
-              {profile.role}
+            <Badge className={`mt-2 uppercase tracking-widest font-black text-[10px] px-4 py-1 ${roleColors[profile.role] || roleColors.guest}`}>
+              {roleLabels[profile.role] || profile.role}
             </Badge>
           </CardHeader>
           <CardContent className="p-8 space-y-6">
@@ -79,12 +90,12 @@ export function ProfileView({ profile }: ProfileViewProps) {
                />
                <PermissionItem 
                  title="Informes en Vivo" 
-                 allowed={['admin', 'analyst'].includes(profile.role)} 
+                 allowed={['admin', 'analyst', 'coach', 'director'].includes(profile.role)} 
                  desc="Creación y edición de informes de scouting detallados con métricas IA."
                />
                <PermissionItem 
                  title="Base de Datos Global" 
-                 allowed={['admin', 'analyst', 'club'].includes(profile.role)} 
+                 allowed={['admin', 'analyst', 'club', 'coach', 'director'].includes(profile.role)} 
                  desc="Consulta y filtrado de la base de datos completa de prospectos."
                />
                <PermissionItem 

@@ -72,9 +72,10 @@ function AppShell({
 
   const role = userProfile?.role || 'guest';
   const isAdmin = role === 'admin';
-  const isAnalyst = role === 'analyst' || isAdmin;
+  // Analistas, Entrenadores y Directores tienen acceso a Ops + Mapping
+  const isOpsRole = ['admin', 'analyst', 'coach', 'director'].includes(role);
+  // Club y Admin tienen acceso a Analytics
   const isClub = role === 'club' || isAdmin;
-  const isGuest = role === 'guest';
 
   return (
     <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500">
@@ -111,7 +112,7 @@ function AppShell({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
-              {isAnalyst && (
+              {isOpsRole && (
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     isActive={activeView === 'report'} 
@@ -124,7 +125,7 @@ function AppShell({
                 </SidebarMenuItem>
               )}
 
-              {(isAnalyst || isClub) && (
+              {(isOpsRole || isClub) && (
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     isActive={activeView === 'database'}

@@ -14,14 +14,18 @@ import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/c
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Mail, Lock, Loader2 } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Loader2, Briefcase } from 'lucide-react';
+import { getOrCreateUserProfile } from '@/lib/services/user-service';
+import { UserRole } from '@/lib/types';
 
 export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('analyst');
   const { toast } = useToast();
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -31,7 +35,9 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Crear perfil inmediatamente con el rol seleccionado
+        await getOrCreateUserProfile(userCredential.user.uid, email, false, selectedRole);
       }
       toast({ title: isLogin ? "Acceso concedido" : "Cuenta creada", description: "Bienvenido a ScoutPro 360." });
       onAuthSuccess();
@@ -83,7 +89,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   };
 
   return (
-    <DialogContent className="sm:max-w-[400px] bg-card border-border/40 shadow-2xl p-0 overflow-hidden">
+    <DialogContent className="sm:max-w-[420px] bg-card border-border/40 shadow-2xl p-0 overflow-hidden">
       <DialogHeader className="p-0 space-y-0">
         <DialogTitle className="sr-only">
           {isLogin ? 'Acceso a ScoutPro360' : 'Registro de Scout'}
@@ -131,6 +137,27 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
               />
             </div>
           </div>
+
+          {!isLogin && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Tu Rol Profesional</Label>
+              <div className="relative">
+                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as UserRole)}>
+                  <SelectTrigger className="pl-10 h-12 bg-secondary/10 border-input">
+                    <SelectValue placeholder="Selecciona tu rol" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1b263b] border-border/40">
+                    <SelectItem value="analyst">Analista</SelectItem>
+                    <SelectItem value="coach">Entrenador</SelectItem>
+                    <SelectItem value="director">Director deportivo</SelectItem>
+                    <SelectItem value="club">Gestión Club</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
           <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground font-bold uppercase tracking-widest" disabled={loading}>
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (isLogin ? 'Entrar' : 'Crear Cuenta')}
           </Button>
@@ -175,6 +202,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
         <p className="text-center text-xs text-muted-foreground">
           {isLogin ? '¿No tienes cuenta?' : '¿Ya eres scout?'} 
           <button 
+            type="button"
             onClick={() => setIsLogin(!isLogin)} 
             className="ml-2 text-primary font-bold hover:underline"
           >
