@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useEffect, useState } from 'react';
@@ -32,41 +31,41 @@ export function ScoutDashboard() {
     <div className="space-y-6 sm:space-y-8 pb-12 w-full overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-4xl font-headline font-black text-foreground uppercase tracking-tight">ScoutPro 360 Dashboard</h1>
-          <p className="text-sm text-muted-foreground font-medium">Welcome back, Head Scout. Centralized intelligence for organizational talent acquisition.</p>
+          <h1 className="text-2xl sm:text-4xl font-headline font-black text-foreground uppercase tracking-tight">{t.dashboard.title}</h1>
+          <p className="text-sm text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <Button className="flex-1 md:flex-none bg-primary text-primary-foreground shadow-lg shadow-primary/30 text-xs font-bold uppercase tracking-widest h-12 px-8 rounded-xl">
-            Create New Report
+            {t.dashboard.createReport}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard 
-          title="TOTAL PLAYERS OBSERVED" 
+          title={t.dashboard.stats.totalPlayers} 
           value={loading ? "..." : players.length.toString()} 
           icon={<Users className="text-primary" />} 
-          subtitle="Datos de Firestore" 
+          subtitle={t.dashboard.stats.realData} 
         />
         <StatsCard 
-          title="AVG. SQUAD PIM" 
+          title={t.dashboard.stats.avgPim} 
           value={loading ? "..." : avgPim} 
           icon={<TrendingUp className="text-primary" />} 
-          subtitle="Promedio Real" 
+          subtitle={t.dashboard.stats.realAvg} 
         />
         <StatsCard 
-          title="RECRUITMENT STATUS" 
-          value="ACTIVO" 
+          title={t.dashboard.stats.recruitmentStatus} 
+          value={t.dashboard.stats.active} 
           icon={<ArrowUpRight className="text-accent" />} 
-          subtitle="Temporada 2026" 
+          subtitle={t.dashboard.stats.season} 
           accent 
         />
         <StatsCard 
-          title="RECLUTADOS" 
+          title={t.dashboard.stats.recruited} 
           value="3" 
           icon={<ClipboardCheck className="text-accent" />} 
-          subtitle="Q1 Progress" 
+          subtitle={t.dashboard.stats.q1Progress} 
         />
       </div>
 
@@ -74,8 +73,8 @@ export function ScoutDashboard() {
         <Card className="lg:col-span-2 border-border/40 bg-card/40 backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl">
           <CardHeader className="bg-secondary/20 p-4 sm:p-8 border-b border-border/10">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-base sm:text-lg font-black uppercase tracking-[0.15em] font-headline">ÚLTIMOS PROSPECTOS (REAL-TIME)</CardTitle>
-              <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs text-primary font-bold uppercase tracking-widest">View All</Button>
+              <CardTitle className="text-base sm:text-lg font-black uppercase tracking-[0.15em] font-headline">{t.dashboard.topTargets}</CardTitle>
+              <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs text-primary font-bold uppercase tracking-widest">{t.dashboard.viewAll}</Button>
             </div>
           </CardHeader>
           <CardContent className="p-0 min-h-[400px] flex flex-col">
@@ -115,7 +114,7 @@ export function ScoutDashboard() {
                   </div>
                 )) : (
                   <div className="flex-1 flex items-center justify-center p-20 text-muted-foreground italic text-sm font-medium uppercase tracking-widest opacity-50">
-                    No records found in Firestore
+                    {t.database.noRecords}
                   </div>
                 )}
               </div>
@@ -126,26 +125,26 @@ export function ScoutDashboard() {
         <Card className="border-border/40 bg-card/40 backdrop-blur-sm shadow-2xl rounded-2xl">
           <CardHeader className="p-4 sm:p-8 border-b border-border/10">
             <CardTitle className="text-base sm:text-lg font-black uppercase tracking-[0.15em] font-headline">{t.dashboard.recentActivity}</CardTitle>
-            <CardDescription className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Latest team updates and reports</CardDescription>
+            <CardDescription className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{t.dashboard.activitySubtitle}</CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-8 space-y-8">
             <ActivityItem 
-              time="Justo ahora" 
+              time={t.dashboard.activityItems.justNow} 
               user="Scout AI" 
-              action="Sincronizado con" 
+              action={t.dashboard.activityItems.synced} 
               target="Firestore DB" 
               color="text-primary" 
               isBold 
             />
             <ActivityItem 
-              time="2h ago" 
+              time="2h" 
               user="M. Scout" 
-              action="Finalized evaluation for" 
+              action={t.dashboard.activityItems.finalized} 
               target="Nico Williams" 
               color="text-primary" 
             />
             <Button variant="secondary" className="w-full mt-6 text-[10px] font-black uppercase tracking-widest h-10 rounded-xl bg-secondary/50 border border-border/20">
-              Load More Activity
+              {t.dashboard.viewAll}
             </Button>
           </CardContent>
         </Card>

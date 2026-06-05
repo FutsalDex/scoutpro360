@@ -33,14 +33,25 @@ export const translations = {
       subtitle: 'Welcome back, Head Scout. Centralized intelligence for organizational talent acquisition.',
       search: 'Search Global Database',
       createReport: 'Create New Report',
+      viewAll: 'View All',
       stats: {
-        totalPlayers: 'Total Players Observed',
-        pendingReports: 'Pending Reports',
-        avgPim: 'Avg. Squad PIM',
-        recruitmentStatus: 'Recruitment Status',
+        totalPlayers: 'TOTAL PLAYERS OBSERVED',
+        avgPim: 'AVG. SQUAD PIM',
+        recruitmentStatus: 'RECRUITMENT STATUS',
+        recruited: 'RECRUITED',
+        active: 'ACTIVE',
+        season: 'Season 2026',
+        q1Progress: 'Q1 Progress',
+        realData: 'Firestore Data',
+        realAvg: 'Real Average'
       },
-      topTargets: 'Top Rated Targets (A Grade)',
-      recentActivity: 'Recent Activity',
+      recentActivity: 'RECENT ACTIVITY',
+      activitySubtitle: 'Latest team updates and reports',
+      activityItems: {
+        synced: 'Synced with',
+        finalized: 'Finalized evaluation for',
+        justNow: 'Just now',
+      }
     },
     database: {
       title: 'Global Database',
@@ -49,6 +60,7 @@ export const translations = {
       add: 'Add Prospect',
       search: 'Search name, club or nationality...',
       filters: 'Filters',
+      noRecords: 'No records found in database',
       table: {
         player: 'Player Details',
         position: 'Position',
@@ -323,18 +335,29 @@ export const translations = {
       }
     },
     dashboard: {
-      title: 'Panel ScoutPro 360',
+      title: 'PANEL DE CONTROL SCOUTPRO 360',
       subtitle: 'Bienvenido de nuevo, Jefe de Scouting. Inteligencia centralizada para la captación de talento organizacional.',
       search: 'Buscar en Base de Datos Global',
-      createReport: 'Crear Nuevo Informe',
+      createReport: 'CREAR NUEVO INFORME',
+      viewAll: 'VER TODO',
       stats: {
-        totalPlayers: 'Jugadores Observados',
-        pendingReports: 'Informes Pendientes',
-        avgPim: 'PIM Promedio Plantilla',
-        recruitmentStatus: 'Estado de Reclutamiento',
+        totalPlayers: 'TOTAL JUGADORES OBSERVADOS',
+        avgPim: 'PIM PROMEDIO PLANTILLA',
+        recruitmentStatus: 'ESTADO DE RECLUTAMIENTO',
+        recruited: 'RECLUTADOS',
+        active: 'ACTIVO',
+        season: 'Temporada 2026',
+        q1Progress: 'Progreso Q1',
+        realData: 'Datos de Firestore',
+        realAvg: 'Promedio Real'
       },
-      topTargets: 'Objetivos Mejor Valorados (Grado A)',
-      recentActivity: 'Actividad Reciente',
+      recentActivity: 'ACTIVIDAD RECIENTE',
+      activitySubtitle: 'Últimas actualizaciones del equipo e informes',
+      activityItems: {
+        synced: 'Sincronizado con',
+        finalized: 'Finalizó evaluación para',
+        justNow: 'Justo ahora',
+      }
     },
     database: {
       title: 'Base de Datos Global',
@@ -343,6 +366,7 @@ export const translations = {
       add: 'Añadir Prospecto',
       search: 'Buscar nombre, club o nacionalidad...',
       filters: 'Filtros',
+      noRecords: 'No se encontraron registros en la base de datos',
       table: {
         player: 'Detalles del Jugador',
         position: 'Posición',
