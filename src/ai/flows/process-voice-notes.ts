@@ -35,7 +35,6 @@ export async function processVoiceNote(input: ProcessVoiceNoteInput): Promise<Pr
 
 const processVoiceNotePrompt = ai.definePrompt({
   name: 'processVoiceNotePrompt',
-  model: 'googleai/gemini-1.5-flash',
   input: { schema: ProcessVoiceNoteInputSchema },
   output: { schema: ProcessVoiceNoteOutputSchema },
   prompt: `You are an AI assistant for a football scouting application. Your task is to process raw voice notes from scouts on the field and categorize the observations into structured sections for a match report. Extract all relevant information and summarize it concisely into the provided output structure.

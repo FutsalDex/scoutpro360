@@ -355,7 +355,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full overflow-x-hidden">
         <TabsList className="flex flex-wrap h-auto bg-secondary/15 p-1.5 border border-border/20 rounded-2xl w-full gap-1 mb-10 overflow-hidden justify-start">
           {Object.entries(t.report.tabs).map(([key, label]) => (
             <TabsTrigger 
@@ -368,8 +368,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           ))}
         </TabsList>
 
-        <TabsContent value="player" className="animate-in fade-in space-y-8 w-full overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full overflow-hidden">
+        <TabsContent value="player" className="animate-in fade-in space-y-8 w-full overflow-x-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full overflow-x-hidden">
             <Card className="border-border/40 shadow-2xl overflow-hidden rounded-3xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-8 py-5 flex items-center gap-3 border-b border-primary/20">
                 <User className="h-5 w-5 text-primary" />
