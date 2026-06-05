@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
-import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind, Brain, Sparkles, AlertCircle } from "lucide-react";
-import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport, type Point } from "@/lib/types";
+import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Sun, Cloud, CloudRain, Snowflake, Wind, Brain, Sparkles, AlertCircle, Trash2 } from "lucide-react";
+import { TACTICAL_ROLES, type TacticalRoleConfig, type KPISection, type UserProfile, type Player, type ScoutingReport, type Point, type ScoutingAction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
@@ -162,6 +162,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
+  const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
 
   // AI states
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
@@ -219,6 +220,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           setSelectedRoles(report.selectedRoles || []);
           setRatings(report.ratings || {});
           setNotes(report.notes || {});
+          setScoutingActions(report.actions || []);
           setScoutName(report.scoutName || "");
           if (report.pitchPosition) setPitchMarker(report.pitchPosition);
           if (report.heatmapPoints) setHeatmapPoints(report.heatmapPoints);
@@ -248,6 +250,20 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
 
   const toggleRole = (role: string) => {
     setSelectedRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]);
+  };
+
+  const handleAddAction = () => {
+    setScoutingActions([...scoutingActions, { minute: "", action: "", result: "", notes: "" }]);
+  };
+
+  const handleUpdateAction = (index: number, field: keyof ScoutingAction, value: string) => {
+    const updated = [...scoutingActions];
+    updated[index] = { ...updated[index], [field]: value };
+    setScoutingActions(updated);
+  };
+
+  const handleRemoveAction = (index: number) => {
+    setScoutingActions(scoutingActions.filter((_, i) => i !== index));
   };
 
   const toggleArrayNote = (key: string, value: string) => {
@@ -369,6 +385,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
         summary: notes['summary'] || "",
         ratings: ratings,
         notes: notes,
+        actions: scoutingActions,
         dorsal,
         rivalName,
         competition,
@@ -858,10 +875,77 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               <Star className="h-4 w-4 text-primary fill-primary" />
               <h2 className="text-[12px] font-black text-white uppercase tracking-[0.15em]">{t.report.sections.actions_title}</h2>
             </div>
-            <CardContent className="p-8">
-              <Button variant="ghost" className="w-full h-16 text-[11px] font-black uppercase tracking-widest text-muted-foreground border-2 border-dashed border-border/20 rounded-xl">
-                <Plus className="h-5 w-5 mr-3" /> {t.report.actions.addEvent}
-              </Button>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-[#1b263b] border-b border-border/10">
+                    <tr>
+                      <th className="text-left p-4 text-[10px] font-black uppercase tracking-widest text-white w-20">{t.report.actions.min}</th>
+                      <th className="text-left p-4 text-[10px] font-black uppercase tracking-widest text-white w-48">{t.report.actions.action}</th>
+                      <th className="text-left p-4 text-[10px] font-black uppercase tracking-widest text-white w-40">{t.report.actions.result}</th>
+                      <th className="text-left p-4 text-[10px] font-black uppercase tracking-widest text-white">{t.report.actions.notes}</th>
+                      <th className="w-12"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/10">
+                    {scoutingActions.map((action, idx) => (
+                      <tr key={idx} className="hover:bg-white/5 transition-colors group">
+                        <td className="p-3">
+                          <Input 
+                            value={action.minute} 
+                            onChange={(e) => handleUpdateAction(idx, 'minute', e.target.value)}
+                            className="h-9 bg-transparent border-none text-[11px] font-bold text-center" 
+                            placeholder="–'" 
+                          />
+                        </td>
+                        <td className="p-3">
+                          <Input 
+                            value={action.action} 
+                            onChange={(e) => handleUpdateAction(idx, 'action', e.target.value)}
+                            className="h-9 bg-transparent border-none text-[11px]" 
+                            placeholder="Tipo de acción..." 
+                          />
+                        </td>
+                        <td className="p-3">
+                          <Input 
+                            value={action.result} 
+                            onChange={(e) => handleUpdateAction(idx, 'result', e.target.value)}
+                            className="h-9 bg-transparent border-none text-[11px]" 
+                            placeholder="Resultado..." 
+                          />
+                        </td>
+                        <td className="p-3">
+                          <Input 
+                            value={action.notes} 
+                            onChange={(e) => handleUpdateAction(idx, 'notes', e.target.value)}
+                            className="h-9 bg-transparent border-none text-[11px]" 
+                            placeholder="Observación / contexto..." 
+                          />
+                        </td>
+                        <td className="p-3">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleRemoveAction(idx)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="p-4 bg-secondary/10">
+                <Button 
+                  variant="ghost" 
+                  className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-2 border-dashed border-border/20 rounded-xl hover:bg-white/5"
+                  onClick={handleAddAction}
+                >
+                  <Plus className="h-4 w-4 mr-2" /> {t.report.actions.addEvent}
+                </Button>
+              </div>
             </CardContent>
           </Card>
           <div className="flex justify-between gap-4 pt-10">
@@ -869,7 +953,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
             </Button>
             <Button onClick={() => setActiveTab("evaluation")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
-              {t.report.actions.next}
+              {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
             </Button>
           </div>
         </TabsContent>
@@ -1156,7 +1240,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
             </Button>
             <Button onClick={() => setActiveTab("analytics")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
-              {t.report.actions.next}
+              {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
             </Button>
           </div>
         </TabsContent>
@@ -1224,6 +1308,12 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </p>
             </Card>
           )}
+
+          <div className="flex justify-start gap-4 pt-10">
+            <Button variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
+            </Button>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

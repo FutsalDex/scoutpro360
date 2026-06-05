@@ -26,6 +26,13 @@ export interface UserProfile {
   createdAt: any;
 }
 
+export interface ScoutingAction {
+  minute: string;
+  action: string;
+  result: string;
+  notes: string;
+}
+
 export interface Player {
   id: string;
   name: string;
@@ -60,6 +67,7 @@ export interface ScoutingReport {
   summary: string;
   ratings: Record<string, number>;
   notes: Record<string, string>;
+  actions?: ScoutingAction[];
   dorsal?: string;
   rivalName?: string;
   competition?: string;
