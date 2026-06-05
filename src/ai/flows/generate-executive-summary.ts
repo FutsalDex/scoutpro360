@@ -37,9 +37,7 @@ async function formatMetricsForPrompt(metrics: ExecutiveSummaryGenerationInput['
       const subMetrics = metrics[category];
       if (typeof subMetrics === 'object' && subMetrics !== null) {
         for (const subMetric in subMetrics) {
-          if (Object.prototype.hasOwnProperty.call(subMetric, subMetrics)) {
-            formatted += `- ${subMetric.charAt(0).toUpperCase() + subMetric.slice(1)}: ${subMetrics[subMetric]}\n`;
-          }
+          formatted += `- ${subMetric}: ${subMetrics[subMetric]}\n`;
         }
       }
     }
