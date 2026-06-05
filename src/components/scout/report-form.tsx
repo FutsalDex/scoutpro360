@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -237,7 +236,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     let totalFields = 0;
     let filledFields = 0;
 
-    // Info Personal y Contexto (15 campos clave)
     const personalFields = [
       playerName, dorsal, clubName, rivalName, competition, 
       matchDate, nationality, birthDate, marketValue, activeRole.name,
@@ -246,7 +244,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     totalFields += personalFields.length;
     filledFields += personalFields.filter(f => !!f).length;
 
-    // Métricas (KPIs de las 4 secciones principales)
     const sections = [activeRole.kpis.technical, activeRole.kpis.tactical, activeRole.kpis.physical, activeRole.kpis.mental];
     sections.forEach(sec => {
       const kpis = [...sec.observation, ...sec.impact];
@@ -254,12 +251,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       filledFields += kpis.filter(k => ratings[k] && ratings[k] > 0).length;
     });
 
-    // Notas de IA y Resumen
     const aiFields = [notes['pim_explanation'], notes['summary'], notes['player_general_desc']];
     totalFields += aiFields.length;
     filledFields += aiFields.filter(f => !!f).length;
 
-    // Acciones de partido (al menos 1 si hay partido)
     totalFields += 1;
     if (scoutingActions.length > 0) filledFields += 1;
 
@@ -331,11 +326,11 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const handleExportPDF = async () => {
     const completion = calculateCompletionPercentage();
-    if (completion < 90) {
+    if (completion < 75) {
       toast({
         variant: "destructive",
         title: "Informe Incompleto",
-        description: `Se requiere el 90% de los campos rellenados para emitir el PDF profesional. Actual: ${Math.round(completion)}%`
+        description: `Se requiere el 75% de los campos rellenados para emitir el PDF profesional. Actual: ${Math.round(completion)}%`
       });
       return;
     }
@@ -346,7 +341,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const primaryColor = [27, 38, 59];
       const accentColor = [224, 176, 80];
       
-      // HEADER
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.rect(0, 0, 210, 45, 'F');
       doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
@@ -358,7 +352,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.setTextColor(255, 255, 255);
       doc.text(`FECHA EMISIÓN: ${new Date().toLocaleDateString()}`, 150, 35);
 
-      // 1. FICHA TÉCNICA DEL JUGADOR
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.setFontSize(18);
       doc.text(playerName.toUpperCase(), 15, 60);
@@ -378,7 +371,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         styles: { fontSize: 8, cellPadding: 2 }
       });
 
-      // 2. CONTEXTO TÁCTICO
       const contextY = (doc as any).lastAutoTable.finalY + 10;
       doc.setFontSize(14);
       doc.text("CONTEXTO DEL PARTIDO", 15, contextY);
@@ -393,7 +385,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         styles: { fontSize: 8, cellPadding: 2 }
       });
 
-      // 3. ANÁLISIS POR SECCIONES (Técnico, Táctico, Físico, Mental)
       const renderSectionTable = (title: string, kpiSec: KPISection, currentY: number) => {
         doc.setFontSize(14);
         doc.text(title, 15, currentY);
@@ -425,7 +416,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       if (nextY > 250) { doc.addPage(); nextY = 20; }
       nextY = renderSectionTable("EVALUACIÓN MENTAL", activeRole.kpis.mental, nextY);
 
-      // 4. ACCIONES CLAVE
       if (nextY > 230) { doc.addPage(); nextY = 20; }
       doc.setFontSize(14);
       doc.text("REGISTRO DE ACCIONES CLAVE", 15, nextY);
@@ -439,7 +429,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         styles: { fontSize: 8 }
       });
 
-      // 5. EVALUACIÓN FINAL Y AI
       nextY = (doc as any).lastAutoTable.finalY + 15;
       if (nextY > 230) { doc.addPage(); nextY = 20; }
       
@@ -464,7 +453,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const splitSumm = doc.splitTextToSize(notes['summary'] || "No generado.", 180);
       doc.text(splitSumm, 15, nextY + 8);
 
-      // FOOTER PAGE NUMBER
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
