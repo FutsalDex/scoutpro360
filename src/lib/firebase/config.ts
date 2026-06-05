@@ -1,4 +1,3 @@
-
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -12,15 +11,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-
-// Validación básica para evitar errores de inicialización críticos
-const isConfigValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
-
-if (!isConfigValid) {
-  console.warn(
-    "Firebase Config: Faltan variables de entorno. Asegúrate de que .env tenga las claves de NEXT_PUBLIC_FIREBASE_*."
-  );
-}
 
 // Initialize Firebase
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
