@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -93,7 +92,7 @@ const EvaluationModule = ({
   setActiveTab: (tab: string) => void,
   t: any
 }) => {
-  const hasImpactColumn = tabType === 'technical';
+  const hasImpactColumn = tabType === 'technical' || tabType === 'tactical' || tabType === 'physical' || tabType === 'mental';
   
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
@@ -117,7 +116,7 @@ const EvaluationModule = ({
           </CardContent>
         </Card>
 
-        {hasImpactColumn && (
+        {hasImpactColumn && kpiSection.impact && kpiSection.impact.length > 0 && (
           <Card className="border-border/40 shadow-xl overflow-hidden rounded-xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#1b263b] px-4 sm:px-5 py-3 flex items-center gap-2 border-b border-accent/20">
               <Activity className="h-4 w-4 text-accent" />
@@ -140,10 +139,10 @@ const EvaluationModule = ({
       </div>
 
       <div className="flex justify-between gap-4 pt-10">
-        <Button variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+        <Button type="button" variant="ghost" onClick={() => setActiveTab(prevTab)} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
           <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
         </Button>
-        <Button onClick={() => setActiveTab(nextTab)} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+        <Button type="button" onClick={() => setActiveTab(nextTab)} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
           {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
         </Button>
       </div>
@@ -444,6 +443,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <Button 
+              type="button"
               variant="outline" 
               className="flex-1 sm:flex-none h-10 px-3 bg-background/50 text-[10px] font-bold border-border/50 uppercase tracking-widest"
               onClick={handleSaveAll}
@@ -669,7 +669,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           </div>
 
           <div className="flex justify-end mt-10">
-            <Button onClick={() => setActiveTab("context")} className="px-16 py-7 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[15px] transition-all transform hover:scale-105">
+            <Button type="button" onClick={() => setActiveTab("context")} className="px-16 py-7 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-2xl text-[15px] transition-all transform hover:scale-105">
               {t.report.actions.next}
             </Button>
           </div>
@@ -854,11 +854,11 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           </div>
 
           <div className="flex justify-between gap-4 pt-10">
-            <Button variant="ghost" onClick={() => setActiveTab("player")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
             </Button>
-            <Button onClick={() => setActiveTab("technical")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
-              {t.report.actions.next}
+            <Button type="button" onClick={() => setActiveTab("technical")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+              {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
             </Button>
           </div>
         </TabsContent>
@@ -934,6 +934,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                         </td>
                         <td className="p-3">
                           <Button 
+                            type="button"
                             variant="ghost" 
                             size="icon" 
                             className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
@@ -949,6 +950,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </div>
               <div className="p-4 bg-secondary/10">
                 <Button 
+                  type="button"
                   variant="ghost" 
                   className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-2 border-dashed border-border/20 rounded-xl hover:bg-white/5"
                   onClick={handleAddAction}
@@ -959,10 +961,10 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
             </CardContent>
           </Card>
           <div className="flex justify-between gap-4 pt-10">
-            <Button variant="ghost" onClick={() => setActiveTab("mental")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("mental")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
             </Button>
-            <Button onClick={() => setActiveTab("evaluation")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+            <Button type="button" onClick={() => setActiveTab("evaluation")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
               {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
             </Button>
           </div>
@@ -1130,6 +1132,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                     <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.report.evaluation.finalSummary.recommendation}</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       <Button 
+                        type="button"
                         variant={notes['final_recommendation'] === 'immediate' ? 'default' : 'outline'}
                         onClick={() => handleNoteChange('final_recommendation', 'immediate')}
                         className={cn("h-16 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'immediate' ? "bg-[#2e7d32] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
@@ -1138,6 +1141,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                         <span className="text-[8px] font-bold opacity-60 uppercase">{t.report.evaluation.finalSummary.options.elite}</span>
                       </Button>
                       <Button 
+                        type="button"
                         variant={notes['final_recommendation'] === 'follow' ? 'default' : 'outline'}
                         onClick={() => handleNoteChange('final_recommendation', 'follow')}
                         className={cn("h-16 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'follow' ? "bg-[#007b83] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
@@ -1146,6 +1150,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                         <span className="text-[8px] font-bold opacity-60 uppercase">{t.report.evaluation.finalSummary.options.high}</span>
                       </Button>
                       <Button 
+                        type="button"
                         variant={notes['final_recommendation'] === 'monitor' ? 'default' : 'outline'}
                         onClick={() => handleNoteChange('final_recommendation', 'monitor')}
                         className={cn("h-16 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'monitor' ? "bg-[#e65100] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
@@ -1154,6 +1159,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
                         <span className="text-[8px] font-bold opacity-60 uppercase">{t.report.evaluation.finalSummary.options.good}</span>
                       </Button>
                       <Button 
+                        type="button"
                         variant={notes['final_recommendation'] === 'reevaluate' ? 'default' : 'outline'}
                         onClick={() => handleNoteChange('final_recommendation', 'reevaluate')}
                         className={cn("col-span-1 sm:col-span-2 lg:col-span-3 h-14 flex flex-col gap-0.5 rounded-xl border-none transition-all", notes['final_recommendation'] === 'reevaluate' ? "bg-[#c62828] text-white" : "bg-white/5 text-muted-foreground hover:bg-white/10")}
@@ -1246,10 +1252,10 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           </div>
 
           <div className="flex justify-between gap-4 pt-10">
-            <Button variant="ghost" onClick={() => setActiveTab("actions")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
             </Button>
-            <Button onClick={() => setActiveTab("analytics")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
+            <Button type="button" onClick={() => setActiveTab("analytics")} className="px-16 py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-2xl rounded-xl text-[13px] transition-all transform hover:scale-105">
               {t.report.actions.next} <ChevronRight className="ml-3 h-4 w-4" />
             </Button>
           </div>
@@ -1274,6 +1280,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </div>
               
               <Button 
+                type="button"
                 onClick={handleCalculatePIM}
                 disabled={isCalculatingPIM}
                 className="w-full h-16 bg-primary text-primary-foreground font-black tracking-[0.2em] text-[15px] rounded-2xl shadow-2xl transform hover:scale-105 transition-all"
@@ -1298,6 +1305,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
               </div>
 
               <Button 
+                type="button"
                 variant="secondary" 
                 onClick={handleGenerateSummary}
                 disabled={isGeneratingSummary}
@@ -1320,7 +1328,7 @@ export function ReportForm({ userProfile, editingPlayerId }: ReportFormProps) {
           )}
 
           <div className="flex justify-start gap-4 pt-10">
-            <Button variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("evaluation")} className="px-10 py-6 font-bold text-[11px] uppercase text-muted-foreground hover:text-foreground">
               <ChevronLeft className="mr-3 h-4 w-4" /> {t.report.actions.previous}
             </Button>
           </div>
