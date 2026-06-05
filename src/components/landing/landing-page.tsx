@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -70,7 +71,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       {/* 1. HEADER / NAVEGACIÓN */}
       <header className="fixed top-0 w-full z-[100] bg-background/80 backdrop-blur-xl border-b border-border/40 h-16">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity" aria-label="Volver a Inicio">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
               <ShieldCheck className="text-primary-foreground h-5 w-5" />
             </div>
