@@ -265,11 +265,13 @@ export function ProfileView({ profile }: ProfileViewProps) {
           </CardHeader>
           <CardContent className="p-8">
              <div className="space-y-6">
-               <PermissionItem 
-                 title="Acceso Total" 
-                 allowed={profile.role === 'admin'} 
-                 desc="Capacidad para gestionar usuarios, roles y configuraciones críticas del sistema."
-               />
+               {profile.role === 'admin' && (
+                 <PermissionItem 
+                   title="Acceso Total" 
+                   allowed={true} 
+                   desc="Capacidad para gestionar usuarios, roles y configuraciones críticas del sistema."
+                 />
+               )}
                <PermissionItem 
                  title="Informes en Vivo" 
                  allowed={['admin', 'analista', 'entrenador', 'director'].includes(profile.role)} 
