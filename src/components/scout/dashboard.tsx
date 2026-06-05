@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useEffect, useState } from 'react';
@@ -21,15 +22,19 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
 
   useEffect(() => {
     const unsubscribe = subscribeToPlayers((data) => {
-      setPlayers(data.slice(0, 5));
+      setPlayers(data);
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
+  const recentPlayers = players.slice(0, 5);
   const avgPim = players.length > 0 
     ? (players.reduce((acc, p) => acc + p.currentPIM, 0) / players.length).toFixed(1) 
     : "0.0";
+
+  // Lógica dinámica: Contamos como "reclutados" a los de Grado A o con PIM > 85
+  const recruitedCount = players.filter(p => p.grade === 'A' || p.currentPIM > 85).length;
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
@@ -62,7 +67,7 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
         />
         <StatsCard 
           title={t.dashboard.stats.recruited} 
-          value="3" 
+          value={loading ? "..." : recruitedCount.toString()} 
           icon={<ClipboardCheck className="text-accent" />} 
           subtitle={t.dashboard.stats.q1Progress} 
         />
@@ -84,7 +89,7 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
               </div>
             ) : (
               <div className="divide-y divide-border/20 w-full overflow-x-hidden">
-                {players.length > 0 ? players.map(player => (
+                {recentPlayers.length > 0 ? recentPlayers.map(player => (
                   <div 
                     key={player.id} 
                     className="flex items-center justify-between p-4 sm:p-6 hover:bg-secondary/30 transition-colors cursor-pointer group w-full overflow-hidden"
