@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -18,7 +19,7 @@ import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { auth } from '@/lib/firebase/config';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { getOrCreateUserProfile } from '@/lib/services/user-service';
+import { getOrCreateUserProfile, subscribeToUserProfile } from '@/lib/services/user-service';
 import { UserProfile, UserRole } from '@/lib/types';
 
 type ViewState = 'dashboard' | 'report' | 'match-analysis' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
@@ -292,19 +293,31 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeProfile: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const profile = await getOrCreateUserProfile(user.uid, user.email || '', user.isAnonymous);
-        setUserProfile(profile);
-        setShowApp(true);
+        // Asegurar que el perfil exista en Firestore
+        await getOrCreateUserProfile(user.uid, user.email || '', user.isAnonymous);
+        
+        // Suscribirse a cambios en tiempo real del perfil
+        unsubscribeProfile = subscribeToUserProfile(user.uid, (profile) => {
+          setUserProfile(profile);
+          setShowApp(true);
+          setLoading(false);
+        });
       } else {
+        if (unsubscribeProfile) unsubscribeProfile();
         setUserProfile(null);
         setShowApp(false);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
   }, []);
 
   const handleEnterApp = () => {

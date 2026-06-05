@@ -1,3 +1,4 @@
+
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -29,17 +30,13 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
     
     if (userSnap.exists()) {
       const existingProfile = userSnap.data() as UserProfile;
-      // Verificación de seguridad adicional: si el email es el admin, asegurar que tiene el rol
       if (email === ADMIN_EMAIL && existingProfile.role !== 'admin') {
-        await updateUserProfile(uid, { role: 'admin' });
+        updateUserProfile(uid, { role: 'admin' });
         return { ...existingProfile, role: 'admin' };
       }
       return existingProfile;
     } else {
-      // Determinar rol inicial alineado con las reglas en español
       let role: UserRole = requestedRole || (isAnonymous ? 'invitado' : 'analista');
-      
-      // Forzar rol admin para el email específico
       if (email === ADMIN_EMAIL) {
         role = 'admin';
       }
@@ -61,7 +58,6 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
       operation: 'get',
     });
     errorEmitter.emit('permission-error', permissionError);
-    // Retornar perfil temporal si hay error de permisos
     return {
       uid,
       email: email || 'guest@scoutpro360.com',
@@ -70,6 +66,28 @@ export async function getOrCreateUserProfile(uid: string, email: string, isAnony
       createdAt: null
     };
   }
+}
+
+/**
+ * Escucha el perfil de un usuario específico en tiempo real.
+ */
+export function subscribeToUserProfile(uid: string, callback: (profile: UserProfile) => void) {
+  const userRef = doc(db, "users", uid);
+  return onSnapshot(
+    userRef,
+    (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.data() as UserProfile);
+      }
+    },
+    async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: userRef.path,
+        operation: 'get',
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    }
+  );
 }
 
 /**
@@ -98,13 +116,18 @@ export function subscribeToUsers(callback: (users: UserProfile[]) => void) {
 }
 
 /**
- * Actualiza el perfil del usuario
+ * Actualiza el perfil del usuario (Mutación no bloqueante)
  */
-export async function updateUserProfile(uid: string, updates: Partial<UserProfile>) {
+export function updateUserProfile(uid: string, updates: Partial<UserProfile>) {
   const userRef = doc(db, "users", uid);
-  try {
-    await setDoc(userRef, updates, { merge: true });
-  } catch (error) {
-    console.error("Error updating profile:", error);
-  }
+  
+  setDoc(userRef, updates, { merge: true })
+    .catch(async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: userRef.path,
+        operation: 'write',
+        requestResourceData: updates,
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    });
 }

@@ -25,7 +25,7 @@ export function ProfileView({ profile }: ProfileViewProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
 
-  // Sincronizar formData cuando el perfil carga
+  // Sincronizar formData cuando el perfil carga o cambia (por la suscripción en tiempo real)
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -44,24 +44,20 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
   if (!profile) return null;
 
-  const handleSave = async () => {
+  const handleSave = () => {
     setLoading(true);
-    try {
-      await updateUserProfile(profile.uid, formData);
+    // Siguiendo las directrices: actualización optimista sin await
+    updateUserProfile(profile.uid, formData);
+    
+    // Asumimos éxito por la actualización de caché local de Firestore
+    setTimeout(() => {
       setIsEditing(false);
+      setLoading(false);
       toast({
         title: "Perfil actualizado",
-        description: "Tus datos personales se han guardado correctamente.",
+        description: "Tus datos se están sincronizando con la red ScoutPro.",
       });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error al guardar",
-        description: "No se pudieron actualizar los datos. Inténtalo de nuevo.",
-      });
-    } finally {
-      setLoading(false);
-    }
+    }, 500);
   };
 
   const roleColors: Record<string, string> = {
@@ -124,37 +120,31 @@ export function ProfileView({ profile }: ProfileViewProps) {
                 <AvatarImage src={`https://picsum.photos/seed/${profile.uid}/400`} />
                 <AvatarFallback className="text-4xl font-black">{profile.displayName?.[0] || 'U'}</AvatarFallback>
               </Avatar>
-              {isEditing && (
-                <div className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center border-2 border-background cursor-pointer hover:scale-110 transition-transform">
-                  <Share2 className="h-4 w-4 text-primary-foreground" />
-                </div>
-              )}
             </div>
             {isEditing ? (
-              <div className="space-y-2 max-w-[240px] mx-auto">
+              <div className="space-y-2 max-w-[240px] mx-auto text-left">
                 <Label className="text-[9px] font-black uppercase tracking-widest text-primary">Nombre y Apellidos</Label>
                 <Input 
                   value={formData.displayName} 
                   onChange={(e) => setFormData({...formData, displayName: e.target.value})}
-                  className="h-10 bg-background/50 border-primary/20 text-center font-bold"
+                  className="h-10 bg-background/50 border-primary/20 font-bold"
+                  placeholder="Tu nombre completo"
                 />
               </div>
             ) : (
-              <CardTitle className="text-2xl font-black uppercase tracking-tight">{profile.displayName}</CardTitle>
+              <CardTitle className="text-2xl font-black uppercase tracking-tight">{profile.displayName || 'Sin Nombre'}</CardTitle>
             )}
             <Badge className={`mt-3 uppercase tracking-[0.2em] font-black text-[10px] px-6 py-1.5 rounded-full ${roleColors[profile.role] || roleColors.invitado}`}>
               {roleLabels[profile.role] || profile.role}
             </Badge>
           </CardHeader>
           <CardContent className="p-8 space-y-6">
-            {/* EMAIL (Read Only) */}
             <ProfileInfoItem 
               icon={<Mail className="h-4 w-4" />} 
               label="Email" 
               value={profile.email} 
             />
 
-            {/* ORGANIZACIÓN */}
             <div className="space-y-2">
               {isEditing ? (
                 <div className="flex flex-col gap-2">
@@ -175,7 +165,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
               )}
             </div>
 
-            {/* TELÉFONO */}
             <div className="space-y-2">
               {isEditing ? (
                 <div className="flex flex-col gap-2">
@@ -196,7 +185,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
               )}
             </div>
 
-            {/* NACIONALIDAD */}
             <div className="space-y-2">
               {isEditing ? (
                 <div className="flex flex-col gap-2">
@@ -224,7 +212,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
               )}
             </div>
 
-            {/* REDES SOCIALES */}
             <div className="pt-4 border-t border-border/10">
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">Redes Sociales</p>
               {isEditing ? (
@@ -321,17 +308,17 @@ function ProfileInfoItem({ icon, label, value }: { icon: React.ReactNode, label:
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</p>
-        <p className="truncate font-bold text-foreground text-sm tracking-tight">{value}</p>
+        <p className="truncate font-bold text-foreground text-sm tracking-tight">{value || 'No especificado'}</p>
       </div>
     </div>
   );
 }
 
 function SocialIcon({ icon, url }: { icon: React.ReactNode, url?: string }) {
-  const isValidUrl = url && url.startsWith('http');
+  const isValidUrl = url && (url.startsWith('http') || url.startsWith('www'));
   return (
     <a 
-      href={isValidUrl ? url : '#'} 
+      href={isValidUrl ? (url.startsWith('www') ? `https://${url}` : url) : '#'} 
       target="_blank" 
       rel="noopener noreferrer"
       className={`h-10 w-10 rounded-xl bg-secondary/30 flex items-center justify-center border border-border/10 hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all cursor-pointer ${!isValidUrl ? 'opacity-30 cursor-not-allowed' : ''}`}
