@@ -21,7 +21,7 @@ import {
   Trash2,
   Loader2
 } from "lucide-react";
-import { Player, PlayerList, ScheduledMatch, QuickNote } from "@/lib/types";
+import { Player, PlayerList, ScheduledMatch, QuickNote, UserProfile } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { 
   subscribeToPlayers, 
@@ -32,15 +32,15 @@ import {
   createQuickNote,
   deleteQuickNote
 } from "@/lib/services/db-service";
-import { auth } from "@/lib/firebase/config";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface ScoutDashboardProps {
+  userProfile: UserProfile | null;
   onEditPlayer: (id: string) => void;
 }
 
-export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
+export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProps) {
   const { t } = useTranslation();
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerLists, setPlayerLists] = useState<PlayerList[]>([]);
@@ -52,11 +52,11 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
   const [newListName, setNewListName] = useState("");
   const [newNoteText, setNewNoteText] = useState("");
   
-  const currentUser = auth.currentUser;
-  const scoutId = currentUser?.uid;
+  const scoutId = userProfile?.uid;
 
   useEffect(() => {
-    // Solo suscribirse si hay un usuario autenticado real (evita errores de permisos con "guest")
+    // CRÍTICO: Solo suscribirse si el perfil está cargado y tiene UID
+    // Esto garantiza que el filtro where("scoutId", "==", scoutId) sea válido
     if (!scoutId) return;
 
     const unsubPlayers = subscribeToPlayers(setPlayers);
@@ -277,7 +277,7 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
         </Card>
       </section>
 
-      {/* 5. TOP TARGETS (SECCIÓN ORIGINAL) */}
+      {/* 5. TOP TARGETS */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

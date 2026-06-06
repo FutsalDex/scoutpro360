@@ -69,7 +69,7 @@ function AppShell({
 
   const renderActiveView = () => {
     switch (activeView) {
-      case 'dashboard': return <ScoutDashboard onEditPlayer={handleEditPlayer} />;
+      case 'dashboard': return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
       case 'database': return <GlobalDatabase onEditPlayer={handleEditPlayer} />;
@@ -78,7 +78,7 @@ function AppShell({
       case 'benchmarking': return <PIMBenchmarking />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
-      default: return <ScoutDashboard onEditPlayer={handleEditPlayer} />;
+      default: return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
     }
   };
 

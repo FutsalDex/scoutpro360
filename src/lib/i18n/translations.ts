@@ -170,7 +170,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETITION',
+        competition: 'COMPETICIÓN',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -444,7 +444,7 @@ export const translations = {
       territory: 'Territorio de Prospecto Élite',
       upside: 'Potencial de Mercado',
       projected: 'Valor Proyectado (2 años)',
-      compatibility: 'Compatibility',
+      compatibility: 'Compatibilidad',
       squadProfile: 'Encaja en el perfil del equipo'
     },
     report: {
@@ -510,7 +510,7 @@ export const translations = {
         styles: ['Posesión', 'Contragolpe', 'Presión alta', 'Directo', 'Defensivo'],
         tempos: ['Bajo', 'Medio', 'Alto'],
         dominances: ['Dominante', 'Equilibrado', 'En desventaja'],
-        scores: ['Winning', 'Drawing', 'Losing'],
+        scores: ['Ganando', 'Empatando', 'Perdiendo'],
         importances: ['Baja', 'Media', 'Alta', 'Decisiva'],
         weathers: ['Sol', 'Nublado', 'Lluvia', 'Frío', 'Viento'],
         behaviors: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
@@ -549,7 +549,7 @@ export const translations = {
         strengths: {
           title: 'FORTALEZAS Y ÁREAS DE MEJORA',
           main: 'FORTALEZAS PRINCIPALES',
-          areas: 'ÁREAS A MEJORAR',
+          areas: 'AREAS A MEJORAR',
           shortTerm: 'CORTO PLAZO',
           longTerm: 'LARGO PLAZO',
         },
