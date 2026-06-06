@@ -44,9 +44,7 @@ service cloud.firestore {
     match /playerLists/{listId} {
       // Permitir leer si el usuario es dueño de la lista o es admin
       allow read: if request.auth != null && (
-        (exists(/databases/$(database)/documents/playerLists/$(listId)) && resource.data.scoutId == request.auth.uid) || 
-        isAdmin() ||
-        (!exists(/databases/$(database)/documents/playerLists/$(listId)) && canRead())
+        isAdmin() || resource.data.scoutId == request.auth.uid
       );
       allow write: if canWrite();
     }
@@ -54,9 +52,7 @@ service cloud.firestore {
     // 4. Reglas para partidos programados (scheduledMatches)
     match /scheduledMatches/{matchId} {
       allow read: if request.auth != null && (
-        (exists(/databases/$(database)/documents/scheduledMatches/$(matchId)) && resource.data.scoutId == request.auth.uid) || 
-        isAdmin() ||
-        (!exists(/databases/$(database)/documents/scheduledMatches/$(matchId)) && canRead())
+        isAdmin() || resource.data.scoutId == request.auth.uid
       );
       allow write: if canWrite();
     }
@@ -64,9 +60,7 @@ service cloud.firestore {
     // 5. Reglas para notas rápidas (quickNotes)
     match /quickNotes/{noteId} {
       allow read: if request.auth != null && (
-        (exists(/databases/$(database)/documents/quickNotes/$(noteId)) && resource.data.scoutId == request.auth.uid) || 
-        isAdmin() ||
-        (!exists(/databases/$(database)/documents/quickNotes/$(noteId)) && canRead())
+        isAdmin() || resource.data.scoutId == request.auth.uid
       );
       allow write: if canWrite();
     }
