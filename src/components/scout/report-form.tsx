@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
 import { FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Brain, Sparkles, Trash2, Download } from "lucide-react";
-import { TACTICAL_ROLES, type KPISection, type UserProfile, type ScoutingReport, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
+import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type ScoutingReport, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
@@ -147,8 +147,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const { toast } = useToast();
   const { t, language } = useTranslation();
   
+  const localizedKPIs = useMemo(() => getLocalizedKPIs(t), [t]);
+
   const [activeTab, setActiveTab] = useState("player");
-  const [activeRole, setActiveRole] = useState<TacticalRoleConfig>(TACTICAL_ROLES[0]);
+  const [activeRole, setActiveRole] = useState<TacticalRoleConfig>({ ...TACTICAL_ROLES[0], kpis: localizedKPIs });
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [ratings, setRatings] = useState<Record<string, number>>({});
@@ -179,6 +181,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [scoutName, setScoutName] = useState("");
 
   useEffect(() => {
+    setActiveRole(prev => ({ ...prev, kpis: localizedKPIs }));
+  }, [localizedKPIs]);
+
+  useEffect(() => {
     if (editingPlayerId) {
       const loadData = async () => {
         const player = await getPlayer(editingPlayerId);
@@ -193,7 +199,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setWeight(player.weight || "");
           setDominantFoot(player.dominantFoot || "");
           setSecondaryPositions(player.secondaryPositions || "");
-          setActiveRole(TACTICAL_ROLES.find(r => r.name === player.tacticalRole) || TACTICAL_ROLES[0]);
+          setActiveRole(TACTICAL_ROLES.find(r => r.name === player.tacticalRole) || { ...TACTICAL_ROLES[0], kpis: localizedKPIs });
         }
         if (report) {
           setReportId(report.id || null);
@@ -214,7 +220,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       };
       loadData();
     }
-  }, [editingPlayerId]);
+  }, [editingPlayerId, localizedKPIs]);
 
   const handleRatingChange = (kpi: string, value: number) => setRatings(prev => ({ ...prev, [kpi]: value }));
   const handleNoteChange = (kpi: string, value: string) => setNotes(prev => ({ ...prev, [kpi]: value }));
@@ -616,7 +622,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
-                  <Select value={activeRole.id} onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || TACTICAL_ROLES[0])}>
+                  <Select value={activeRole.id} onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || { ...TACTICAL_ROLES[0], kpis: localizedKPIs })}>
                     <SelectTrigger className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent className="bg-[#1b263b] border-border/30">
                       {TACTICAL_ROLES.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}

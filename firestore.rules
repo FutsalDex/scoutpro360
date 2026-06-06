@@ -4,25 +4,28 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Función auxiliar para obtener el rol del usuario autenticado
-    function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
     // Comprobación de rol de Administrador
     function isAdmin() {
-      return request.auth != null && getUserRole() == 'admin';
-    }
-
-    // Comprobación de roles con acceso de edición (Analista, Entrenador, Director, Gestión)
-    function canWrite() {
       return request.auth != null && 
-             (getUserRole() in ['admin', 'analista', 'entrenador', 'director', 'gestion']);
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             getUserData().role == 'admin';
     }
 
-    // Comprobación de roles de lectura (Todos los anteriores + Invitado)
+    // Comprobación de acceso de lectura general
     function canRead() {
       return request.auth != null && 
-             (getUserRole() in ['admin', 'analista', 'entrenador', 'director', 'gestion', 'invitado']);
+             exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Comprobación de roles con acceso de edición
+    function canWrite() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             (getUserData().role in ['admin', 'analista', 'entrenador', 'director', 'gestion']);
     }
 
     // 1. Reglas para jugadores (players)
@@ -39,27 +42,38 @@ service cloud.firestore {
 
     // 3. Reglas para listas de jugadores (playerLists)
     match /playerLists/{listId} {
-      allow read: if canRead();
+      // Permitir leer si el usuario es dueño de la lista o es admin
+      allow read: if request.auth != null && (
+        (exists(/databases/$(database)/documents/playerLists/$(listId)) && resource.data.scoutId == request.auth.uid) || 
+        isAdmin() ||
+        (!exists(/databases/$(database)/documents/playerLists/$(listId)) && canRead())
+      );
       allow write: if canWrite();
     }
 
     // 4. Reglas para partidos programados (scheduledMatches)
     match /scheduledMatches/{matchId} {
-      allow read: if canRead();
+      allow read: if request.auth != null && (
+        (exists(/databases/$(database)/documents/scheduledMatches/$(matchId)) && resource.data.scoutId == request.auth.uid) || 
+        isAdmin() ||
+        (!exists(/databases/$(database)/documents/scheduledMatches/$(matchId)) && canRead())
+      );
       allow write: if canWrite();
     }
 
     // 5. Reglas para notas rápidas (quickNotes)
     match /quickNotes/{noteId} {
-      allow read: if canRead();
+      allow read: if request.auth != null && (
+        (exists(/databases/$(database)/documents/quickNotes/$(noteId)) && resource.data.scoutId == request.auth.uid) || 
+        isAdmin() ||
+        (!exists(/databases/$(database)/documents/quickNotes/$(noteId)) && canRead())
+      );
       allow write: if canWrite();
     }
 
     // 6. Reglas para usuarios (users)
     match /users/{userId} {
-      // Un usuario puede leer su propio perfil y los admins todos
       allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      // Solo el usuario puede editar su propio perfil (o admin)
       allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
     }
 

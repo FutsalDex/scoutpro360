@@ -218,6 +218,24 @@ export const translations = {
         mental_impact: 'MATCH IMPACT',
         actions_title: 'KEY MATCH ACTIONS REGISTRY',
       },
+      kpis: {
+        technical: {
+          obs: ['First touch', 'Short pass', 'Long pass', 'Through ball', '1vs1 dribbling', 'Ball control', 'Possession', 'Shot', 'Cross', 'Finishing', 'Aerial game', 'Set pieces', 'Technique under pressure'],
+          imp: ['With possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In results']
+        },
+        tactical: {
+          obs: ['Positioning', 'Game reading', 'Tactical discipline', 'Covering', 'Pressure', 'Offensive support', 'Surveillance', 'Anticipation', 'Spatial intelligence'],
+          imp: ['Defensive balance', 'Ball exit', 'Transitions', 'Organization', 'Adaptability']
+        },
+        physical: {
+          obs: ['Speed', 'Acceleration', 'Resistance', 'Strength', 'Agility', 'Balance', 'Jump/Aerial game', 'Coordination', 'Recovery'],
+          imp: ['Duels won', 'Intensity', 'Physical presence', 'Deployment', 'Power']
+        },
+        mental: {
+          obs: ['Leadership', 'Determination', 'Aggressiveness', 'Composure', 'Decision making', 'Concentration', 'Sacrifice', 'Bravery', 'Maturity'],
+          imp: ['Resilience', 'Communication', 'Emotional impact', 'Focus', 'Team spirit']
+        }
+      },
       evaluation: {
         strengths: {
           title: 'STRENGTHS AND AREAS FOR IMPROVEMENT',
@@ -492,6 +510,24 @@ export const translations = {
         mental_obs: 'OBSERVACIÓN MENTAL',
         mental_impact: 'IMPACTO EN EL PARTIDO',
         actions_title: 'REGISTRO DE ACCIONES CLAVE',
+      },
+      kpis: {
+        technical: {
+          obs: ['Primer toque', 'Pase corto', 'Pase largo', 'Pase en profundidad', 'Regate 1vs1', 'Control de balón', 'Posesión', 'Disparo', 'Centro', 'Finalización', 'Juego aéreo', 'Balón parado', 'Técnica bajo presión'],
+          imp: ['Con posesión', 'Sin posesión', 'Momentos clave', 'Consistencia', 'Bajo presión', 'En el resultado']
+        },
+        tactical: {
+          obs: ['Posicionamiento', 'Lectura de juego', 'Disciplina táctica', 'Coberturas', 'Presión', 'Apoyo ofensivo', 'Vigilancias', 'Anticipación', 'Inteligencia espacial'],
+          imp: ['Equilibrio defensivo', 'Salida de balón', 'Transiciones', 'Organización', 'Adaptabilidad']
+        },
+        physical: {
+          obs: ['Velocidad', 'Aceleración', 'Resistencia', 'Fuerza', 'Agilidad', 'Equilibrio', 'Salto/Juego aéreo', 'Coordinación', 'Recuperación'],
+          imp: ['Duelos ganados', 'Intensidad', 'Presencia física', 'Despliegue', 'Potencia']
+        },
+        mental: {
+          obs: ['Liderazgo', 'Determinación', 'Agresividad', 'Compostura', 'Toma de decisiones', 'Concentración', 'Sacrificio', 'Valentía', 'Madurez'],
+          imp: ['Resiliencia', 'Comunicación', 'Impacto anímico', 'Enfoque', 'Espíritu de equipo']
+        }
       },
       evaluation: {
         strengths: {
