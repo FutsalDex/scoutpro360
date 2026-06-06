@@ -34,6 +34,8 @@ import {
 } from "@/lib/services/db-service";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { auth } from "@/lib/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface ScoutDashboardProps {
   userProfile: UserProfile | null;
@@ -48,15 +50,22 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   const [notes, setNotes] = useState<QuickNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
+  const [scoutId, setScoutId] = useState<string | null>(userProfile?.uid || null);
   
   const [newListName, setNewListName] = useState("");
   const [newNoteText, setNewNoteText] = useState("");
-  
-  const scoutId = userProfile?.uid;
 
+  // Paso 1: Escuchar Auth de forma reactiva para asegurar que el ID esté disponible
   useEffect(() => {
-    // CRÍTICO: Solo suscribirse si el perfil está cargado y tiene UID
-    // Esto garantiza que el filtro where("scoutId", "==", scoutId) sea válido
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      setScoutId(user?.uid ?? null);
+      if (!user) setLoading(false);
+    });
+    return () => unsubAuth();
+  }, []);
+
+  // Paso 2: Suscribirse a Firestore solo cuando scoutId sea reactivo y válido
+  useEffect(() => {
     if (!scoutId) return;
 
     const unsubPlayers = subscribeToPlayers(setPlayers);
@@ -161,15 +170,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
         </div>
       </section>
 
-      {/* 2. KPIs PRINCIPALES */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <StatsCard title={t.dashboard.stats.totalPlayers} value={loading ? "..." : players.length.toString()} icon={<Users className="text-primary" />} subtitle={t.dashboard.stats.realData} />
-        <StatsCard title={t.dashboard.stats.avgPim} value={loading ? "..." : avgPim} icon={<TrendingUp className="text-primary" />} subtitle={t.dashboard.stats.realAvg} />
-        <StatsCard title={t.dashboard.stats.recruitmentStatus} value={t.dashboard.stats.active} icon={<ArrowUpRight className="text-accent" />} subtitle={t.dashboard.stats.season} accent />
-        <StatsCard title={t.dashboard.stats.recruited} value={loading ? "..." : recruitedCount.toString()} icon={<ClipboardCheck className="text-accent" />} subtitle={t.dashboard.stats.q1Progress} />
-      </div>
-
-      {/* 3. MI CARTERA DE TALENTO (LISTAS PERSONALIZADAS) */}
+      {/* 2. Mi Cartera de Talento */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -208,13 +209,6 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
                   <h3 className="font-black text-sm text-foreground uppercase tracking-tight truncate">{list.name}</h3>
                   <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{list.playerIds.length} {t.dashboard.portfolio.players}</p>
                 </div>
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-6 w-6 rounded-full border-2 border-background bg-secondary flex items-center justify-center text-[8px] font-bold">
-                      {String.fromCharCode(64 + i)}
-                    </div>
-                  ))}
-                </div>
               </CardContent>
             </Card>
           ))}
@@ -226,7 +220,15 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
         </div>
       </section>
 
-      {/* 4. MI AGENDA DE PARTIDOS (PROGRAMADOR) */}
+      {/* 3. KPIs PRINCIPALES */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <StatsCard title={t.dashboard.stats.totalPlayers} value={loading ? "..." : players.length.toString()} icon={<Users className="text-primary" />} subtitle={t.dashboard.stats.realData} />
+        <StatsCard title={t.dashboard.stats.avgPim} value={loading ? "..." : avgPim} icon={<TrendingUp className="text-primary" />} subtitle={t.dashboard.stats.realAvg} />
+        <StatsCard title={t.dashboard.stats.recruitmentStatus} value={t.dashboard.stats.active} icon={<ArrowUpRight className="text-accent" />} subtitle={t.dashboard.stats.season} accent />
+        <StatsCard title={t.dashboard.stats.recruited} value={loading ? "..." : recruitedCount.toString()} icon={<ClipboardCheck className="text-accent" />} subtitle={t.dashboard.stats.q1Progress} />
+      </div>
+
+      {/* 4. Agenda de Partidos */}
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-accent" />
@@ -247,25 +249,23 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
                 <div key={match.id} className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:bg-secondary/20 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-2xl bg-accent/20 flex flex-col items-center justify-center shrink-0 border border-accent/30">
-                      <span className="text-[8px] font-black text-accent uppercase">{match.dateTime?.seconds ? new Date(match.dateTime.seconds * 1000).toLocaleString('es', { month: 'short' }) : 'OCT'}</span>
-                      <span className="text-lg font-black text-foreground">{match.dateTime?.seconds ? new Date(match.dateTime.seconds * 1000).getDate() : '24'}</span>
+                      <span className="text-[8px] font-black text-accent uppercase">
+                        {match.dateTime?.seconds ? new Date(match.dateTime.seconds * 1000).toLocaleString('es', { month: 'short' }) : 'OCT'}
+                      </span>
+                      <span className="text-lg font-black text-foreground">
+                        {match.dateTime?.seconds ? new Date(match.dateTime.seconds * 1000).getDate() : '24'}
+                      </span>
                     </div>
                     <div>
                       <h4 className="font-black text-sm sm:text-lg text-foreground uppercase tracking-tight">{match.homeTeam} VS {match.awayTeam}</h4>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{match.category}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="text-right hidden sm:block mr-4">
-                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">{t.dashboard.agenda.time}</p>
-                      <p className="text-sm font-black text-foreground">16:30</p>
-                    </div>
-                    <Button 
-                      className="w-full sm:w-auto bg-[#ffcc00] text-black hover:bg-[#e6b800] font-black text-[10px] uppercase tracking-widest px-6 h-10 shadow-lg shadow-yellow-500/20"
-                    >
-                      <Play className="h-4 w-4 mr-2 fill-black" /> {t.dashboard.agenda.startAnalysis}
-                    </Button>
-                  </div>
+                  <Button 
+                    className="w-full sm:w-auto bg-[#ffcc00] text-black hover:bg-[#e6b800] font-black text-[10px] uppercase tracking-widest px-6 h-10 shadow-lg shadow-yellow-500/20"
+                  >
+                    <Play className="h-4 w-4 mr-2 fill-black" /> {t.dashboard.agenda.startAnalysis}
+                  </Button>
                 </div>
               )) : (
                 <div className="p-12 text-center text-muted-foreground italic text-xs uppercase tracking-widest opacity-50">

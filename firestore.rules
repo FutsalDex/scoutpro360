@@ -34,9 +34,7 @@ service cloud.firestore {
       allow write: if canWrite();
     }
 
-    // Reglas simplificadas con validación de Query Constraints (request.query)
-    // Esto permite que el 'list' funcione si el cliente envía el filtro .where("scoutId", "==", uid)
-
+    // Reglas robustas que permiten el filtro where("scoutId", "==", uid) desde el cliente
     match /playerLists/{listId} {
       allow read: if request.auth != null && (
         isAdmin() || 

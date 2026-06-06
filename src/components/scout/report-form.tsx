@@ -264,6 +264,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     e.preventDefault();
     setIsCalculatingPIM(true);
     try {
+      const roleName = t.report.tacticalRoles[activeRole.id as keyof typeof t.report.tacticalRoles] || activeRole.name;
       const getSectionMetrics = (section: KPISection) => {
         const result: Record<string, number> = {};
         [...section.observation, ...section.impact].forEach(kpi => {
@@ -271,8 +272,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         });
         return result;
       };
-      
-      const roleName = t.report.tacticalRoles[activeRole.id as keyof typeof t.report.tacticalRoles] || activeRole.name;
 
       const result = await calculatePlayerImpactMetric({
         playerId: editingPlayerId || "temp-player",
@@ -399,15 +398,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const pitchTop = currentPitchY + 5;
       
       doc.setDrawColor(150, 150, 150);
-      doc.rect(pitchX, pitchTop, pitchW, pitchH); // Campo
-      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); // Medio
-      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10); // Centro
+      doc.rect(pitchX, pitchTop, pitchW, pitchH);
+      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH);
+      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10);
       
-      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); // Penalty area L
-      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  // Goal area L
-      
-      doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40); // Penalty area R
-      doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);  // Goal area R
+      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40);
+      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);
+      doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
+      doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
 
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
