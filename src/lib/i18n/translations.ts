@@ -137,7 +137,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETITION',
+        competition: 'COMPETICIÓN',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
