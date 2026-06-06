@@ -28,7 +28,7 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
     return () => unsubscribe();
   }, []);
 
-  const recentPlayers = players.slice(0, 5);
+  const recentPlayers = players.slice(0, 8); // Aumentamos a 8 ahora que hay más espacio
   const avgPim = players.length > 0 
     ? (players.reduce((acc, p) => acc + p.currentPIM, 0) / players.length).toFixed(1) 
     : "0.0";
@@ -73,8 +73,8 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
-        <Card className="lg:col-span-2 border-border/40 bg-card/40 backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl w-full">
+      <div className="w-full">
+        <Card className="border-border/40 bg-card/40 backdrop-blur-sm shadow-2xl overflow-hidden rounded-2xl w-full">
           <CardHeader className="bg-secondary/20 p-4 sm:p-8 border-b border-border/10">
             <div className="flex justify-between items-center">
               <CardTitle className="text-base sm:text-lg font-black uppercase tracking-[0.15em] font-headline">{t.dashboard.topTargets}</CardTitle>
@@ -129,33 +129,6 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
             )}
           </CardContent>
         </Card>
-
-        <Card className="border-border/40 bg-card/40 backdrop-blur-sm shadow-2xl rounded-2xl w-full overflow-hidden">
-          <CardHeader className="p-4 sm:p-8 border-b border-border/10">
-            <CardTitle className="text-base sm:text-lg font-black uppercase tracking-[0.15em] font-headline">{t.dashboard.recentActivity}</CardTitle>
-            <CardDescription className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{t.dashboard.activitySubtitle}</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-8 space-y-8 w-full">
-            <ActivityItem 
-              time={t.dashboard.activityItems.justNow} 
-              user="Scout AI" 
-              action={t.dashboard.activityItems.synced} 
-              target="Firestore DB" 
-              color="text-primary" 
-              isBold 
-            />
-            <ActivityItem 
-              time="2h" 
-              user="M. Scout" 
-              action={t.dashboard.activityItems.finalized} 
-              target="Nico Williams" 
-              color="text-primary" 
-            />
-            <Button variant="secondary" className="w-full mt-6 text-[10px] font-black uppercase tracking-widest h-10 rounded-xl bg-secondary/50 border border-border/20">
-              {t.dashboard.viewAll}
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
@@ -177,19 +150,5 @@ function StatsCard({ title, value, icon, subtitle, accent }: { title: string, va
         </div>
       </div>
     </Card>
-  );
-}
-
-function ActivityItem({ time, user, action, target, color, isBold }: { time: string, user: string, action: string, target: string, color: string, isBold?: boolean }) {
-  return (
-    <div className="flex gap-4 items-start w-full overflow-hidden">
-      <div className={`mt-2 h-2 w-2 rounded-full shrink-0 ${color.replace('text-', 'bg-')} shadow-[0_0_10px_rgba(var(--primary),0.5)]`} />
-      <div className="space-y-1 min-w-0 flex-1">
-        <p className={`text-[10px] sm:text-sm leading-tight text-foreground truncate ${isBold ? 'font-medium' : ''}`}>
-          <span className="font-black uppercase tracking-tight">{user}</span> {action} <span className="text-primary font-black uppercase tracking-tight truncate">{target}</span>
-        </p>
-        <p className="text-[8px] sm:text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{time}</p>
-      </div>
-    </div>
   );
 }
