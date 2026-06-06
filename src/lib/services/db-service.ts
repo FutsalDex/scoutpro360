@@ -109,7 +109,7 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
 export function subscribeToPlayerLists(scoutId: string, callback: (lists: PlayerList[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "playerLists");
-  // CRÍTICO: Filtrar siempre por scoutId para cumplir con las reglas de seguridad
+  // CRÍTICO: Filtrar siempre por scoutId para cumplir con las reglas de seguridad de Firestore
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q, 

@@ -386,7 +386,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         theme: 'plain'
       });
 
-      // Pizarra Táctica Profesional (Horizontal)
       const pitchY = (doc as any).lastAutoTable.finalY + 15;
       if (pitchY > 180) { doc.addPage(); }
       const currentPitchY = pitchY > 180 ? 20 : pitchY;
@@ -404,17 +403,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); // Medio
       doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10); // Centro
       
-      // Áreas (Izquierda)
-      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); 
-      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  
+      doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); // Penalty area L
+      doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  // Goal area L
       
-      // Áreas (Derecha)
-      doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
-      doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
+      doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40); // Penalty area R
+      doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);  // Goal area R
 
-      // Mapeo de coordenadas (Rotación de vertical a horizontal)
-      // App: Y(0-600) -> PDF: X(45-165)
-      // App: X(0-400) -> PDF: Y(Top-Bottom)
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
         y: pitchTop + ((400 - p.x) / 400) * pitchH
@@ -473,11 +467,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       
       doc.setFontSize(14);
       doc.text(t.report.pdfAiConclusions, 15, nextY);
-      
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
       doc.text(`${t.report.pdfPimEstimated}: ` + (ratings['pim'] || 0) + "%", 15, nextY + 10);
-      
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       const splitExp = doc.splitTextToSize(notes['pim_explanation'] || "-", 180);
