@@ -34,6 +34,45 @@
       },
       "required": ["playerId", "playerName", "scoutId", "pimScore"]
     },
+    "PlayerList": {
+      "title": "PlayerList",
+      "description": "Lista personalizada de jugadores (cartera de talento)",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "scoutId": { "type": "string" },
+        "playerIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "object" }
+      },
+      "required": ["name", "scoutId"]
+    },
+    "ScheduledMatch": {
+      "title": "ScheduledMatch",
+      "description": "Partido programado en la agenda del scout",
+      "type": "object",
+      "properties": {
+        "homeTeam": { "type": "string" },
+        "awayTeam": { "type": "string" },
+        "category": { "type": "string" },
+        "dateTime": { "type": "object" },
+        "scoutId": { "type": "string" },
+        "status": { "type": "string", "enum": ["scheduled", "in-progress", "completed"] }
+      },
+      "required": ["homeTeam", "awayTeam", "scoutId"]
+    },
+    "QuickNote": {
+      "title": "QuickNote",
+      "description": "Nota rápida o transcripción de voz sin asignar",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "scoutId": { "type": "string" },
+        "assignedPlayerId": { "type": "string" },
+        "type": { "type": "string", "enum": ["text", "voice"] },
+        "createdAt": { "type": "object" }
+      },
+      "required": ["content", "scoutId"]
+    },
     "UserProfile": {
       "title": "UserProfile",
       "description": "Información extendida del usuario y sus permisos",
@@ -46,6 +85,7 @@
         "organization": { "type": "string" },
         "phoneNumber": { "type": "string" },
         "nationality": { "type": "string" },
+        "subscriptionPlan": { "type": "string", "enum": ["básico", "profesional", "enterprise"] },
         "socials": {
           "type": "object",
           "properties": {
@@ -70,6 +110,18 @@
     "reports": {
       "schema": { "$ref": "#/entities/ScoutingReport" },
       "description": "Colección de informes detallados de scouting."
+    },
+    "playerLists": {
+      "schema": { "$ref": "#/entities/PlayerList" },
+      "description": "Listas personalizadas de jugadores creadas por scouts."
+    },
+    "scheduledMatches": {
+      "schema": { "$ref": "#/entities/ScheduledMatch" },
+      "description": "Agenda de partidos programados para observación."
+    },
+    "quickNotes": {
+      "schema": { "$ref": "#/entities/QuickNote" },
+      "description": "Bandeja de entrada de ideas y notas de voz sin asignar."
     },
     "users": {
       "schema": { "$ref": "#/entities/UserProfile" },

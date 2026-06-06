@@ -37,7 +37,25 @@ service cloud.firestore {
       allow write: if canWrite();
     }
 
-    // 3. Reglas para usuarios (users)
+    // 3. Reglas para listas de jugadores (playerLists)
+    match /playerLists/{listId} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    // 4. Reglas para partidos programados (scheduledMatches)
+    match /scheduledMatches/{matchId} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    // 5. Reglas para notas rápidas (quickNotes)
+    match /quickNotes/{noteId} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    // 6. Reglas para usuarios (users)
     match /users/{userId} {
       // Un usuario puede leer su propio perfil y los admins todos
       allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
@@ -45,7 +63,7 @@ service cloud.firestore {
       allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
     }
 
-    // 4. Denegar por defecto
+    // 7. Denegar por defecto
     match /{document=**} {
       allow read, write: if false;
     }
