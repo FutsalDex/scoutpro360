@@ -103,13 +103,22 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
   }
 }
 
+export function subscribeToReports(scoutId: string, callback: (reports: ScoutingReport[]) => void) {
+  const colRef = collection(db, "reports");
+  const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
+  return onSnapshot(
+    q, 
+    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScoutingReport[]),
+    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
+  );
+}
+
 /**
  * Carteras de Talento (Listas)
  */
 export function subscribeToPlayerLists(scoutId: string, callback: (lists: PlayerList[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "playerLists");
-  // FILTRO OBLIGATORIO PARA CUMPLIR CON REGLAS DE SEGURIDAD
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q, 
@@ -135,7 +144,6 @@ export async function createPlayerList(name: string, scoutId: string) {
 export function subscribeToScheduledMatches(scoutId: string, callback: (matches: ScheduledMatch[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "scheduledMatches");
-  // FILTRO OBLIGATORIO PARA CUMPLIR CON REGLAS DE SEGURIDAD
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("dateTime", "asc"));
   return onSnapshot(
     q, 
@@ -161,7 +169,6 @@ export async function createScheduledMatch(match: Omit<ScheduledMatch, 'id'>) {
 export function subscribeToQuickNotes(scoutId: string, callback: (notes: QuickNote[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "quickNotes");
-  // FILTRO OBLIGATORIO PARA CUMPLIR CON REGLAS DE SEGURIDAD
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q, 

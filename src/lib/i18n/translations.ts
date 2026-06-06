@@ -31,46 +31,13 @@ export const translations = {
     },
     dashboard: {
       title: 'COMMAND CENTER',
-      subtitle: 'Welcome back, Head Scout. Centralized intelligence for organizational talent acquisition.',
-      search: 'Search Global Database',
-      viewAll: 'View All',
+      subtitle: 'Real-time scouting operations oversight.',
       stats: {
-        totalPlayers: 'TOTAL PLAYERS OBSERVED',
-        avgPim: 'AVG. SQUAD PIM',
-        recruitmentStatus: 'RECRUITMENT STATUS',
-        recruited: 'RECRUITED',
-        active: 'ACTIVE',
-        season: 'Season 2026',
-        q1Progress: 'Q1 Progress',
-        realData: 'Firestore Data',
-        realAvg: 'Real Average'
-      },
-      quickNotes: {
-        title: 'Quick Inbox',
-        add: 'Add Note',
-        placeholder: 'What are you thinking?',
-        save: 'Save Idea',
-        assign: 'Assign to Player',
-        empty: 'Inbox clear. Great time to capture thoughts!',
-        recording: 'Recording Voice...',
-      },
-      portfolio: {
-        title: 'Talent Portfolio',
-        create: 'New List',
-        namePlaceholder: 'List name (e.g. U-19 targets)',
-        createBtn: 'Create Folder',
-        players: 'Players',
-        empty: 'No lists created yet.'
-      },
-      agenda: {
-        title: 'Match Agenda',
-        subtitle: 'Field Assistant',
-        addMatch: 'Schedule Match',
-        time: 'Time',
-        startAnalysis: 'Start Live Analysis',
-        empty: 'No matches scheduled for this week.'
-      },
-      topTargets: 'TOP TARGETS',
+        pending: 'Pending Evaluation',
+        evaluated: 'Evaluated Players',
+        reports: 'Players with Report',
+        syncing: 'Syncing Nodes...',
+      }
     },
     database: {
       title: 'Global Database',
@@ -170,7 +137,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETITION',
+        competition: 'COMPETICIÓN',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -340,46 +307,13 @@ export const translations = {
     },
     dashboard: {
       title: 'CENTRO DE MANDO',
-      subtitle: 'Bienvenido de nuevo, Jefe de Scouting. Inteligencia centralizada para la captación de talento organizacional.',
-      search: 'Buscar en Base de Datos Global',
-      viewAll: 'VER TODO',
+      subtitle: 'Supervisión de operaciones de captación en tiempo real.',
       stats: {
-        totalPlayers: 'TOTAL JUGADORES OBSERVADOS',
-        avgPim: 'PIM PROMEDIO PLANTILLA',
-        recruitmentStatus: 'ESTADO DE RECLUTAMIENTO',
-        recruited: 'RECLUTADOS',
-        active: 'ACTIVO',
-        season: 'Temporada 2026',
-        q1Progress: 'Progreso Q1',
-        realData: 'Datos de Firestore',
-        realAvg: 'Promedio Real'
-      },
-      quickNotes: {
-        title: 'Bandeja de Entrada',
-        add: 'Nueva Nota',
-        placeholder: '¿Qué tienes en mente?',
-        save: 'Guardar Idea',
-        assign: 'Vincular a Jugador',
-        empty: 'Bandeja vacía. ¡Buen momento para capturar ideas!',
-        recording: 'Grabando Voz...',
-      },
-      portfolio: {
-        title: 'Mi Cartera de Talento',
-        create: 'Nueva Lista',
-        namePlaceholder: 'Nombre (ej: Objetivos Sub-19)',
-        createBtn: 'Crear Carpeta',
-        players: 'Jugadores',
-        empty: 'No has creado ninguna lista todavía.'
-      },
-      agenda: {
-        title: 'Mi Agenda de Partidos',
-        subtitle: 'Asistente de Campo',
-        addMatch: 'Añadir Partido',
-        time: 'Hora',
-        startAnalysis: 'Iniciar Análisis En Vivo',
-        empty: 'No hay partidos programados para esta semana.'
-      },
-      topTargets: 'TOP OBJETIVOS',
+        pending: 'Pendientes de Evaluar',
+        evaluated: 'Jugadores Evaluados',
+        reports: 'Jugadores con Informe',
+        syncing: 'Sincronizando Nodos...',
+      }
     },
     database: {
       title: 'Base de Datos Global',
@@ -514,7 +448,7 @@ export const translations = {
         importances: ['Low', 'Medium', 'High', 'Decisive'],
         weathers: ['Sol', 'Nublado', 'Lluvia', 'Frío', 'Viento'],
         behaviors: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
-        languages: ['Positive', 'Competitive', 'Focused', 'Frustrated', 'Emotional', 'Reactive', 'Calm/Mature', 'Indifferent']
+        languages: ['Positivo', 'Competitivo', 'Enfocado', 'Frustrado', 'Emocional', 'Reactivo', 'Calmado/Maduro', 'Indiferente']
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
