@@ -170,7 +170,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETICIÓN',
+        competition: 'COMPETITION',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -273,6 +273,9 @@ export const translations = {
         action: 'ACTION',
         result: 'RESULT',
         notes: 'OBSERVATION / NOTES',
+        exported: 'PDF Generated',
+        incomplete: 'Incomplete',
+        resultLabel: 'Result',
       },
       pim: {
         title: 'PLAYER IMPACT METRIC (PIM)',
@@ -284,6 +287,19 @@ export const translations = {
         placeholder: 'Generate an objective summary based on the report findings...',
         generate: 'GENERATE AI SUMMARY',
         generating: 'Analyzing Report...',
+      },
+      tacticalRoles: {
+        'po': 'GK - Goalkeeper',
+        'dc-def': 'CB - Center Back',
+        'ld': 'RB - Right Back',
+        'li': 'LB - Left Back',
+        'mcd': 'CDM - Def. Midfielder',
+        'mc': 'CM - Central Midfielder',
+        'mco': 'CAM - Att. Midfielder',
+        'ed': 'RW - Right Winger',
+        'ei': 'LW - Left Winger',
+        'sd': 'SS - Second Striker',
+        'dc-fwd': 'ST - Striker',
       }
     },
     profile: {
@@ -428,7 +444,7 @@ export const translations = {
       territory: 'Territorio de Prospecto Élite',
       upside: 'Potencial de Mercado',
       projected: 'Valor Proyectado (2 años)',
-      compatibility: 'Compatibilidad',
+      compatibility: 'Compatibility',
       squadProfile: 'Encaja en el perfil del equipo'
     },
     report: {
@@ -494,7 +510,7 @@ export const translations = {
         styles: ['Posesión', 'Contragolpe', 'Presión alta', 'Directo', 'Defensivo'],
         tempos: ['Bajo', 'Medio', 'Alto'],
         dominances: ['Dominante', 'Equilibrado', 'En desventaja'],
-        scores: ['Ganando', 'Empatando', 'Perdiendo'],
+        scores: ['Winning', 'Drawing', 'Losing'],
         importances: ['Baja', 'Media', 'Alta', 'Decisiva'],
         weathers: ['Sol', 'Nublado', 'Lluvia', 'Frío', 'Viento'],
         behaviors: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
@@ -566,6 +582,9 @@ export const translations = {
         action: 'ACCIÓN',
         result: 'RESULTADO',
         notes: 'OBSERVACIÓN / NOTAS',
+        exported: 'PDF Generado',
+        incomplete: 'Incompleto',
+        resultLabel: 'Resultado',
       },
       pim: {
         title: 'MÉTRICA DE IMPACTO DEL JUGADOR (PIM)',
@@ -577,6 +596,19 @@ export const translations = {
         placeholder: 'Generar un resumen objetivo basado en los hallazgos del informe...',
         generate: 'GENERAR RESUMEN AI',
         generating: 'Analizando Informe...',
+      },
+      tacticalRoles: {
+        'po': 'PO – Portero',
+        'dc-def': 'DC – Defensa Central',
+        'ld': 'LD – Lateral Derecho',
+        'li': 'LI – Lateral Izquierdo',
+        'mcd': 'MCD – Mediocentro Defensivo',
+        'mc': 'MC – Mediocentro',
+        'mco': 'MCO – Mediapunta',
+        'ed': 'ED – Extremo Derecho',
+        'ei': 'EI – Extremo Izquierdo',
+        'sd': 'SD – Segunda Punta',
+        'dc-fwd': 'DC – Delantero Centro',
       }
     },
     profile: {

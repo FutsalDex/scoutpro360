@@ -42,9 +42,10 @@ service cloud.firestore {
 
     // 3. Reglas para listas de jugadores (playerLists)
     match /playerLists/{listId} {
-      // Permitir leer si el usuario es dueño de la lista o es admin
       allow read: if request.auth != null && (
-        isAdmin() || resource.data.scoutId == request.auth.uid
+        isAdmin() || 
+        request.query.scoutId == request.auth.uid ||
+        resource.data.scoutId == request.auth.uid
       );
       allow write: if canWrite();
     }
@@ -52,7 +53,9 @@ service cloud.firestore {
     // 4. Reglas para partidos programados (scheduledMatches)
     match /scheduledMatches/{matchId} {
       allow read: if request.auth != null && (
-        isAdmin() || resource.data.scoutId == request.auth.uid
+        isAdmin() || 
+        request.query.scoutId == request.auth.uid ||
+        resource.data.scoutId == request.auth.uid
       );
       allow write: if canWrite();
     }
@@ -60,7 +63,9 @@ service cloud.firestore {
     // 5. Reglas para notas rápidas (quickNotes)
     match /quickNotes/{noteId} {
       allow read: if request.auth != null && (
-        isAdmin() || resource.data.scoutId == request.auth.uid
+        isAdmin() || 
+        request.query.scoutId == request.auth.uid ||
+        resource.data.scoutId == request.auth.uid
       );
       allow write: if canWrite();
     }

@@ -199,7 +199,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setWeight(player.weight || "");
           setDominantFoot(player.dominantFoot || "");
           setSecondaryPositions(player.secondaryPositions || "");
-          setActiveRole(TACTICAL_ROLES.find(r => r.name === player.tacticalRole) || { ...TACTICAL_ROLES[0], kpis: localizedKPIs });
+          setActiveRole(TACTICAL_ROLES.find(r => r.id === player.tacticalRole) || { ...TACTICAL_ROLES[0], kpis: localizedKPIs });
         }
         if (report) {
           setReportId(report.id || null);
@@ -244,7 +244,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
     const personalFields = [
       playerName, dorsal, clubName, rivalName, competition, 
-      matchDate, nationality, birthDate, marketValue, activeRole.name,
+      matchDate, nationality, birthDate, marketValue, activeRole.id,
       notes['match_style'], notes['match_system']
     ];
     totalFields += personalFields.length;
@@ -272,10 +272,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         return result;
       };
       
+      const roleName = t.report.tacticalRoles[activeRole.id as keyof typeof t.report.tacticalRoles] || activeRole.name;
+
       const result = await calculatePlayerImpactMetric({
         playerId: editingPlayerId || "temp-player",
         currentEvaluation: {
-          tacticalRole: activeRole.name,
+          tacticalRole: roleName,
           metrics: {
             technical: getSectionMetrics(activeRole.kpis.technical),
             tactical: getSectionMetrics(activeRole.kpis.tactical),
@@ -302,6 +304,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     if (!playerName) return toast({ variant: "destructive", title: "Error", description: "Name required" });
     setIsGeneratingSummary(true);
     try {
+      const roleName = t.report.tacticalRoles[activeRole.id as keyof typeof t.report.tacticalRoles] || activeRole.name;
       const allScoutNotes = Object.entries(notes)
         .filter(([key]) => !['summary', 'pim_explanation'].includes(key))
         .map(([key, val]) => `${key}: ${val}`)
@@ -309,7 +312,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         
       const result = await generateExecutiveSummary({
         playerName,
-        tacticalRole: activeRole.name,
+        tacticalRole: roleName,
         scoutNotes: allScoutNotes || "No notes.",
         language: language as 'en' | 'es',
         metrics: { general: ratings }
@@ -337,7 +340,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
     setIsExporting(true);
     try {
-      const doc = new jsPDF();
+      const doc = new jsPDF('p', 'mm', 'a4');
       const primaryColor = [27, 38, 59];
       const accentColor = [224, 176, 80];
       
@@ -356,14 +359,16 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.setFontSize(18);
       doc.text(playerName.toUpperCase(), 15, 60);
       
+      const roleName = t.report.tacticalRoles[activeRole.id as keyof typeof t.report.tacticalRoles] || activeRole.name;
+
       (doc as any).autoTable({
         startY: 65,
         head: [[t.report.pdfAttribute, t.report.pdfInformation, t.report.pdfAttribute, t.report.pdfInformation]],
         body: [
-          [t.report.playerInfo.dorsal, dorsal || 'N/A', t.report.playerInfo.club, clubName || 'N/A'],
-          [t.report.playerInfo.nationality, nationality || 'N/A', t.report.playerInfo.birthDate, birthDate || 'N/A'],
-          [t.report.playerInfo.primaryPos, activeRole.name, t.report.playerInfo.marketValue, marketValue || 'N/A'],
-          [t.report.playerInfo.rival, rivalName || 'N/A', t.report.playerInfo.competition, competition || 'N/A'],
+          [t.report.playerInfo.dorsal, dorsal || '-', t.report.playerInfo.club, clubName || '-'],
+          [t.report.playerInfo.nationality, nationality || '-', t.report.playerInfo.birthDate, birthDate || '-'],
+          [t.report.playerInfo.primaryPos, roleName, t.report.playerInfo.marketValue, marketValue || '-'],
+          [t.report.playerInfo.rival, rivalName || '-', t.report.playerInfo.competition, competition || '-'],
         ],
         theme: 'grid',
         headStyles: { fillColor: primaryColor, textColor: [255, 255, 255] }
@@ -375,12 +380,13 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       (doc as any).autoTable({
         startY: contextY + 5,
         body: [
-          [t.report.matchContext.gameStyle, notes['match_style'] || 'N/A'],
-          [t.report.matchContext.system, notes['match_system'] || 'N/A'],
+          [t.report.matchContext.gameStyle, notes['match_style'] || '-'],
+          [t.report.matchContext.system, notes['match_system'] || '-'],
         ],
         theme: 'plain'
       });
 
+      // Pizarra Táctica Profesional (Horizontal)
       const pitchY = (doc as any).lastAutoTable.finalY + 15;
       if (pitchY > 180) { doc.addPage(); }
       const currentPitchY = pitchY > 180 ? 20 : pitchY;
@@ -393,17 +399,22 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const pitchX = 45;
       const pitchTop = currentPitchY + 5;
       
-      doc.setDrawColor(50, 50, 50);
-      doc.rect(pitchX, pitchTop, pitchW, pitchH); 
-      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); 
-      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10);
+      doc.setDrawColor(150, 150, 150);
+      doc.rect(pitchX, pitchTop, pitchW, pitchH); // Campo
+      doc.line(pitchX + pitchW/2, pitchTop, pitchX + pitchW/2, pitchTop + pitchH); // Medio
+      doc.circle(pitchX + pitchW/2, pitchTop + pitchH/2, 10); // Centro
       
+      // Áreas (Izquierda)
       doc.rect(pitchX, pitchTop + pitchH/2 - 20, 16.5, 40); 
       doc.rect(pitchX, pitchTop + pitchH/2 - 9, 5.5, 18);  
       
+      // Áreas (Derecha)
       doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
       doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
 
+      // Mapeo de coordenadas (Rotación de vertical a horizontal)
+      // App: Y(0-600) -> PDF: X(45-165)
+      // App: X(0-400) -> PDF: Y(Top-Bottom)
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
         y: pitchTop + ((400 - p.x) / 400) * pitchH
@@ -432,7 +443,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         const rows = [...kpiSec.observation, ...kpiSec.impact].map(kpi => [kpi, ratings[kpi] || '-', notes[kpi] || '']);
         (doc as any).autoTable({
           startY: currentY + 5,
-          head: [[t.report.pdfAttribute, t.report.actions.result, t.report.actions.notes]],
+          head: [[t.report.pdfAttribute, t.report.actions.resultLabel, t.report.actions.notes]],
           body: rows,
           theme: 'striped',
           headStyles: { fillColor: primaryColor }
@@ -451,7 +462,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const actionRows = scoutingActions.map(a => [a.minute, a.action, a.result, a.notes]);
       (doc as any).autoTable({
         startY: nextY + 5,
-        head: [[t.report.actions.min, t.report.actions.action, t.report.actions.result, t.report.actions.notes]],
+        head: [[t.report.actions.min, t.report.actions.action, t.report.actions.resultLabel, t.report.actions.notes]],
         body: actionRows,
         theme: 'grid',
         headStyles: { fillColor: primaryColor }
@@ -507,7 +518,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         nationality: nationality || "Unknown",
         marketValue: marketValue || "€0",
         currentPIM: ratings['pim'] || 0,
-        tacticalRole: activeRole.name,
+        tacticalRole: activeRole.id,
         grade: ratings['pim'] && ratings['pim'] > 85 ? 'A' : (ratings['pim'] && ratings['pim'] > 70 ? 'B' : 'C'),
         birthDate, height, weight, dominantFoot, secondaryPositions
       }, editingPlayerId || undefined);
@@ -625,7 +636,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   <Select value={activeRole.id} onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || { ...TACTICAL_ROLES[0], kpis: localizedKPIs })}>
                     <SelectTrigger className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent className="bg-[#1b263b] border-border/30">
-                      {TACTICAL_ROLES.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                      {TACTICAL_ROLES.map(r => <SelectItem key={r.id} value={r.id}>{t.report.tacticalRoles[r.id as keyof typeof t.report.tacticalRoles] || r.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -738,8 +749,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   </div>
                   <div className="grid grid-cols-1 gap-2 w-full">
                     <Input placeholder="Acción" value={action.action} onChange={(e) => handleUpdateAction(idx, 'action', e.target.value)} className="h-9 bg-background/50 rounded-xl border-none font-bold text-[11px]" />
-                    <Input placeholder="Resultado" value={action.result} onChange={(e) => handleUpdateAction(idx, 'result', e.target.value)} className="h-9 bg-background/50 rounded-xl border-none font-bold text-[11px]" />
-                    <Input placeholder="Notas" value={action.notes} onChange={(e) => handleUpdateAction(idx, 'notes', e.target.value)} className="h-9 bg-background/50 rounded-xl border-none font-bold italic text-[11px]" />
+                    <Input placeholder={t.report.actions.resultLabel} value={action.result} onChange={(e) => handleUpdateAction(idx, 'result', e.target.value)} className="h-9 bg-background/50 rounded-xl border-none font-bold text-[11px]" />
+                    <Input placeholder={t.report.actions.notes} value={action.notes} onChange={(e) => handleUpdateAction(idx, 'notes', e.target.value)} className="h-9 bg-background/50 rounded-xl border-none font-bold italic text-[11px]" />
                   </div>
                 </div>
               ))}

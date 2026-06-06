@@ -14,7 +14,6 @@ import {
   Plus, 
   Calendar, 
   Mic, 
-  MoreHorizontal, 
   FolderHeart, 
   Play, 
   StickyNote, 
@@ -30,14 +29,12 @@ import {
   subscribeToScheduledMatches, 
   subscribeToQuickNotes,
   createPlayerList,
-  createScheduledMatch,
   createQuickNote,
   deleteQuickNote
 } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface ScoutDashboardProps {
   onEditPlayer: (id: string) => void;
@@ -52,13 +49,16 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   
-  // States for new items
   const [newListName, setNewListName] = useState("");
   const [newNoteText, setNewNoteText] = useState("");
   
-  const scoutId = auth.currentUser?.uid || "guest";
+  const currentUser = auth.currentUser;
+  const scoutId = currentUser?.uid;
 
   useEffect(() => {
+    // Solo suscribirse si hay un usuario autenticado real (evita errores de permisos con "guest")
+    if (!scoutId) return;
+
     const unsubPlayers = subscribeToPlayers(setPlayers);
     const unsubLists = subscribeToPlayerLists(scoutId, setPlayerLists);
     const unsubMatches = subscribeToScheduledMatches(scoutId, setMatches);
@@ -81,18 +81,19 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
   const recruitedCount = players.filter(p => p.grade === 'A' || p.currentPIM > 85).length;
 
   const handleAddList = async () => {
-    if (!newListName) return;
+    if (!newListName || !scoutId) return;
     await createPlayerList(newListName, scoutId);
     setNewListName("");
   };
 
   const handleAddNote = async () => {
-    if (!newNoteText) return;
+    if (!newNoteText || !scoutId) return;
     await createQuickNote(newNoteText, scoutId);
     setNewNoteText("");
   };
 
   const simulateVoiceNote = async () => {
+    if (!scoutId) return;
     setIsRecording(true);
     setTimeout(async () => {
       await createQuickNote("Observación de voz: El central zurdo del equipo local tiene muy buena salida de balón, seguir en el próximo partido.", scoutId, 'voice');
@@ -298,7 +299,7 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
                       <p className="font-black text-sm sm:text-lg text-foreground truncate uppercase tracking-tight">{player.name}</p>
                       <div className="flex items-center gap-2 truncate">
                         <Badge variant="outline" className="text-[7px] sm:text-[9px] h-4 sm:h-5 py-0 font-black bg-primary/10 text-primary border-primary/30 uppercase tracking-tighter">
-                          {player.tacticalRole}
+                          {t.report.tacticalRoles[player.tacticalRole as keyof typeof t.report.tacticalRoles] || player.tacticalRole}
                         </Badge>
                         <span className="text-[9px] sm:text-xs text-muted-foreground font-medium truncate">{player.club}</span>
                       </div>
@@ -329,7 +330,7 @@ export function ScoutDashboard({ onEditPlayer }: ScoutDashboardProps) {
         )}
         <Button 
           onClick={simulateVoiceNote} 
-          disabled={isRecording}
+          disabled={isRecording || !scoutId}
           className={cn(
             "h-16 w-16 rounded-full shadow-[0_10px_30px_rgba(224,176,80,0.5)] flex items-center justify-center transition-all hover:scale-110 active:scale-95",
             isRecording ? "bg-red-500 animate-pulse" : "bg-primary"

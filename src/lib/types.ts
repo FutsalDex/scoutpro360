@@ -138,16 +138,17 @@ export const getLocalizedKPIs = (t: any) => ({
   }
 });
 
+// Los roles tácticos ahora se definen por ID para permitir la traducción dinámica en la interfaz y el PDF
 export const TACTICAL_ROLES: TacticalRoleConfig[] = [
-  { id: 'po', name: 'PO – Portero', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'dc-def', name: 'DC – Defensa Central', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'ld', name: 'LD – Lateral Derecho', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'li', name: 'LI – Lateral Izquierdo', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'mcd', name: 'MCD – Mediocentro Defensivo', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'mc', name: 'MC – Mediocentro', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'mco', name: 'MCO – Mediapunta', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'ed', name: 'ED – Extremo Derecho', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'ei', name: 'EI – Extremo Izquierdo', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'sd', name: 'SD – Segunda Punta', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
-  { id: 'dc-fwd', name: 'DC – Delantero Centro', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'po', name: 'PO', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'dc-def', name: 'DC', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'ld', name: 'LD', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'li', name: 'LI', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'mcd', name: 'MCD', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'mc', name: 'MC', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'mco', name: 'MCO', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'ed', name: 'ED', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'ei', name: 'EI', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'sd', name: 'SD', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
+  { id: 'dc-fwd', name: 'DC-FWD', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
 ];

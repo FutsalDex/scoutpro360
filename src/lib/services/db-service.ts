@@ -107,8 +107,9 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
  * Carteras de Talento (Listas)
  */
 export function subscribeToPlayerLists(scoutId: string, callback: (lists: PlayerList[]) => void) {
+  if (!scoutId) return () => {};
   const colRef = collection(db, "playerLists");
-  // Siempre filtramos por scoutId para cumplir con las reglas de seguridad
+  // CRÍTICO: Filtrar siempre por scoutId para cumplir con las reglas de seguridad
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q, 
@@ -132,8 +133,9 @@ export async function createPlayerList(name: string, scoutId: string) {
  * Agenda de Partidos
  */
 export function subscribeToScheduledMatches(scoutId: string, callback: (matches: ScheduledMatch[]) => void) {
+  if (!scoutId) return () => {};
   const colRef = collection(db, "scheduledMatches");
-  // Siempre filtramos por scoutId para cumplir con las reglas de seguridad
+  // CRÍTICO: Filtrar siempre por scoutId para cumplir con las reglas de seguridad
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("dateTime", "asc"));
   return onSnapshot(
     q, 
@@ -157,8 +159,9 @@ export async function createScheduledMatch(match: Omit<ScheduledMatch, 'id'>) {
  * Notas Rápidas
  */
 export function subscribeToQuickNotes(scoutId: string, callback: (notes: QuickNote[]) => void) {
+  if (!scoutId) return () => {};
   const colRef = collection(db, "quickNotes");
-  // Siempre filtramos por scoutId para cumplir con las reglas de seguridad
+  // CRÍTICO: Filtrar siempre por scoutId para cumplir con las reglas de seguridad
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q, 
