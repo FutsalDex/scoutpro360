@@ -61,7 +61,7 @@ export function subscribeToPlayers(callback: (players: Player[]) => void) {
   const colRef = collection(db, "players");
   const q = query(colRef, orderBy("createdAt", "desc"));
   return onSnapshot(
-    q, 
+    q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
@@ -104,10 +104,11 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
 }
 
 export function subscribeToReports(scoutId: string, callback: (reports: ScoutingReport[]) => void) {
+  if (!scoutId) return () => {};   // ← guard añadido
   const colRef = collection(db, "reports");
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
-    q, 
+    q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScoutingReport[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
@@ -121,7 +122,7 @@ export function subscribeToPlayerLists(scoutId: string, callback: (lists: Player
   const colRef = collection(db, "playerLists");
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
-    q, 
+    q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as PlayerList[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
@@ -146,7 +147,7 @@ export function subscribeToScheduledMatches(scoutId: string, callback: (matches:
   const colRef = collection(db, "scheduledMatches");
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("dateTime", "asc"));
   return onSnapshot(
-    q, 
+    q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScheduledMatch[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
@@ -171,7 +172,7 @@ export function subscribeToQuickNotes(scoutId: string, callback: (notes: QuickNo
   const colRef = collection(db, "quickNotes");
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
-    q, 
+    q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as QuickNote[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );

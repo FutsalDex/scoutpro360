@@ -199,7 +199,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setWeight(player.weight || "");
           setDominantFoot(player.dominantFoot || "");
           setSecondaryPositions(player.secondaryPositions || "");
-          setActiveRole(TACTICAL_ROLES.find(r => r.id === player.tacticalRole) || { ...TACTICAL_ROLES[0], kpis: localizedKPIs });
+          const role = TACTICAL_ROLES.find(r => r.id === player.tacticalRole);
+          if (role) setActiveRole({ ...role, kpis: localizedKPIs });
         }
         if (report) {
           setReportId(report.id || null);
@@ -257,7 +258,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       filledFields += kpis.filter(k => ratings[k] && ratings[k] > 0).length;
     });
 
-    return (filledFields / totalFields) * 100;
+    return (filledFields / Math.max(1, totalFields)) * 100;
   };
 
   const handleCalculatePIM = async (e: React.MouseEvent) => {
@@ -386,8 +387,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       });
 
       const pitchY = (doc as any).lastAutoTable.finalY + 15;
-      if (pitchY > 180) { doc.addPage(); }
-      const currentPitchY = pitchY > 180 ? 20 : pitchY;
+      const currentPitchY = pitchY > 180 ? (doc.addPage(), 20) : pitchY;
       
       doc.setFontSize(14);
       doc.text(t.report.pdfTacticalPosition, 15, currentPitchY);
@@ -428,13 +428,13 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       let nextY = pitchTop + pitchH + 15;
 
       const renderSectionTable = (title: string, kpiSec: KPISection, currentY: number) => {
-        if (currentY > 260) { doc.addPage(); currentY = 20; }
+        const finalY = currentY > 260 ? (doc.addPage(), 20) : currentY;
         doc.setFontSize(14);
         doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.text(title, 15, currentY);
+        doc.text(title, 15, finalY);
         const rows = [...kpiSec.observation, ...kpiSec.impact].map(kpi => [kpi, ratings[kpi] || '-', notes[kpi] || '']);
         (doc as any).autoTable({
-          startY: currentY + 5,
+          startY: finalY + 5,
           head: [[t.report.pdfAttribute, t.report.actions.resultLabel, t.report.actions.notes]],
           body: rows,
           theme: 'striped',
@@ -509,7 +509,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         marketValue: marketValue || "€0",
         currentPIM: ratings['pim'] || 0,
         tacticalRole: activeRole.id,
-        grade: ratings['pim'] && ratings['pim'] > 85 ? 'A' : (ratings['pim'] && ratings['pim'] > 70 ? 'B' : 'C'),
+        grade: (ratings['pim'] || 0) > 85 ? 'A' : ((ratings['pim'] || 0) > 70 ? 'B' : 'C'),
         birthDate, height, weight, dominantFoot, secondaryPositions
       }, editingPlayerId || undefined);
       
@@ -623,7 +623,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
-                  <Select value={activeRole.id} onValueChange={(v) => setActiveRole(TACTICAL_ROLES.find(r => r.id === v) || { ...TACTICAL_ROLES[0], kpis: localizedKPIs })}>
+                  <Select value={activeRole.id} onValueChange={(v) => {
+                    const role = TACTICAL_ROLES.find(r => r.id === v);
+                    if (role) setActiveRole({ ...role, kpis: localizedKPIs });
+                  }}>
                     <SelectTrigger className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent className="bg-[#1b263b] border-border/30">
                       {TACTICAL_ROLES.map(r => <SelectItem key={r.id} value={r.id}>{t.report.tacticalRoles[r.id as keyof typeof t.report.tacticalRoles] || r.name}</SelectItem>)}
