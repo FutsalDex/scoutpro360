@@ -109,7 +109,7 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
 export function subscribeToPlayerLists(scoutId: string, callback: (lists: PlayerList[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "playerLists");
-  // CRÍTICO: El filtro where("scoutId", "==", scoutId) debe coincidir con la regla request.query.scoutId
+  // FILTRO OBLIGATORIO PARA CUMPLIR CON REGLAS DE SEGURIDAD
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q, 
@@ -135,7 +135,7 @@ export async function createPlayerList(name: string, scoutId: string) {
 export function subscribeToScheduledMatches(scoutId: string, callback: (matches: ScheduledMatch[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "scheduledMatches");
-  // CRÍTICO: El filtro where("scoutId", "==", scoutId) debe coincidir con la regla request.query.scoutId
+  // FILTRO OBLIGATORIO PARA CUMPLIR CON REGLAS DE SEGURIDAD
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("dateTime", "asc"));
   return onSnapshot(
     q, 
@@ -161,7 +161,7 @@ export async function createScheduledMatch(match: Omit<ScheduledMatch, 'id'>) {
 export function subscribeToQuickNotes(scoutId: string, callback: (notes: QuickNote[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "quickNotes");
-  // CRÍTICO: El filtro where("scoutId", "==", scoutId) debe coincidir con la regla request.query.scoutId
+  // FILTRO OBLIGATORIO PARA CUMPLIR CON REGLAS DE SEGURIDAD
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q, 

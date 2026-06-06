@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -50,23 +50,27 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   const [notes, setNotes] = useState<QuickNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
-  const [scoutId, setScoutId] = useState<string | null>(userProfile?.uid || null);
+  
+  // Estados para manejo robusto de Auth
+  const [scoutId, setScoutId] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   
   const [newListName, setNewListName] = useState("");
   const [newNoteText, setNewNoteText] = useState("");
 
-  // Paso 1: Escuchar Auth de forma reactiva para asegurar que el ID esté disponible
+  // Paso 1: Escuchar Auth de forma reactiva
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (user) => {
       setScoutId(user?.uid ?? null);
+      setAuthReady(true);
       if (!user) setLoading(false);
     });
     return () => unsubAuth();
   }, []);
 
-  // Paso 2: Suscribirse a Firestore solo cuando scoutId sea reactivo y válido
+  // Paso 2: Suscribirse a Firestore solo cuando Auth esté listo y tengamos scoutId
   useEffect(() => {
-    if (!scoutId) return;
+    if (!authReady || !scoutId) return;
 
     const unsubPlayers = subscribeToPlayers(setPlayers);
     const unsubLists = subscribeToPlayerLists(scoutId, setPlayerLists);
@@ -82,7 +86,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
       unsubMatches();
       unsubNotes();
     };
-  }, [scoutId]);
+  }, [authReady, scoutId]);
 
   const avgPim = players.length > 0 
     ? (players.reduce((acc, p) => acc + p.currentPIM, 0) / players.length).toFixed(1) 

@@ -216,7 +216,7 @@ export const translations = {
         physical_impact: 'MATCH IMPACT',
         mental_obs: 'MENTAL OBSERVATION',
         mental_impact: 'MATCH IMPACT',
-        actions_title: 'KEY MATCH ACTIONS REGISTRY',
+        actions_title: 'REGISTRO DE ACCIONES CLAVE',
       },
       kpis: {
         technical: {
@@ -510,11 +510,11 @@ export const translations = {
         styles: ['Posesión', 'Contragolpe', 'Presión alta', 'Directo', 'Defensivo'],
         tempos: ['Bajo', 'Medio', 'Alto'],
         dominances: ['Dominante', 'Equilibrado', 'En desventaja'],
-        scores: ['Ganando', 'Empatando', 'Perdiendo'],
-        importances: ['Baja', 'Media', 'Alta', 'Decisiva'],
+        scores: ['Winning', 'Drawing', 'Losing'],
+        importances: ['Low', 'Medium', 'High', 'Decisive'],
         weathers: ['Sol', 'Nublado', 'Lluvia', 'Frío', 'Viento'],
         behaviors: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
-        languages: ['Positivo', 'Competitivo', 'Concentrado', 'Frustrado', 'Emotivo', 'Reactivo', 'Tranquilo/Maduro', 'Indiferente']
+        languages: ['Positive', 'Competitive', 'Focused', 'Frustrated', 'Emotional', 'Reactive', 'Calm/Mature', 'Indifferent']
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
@@ -564,10 +564,10 @@ export const translations = {
             follow: 'Seguimiento',
             monitor: 'Monitor prioritario',
             reevaluate: 'Reevaluar',
-            elite: '5 - ÉLITE',
-            high: '4 - ALTO',
-            good: '3 - BUENO',
-            limited: '2 - LIMITADO',
+            elite: '5 - ELITE',
+            high: '4 - HIGH',
+            good: '3 - GOOD',
+            limited: '2 - LIMITED',
           }
         }
       },

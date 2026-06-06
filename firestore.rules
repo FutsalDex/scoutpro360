@@ -34,7 +34,7 @@ service cloud.firestore {
       allow write: if canWrite();
     }
 
-    // Reglas robustas que permiten el filtro where("scoutId", "==", uid) desde el cliente
+    // Reglas que permiten el filtrado por scoutId en la consulta
     match /playerLists/{listId} {
       allow read: if request.auth != null && (
         isAdmin() || 
