@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { User, ShieldCheck, ClipboardCheck, Loader2 } from "lucide-react";
 import { UserProfile, Player, ScoutingReport } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
@@ -26,6 +26,7 @@ export function ScoutDashboard({ userProfile }: ScoutDashboardProps) {
     const unsubAuth = onAuthStateChanged(auth, (user) => {
       setScoutId(user?.uid ?? null);
       setAuthReady(true);
+      if (!user) setLoading(false);
     });
     return () => unsubAuth();
   }, []);
@@ -73,30 +74,27 @@ export function ScoutDashboard({ userProfile }: ScoutDashboardProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Tarjeta 1: Pendientes */}
         <DashboardStatCard 
           title={t.dashboard.stats.pending}
           value={pendingPlayersCount.toString()}
           icon={<User className="text-primary" />}
-          description="Awaiting evaluation"
+          description="Esperando evaluación"
           color="border-primary/20"
         />
 
-        {/* Tarjeta 2: Evaluados */}
         <DashboardStatCard 
           title={t.dashboard.stats.evaluated}
           value={evaluatedPlayersCount.toString()}
           icon={<ShieldCheck className="text-accent" />}
-          description="PIM score assigned"
+          description="Puntuación PIM asignada"
           color="border-accent/20"
         />
 
-        {/* Tarjeta 3: Con Informe */}
         <DashboardStatCard 
           title={t.dashboard.stats.reports}
           value={reportsCount.toString()}
           icon={<ClipboardCheck className="text-primary" />}
-          description="360 reports completed"
+          description="Informes 360 completados"
           color="border-primary/20"
         />
       </div>

@@ -514,7 +514,7 @@ export const translations = {
         addEvent: '+ Añadir acción',
         min: 'MIN.',
         action: 'ACCIÓN',
-        result: 'RESULTADO',
+        result: 'Resultado',
         notes: 'OBSERVACIÓN / NOTAS',
         exported: 'PDF Generado',
         incomplete: 'Incompleto',
