@@ -121,24 +121,23 @@ export interface TacticalRoleConfig {
 
 export const getLocalizedKPIs = (t: any) => ({
   technical: {
-    observation: t.report.kpis.technical.obs,
-    impact: t.report.kpis.technical.imp
+    observation: t.report.kpis.technical.obs || [],
+    impact: t.report.kpis.technical.imp || []
   },
   tactical: {
-    observation: t.report.kpis.tactical.obs,
-    impact: t.report.kpis.tactical.imp
+    observation: t.report.kpis.tactical.obs || [],
+    impact: t.report.kpis.tactical.imp || []
   },
   physical: {
-    observation: t.report.kpis.physical.obs,
-    impact: t.report.kpis.physical.imp
+    observation: t.report.kpis.physical.obs || [],
+    impact: t.report.kpis.physical.imp || []
   },
   mental: {
-    observation: t.report.kpis.mental.obs,
-    impact: t.report.kpis.mental.imp
+    observation: t.report.kpis.mental.obs || [],
+    impact: t.report.kpis.mental.imp || []
   }
 });
 
-// Los roles tácticos ahora se definen por ID para permitir la traducción dinámica en la interfaz y el PDF
 export const TACTICAL_ROLES: TacticalRoleConfig[] = [
   { id: 'po', name: 'PO', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },
   { id: 'dc-def', name: 'DC', kpis: { technical: { observation: [], impact: [] }, tactical: { observation: [], impact: [] }, physical: { observation: [], impact: [] }, mental: { observation: [], impact: [] } } },

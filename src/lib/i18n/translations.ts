@@ -216,7 +216,7 @@ export const translations = {
         physical_impact: 'MATCH IMPACT',
         mental_obs: 'MENTAL OBSERVATION',
         mental_impact: 'MATCH IMPACT',
-        actions_title: 'REGISTRO DE ACCIONES CLAVE',
+        actions_title: 'KEY ACTIONS REGISTRY',
       },
       kpis: {
         technical: {

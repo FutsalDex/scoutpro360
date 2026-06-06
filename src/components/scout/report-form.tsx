@@ -407,7 +407,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.rect(pitchX + pitchW - 16.5, pitchTop + pitchH/2 - 20, 16.5, 40);
       doc.rect(pitchX + pitchW - 5.5, pitchTop + pitchH/2 - 9, 5.5, 18);
 
-      // CORRECCIÓN DE MAPEO: Arriba-Izquierda en APP = Izquierda-Abajo en PDF
       const mapPoint = (p: Point) => ({
         x: pitchX + (p.y / 600) * pitchW,
         y: pitchTop + ((400 - p.x) / 400) * pitchH
