@@ -45,12 +45,30 @@ export const translations = {
         realData: 'Firestore Data',
         realAvg: 'Real Average'
       },
-      recentActivity: 'RECENT ACTIVITY',
-      activitySubtitle: 'Latest team updates and reports',
-      activityItems: {
-        synced: 'Synced with',
-        finalized: 'Finalized evaluation for',
-        justNow: 'Just now',
+      quickNotes: {
+        title: 'Quick Inbox',
+        add: 'Add Note',
+        placeholder: 'What are you thinking?',
+        save: 'Save Idea',
+        assign: 'Assign to Player',
+        empty: 'Inbox clear. Great time to capture thoughts!',
+        recording: 'Recording Voice...',
+      },
+      portfolio: {
+        title: 'Talent Portfolio',
+        create: 'New List',
+        namePlaceholder: 'List name (e.g. U-19 targets)',
+        createBtn: 'Create Folder',
+        players: 'Players',
+        empty: 'No lists created yet.'
+      },
+      agenda: {
+        title: 'Match Agenda',
+        subtitle: 'Field Assistant',
+        addMatch: 'Schedule Match',
+        time: 'Time',
+        startAnalysis: 'Start Live Analysis',
+        empty: 'No matches scheduled for this week.'
       },
       topTargets: 'TOP TARGETS',
     },
@@ -152,7 +170,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETITION',
+        competition: 'COMPETICIÓN',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -302,12 +320,30 @@ export const translations = {
         realData: 'Datos de Firestore',
         realAvg: 'Promedio Real'
       },
-      recentActivity: 'ACTIVIDAD RECIENTE',
-      activitySubtitle: 'Últimas actualizaciones del equipo e informes',
-      activityItems: {
-        synced: 'Sincronizado con',
-        finalized: 'Finalizó evaluación para',
-        justNow: 'Justo ahora',
+      quickNotes: {
+        title: 'Bandeja de Entrada',
+        add: 'Nueva Nota',
+        placeholder: '¿Qué tienes en mente?',
+        save: 'Guardar Idea',
+        assign: 'Vincular a Jugador',
+        empty: 'Bandeja vacía. ¡Buen momento para capturar ideas!',
+        recording: 'Grabando Voz...',
+      },
+      portfolio: {
+        title: 'Mi Cartera de Talento',
+        create: 'Nueva Lista',
+        namePlaceholder: 'Nombre (ej: Objetivos Sub-19)',
+        createBtn: 'Crear Carpeta',
+        players: 'Jugadores',
+        empty: 'No has creado ninguna lista todavía.'
+      },
+      agenda: {
+        title: 'Mi Agenda de Partidos',
+        subtitle: 'Asistente de Campo',
+        addMatch: 'Añadir Partido',
+        time: 'Hora',
+        startAnalysis: 'Iniciar Análisis En Vivo',
+        empty: 'No hay partidos programados para esta semana.'
       },
       topTargets: 'TOP OBJETIVOS',
     },

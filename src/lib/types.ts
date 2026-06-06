@@ -52,6 +52,33 @@ export interface Player {
   updatedAt?: any;
 }
 
+export interface PlayerList {
+  id: string;
+  name: string;
+  playerIds: string[];
+  scoutId: string;
+  createdAt: any;
+}
+
+export interface ScheduledMatch {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  category: string;
+  dateTime: any;
+  scoutId: string;
+  status: 'scheduled' | 'in-progress' | 'completed';
+}
+
+export interface QuickNote {
+  id: string;
+  content: string;
+  scoutId: string;
+  assignedPlayerId?: string;
+  createdAt: any;
+  type: 'text' | 'voice';
+}
+
 export interface KPISection {
   observation: string[];
   impact: string[];
