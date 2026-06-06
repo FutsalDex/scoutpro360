@@ -30,7 +30,11 @@ service cloud.firestore {
     }
     
     match /reports/{reportId} {
-      allow read: if canRead();
+      allow read: if request.auth != null && (
+        isAdmin() || 
+        request.query.scoutId == request.auth.uid || 
+        (resource != null && resource.data.scoutId == request.auth.uid)
+      );
       allow write: if canWrite();
     }
 
