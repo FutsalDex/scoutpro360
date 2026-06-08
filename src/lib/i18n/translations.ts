@@ -168,6 +168,7 @@ export const translations = {
       },
       tabs: {
         player: 'PLAYER',
+        context: 'CONTEXT',
         technical: 'TECHNICAL',
         tactical: 'TACTICAL',
         physical: 'PHYSICAL',
@@ -210,6 +211,76 @@ export const translations = {
         dominantFoot: 'DOMINANT FOOT',
         physicalCondition: 'PHYSICAL CONDITION',
         scout: 'SCOUT',
+      },
+      contextTab: {
+        matchContextTitle: 'MATCH CONTEXT',
+        offBallBehaviorTitle: 'OFF-BALL BEHAVIOR',
+        gameStyle: 'GAME STYLE',
+        system: 'SYSTEM / FORMATION',
+        pace: 'MATCH PACE',
+        teamDominance: 'TEAM DOMINANCE',
+        scoreAtObserving: 'SCORE AT OBSERVING',
+        importance: 'MATCH IMPORTANCE',
+        weather: 'WEATHER CONDITIONS',
+        noPossession: 'NO POSSESSION',
+        bodyLanguage: 'BODY LANGUAGE',
+        matchRole: 'PLAYER TACTICAL ROLE IN THIS MATCH',
+        matchRolePlaceholder: 'Describe the tactical role assigned to the player...',
+        styles: {
+          possession: 'Possession',
+          counter: 'Counter-attack',
+          highPress: 'High press',
+          direct: 'Direct',
+          defensive: 'Defensive'
+        },
+        paces: {
+          low: 'Low',
+          medium: 'Medium',
+          high: 'High'
+        },
+        dominance: {
+          dominant: 'Dominant',
+          balanced: 'Balanced',
+          disadvantage: 'Disadvantage'
+        },
+        scores: {
+          winning: 'Winning',
+          drawing: 'Drawing',
+          losing: 'Losing'
+        },
+        importances: {
+          low: 'Low',
+          medium: 'Medium',
+          high: 'High',
+          decisive: 'Decisive'
+        },
+        weathers: {
+          sun: 'Sun',
+          cloudy: 'Cloudy',
+          rain: 'Rain',
+          cold: 'Cold',
+          wind: 'Wind'
+        },
+        offBall: {
+          aggressive: 'Aggressive press',
+          central: 'Central spaces',
+          lines: 'Close passing lines',
+          recovery: 'Quick recovery',
+          block: 'Defend in block',
+          support: 'Offer support',
+          reading: 'Reads game well',
+          shape: 'Maintains shape'
+        },
+        body: {
+          positive: 'Positive',
+          competitive: 'Competitive',
+          focused: 'Focused',
+          frustrated: 'Frustrated',
+          emotional: 'Emotional',
+          reactive: 'Reactive',
+          mature: 'Mature/Calm',
+          indifferent: 'Indifferent'
+        }
       },
       generalProfile: {
         title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
@@ -464,6 +535,7 @@ export const translations = {
       },
       tabs: {
         player: 'JUGADOR',
+        context: 'CONTEXTO',
         technical: 'TÉCNICO',
         tactical: 'TÁCTICO',
         physical: 'FÍSICO',
@@ -506,6 +578,76 @@ export const translations = {
         dominantFoot: 'PIE DOMINANTE',
         physicalCondition: 'CONDICIÓN FÍSICA',
         scout: 'SCOUT',
+      },
+      contextTab: {
+        matchContextTitle: 'CONTEXTO DEL PARTIDO',
+        offBallBehaviorTitle: 'COMPORTAMIENTO SIN BALÓN',
+        gameStyle: 'ESTILO DE JUEGO',
+        system: 'SISTEMA / FORMACIÓN',
+        pace: 'RITMO DEL PARTIDO',
+        teamDominance: 'DOMINIO DEL EQUIPO',
+        scoreAtObserving: 'MARCADOR AL OBSERVAR',
+        importance: 'IMPORTANCIA DEL PARTIDO',
+        weather: 'CONDICIONES METEOROLÓGICAS',
+        noPossession: 'SIN POSESIÓN',
+        bodyLanguage: 'LENGUAJE CORPORAL',
+        matchRole: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
+        matchRolePlaceholder: 'Describe el rol táctico asignado al jugador...',
+        styles: {
+          possession: 'Posesión',
+          counter: 'Contragolpe',
+          highPress: 'Presión alta',
+          direct: 'Directo',
+          defensive: 'Defensivo'
+        },
+        paces: {
+          low: 'Bajo',
+          medium: 'Medio',
+          high: 'Alto'
+        },
+        dominance: {
+          dominant: 'Dominante',
+          balanced: 'Equilibrado',
+          disadvantage: 'En desventaja'
+        },
+        scores: {
+          winning: 'Ganando',
+          drawing: 'Empatando',
+          losing: 'Perdiendo'
+        },
+        importances: {
+          low: 'Baja',
+          medium: 'Media',
+          high: 'Alta',
+          decisive: 'Decisiva'
+        },
+        weathers: {
+          sun: 'Sol',
+          cloudy: 'Nublado',
+          rain: 'Lluvia',
+          cold: 'Frío',
+          wind: 'Viento'
+        },
+        offBall: {
+          aggressive: 'Presiona agresivo',
+          central: 'Espacios centrales',
+          lines: 'Cierra líneas pase',
+          recovery: 'Recuperación rápida',
+          block: 'Defiende en bloque',
+          support: 'Ofrece apoyo',
+          reading: 'Lee bien el juego',
+          shape: 'Mantiene la forma'
+        },
+        body: {
+          positive: 'Positivo',
+          competitive: 'Competitivo',
+          focused: 'Concentrado',
+          frustrated: 'Frustrado',
+          emotional: 'Emotivo',
+          reactive: 'Reactivo',
+          mature: 'Tranquilo/Maduro',
+          indifferent: 'Indiferente'
+        }
       },
       generalProfile: {
         title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',

@@ -13,7 +13,7 @@ import {
   FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, 
   Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Brain, Sparkles, 
   Trash2, Download, Sun, Cloud, CloudRain, Thermometer, Wind, Globe,
-  ShieldAlert, LayoutGrid
+  ShieldAlert, LayoutGrid, ClipboardCheck
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type ScoutingReport, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -58,28 +58,38 @@ const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: s
   </div>
 );
 
-const ChipGroup = ({ label, options, selected, onSelect, t }: { label: string, options: string[], selected: string, onSelect: (v: string) => void, t: any }) => (
-  <div className="space-y-2">
-    <Label className="text-[10px] font-black uppercase text-muted-foreground">{label}</Label>
-    <div className="flex flex-wrap gap-2">
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onSelect(opt)}
-          className={cn(
-            "px-4 py-2 rounded-full border text-[10px] font-bold transition-all",
-            selected === opt 
-              ? "bg-secondary text-foreground border-primary shadow-lg" 
-              : "bg-white/5 border-border/40 text-muted-foreground hover:bg-white/10"
-          )}
-        >
-          {t.report.context[opt as keyof typeof t.report.context] || opt}
-        </button>
-      ))}
+const ChipGroup = ({ label, options, selected, onSelect, t, multi = false, icons = {} }: { label: string, options: string[], selected: string | string[], onSelect: (v: string) => void, t: any, multi?: boolean, icons?: Record<string, any> }) => {
+  const isSelected = (opt: string) => multi ? (selected as string[]).includes(opt) : selected === opt;
+  
+  return (
+    <div className="space-y-2">
+      <Label className="text-[10px] font-black uppercase text-muted-foreground">{label}</Label>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => {
+          const Icon = icons[opt];
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => onSelect(opt)}
+              className={cn(
+                "px-4 py-2 rounded-full border text-[10px] font-bold transition-all flex items-center gap-2",
+                isSelected(opt) 
+                  ? "bg-secondary text-foreground border-primary shadow-lg" 
+                  : "bg-white/5 border-border/40 text-muted-foreground hover:bg-white/10"
+              )}
+            >
+              {Icon && <Icon className="h-3 w-3" />}
+              {t.report.contextTab[opt as keyof typeof t.report.contextTab] || 
+               t.report.context[opt as keyof typeof t.report.context] || 
+               opt}
+            </button>
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, ratings, onRatingChange, notes, onNoteChange, setActiveTab, t }: { icon: any, kpiSection: KPISection, nextTab: string, prevTab: string, tabType: string, ratings: Record<string, number>, onRatingChange: (k: string, v: number) => void, notes: Record<string, string>, onNoteChange: (k: string, v: string) => void, setActiveTab: (t: string) => void, t: any }) => (
   <div className="space-y-6">
@@ -141,6 +151,18 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
 
+  // Campos Contexto
+  const [matchStyle, setMatchStyle] = useState("");
+  const [matchSystem, setMatchSystem] = useState("");
+  const [matchPace, setMatchPace] = useState("");
+  const [teamDominance, setTeamDominance] = useState("");
+  const [observingScore, setObservingScore] = useState("");
+  const [matchImportance, setMatchImportance] = useState("");
+  const [weather, setWeather] = useState("");
+  const [offBallTraits, setOffBallTraits] = useState<string[]>([]);
+  const [bodyLanguageTraits, setBodyLanguageTraits] = useState<string[]>([]);
+  const [specificMatchRole, setSpecificMatchRole] = useState("");
+
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
@@ -162,6 +184,11 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setRatings(r.ratings || {}); setNotes(r.notes || {}); setScoutingActions(r.actions || []);
           setMinPlayed(r.minPlayed || "90"); setPhysicalCondition(r.physicalCondition || "");
           setScoutName(r.scoutName || ""); setObservedFunctions(r.observedFunctions || []);
+          setMatchStyle(r.matchStyle || ""); setMatchSystem(r.matchSystem || "");
+          setMatchPace(r.matchPace || ""); setTeamDominance(r.teamDominance || "");
+          setObservingScore(r.observingScore || ""); setMatchImportance(r.matchImportance || "");
+          setWeather(r.weather || ""); setOffBallTraits(r.offBallTraits || []);
+          setBodyLanguageTraits(r.bodyLanguageTraits || []); setSpecificMatchRole(r.specificMatchRole || "");
           if (r.pitchPosition) setPitchMarker(r.pitchPosition);
           if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
         }
@@ -175,6 +202,18 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const toggleObservedFunction = (func: string) => {
     setObservedFunctions(prev => 
       prev.includes(func) ? prev.filter(f => f !== func) : [...prev, func]
+    );
+  };
+
+  const toggleOffBallTrait = (trait: string) => {
+    setOffBallTraits(prev => 
+      prev.includes(trait) ? prev.filter(t => t !== trait) : [...prev, trait]
+    );
+  };
+
+  const toggleBodyLanguageTrait = (trait: string) => {
+    setBodyLanguageTraits(prev => 
+      prev.includes(trait) ? prev.filter(t => t !== trait) : [...prev, trait]
     );
   };
 
@@ -214,7 +253,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       ratings, notes, actions: scoutingActions,
       dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition,
       pitchPosition: pitchMarker, heatmapPoints,
-      observedFunctions: observedFunctions
+      observedFunctions: observedFunctions,
+      matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
+      offBallTraits, bodyLanguageTraits, specificMatchRole
     }, reportId || undefined);
 
     toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito." });
@@ -254,6 +295,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const generalProfileKPIs = t.report.generalProfile.attributes;
   const observedFunctionsList = Object.keys(t.report.observedFunctions).filter(k => k !== 'title');
 
+  const weatherIcons = {
+    sun: Sun,
+    cloudy: Cloud,
+    rain: CloudRain,
+    cold: Thermometer,
+    wind: Wind
+  };
+
   return (
     <div className="space-y-6 pb-32">
       <div className="bg-card/90 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
@@ -281,7 +330,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         <TabsContent value="player" className="space-y-8 animate-in fade-in">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-8">
-              {/* FICHA TÉCNICA PRINCIPAL */}
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                   <User className="h-5 w-5 text-primary" />
@@ -393,7 +441,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 </CardContent>
               </Card>
 
-              {/* PERFIL GENERAL (IMPRESIÓN GLOBAL) */}
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#0f172a] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                   <Star className="h-5 w-5 text-accent" />
@@ -429,7 +476,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 </CardContent>
               </Card>
 
-              {/* ROLES Y FUNCIONES OBSERVADAS */}
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20 flex items-center gap-3">
                   <LayoutGrid className="h-4 w-4 text-white" />
@@ -459,10 +505,143 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </Card>
             </div>
           </div>
+          <div className="flex justify-end gap-4 pt-10">
+            <Button type="button" onClick={() => setActiveTab("context")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="context" className="space-y-8 animate-in fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+              <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                <ClipboardCheck className="h-5 w-5 text-primary" />
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.matchContextTitle}</h2>
+              </div>
+              <CardContent className="p-8 space-y-6">
+                <ChipGroup 
+                  label={t.report.contextTab.gameStyle} 
+                  options={['possession', 'counter', 'highPress', 'direct', 'defensive']} 
+                  selected={matchStyle} 
+                  onSelect={setMatchStyle} 
+                  t={t}
+                />
+                
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.system}</Label>
+                  <Input value={matchSystem} onChange={(e) => setMatchSystem(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: 4-3-3, 4-2-3-1" />
+                </div>
+
+                <ChipGroup 
+                  label={t.report.contextTab.pace} 
+                  options={['low', 'medium', 'high']} 
+                  selected={matchPace} 
+                  onSelect={setMatchPace} 
+                  t={t}
+                />
+
+                <ChipGroup 
+                  label={t.report.contextTab.teamDominance} 
+                  options={['dominant', 'balanced', 'disadvantage']} 
+                  selected={teamDominance} 
+                  onSelect={setTeamDominance} 
+                  t={t}
+                />
+
+                <ChipGroup 
+                  label={t.report.contextTab.scoreAtObserving} 
+                  options={['winning', 'drawing', 'losing']} 
+                  selected={observingScore} 
+                  onSelect={setObservingScore} 
+                  t={t}
+                />
+
+                <ChipGroup 
+                  label={t.report.contextTab.importance} 
+                  options={['low', 'medium', 'high', 'decisive']} 
+                  selected={matchImportance} 
+                  onSelect={setMatchImportance} 
+                  t={t}
+                />
+
+                <ChipGroup 
+                  label={t.report.contextTab.weather} 
+                  options={['sun', 'cloudy', 'rain', 'cold', 'wind']} 
+                  selected={weather} 
+                  onSelect={setWeather} 
+                  t={t}
+                  icons={weatherIcons}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+              <div className="bg-[#0f172a] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                <Brain className="h-5 w-5 text-accent" />
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.offBallBehaviorTitle}</h2>
+              </div>
+              <CardContent className="p-8 space-y-8">
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.noPossession}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {['aggressive', 'central', 'lines', 'recovery', 'block', 'support', 'reading', 'shape'].map((trait) => (
+                      <button
+                        key={trait}
+                        type="button"
+                        onClick={() => toggleOffBallTrait(trait)}
+                        className={cn(
+                          "px-4 py-2 rounded-full border text-[10px] font-bold transition-all",
+                          offBallTraits.includes(trait)
+                            ? "bg-secondary text-foreground border-primary shadow-lg" 
+                            : "bg-white/5 border-border/40 text-muted-foreground hover:bg-white/10"
+                        )}
+                      >
+                        {t.report.contextTab.offBall[trait as keyof typeof t.report.contextTab.offBall]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.bodyLanguage}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {['positive', 'competitive', 'focused', 'frustrated', 'emotional', 'reactive', 'mature', 'indifferent'].map((trait) => (
+                      <button
+                        key={trait}
+                        type="button"
+                        onClick={() => toggleBodyLanguageTrait(trait)}
+                        className={cn(
+                          "px-4 py-2 rounded-full border text-[10px] font-bold transition-all",
+                          bodyLanguageTraits.includes(trait)
+                            ? "bg-secondary text-foreground border-primary shadow-lg" 
+                            : "bg-white/5 border-border/40 text-muted-foreground hover:bg-white/10"
+                        )}
+                      >
+                        {t.report.contextTab.body[trait as keyof typeof t.report.contextTab.body]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.matchRole}</Label>
+                  <Textarea 
+                    value={specificMatchRole} 
+                    onChange={(e) => setSpecificMatchRole(e.target.value)} 
+                    className="min-h-[120px] bg-secondary/10 border-border/20 rounded-xl text-xs italic" 
+                    placeholder={t.report.contextTab.matchRolePlaceholder} 
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="flex justify-between gap-4 pt-10">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.player}</Button>
+            <Button type="button" onClick={() => setActiveTab("technical")} className="h-12 px-12 bg-[#1b263b] text-white font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.tabs.technical} →</Button>
+          </div>
         </TabsContent>
 
         <TabsContent value="technical" className="animate-in fade-in">
-          <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="player" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
+          <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
 
         <TabsContent value="tactical" className="animate-in fade-in">
