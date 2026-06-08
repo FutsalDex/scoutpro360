@@ -309,15 +309,15 @@ export const translations = {
           imp: ['With possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In the result']
         },
         tactical: {
-          obs: ['Positioning', 'Spatial awareness', 'Game reading', 'Decision making', 'Off-ball movement', 'Defensive positioning', 'Transition understanding', 'Scanning frequency', 'Game tempo', 'Rhythm', 'Adaptabilidad táctica'],
+          obs: ['Posicionamiento', 'Conciencia espacial', 'Lectura del juego', 'Toma de decisiones', 'Movimiento sin balón', 'Posicionamiento defensivo', 'Entend. transiciones', 'Frecuencia de exploración', 'Tempo de juego', 'Ritmo', 'Adaptabilidad táctica'],
           imp: []
         },
         physical: {
-          obs: ['Speed', 'Acceleration', 'Agility', 'Coordination', 'Balance', 'Strength', 'Resistance', 'Physical stamina', 'Explosiveness', 'Mobility', 'Injury resistance'],
+          obs: ['Velocidad', 'Aceleración', 'Agilidad', 'Coordinación', 'Equilibrio', 'Fuerza', 'Resistencia', 'Fondo físico', 'Explosividad', 'Movilidad', 'Resistencia a lesiones'],
           imp: []
         },
         mental: {
-          obs: ['Leadership', 'Determination', 'Aggressiveness', 'Composure', 'Decision making', 'Concentration', 'Sacrifice', 'Bravery', 'Maturity'],
+          obs: ['Competitiveness', 'Confidence', 'Concentration', 'Work Ethics', 'Communication', 'Leadership', 'Emotional Control', 'Resilience', 'Learning Ability', 'Professionalism'],
           imp: []
         }
       },
@@ -685,7 +685,7 @@ export const translations = {
           imp: []
         },
         mental: {
-          obs: ['Leadership', 'Determinación', 'Agresividad', 'Compostura', 'Toma de decisiones', 'Concentración', 'Sacrificio', 'Valentía', 'Madurez'],
+          obs: ['Competitividad', 'Confianza', 'Concentración', 'Ética de trabajo', 'Comunicación', 'Liderazgo', 'Control emocional', 'Resiliencia', 'Capacidad de aprendizaje', 'Profesionalidad'],
           imp: []
         }
       },
