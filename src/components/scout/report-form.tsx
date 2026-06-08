@@ -117,6 +117,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>({ ...TACTICAL_ROLES[0], kpis: localizedKPIs });
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
   const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
@@ -160,7 +161,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setCompetition(r.competition || ""); setMatchDate(r.matchDate || "");
           setRatings(r.ratings || {}); setNotes(r.notes || {}); setScoutingActions(r.actions || []);
           setMinPlayed(r.minPlayed || "90"); setPhysicalCondition(r.physicalCondition || "");
-          setScoutName(r.scoutName || "");
+          setScoutName(r.scoutName || ""); setObservedFunctions(r.observedFunctions || []);
           if (r.pitchPosition) setPitchMarker(r.pitchPosition);
           if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
         }
@@ -170,6 +171,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const handleRatingChange = (kpi: string, value: number) => setRatings(prev => ({ ...prev, [kpi]: value }));
   const handleNoteChange = (kpi: string, value: string) => setNotes(prev => ({ ...prev, [kpi]: value }));
+
+  const toggleObservedFunction = (func: string) => {
+    setObservedFunctions(prev => 
+      prev.includes(func) ? prev.filter(f => f !== func) : [...prev, func]
+    );
+  };
 
   const handleSaveAll = () => {
     const scoutId = auth.currentUser?.uid;
@@ -206,7 +213,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       summary: notes['summary'] || "",
       ratings, notes, actions: scoutingActions,
       dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition,
-      pitchPosition: pitchMarker, heatmapPoints
+      pitchPosition: pitchMarker, heatmapPoints,
+      observedFunctions: observedFunctions
     }, reportId || undefined);
 
     toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito." });
@@ -244,6 +252,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   };
 
   const generalProfileKPIs = t.report.generalProfile.attributes;
+  const observedFunctionsList = Object.keys(t.report.observedFunctions).filter(k => k !== 'title');
 
   return (
     <div className="space-y-6 pb-32">
@@ -417,6 +426,35 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     heatmapPoints={heatmapPoints} 
                     onHeatmapChange={setHeatmapPoints} 
                   />
+                </CardContent>
+              </Card>
+
+              {/* ROLES Y FUNCIONES OBSERVADAS */}
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20 flex items-center gap-3">
+                  <LayoutGrid className="h-4 w-4 text-white" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">
+                    {t.report.observedFunctions.title}
+                  </h2>
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex flex-wrap gap-2">
+                    {observedFunctionsList.map((funcKey) => (
+                      <button
+                        key={funcKey}
+                        type="button"
+                        onClick={() => toggleObservedFunction(funcKey)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full border text-[9px] font-bold transition-all",
+                          observedFunctions.includes(funcKey)
+                            ? "bg-primary/20 text-primary border-primary shadow-[0_0_10px_rgba(224,176,80,0.2)]"
+                            : "bg-white/5 border-border/40 text-muted-foreground hover:bg-white/10"
+                        )}
+                      >
+                        {t.report.observedFunctions[funcKey as keyof typeof t.report.observedFunctions]}
+                      </button>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </div>
