@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -8,14 +7,13 @@ import { ReportForm } from '@/components/scout/report-form';
 import { MatchAnalysis } from '@/components/scout/match-analysis';
 import { GlobalDatabase } from '@/components/scout/global-database';
 import { AgendaView } from '@/components/scout/agenda-view';
-import { TalentMapping } from '@/components/scout/talent-mapping';
 import { AnalyticsHub } from '@/components/scout/analytics-hub';
 import { PIMBenchmarking } from '@/components/scout/pim-benchmarking';
 import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar } from "lucide-react";
+import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, LineChart } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -26,7 +24,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'database' | 'agenda' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'database' | 'agenda' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
 
 function AppShell({ 
   activeView, 
@@ -58,7 +56,7 @@ function AppShell({
 
   const handleNavClick = (view: ViewState) => {
     if (needsProfileCompletion && view !== 'profile') return;
-    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda' && view !== 'mapping') setEditingPlayerId(null);
+    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda') setEditingPlayerId(null);
     setActiveView(view);
     if (isMobile) {
       setOpenMobile(false);
@@ -78,7 +76,6 @@ function AppShell({
       case 'match-analysis': return <MatchAnalysis />;
       case 'database': return <GlobalDatabase onEditPlayer={handleEditPlayer} />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} />;
-      case 'mapping': return <TalentMapping />;
       case 'analytics': return <AnalyticsHub />;
       case 'benchmarking': return <PIMBenchmarking />;
       case 'profile': return <ProfileView profile={userProfile} />;
@@ -95,7 +92,6 @@ function AppShell({
       case 'match-analysis': return t.sidebar.matchAnalysis;
       case 'database': return t.sidebar.playersDatabase;
       case 'agenda': return t.sidebar.agenda;
-      case 'mapping': return t.sidebar.talentMapping;
       case 'analytics': return t.sidebar.analytics;
       case 'benchmarking': return t.sidebar.pimBenchmarking;
       case 'profile': return t.sidebar.personalProfile;
@@ -134,7 +130,7 @@ function AppShell({
           {isAdmin && (
             <SidebarGroup>
               <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary/80 mb-4 flex items-center gap-2">
-                <ShieldAlert className="h-3 w-3" /> {t.sidebar.administration}
+                <ShieldAlert className="h-3 <change> w-3" /> {t.sidebar.administration}
               </SidebarGroupLabel>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -236,18 +232,6 @@ function AppShell({
                   </SidebarMenuItem>
                 </>
               )}
-
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={activeView === 'mapping'}
-                  onClick={() => handleNavClick('mapping')}
-                  disabled={needsProfileCompletion}
-                  className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
-                >
-                  <Map className="h-5 w-5" />
-                  <span className="font-medium">{t.sidebar.talentMapping}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
 
