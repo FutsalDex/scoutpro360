@@ -105,6 +105,17 @@ export interface ScoutingReport {
   selectedRoles?: string[];
   pitchPosition?: Point;
   heatmapPoints?: Point[];
+  // Campos de Contexto
+  matchStyle?: string;
+  matchSystem?: string;
+  matchPace?: string;
+  teamDominance?: string;
+  observingScore?: string;
+  matchImportance?: string;
+  weather?: string;
+  offBallTraits?: string[];
+  bodyLanguageTraits?: string[];
+  specificMatchRole?: string;
   createdAt: any;
   updatedAt?: any;
 }
