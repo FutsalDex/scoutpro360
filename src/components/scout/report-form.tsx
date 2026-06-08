@@ -389,7 +389,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   return (
     <div className="space-y-6 pb-32 w-full overflow-x-hidden">
-      <div className="bg-card/90 backdrop-blur-xl p-4 sm:p-10 rounded-3xl border border-border/50 shadow-2xl sm:sticky sm:top-16 z-40 w-full mb-6">
+      <div className="bg-card/90 backdrop-blur-xl p-4 sm:p-10 rounded-3xl border border-border/50 shadow-2xl z-40 w-full mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <div className="h-10 w-10 sm:h-16 sm:w-16 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
@@ -427,12 +427,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 h-auto bg-secondary/20 p-1 border border-border/20 rounded-2xl w-full gap-1 mb-8">
+        <TabsList className="grid grid-cols-4 sm:grid-cols-8 h-auto bg-secondary/20 p-1 border border-border/20 rounded-2xl w-full gap-1 mb-8">
           {Object.entries(t.report.tabs).map(([key, label]) => (
             <TabsTrigger 
               key={key} 
               value={key} 
-              className="px-0.5 py-2.5 text-[7px] sm:text-[9px] font-black uppercase tracking-tighter data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all"
+              className="px-0.5 py-3 text-[7px] sm:text-[9px] font-black uppercase tracking-tighter data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all"
             >
               {label as string}
             </TabsTrigger>

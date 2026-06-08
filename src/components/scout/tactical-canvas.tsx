@@ -105,11 +105,24 @@ export function TacticalCanvas({ marker, onMarkerChange, heatmapPoints, onHeatma
             ))}
           </g>
 
+          {/* Pitch Boundary */}
           <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
+          
+          {/* Halfway line and Center Circle */}
           <line x1="10" y1="300" x2="390" y2="300" stroke="white" strokeWidth="1.5" opacity="0.4" />
           <circle cx="200" cy="300" r="60" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
+          <circle cx="200" cy="300" r="2" fill="white" opacity="0.4" />
+
+          {/* Penalty Areas */}
           <rect x="80" y="10" width="240" height="100" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
+          <rect x="140" y="10" width="120" height="40" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
+          
           <rect x="80" y="490" width="240" height="100" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
+          <rect x="140" y="550" width="120" height="40" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4" />
+
+          {/* Goals (Porterías) */}
+          <rect x="175" y="2" width="50" height="8" fill="none" stroke="white" strokeWidth="2" opacity="0.6" />
+          <rect x="175" y="590" width="50" height="8" fill="none" stroke="white" strokeWidth="2" opacity="0.6" />
 
           {/* Render Heatmap */}
           <g filter="url(#blurFilter)">
