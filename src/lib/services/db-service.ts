@@ -20,7 +20,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
- * Jugadores
+ * Jugadores - Suscripción simplificada para evitar bloqueos por falta de índices
  */
 export async function savePlayer(playerData: Omit<Player, 'id'>, id?: string) {
   if (id) {
@@ -58,16 +58,16 @@ export async function getPlayer(id: string): Promise<Player | null> {
 
 export function subscribeToPlayers(callback: (players: Player[]) => void) {
   const colRef = collection(db, "players");
-  const q = query(colRef, orderBy("createdAt", "desc"));
+  // Eliminamos orderBy temporalmente para asegurar que cargue sin necesidad de índices manuales
   return onSnapshot(
-    q,
+    colRef,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
 }
 
 /**
- * Informes
+ * Informes - Consulta optimizada
  */
 export async function saveReport(reportData: Omit<ScoutingReport, 'id'>, id?: string) {
   if (id) {
@@ -92,7 +92,7 @@ export async function saveReport(reportData: Omit<ScoutingReport, 'id'>, id?: st
 
 export async function getLatestReportForPlayer(playerId: string): Promise<ScoutingReport | null> {
   const colRef = collection(db, "reports");
-  const q = query(colRef, where("playerId", "==", playerId), orderBy("createdAt", "desc"), limit(1));
+  const q = query(colRef, where("playerId", "==", playerId), limit(1));
   try {
     const snap = await getDocs(q);
     return !snap.empty ? { id: snap.docs[0].id, ...snap.docs[0].data() } as ScoutingReport : null;
@@ -105,8 +105,8 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
 export function subscribeToReports(scoutId: string, callback: (reports: ScoutingReport[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "reports");
-  // Filtro obligatorio para reglas de seguridad
-  const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
+  // Filtramos por scoutId pero sin orderBy para evitar errores de índice compuesto
+  const q = query(colRef, where("scoutId", "==", scoutId));
   return onSnapshot(
     q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScoutingReport[]),
@@ -120,7 +120,7 @@ export function subscribeToReports(scoutId: string, callback: (reports: Scouting
 export function subscribeToPlayerLists(scoutId: string, callback: (lists: PlayerList[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "playerLists");
-  const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
+  const q = query(colRef, where("scoutId", "==", scoutId));
   return onSnapshot(
     q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as PlayerList[]),
@@ -134,7 +134,7 @@ export function subscribeToPlayerLists(scoutId: string, callback: (lists: Player
 export function subscribeToScheduledMatches(scoutId: string, callback: (matches: ScheduledMatch[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "scheduledMatches");
-  const q = query(colRef, where("scoutId", "==", scoutId), orderBy("dateTime", "asc"));
+  const q = query(colRef, where("scoutId", "==", scoutId));
   return onSnapshot(
     q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScheduledMatch[]),
@@ -148,7 +148,7 @@ export function subscribeToScheduledMatches(scoutId: string, callback: (matches:
 export function subscribeToQuickNotes(scoutId: string, callback: (notes: QuickNote[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "quickNotes");
-  const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
+  const q = query(colRef, where("scoutId", "==", scoutId));
   return onSnapshot(
     q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as QuickNote[]),

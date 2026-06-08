@@ -14,19 +14,18 @@ export function ScoutDashboard() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [reports, setReports] = useState<ScoutingReport[]>([]);
   const [loading, setLoading] = useState(true);
-  const [scoutId, setScoutId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [scoutId, setScoutId] = useState<string | null>(null);
 
-  // 1. Manejo de Auth con Refresco de Token para evitar errores de permisos
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          // Fuerza el refresco del token para que Firestore lo reconozca inmediatamente
+          // Forzamos el refresco del token para asegurar permisos en Firestore
           await user.getIdToken(true);
           setScoutId(user.uid);
         } catch (error) {
-          console.error("Token refresh failed", error);
+          console.error("Auth sync error:", error);
           setScoutId(user.uid);
         }
       } else {
@@ -38,51 +37,77 @@ export function ScoutDashboard() {
     return () => unsubAuth();
   }, []);
 
-  // 2. Suscripciones a Firestore solo cuando Auth está listo
   useEffect(() => {
     if (!authReady || !scoutId) return;
 
+    let playersLoaded = false;
+    let reportsLoaded = false;
+
+    const checkLoading = () => {
+      if (playersLoaded && reportsLoaded) {
+        setLoading(false);
+      }
+    };
+
     const unsubPlayers = subscribeToPlayers((data) => {
       setPlayers(data);
+      playersLoaded = true;
+      checkLoading();
     });
 
     const unsubReports = subscribeToReports(scoutId, (data) => {
       setReports(data);
-      setLoading(false);
+      reportsLoaded = true;
+      checkLoading();
     });
+
+    // Timeout de seguridad: si en 5 segundos no ha cargado, forzamos el fin del loading
+    const timer = setTimeout(() => setLoading(false), 5000);
 
     return () => {
       unsubPlayers();
       unsubReports();
+      clearTimeout(timer);
     };
   }, [authReady, scoutId]);
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">
-          {t.dashboard.stats.syncing}
-        </p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 animate-in fade-in duration-700">
+        <div className="relative">
+          <div className="h-20 w-20 rounded-2xl border-2 border-primary/20 animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
+          </div>
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-primary animate-pulse">
+            {t.dashboard.stats.syncing}
+          </p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest italic opacity-60">
+            Estableciendo conexión segura...
+          </p>
+        </div>
       </div>
     );
   }
 
   // Cálculos de métricas
   const detectedCount = players.length;
-  const analyzedCount = players.filter(p => p.currentPIM > 0).length;
+  const analyzedCount = players.filter(p => (p.currentPIM || 0) > 0).length;
   const reportsCount = reports.length;
   const avgPim = players.length > 0 
     ? (players.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / players.length).toFixed(1) 
     : "0.0";
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-headline font-black text-foreground uppercase tracking-tight">
+        <div className="h-1 w-12 bg-primary rounded-full mb-2" />
+        <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
           {t.dashboard.title}
         </h1>
-        <p className="text-muted-foreground">{t.dashboard.subtitle}</p>
+        <p className="text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -91,18 +116,21 @@ export function ScoutDashboard() {
           value={detectedCount.toString()}
           icon={<User className="text-primary" />}
           color="border-primary/20"
+          delay="0"
         />
         <DashboardStatCard
           title={t.dashboard.stats.analyzed}
           value={analyzedCount.toString()}
           icon={<ShieldCheck className="text-accent" />}
           color="border-accent/20"
+          delay="100"
         />
         <DashboardStatCard
           title={t.dashboard.stats.reports}
           value={reportsCount.toString()}
           icon={<ClipboardCheck className="text-primary" />}
           color="border-primary/20"
+          delay="200"
         />
         <DashboardStatCard
           title={t.dashboard.stats.avgPim}
@@ -110,6 +138,7 @@ export function ScoutDashboard() {
           icon={<TrendingUp className="text-accent" />}
           color="border-accent/20"
           suffix="%"
+          delay="300"
         />
       </div>
     </div>
@@ -117,26 +146,29 @@ export function ScoutDashboard() {
 }
 
 function DashboardStatCard({
-  title, value, icon, color, suffix = ""
+  title, value, icon, color, suffix = "", delay = "0"
 }: {
-  title: string, value: string, icon: React.ReactNode, color: string, suffix?: string
+  title: string, value: string, icon: React.ReactNode, color: string, suffix?: string, delay?: string
 }) {
   return (
-    <Card className={`border-2 ${color} bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform cursor-default group shadow-xl`}>
+    <Card 
+      className={`border-2 ${color} bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden hover:scale-[1.03] transition-all cursor-default group shadow-2xl animate-in zoom-in-95 duration-500`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors">
             {title}
           </p>
-          <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10">
+          <div className="h-12 w-12 rounded-2xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary/10 transition-colors">
             {icon}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-2 pb-8">
         <div className="flex items-baseline gap-1">
-          <p className="text-5xl font-black font-headline text-foreground">{value}</p>
-          {suffix && <span className="text-xl font-bold text-muted-foreground">{suffix}</span>}
+          <p className="text-6xl font-black font-headline text-foreground tracking-tighter">{value}</p>
+          {suffix && <span className="text-2xl font-black text-primary/60">{suffix}</span>}
         </div>
       </CardContent>
     </Card>
