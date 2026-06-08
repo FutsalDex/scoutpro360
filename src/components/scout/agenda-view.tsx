@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -28,7 +29,6 @@ export function AgendaView({ onStartScouting }: AgendaViewProps) {
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        try { await user.getIdToken(true); } catch (_) {}
         setUserId(user.uid);
       } else {
         setUserId(null);
@@ -43,8 +43,11 @@ export function AgendaView({ onStartScouting }: AgendaViewProps) {
     if (!authReady || !userId) return;
     
     const unsubMatches = subscribeToScheduledMatches(userId, (data) => {
-      // Ordenar por fecha (más cercanos primero)
-      const sorted = [...data].sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+      const sorted = [...data].sort((a, b) => {
+        const dateA = a.dateTime ? new Date(a.dateTime).getTime() : 0;
+        const dateB = b.dateTime ? new Date(b.dateTime).getTime() : 0;
+        return dateA - dateB;
+      });
       setMatches(sorted);
       setLoading(false);
     });
@@ -109,8 +112,9 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
     }
   }, [match.playerId]);
 
-  const matchDate = new Date(match.dateTime);
-  const isToday = new Date().toDateString() === matchDate.toDateString();
+  const isValidDate = match.dateTime && !isNaN(new Date(match.dateTime).getTime());
+  const matchDate = isValidDate ? new Date(match.dateTime) : new Date();
+  const isToday = isValidDate && new Date().toDateString() === matchDate.toDateString();
 
   return (
     <Card className={cn(
@@ -121,7 +125,7 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
         <div className="flex items-center gap-2">
           <Calendar className={cn("h-4 w-4", isToday ? "text-accent" : "text-primary")} />
           <span className="text-[10px] font-black uppercase tracking-widest text-white">
-            {format(matchDate, 'dd MMM yyyy', { locale: language === 'es' ? es : undefined })}
+            {isValidDate ? format(matchDate, 'dd MMM yyyy', { locale: language === 'es' ? es : undefined }) : 'TBD'}
           </span>
         </div>
         {isToday && (
@@ -163,7 +167,7 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
         <div className="grid grid-cols-2 gap-3 pt-2">
           <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-xl border border-white/5">
             <Clock className="h-3 w-3 text-muted-foreground" />
-            <span className="text-[10px] font-bold text-muted-foreground">{format(matchDate, 'HH:mm')}</span>
+            <span className="text-[10px] font-bold text-muted-foreground">{isValidDate ? format(matchDate, 'HH:mm') : '--:--'}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-xl border border-white/5 overflow-hidden">
             <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />

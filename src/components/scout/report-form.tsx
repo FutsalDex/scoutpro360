@@ -163,7 +163,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [isExporting, setIsExporting] = useState(false);
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
@@ -189,7 +188,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
 
-  // Estados de Contexto
+  // Context States
   const [matchStyle, setMatchStyle] = useState("");
   const [matchSystem, setMatchSystem] = useState("");
   const [matchPace, setMatchPace] = useState("");
@@ -231,7 +230,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setMatchDate(report.matchDate || "");
           setMinPlayed(report.minPlayed || "90");
           setPhysicalCondition(report.physicalCondition || "");
-          setSelectedRoles(report.selectedRoles || []);
           setObservedFunctions(report.observedFunctions || []);
           setRatings(report.ratings || {});
           setNotes(report.notes || {});
@@ -381,9 +379,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
       doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}.pdf`);
 
-      // Marcar informe como exportado
       if (reportId) {
-        await saveReport({ pdfGenerated: true }, reportId);
+        saveReport({ pdfGenerated: true }, reportId);
       }
 
       toast({ title: t.report.actions.exported || "PDF Generado" });
@@ -394,60 +391,51 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     }
   };
 
-  const handleSaveAll = async () => {
+  const handleSaveAll = () => {
     if (!playerName) {
       toast({ variant: "destructive", title: "Name required" });
       setActiveTab("player");
       return;
     }
     
-    // OBTENEMOS EL ID DEL USUARIO ACTUAL
     const scoutId = auth.currentUser?.uid;
     if (!scoutId) {
       toast({ variant: "destructive", title: "Authentication required" });
       return;
     }
 
-    setIsSaving(true);
-    try {
-      // 1. GUARDAR/ACTUALIZAR JUGADOR (FORZANDO SCOUTID)
-      const playerId = await savePlayer({
-        name: playerName,
-        age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
-        club: clubName || "No club",
-        nationality: nationality || "Unknown",
-        marketValue: marketValue || "€0",
-        currentPIM: ratings['pim'] || 0,
-        tacticalRole: activeRole.id,
-        grade: (ratings['pim'] || 0) > 85 ? 'A' : ((ratings['pim'] || 0) > 70 ? 'B' : 'C'),
-        scoutId: scoutId, // AUTORÍA GARANTIZADA
-        birthDate, height, weight, dominantFoot, secondaryPositions
-      }, editingPlayerId || undefined);
-      
-      // 2. GUARDAR/ACTUALIZAR INFORME (VINCULADO AL SCOUTID)
-      const newReportId = await saveReport({
-        playerId, playerName, 
-        scoutId: scoutId, // AUTORÍA GARANTIZADA
-        scoutName: scoutName || userProfile?.displayName || "Scout",
-        pimScore: ratings['pim'] || 0,
-        summary: notes['summary'] || "",
-        ratings: ratings, notes: notes, actions: scoutingActions,
-        observedFunctions,
-        dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition, selectedRoles,
-        matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
-        offBallTraits, bodyLanguageTraits, specificMatchRole,
-        pitchPosition: pitchMarker, heatmapPoints,
-        createdAt: serverTimestamp()
-      }, reportId || undefined);
-      
-      if (newReportId) setReportId(newReportId);
-      
-      toast({ title: "Cambios sincronizados con la Base de Datos" });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error saving report" });
-    } finally {
-      setIsSaving(false);
-    }
+    // Escritura No Bloqueante (Optimista)
+    // 1. Guardar Jugador
+    const playerId = savePlayer({
+      name: playerName,
+      age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
+      club: clubName || "No club",
+      nationality: nationality || "Unknown",
+      marketValue: marketValue || "€0",
+      currentPIM: ratings['pim'] || 0,
+      tacticalRole: activeRole.id,
+      grade: (ratings['pim'] || 0) > 85 ? 'A' : ((ratings['pim'] || 0) > 70 ? 'B' : 'C'),
+      scoutId: scoutId,
+      birthDate, height, weight, dominantFoot, secondaryPositions
+    }, editingPlayerId || undefined);
+    
+    // 2. Guardar Informe (viculado al playerId obtenido síncronamente)
+    const newId = saveReport({
+      playerId, playerName, 
+      scoutId: scoutId,
+      scoutName: scoutName || userProfile?.displayName || "Scout",
+      pimScore: ratings['pim'] || 0,
+      summary: notes['summary'] || "",
+      ratings, notes, actions: scoutingActions,
+      observedFunctions,
+      dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition,
+      matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
+      offBallTraits, bodyLanguageTraits, specificMatchRole,
+      pitchPosition: pitchMarker, heatmapPoints
+    }, reportId || undefined);
+    
+    setReportId(newId);
+    toast({ title: "Cambios sincronizados con la Base de Datos" });
   };
 
   return (
@@ -479,10 +467,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Button 
               type="button" 
               onClick={handleSaveAll} 
-              disabled={isSaving} 
               className="flex-1 md:flex-none h-10 px-6 bg-primary text-primary-foreground font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg"
             >
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              <Save className="h-4 w-4 mr-2" />
               {t.report.actions.save}
             </Button>
           </div>
@@ -680,7 +667,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </Card>
             </div>
 
-            {/* PERFIL GENERAL (IMPRESIÓN GLOBAL) - ANCHO COMPLETO */}
+            {/* PERFIL GENERAL - ANCHO COMPLETO */}
             <div className="col-span-full">
               <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md overflow-hidden">
                 <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
@@ -846,59 +833,19 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.weather}</Label>
                   <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setWeather('sun')}
-                      className={cn(
-                        "h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2",
-                        weather === 'sun' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
-                      )}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setWeather('sun')} className={cn("h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2", weather === 'sun' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5")}>
                       <Sun className="h-3 w-3" /> {t.report.context.weatherOpts.sun}
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setWeather('cloudy')}
-                      className={cn(
-                        "h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2",
-                        weather === 'cloudy' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
-                      )}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setWeather('cloudy')} className={cn("h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2", weather === 'cloudy' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5")}>
                       <Cloud className="h-3 w-3" /> {t.report.context.weatherOpts.cloudy}
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setWeather('rain')}
-                      className={cn(
-                        "h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2",
-                        weather === 'rain' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
-                      )}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setWeather('rain')} className={cn("h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2", weather === 'rain' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5")}>
                       <CloudRain className="h-3 w-3" /> {t.report.context.weatherOpts.rain}
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setWeather('cold')}
-                      className={cn(
-                        "h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2",
-                        weather === 'cold' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
-                      )}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setWeather('cold')} className={cn("h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2", weather === 'cold' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5")}>
                       <Thermometer className="h-3 w-3" /> {t.report.context.weatherOpts.cold}
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setWeather('wind')}
-                      className={cn(
-                        "h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2",
-                        weather === 'wind' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
-                      )}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setWeather('wind')} className={cn("h-9 px-4 rounded-full text-[10px] font-bold border-border/40 gap-2", weather === 'wind' ? "bg-primary text-primary-foreground border-primary" : "bg-white/5")}>
                       <Wind className="h-3 w-3" /> {t.report.context.weatherOpts.wind}
                     </Button>
                   </div>
@@ -916,16 +863,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.noPossession}</Label>
                   <div className="flex flex-wrap gap-2">
                     {t.report.context.offBallTraits.map((trait: string) => (
-                      <Button
-                        key={trait}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleTraitToggle(trait, offBallTraits, setOffBallTraits)}
-                        className={cn(
-                          "h-9 px-4 rounded-full text-[10px] font-bold border-border/40",
-                          offBallTraits.includes(trait) ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
-                        )}
-                      >
+                      <Button key={trait} variant="outline" size="sm" onClick={() => handleTraitToggle(trait, offBallTraits, setOffBallTraits)} className={cn("h-9 px-4 rounded-full text-[10px] font-bold border-border/40", offBallTraits.includes(trait) ? "bg-primary text-primary-foreground border-primary" : "bg-white/5")}>
                         {trait}
                       </Button>
                     ))}
@@ -935,16 +873,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.bodyLanguage}</Label>
                   <div className="flex flex-wrap gap-2">
                     {t.report.context.bodyTraits.map((trait: string) => (
-                      <Button
-                        key={trait}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleTraitToggle(trait, bodyLanguageTraits, setBodyLanguageTraits)}
-                        className={cn(
-                          "h-9 px-4 rounded-full text-[10px] font-bold border-border/40",
-                          bodyLanguageTraits.includes(trait) ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
-                        )}
-                      >
+                      <Button key={trait} variant="outline" size="sm" onClick={() => handleTraitToggle(trait, bodyLanguageTraits, setBodyLanguageTraits)} className={cn("h-9 px-4 rounded-full text-[10px] font-bold border-border/40", bodyLanguageTraits.includes(trait) ? "bg-primary text-primary-foreground border-primary" : "bg-white/5")}>
                         {trait}
                       </Button>
                     ))}
@@ -952,27 +881,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 </div>
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.roleInMatch}</Label>
-                  <Textarea 
-                    value={specificMatchRole} 
-                    onChange={(e) => setSpecificMatchRole(e.target.value)} 
-                    placeholder="Describe el rol táctico asignado al jugador..." 
-                    className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-[11px] italic"
-                  />
+                  <Textarea value={specificMatchRole} onChange={(e) => setSpecificMatchRole(e.target.value)} placeholder="Describe el rol táctico asignado..." className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-[11px] italic" />
                 </div>
               </CardContent>
             </Card>
           </div>
-
-          <div className="flex flex-col sm:flex-row justify-between gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground w-full sm:w-auto">
-              <ChevronLeft className="mr-2 h-4 w-4" /> {t.report.actions.previous}
-            </Button>
-            <Button type="button" onClick={() => setActiveTab("technical")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest w-full sm:w-auto">
-              {t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
         </TabsContent>
 
+        {/* ... Demás pestañas ... */}
         <TabsContent value="technical" className="animate-in fade-in">
            <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>

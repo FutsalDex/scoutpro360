@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Download, Loader2, MoreVertical, FileText, Calendar, Users, Clock, MapPin, X } from "lucide-react";
+import { Search, Download, Loader2, MoreVertical, FileText, Calendar, Users, Clock, MapPin } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, saveScheduledMatch } from "@/lib/services/db-service";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
@@ -57,7 +57,6 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        try { await user.getIdToken(true); } catch (_) {}
         setUserId(user.uid);
       } else {
         setUserId(null);
@@ -111,25 +110,29 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
     setIsScheduleModalOpen(true);
   };
 
-  const submitSchedule = async () => {
+  const submitSchedule = () => {
     if (!userId || !schedulingPlayer) return;
-    try {
-      const dateTimeValue = matchData.time ? `${matchData.date}T${matchData.time}` : matchData.date;
-      await saveScheduledMatch({
-        playerId: schedulingPlayer.id,
-        homeTeam: schedulingPlayer.club || "TBD",
-        awayTeam: matchData.rival || "Opponent",
-        category: matchData.venue || "Pro",
-        dateTime: dateTimeValue,
-        scoutId: userId,
-        status: 'scheduled'
-      });
-      toast({ title: t.database.actions.matchSuccess });
-      setIsScheduleModalOpen(false);
-      setMatchData({ rival: '', date: '', time: '', venue: '' });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error scheduling match" });
+    if (!matchData.date) {
+      toast({ variant: "destructive", title: "Error", description: "La fecha es obligatoria para programar el partido." });
+      return;
     }
+
+    const dateTimeValue = matchData.time ? `${matchData.date}T${matchData.time}` : matchData.date;
+    
+    // Escritura no bloqueante
+    saveScheduledMatch({
+      playerId: schedulingPlayer.id,
+      homeTeam: schedulingPlayer.club || "TBD",
+      awayTeam: matchData.rival || "Opponent",
+      category: matchData.venue || "Pro",
+      dateTime: dateTimeValue,
+      scoutId: userId,
+      status: 'scheduled'
+    });
+
+    toast({ title: t.database.actions.matchSuccess });
+    setIsScheduleModalOpen(false);
+    setMatchData({ rival: '', date: '', time: '', venue: '' });
   };
 
   if (loading) {
@@ -271,6 +274,7 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
                       className="pl-10 h-12 bg-secondary/10 border-border/20 rounded-xl font-bold"
                       value={matchData.date}
                       onChange={(e) => setMatchData({...matchData, date: e.target.value})}
+                      required
                     />
                   </div>
                   <div className="relative">

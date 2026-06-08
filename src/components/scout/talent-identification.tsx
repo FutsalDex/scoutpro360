@@ -27,7 +27,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
   const [category, setCategory] = useState("");
   const [notes, setNotes] = useState("");
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (!playerName || !currentTeam) {
       toast({ variant: "destructive", title: "Campos Requeridos", description: "El nombre y el equipo son obligatorios." });
@@ -41,27 +41,22 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
     }
 
     setLoading(true);
-    try {
-      await savePlayer({
-        name: playerName,
-        club: currentTeam,
-        tacticalRole: position || 'mc',
-        nationality: "N/A",
-        age: 0,
-        marketValue: "€0",
-        currentPIM: 0,
-        grade: 'C',
-        scoutId: scoutId,
-        secondaryPositions: category
-      });
+    // Escritura No Bloqueante
+    savePlayer({
+      name: playerName,
+      club: currentTeam,
+      tacticalRole: position || 'mc',
+      nationality: "N/A",
+      age: 0,
+      marketValue: "€0",
+      currentPIM: 0,
+      grade: 'C',
+      scoutId: scoutId,
+      secondaryPositions: category
+    });
 
-      toast({ title: t.talentId.success });
-      onComplete();
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Error", description: error.message });
-    } finally {
-      setLoading(false);
-    }
+    toast({ title: t.talentId.success });
+    onComplete();
   };
 
   return (
@@ -152,10 +147,9 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
 
           <Button 
             type="submit" 
-            disabled={loading}
             className="w-full h-16 bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.3em] rounded-3xl shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-all"
           >
-            {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <><Save className="mr-3 h-5 w-5" /> {t.talentId.submit}</>}
+            <Save className="mr-3 h-5 w-5" /> {t.talentId.submit}
           </Button>
         </div>
       </form>
