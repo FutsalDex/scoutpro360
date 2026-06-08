@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -380,7 +379,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}.pdf`);
 
       if (reportId) {
-        saveReport({ pdfGenerated: true }, reportId);
+        const scoutId = auth.currentUser?.uid;
+        if (scoutId) {
+          saveReport({ pdfGenerated: true, scoutId }, reportId);
+        }
       }
 
       toast({ title: t.report.actions.exported || "PDF Generado" });
@@ -415,14 +417,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       currentPIM: ratings['pim'] || 0,
       tacticalRole: activeRole.id,
       grade: (ratings['pim'] || 0) > 85 ? 'A' : ((ratings['pim'] || 0) > 70 ? 'B' : 'C'),
-      scoutId: scoutId,
+      scoutId: scoutId, // Vinculación obligatoria
       birthDate, height, weight, dominantFoot, secondaryPositions
     }, editingPlayerId || undefined);
     
     // 2. Guardar Informe (viculado al playerId obtenido síncronamente)
     const newId = saveReport({
       playerId, playerName, 
-      scoutId: scoutId,
+      scoutId: scoutId, // Vinculación obligatoria
       scoutName: scoutName || userProfile?.displayName || "Scout",
       pimScore: ratings['pim'] || 0,
       summary: notes['summary'] || "",
@@ -500,7 +502,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-6 gap-6">
                   <div className="sm:col-span-4 space-y-1.5">
                     <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
-                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Nombre del jugador" />
+                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" placeholder="Nombre del jugador" />
                   </div>
                   <div className="sm:col-span-2 space-y-1.5">
                     <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dorsal}</Label>
@@ -888,7 +890,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
         </TabsContent>
 
-        {/* ... Demás pestañas ... */}
+        {/* Evaluation Tabs */}
         <TabsContent value="technical" className="animate-in fade-in">
            <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>

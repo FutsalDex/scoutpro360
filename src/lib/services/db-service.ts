@@ -1,4 +1,3 @@
-
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -21,9 +20,13 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * Jugadores - Gestión de Persistencia No Bloqueante
+ * Se asegura de que scoutId esté presente de forma obligatoria.
  */
 export function savePlayer(playerData: Omit<Player, 'id'>, id?: string): string {
-  if (!playerData.scoutId) {
+  const scoutId = playerData.scoutId;
+  
+  if (!scoutId) {
+    console.error("ERROR CRÍTICO: Intento de guardar jugador sin scoutId", playerData);
     throw new Error("CRITICAL: scoutId is required to save a player record.");
   }
 
@@ -32,7 +35,8 @@ export function savePlayer(playerData: Omit<Player, 'id'>, id?: string): string 
   const isUpdate = !!id;
 
   const data = { 
-    ...playerData, 
+    ...playerData,
+    scoutId: scoutId, // Garantizamos que se incluya en el objeto final
     [isUpdate ? 'updatedAt' : 'createdAt']: serverTimestamp() 
   };
 
@@ -61,7 +65,6 @@ export async function getPlayer(id: string): Promise<Player | null> {
 
 /**
  * Escucha solo los jugadores captados por el scout actual.
- * Se elimina orderBy para evitar requerir índices compuestos en el prototipo.
  */
 export function subscribeToPlayers(scoutId: string | null, callback: (players: Player[]) => void) {
   if (!scoutId) return () => {};
@@ -100,6 +103,11 @@ export function subscribeToGlobalPlayers(callback: (players: Player[]) => void) 
  * Informes - Gestión de Persistencia No Bloqueante
  */
 export function saveReport(reportData: Partial<ScoutingReport>, id?: string): string {
+  if (!reportData.scoutId) {
+    console.error("ERROR CRÍTICO: Intento de guardar informe sin scoutId");
+    throw new Error("CRITICAL: scoutId is required to save a report.");
+  }
+
   const docRef = id ? doc(db, "reports", id) : doc(collection(db, "reports"));
   const finalId = docRef.id;
   const isUpdate = !!id;

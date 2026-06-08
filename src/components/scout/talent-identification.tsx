@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -41,7 +40,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
     }
 
     setLoading(true);
-    // Escritura No Bloqueante
+    // Escritura No Bloqueante con scoutId garantizado
     savePlayer({
       name: playerName,
       club: currentTeam,
