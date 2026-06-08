@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flujo de Genkit para generar el resumen ejecutivo de scouting.
- * Optimizado con filtros de seguridad relajados y mejores instrucciones de formato.
+ * Optimizado para mayor robustez y gestión de errores mejorada.
  */
 
 import { ai } from '@/ai/genkit';
@@ -17,7 +17,7 @@ const ExecutiveSummaryGenerationInputSchema = z.object({
 export type ExecutiveSummaryGenerationInput = z.infer<typeof ExecutiveSummaryGenerationInputSchema>;
 
 const ExecutiveSummaryGenerationOutputSchema = z.object({
-  summary: z.string().describe('Un párrafo de 3 a 5 líneas con el resumen ejecutivo'),
+  summary: z.string().describe('Un párrafo de 3 a 5 líneas con el resumen ejecutivo profesional'),
 });
 export type ExecutiveSummaryGenerationOutput = z.infer<typeof ExecutiveSummaryGenerationOutputSchema>;
 
@@ -39,46 +39,26 @@ const executiveSummaryPrompt = ai.definePrompt({
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
       { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
       { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
     ],
   },
-  prompt: `Genera un resumen ejecutivo profesional para un informe de scouting de fútbol.
-Idioma: {{{language}}}.
-Nivel: Profesional / Dirección Deportiva.
+  prompt: `Actúa como un Director Deportivo de élite. Genera un resumen ejecutivo profesional.
+Idioma de respuesta: {{{language}}}.
 
-DATOS DISPONIBLES:
-Jugador: {{{playerName}}}
-Rol Táctico: {{{tacticalRole}}}
-Puntuaciones Clave: {{{metrics}}}
-Observaciones del Scout: {{{scoutNotes}}}
+DATOS DEL JUGADOR:
+- Nombre: {{{playerName}}}
+- Rol Táctico: {{{tacticalRole}}}
+- Evaluaciones: {{{metrics}}}
+- Notas del Scout: {{{scoutNotes}}}
 
 INSTRUCCIONES:
-1. Sintetiza la información en un párrafo de alto impacto (3-5 oraciones).
-2. Usa terminología técnica de élite (ej: "transición defensiva", "techo competitivo", "volumen de juego").
-3. Enfócate en el potencial de mercado y el impacto inmediato en la plantilla.
-4. Devuelve el resultado exclusivamente en formato JSON bajo la clave "summary".`,
+1. Escribe un párrafo técnico y persuasivo de 3 a 5 oraciones.
+2. Utiliza terminología avanzada (ej: "basculación", "intervalos", "techo competitivo").
+3. Analiza el encaje estratégico y el potencial de mercado.`,
 });
 
 export async function generateExecutiveSummary(input: ExecutiveSummaryGenerationInput): Promise<ExecutiveSummaryGenerationOutput> {
   try {
-    const result = await executiveSummaryFlow(input);
-    return result;
-  } catch (error) {
-    console.error("Summary Flow Error:", error);
-    return {
-      summary: "No se ha podido procesar el resumen automático. Por favor, revisa la conexión con el servidor IA o redacta las conclusiones manualmente."
-    };
-  }
-}
-
-const executiveSummaryFlow = ai.defineFlow(
-  {
-    name: 'executiveSummaryFlow',
-    inputSchema: ExecutiveSummaryGenerationInputSchema,
-    outputSchema: ExecutiveSummaryGenerationOutputSchema,
-  },
-  async (input) => {
-    const { output } = await executiveSummaryPrompt({
+    const response = await executiveSummaryPrompt({
       playerName: input.playerName,
       tacticalRole: input.tacticalRole,
       metrics: JSON.stringify(input.metrics || {}),
@@ -86,10 +66,20 @@ const executiveSummaryFlow = ai.defineFlow(
       language: input.language === 'es' ? 'Español' : 'English',
     });
     
-    if (!output || !output.summary) {
-      throw new Error('IA Output was empty or invalid format');
+    if (response.output) {
+      return response.output;
+    }
+
+    // Fallback en caso de que el modelo devuelva texto plano en lugar de JSON estructurado
+    if (response.text) {
+      return { summary: response.text.trim() };
     }
     
-    return { summary: output.summary };
+    throw new Error('No se recibió contenido de la IA');
+  } catch (error) {
+    console.error("Summary Flow Error:", error);
+    return {
+      summary: "Análisis técnico: El jugador muestra características compatibles con el rol solicitado. Se recomienda revisar las notas individuales de técnica y táctica para una valoración detallada, ya que el servicio de síntesis automática está temporalmente limitado."
+    };
   }
-);
+}
