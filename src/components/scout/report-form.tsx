@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -347,7 +346,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       setReportId(finalReportId);
     }
 
-    toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito en español." });
+    toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito." });
   };
 
   const handleCalculatePIM = async () => {
@@ -358,7 +357,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
     setIsCalculatingPIM(true);
     try {
-      // Filtrado manual de ratings por categoría basándonos en el rol activo
       const categorizedMetrics = {
         technical: {} as Record<string, number>,
         tactical: {} as Record<string, number>,
@@ -366,7 +364,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         mental: {} as Record<string, number>,
       };
 
-      // Clasificar cada rating en su categoría correspondiente
+      // Ensure metrics are classified according to the active role's KPIs
       activeRole.kpis.technical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.technical[k] = ratings[k]; });
       activeRole.kpis.technical.impact.forEach(k => { if(ratings[k]) categorizedMetrics.technical[k] = ratings[k]; });
       activeRole.kpis.tactical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.tactical[k] = ratings[k]; });
@@ -374,23 +372,23 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       activeRole.kpis.mental.observation.forEach(k => { if(ratings[k]) categorizedMetrics.mental[k] = ratings[k]; });
 
       const result = await calculatePlayerImpactMetric({
-        playerId: editingPlayerId || "temp",
+        playerId: editingPlayerId || "temp_id",
         currentEvaluation: {
           tacticalRole: activeRole.name,
           metrics: categorizedMetrics
         },
-        historicalClubData: "Reference Club Avg PIM: 75",
+        historicalClubData: `Player: ${playerName}. General notes: ${overallDescription}`,
         language: 'es'
       });
 
       if (result) {
         handleRatingChange('pim', Math.round(result.playerImpactMetric));
         handleNoteChange('pim_explanation', result.explanation);
-        toast({ title: "Cálculo Finalizado", description: "Métrica PIM actualizada por la IA." });
+        toast({ title: "Cálculo Finalizado", description: "Métrica PIM actualizada por el analista virtual." });
       }
     } catch (e: any) {
-      console.error("Error en flujo PIM:", e);
-      toast({ variant: "destructive", title: "Error IA", description: "No se pudo calcular el PIM. Inténtalo de nuevo." });
+      console.error("AI Error (PIM):", e);
+      toast({ variant: "destructive", title: "Error IA", description: "No se pudo calcular el PIM. Verifica tu conexión e inténtalo de nuevo." });
     } finally { setIsCalculatingPIM(false); }
   };
 
@@ -398,13 +396,17 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     setIsGeneratingSummary(true);
     try {
       const result = await generateExecutiveSummary({
-        playerName, tacticalRole: activeRole.name, scoutNotes: JSON.stringify(notes), language: 'es'
+        playerName: playerName || "Prospecto",
+        tacticalRole: activeRole.name,
+        metrics: ratings,
+        scoutNotes: JSON.stringify({ notes, strengths, weaknesses, overallDescription }),
+        language: 'es'
       });
       handleNoteChange('summary', result.summary);
-      toast({ title: "Resumen Generado", description: "El informe IA ha sido actualizado." });
+      toast({ title: "Resumen Generado", description: "El informe ha sido sintetizado con éxito." });
     } catch (e) {
-      console.error("Error en flujo Resumen:", e);
-      toast({ variant: "destructive", title: "Error IA" });
+      console.error("AI Error (Summary):", e);
+      toast({ variant: "destructive", title: "Error IA", description: "Fallo al generar el resumen ejecutivo." });
     } finally { setIsGeneratingSummary(false); }
   };
 
@@ -769,7 +771,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <ChipGroup label={t.report.evaluationTab.fitsModel} options={['si', 'no', 'maybe']} selected={fitsModel} onSelect={setFitsModel} t={t} />
                 <ChipGroup label={t.report.evaluationTab.immediateImpact} options={['alto', 'medio', 'bajo']} selected={immediateImpact} onSelect={setImmediateImpact} t={t} />
                 <ChipGroup label={t.report.evaluationTab.futurePotential} options={['elite', 'alto', 'medio', 'bajo']} selected={futurePotential} onSelect={setFuturePotential} t={t} />
-                <ChipGroup label={t.report.evaluationTab.adaptationRisk} options={['alto', 'medio', 'bajo']} selected={adaptationRisk} onSelect={setAdaptationRisk} t={t} />
+                <ChipGroup label={t.report.evaluationTab.adaptationRisk} options={['alto', 'medio', 'bajo']} selected={adaptationRisk} onSelect={setAdjustmentRisk} t={t} />
                 <ChipGroup label={t.report.evaluationTab.fitsPhilosophy} options={['si', 'no']} selected={fitsPhilosophy} onSelect={setFitsPhilosophy} t={t} />
               </CardContent>
             </Card>
@@ -825,15 +827,15 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               <Brain className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-sm font-black uppercase tracking-[0.2em]">{t.report.pim.title}</h3>
               <div className="text-8xl font-black text-primary my-6">{ratings['pim'] || "0"}</div>
-              <Button onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="w-full h-12 bg-primary font-black uppercase text-[10px] rounded-xl">
+              <Button onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="w-full h-12 bg-primary font-black uppercase text-[10px] rounded-xl shadow-lg shadow-primary/20">
                 {isCalculatingPIM ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.pim.calculate}
               </Button>
             </Card>
             <Card className="p-10 border-2 border-accent/30 bg-[#1b263b]/60 rounded-[2.5rem] flex flex-col items-center justify-between text-center">
               <Sparkles className="h-12 w-12 text-accent mb-4" />
               <h3 className="text-sm font-black uppercase tracking-[0.2em]">{t.report.summary.title}</h3>
-              <div className="text-xs italic text-muted-foreground text-left p-4 bg-background/40 rounded-xl my-6 line-clamp-6">{notes['summary'] || t.report.summary.placeholder}</div>
-              <Button variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="w-full h-12 font-black uppercase text-[10px] rounded-xl">
+              <div className="text-xs italic text-muted-foreground text-left p-4 bg-background/40 rounded-xl my-6 line-clamp-6 min-h-[120px]">{notes['summary'] || t.report.summary.placeholder}</div>
+              <Button variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="w-full h-12 font-black uppercase text-[10px] rounded-xl shadow-lg shadow-accent/20">
                 {isGeneratingSummary ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.summary.generate}
               </Button>
             </Card>

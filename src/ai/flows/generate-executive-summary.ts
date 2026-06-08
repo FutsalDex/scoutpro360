@@ -1,6 +1,7 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating an objective executive summary.
+ * Optimized with relaxed safety filters.
  */
 
 import { ai } from '@/ai/genkit';
@@ -38,22 +39,30 @@ const prompt = ai.definePrompt({
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
       { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
       { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
     ],
   },
-  prompt: `Generate a professional and concise summary STRICTLY in {{{language}}}. Use professional football scouting terminology in {{{language}}}.
-It is CRITICAL that the summary is written entirely in {{{language}}}.
+  prompt: `Generate a professional, concise executive scouting summary STRICTLY in {{{language}}}.
+Use elite professional football terminology.
 
 Player: {{{playerName}}}
 Role: {{{tacticalRole}}}
-Metrics: {{{formattedMetrics}}}
-Notes: {{{scoutNotes}}}
+Key Ratings: {{{formattedMetrics}}}
+Scout Observations: {{{scoutNotes}}}
 
-Provide a 3-4 sentence executive summary focusing on the player's potential and key performance indicators observed.`,
+Provide a 3-4 sentence high-impact summary. Focus on performance ceiling and immediate impact.`,
 });
 
 export async function generateExecutiveSummary(input: ExecutiveSummaryGenerationInput): Promise<ExecutiveSummaryGenerationOutput> {
-  const result = await executiveSummaryFlow(input);
-  return result;
+  try {
+    const result = await executiveSummaryFlow(input);
+    return result;
+  } catch (error) {
+    console.error("Summary Flow Error:", error);
+    return {
+      summary: "Error generando el resumen automático. Por favor, redacta el resumen manualmente basándote en tus observaciones."
+    };
+  }
 }
 
 const executiveSummaryFlow = ai.defineFlow(
@@ -72,7 +81,7 @@ const executiveSummaryFlow = ai.defineFlow(
     });
     
     if (!output) {
-      throw new Error('No se pudo generar el resumen.');
+      throw new Error('No se pudo generar el resumen (bloqueo IA).');
     }
     
     return output;

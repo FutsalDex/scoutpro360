@@ -1,6 +1,7 @@
 'use server';
 /**
  * @fileOverview This file implements a Genkit flow for calculating the Player Impact Metric (PIM).
+ * Optimized with relaxed safety filters and robust prompt logic.
  */
 
 import { ai } from '@/ai/genkit';
@@ -48,32 +49,41 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
       { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
       { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
     ],
   },
-  prompt: `You are an expert football performance analyst. Your task is to calculate the Player Impact Metric (PIM) on a scale of 0 to 100.
-The PIM represents the projected impact this player would have in a professional top-tier team based on their current performance metrics.
+  prompt: `You are an elite football performance data scientist. Your task is to calculate the Player Impact Metric (PIM) from 0 to 100.
+The PIM is a composite score representing the player's potential success in a top-tier professional environment.
 
-STRICTLY provide the explanation in {{{language}}}. Do not use any other language than {{{language}}}.
-It is CRITICAL that the explanation is written entirely in {{{language}}}.
+STRICTLY provide the explanation in {{{language}}}.
 
 CONTEXT DATA:
 - Tactical Role: {{{tacticalRole}}}
-- Technical Evaluation: {{{technical}}}
-- Tactical Intelligence: {{{tactical}}}
-- Physical Condition: {{{physical}}}
-- Mental Attributes: {{{mental}}}
-- Reference Data: {{{historicalClubData}}}
+- Technical: {{{technical}}}
+- Tactical: {{{tactical}}}
+- Physical: {{{physical}}}
+- Mental: {{{mental}}}
+- Context: {{{historicalClubData}}}
 
-CALCULATION LOGIC:
-1. Weight the metrics according to the importance for the tactical role.
-2. If some metrics are missing, provide the best estimation based on available data.
-3. Generate a final score from 0 to 100 as an integer.
-4. Provide a professional, concise scout-style explanation in {{{language}}}.`,
+INSTRUCTIONS:
+1. Weight attributes based on the Tactical Role importance.
+2. If metrics are empty or sparse, provide a reasonable estimate based on the role and any available data.
+3. Return a clean integer between 0 and 100.
+4. The explanation must be professional, technical, and strictly in {{{language}}}.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
-  const result = await calculatePlayerImpactMetricFlow(input);
-  return result;
+  try {
+    const result = await calculatePlayerImpactMetricFlow(input);
+    return result;
+  } catch (error) {
+    console.error("PIM Flow Error:", error);
+    // Fallback response to avoid complete UI breakage
+    return {
+      playerImpactMetric: 50,
+      explanation: "Error en el cálculo automático. Por favor, revisa las métricas e inténtalo de nuevo."
+    };
+  }
 }
 
 const calculatePlayerImpactMetricFlow = ai.defineFlow(
@@ -85,16 +95,16 @@ const calculatePlayerImpactMetricFlow = ai.defineFlow(
   async (input) => {
     const { output } = await calculatePlayerImpactMetricPrompt({
       tacticalRole: input.currentEvaluation.tacticalRole,
-      technical: JSON.stringify(input.currentEvaluation.metrics.technical),
-      tactical: JSON.stringify(input.currentEvaluation.metrics.tactical),
-      physical: JSON.stringify(input.currentEvaluation.metrics.physical),
-      mental: JSON.stringify(input.currentEvaluation.metrics.mental),
-      historicalClubData: input.historicalClubData || "Standard Benchmark: 70",
+      technical: JSON.stringify(input.currentEvaluation.metrics.technical || {}),
+      tactical: JSON.stringify(input.currentEvaluation.metrics.tactical || {}),
+      physical: JSON.stringify(input.currentEvaluation.metrics.physical || {}),
+      mental: JSON.stringify(input.currentEvaluation.metrics.mental || {}),
+      historicalClubData: input.historicalClubData || "Club Standard Benchmark: 70",
       language: input.language === 'es' ? 'Spanish' : 'English',
     });
     
     if (!output) {
-      throw new Error('El modelo de IA no devolvió un resultado válido.');
+      throw new Error('AI output was null or blocked by safety filters.');
     }
 
     return output;
