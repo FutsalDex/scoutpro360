@@ -11,23 +11,18 @@ import {
   where,
   getDocs,
   limit,
-  setDoc,
-  orderBy
+  setDoc
 } from "firebase/firestore";
-import { Player, ScoutingReport, PlayerList, ScheduledMatch, QuickNote } from "@/lib/types";
+import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
- * Jugadores - Gestión de Persistencia No Bloqueante
- * Se asegura de que scoutId esté presente de forma obligatoria.
+ * Jugadores - Gestión de Persistencia Estricta
  */
 export function savePlayer(playerData: Omit<Player, 'id'>, id?: string): string {
-  const scoutId = playerData.scoutId;
-  
-  if (!scoutId) {
-    console.error("ERROR CRÍTICO: Intento de guardar jugador sin scoutId", playerData);
-    throw new Error("CRITICAL: scoutId is required to save a player record.");
+  if (!playerData.scoutId) {
+    throw new Error("CRITICAL: scoutId is required to save a player.");
   }
 
   const docRef = id ? doc(db, "players", id) : doc(collection(db, "players"));
@@ -36,7 +31,6 @@ export function savePlayer(playerData: Omit<Player, 'id'>, id?: string): string 
 
   const data = { 
     ...playerData,
-    scoutId: scoutId, // Garantizamos que se incluya en el objeto final
     [isUpdate ? 'updatedAt' : 'createdAt']: serverTimestamp() 
   };
 
@@ -58,13 +52,12 @@ export async function getPlayer(id: string): Promise<Player | null> {
     const snap = await getDoc(docRef);
     return snap.exists() ? { id: snap.id, ...snap.data() } as Player : null;
   } catch (error) {
-    console.error("Error getting player:", error);
     return null;
   }
 }
 
 /**
- * Escucha solo los jugadores captados por el scout actual.
+ * Escucha solo los jugadores vinculados al scout actual.
  */
 export function subscribeToPlayers(scoutId: string | null, callback: (players: Player[]) => void) {
   if (!scoutId) return () => {};
@@ -83,15 +76,10 @@ export function subscribeToPlayers(scoutId: string | null, callback: (players: P
   );
 }
 
-/**
- * Escucha todos los jugadores de la organización (Para planes de Club/Admin).
- */
 export function subscribeToGlobalPlayers(callback: (players: Player[]) => void) {
   const colRef = collection(db, "players");
-  const q = query(colRef);
-  
   return onSnapshot(
-    q,
+    colRef,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[]),
     async (err) => {
       errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }));
@@ -100,12 +88,11 @@ export function subscribeToGlobalPlayers(callback: (players: Player[]) => void) 
 }
 
 /**
- * Informes - Gestión de Persistencia No Bloqueante
+ * Informes - Gestión de Persistencia Estricta
  */
 export function saveReport(reportData: Partial<ScoutingReport>, id?: string): string {
-  if (!reportData.scoutId) {
-    console.error("ERROR CRÍTICO: Intento de guardar informe sin scoutId");
-    throw new Error("CRITICAL: scoutId is required to save a report.");
+  if (!reportData.scoutId || !reportData.playerId) {
+    throw new Error("CRITICAL: scoutId and playerId are required to save a report.");
   }
 
   const docRef = id ? doc(db, "reports", id) : doc(collection(db, "reports"));
@@ -136,7 +123,6 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
     const snap = await getDocs(q);
     return !snap.empty ? { id: snap.docs[0].id, ...snap.docs[0].data() } as ScoutingReport : null;
   } catch (error) {
-    console.error("Error getting report:", error);
     return null;
   }
 }
@@ -162,9 +148,10 @@ export function subscribeToGlobalReports(callback: (reports: ScoutingReport[]) =
 }
 
 /**
- * Agenda de Partidos - Gestión No Bloqueante
+ * Agenda de Partidos
  */
 export function saveScheduledMatch(matchData: Omit<ScheduledMatch, 'id'>, id?: string): string {
+  if (!matchData.scoutId) throw new Error("scoutId required");
   const docRef = id ? doc(db, "scheduledMatches", id) : doc(collection(db, "scheduledMatches"));
   const finalId = docRef.id;
   const isUpdate = !!id;

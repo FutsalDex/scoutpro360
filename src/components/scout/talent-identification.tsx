@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Save, Loader2, Sparkles } from "lucide-react";
+import { User, Save, Sparkles } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
@@ -17,9 +17,7 @@ import { TACTICAL_ROLES } from "@/lib/types";
 export function TalentIdentification({ onComplete }: { onComplete: () => void }) {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
 
-  // Form State
   const [playerName, setPlayerName] = useState("");
   const [currentTeam, setCurrentTeam] = useState("");
   const [position, setPosition] = useState("");
@@ -28,19 +26,19 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!playerName || !currentTeam) {
-      toast({ variant: "destructive", title: "Campos Requeridos", description: "El nombre y el equipo son obligatorios." });
-      return;
-    }
-
+    
     const scoutId = auth.currentUser?.uid;
     if (!scoutId) {
-      toast({ variant: "destructive", title: "Auth Required", description: "Inicia sesión para registrar talento." });
+      toast({ variant: "destructive", title: "Error", description: "Debes iniciar sesión para registrar talento." });
       return;
     }
 
-    setLoading(true);
-    // Escritura No Bloqueante con scoutId garantizado
+    if (!playerName || !currentTeam) {
+      toast({ variant: "destructive", title: "Campos Requeridos", description: "Nombre y club son obligatorios." });
+      return;
+    }
+
+    // Vinculación Estricta con el UID del Scout actual
     savePlayer({
       name: playerName,
       club: currentTeam,
@@ -69,88 +67,59 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       </div>
 
       <form onSubmit={handleRegister} className="space-y-8">
-        <div className="grid grid-cols-1 gap-8">
-          <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
-            <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-accent/20">
-              <div className="flex items-center gap-3">
-                <User className="h-5 w-5 text-accent" />
-                <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-white">
-                  {t.talentId.playerSection}
-                </CardTitle>
+        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+          <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-accent/20">
+            <div className="flex items-center gap-3">
+              <User className="h-5 w-5 text-accent" />
+              <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-white">
+                {t.talentId.playerSection}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-8 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.playerName}</Label>
+                <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Ej: Lamine Yamal" />
               </div>
-            </CardHeader>
-            <CardContent className="p-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.playerName}</Label>
-                  <Input 
-                    value={playerName} 
-                    onChange={(e) => setPlayerName(e.target.value)}
-                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
-                    placeholder="Ej: Lamine Yamal" 
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.currentTeam}</Label>
-                  <Input 
-                    value={currentTeam} 
-                    onChange={(e) => setCurrentTeam(e.target.value)}
-                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
-                    placeholder="Club Actual" 
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.currentTeam}</Label>
+                <Input value={currentTeam} onChange={(e) => setCurrentTeam(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Club Actual" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.position}</Label>
-                  <Select value={position} onValueChange={setPosition}>
-                    <SelectTrigger className="h-12 bg-secondary/10 border-border/20 rounded-xl text-xs font-bold">
-                      <SelectValue placeholder="-" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#1b263b] border-border/20">
-                      {TACTICAL_ROLES.map(role => (
-                        <SelectItem key={role.id} value={role.id}>{t.report.tacticalRoles[role.id as keyof typeof t.report.tacticalRoles] || role.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.category}</Label>
-                  <Input 
-                    value={category} 
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
-                    placeholder="U19 / 2007" 
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.position}</Label>
+                <Select value={position} onValueChange={setPosition}>
+                  <SelectTrigger className="h-12 bg-secondary/10 border-border/20 rounded-xl font-bold">
+                    <SelectValue placeholder="-" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1b263b] border-border/20">
+                    {TACTICAL_ROLES.map(role => (
+                      <SelectItem key={role.id} value={role.id}>{t.report.tacticalRoles[role.id as keyof typeof t.report.tacticalRoles] || role.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.category}</Label>
+                <Input value={category} onChange={(e) => setCategory(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="U19 / 2007" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="space-y-6">
-          <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
-            <CardContent className="p-8 space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.notes}</Label>
-              </div>
-              <Textarea 
-                value={notes} 
-                onChange={(e) => setNotes(e.target.value)}
-                className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-sm italic font-medium placeholder:opacity-30" 
-                placeholder="Describe brevemente por qué es un talento de interés..." 
-              />
-            </CardContent>
-          </Card>
+        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+          <CardContent className="p-8 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.notes}</Label>
+            </div>
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-sm italic font-medium" placeholder="Describe brevemente el potencial observado..." />
+          </CardContent>
+        </Card>
 
-          <Button 
-            type="submit" 
-            className="w-full h-16 bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.3em] rounded-3xl shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-all"
-          >
-            <Save className="mr-3 h-5 w-5" /> {t.talentId.submit}
-          </Button>
-        </div>
+        <Button type="submit" className="w-full h-16 bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.3em] rounded-3xl shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-all">
+          <Save className="mr-3 h-5 w-5" /> {t.talentId.submit}
+        </Button>
       </form>
     </div>
   );

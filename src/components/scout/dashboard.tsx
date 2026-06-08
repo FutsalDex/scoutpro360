@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -30,20 +29,10 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   const isManagement = ['admin', 'gestion', 'director'].includes(role);
 
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          await user.getIdToken(true);
-          setScoutId(user.uid);
-        } catch (error) {
-          console.error("Auth sync error:", error);
-          setScoutId(user.uid);
-        }
-      } else {
-        setScoutId(null);
-        setLoading(false);
-      }
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      setScoutId(user?.uid || null);
       setAuthReady(true);
+      if (!user) setLoading(false);
     });
     return () => unsubAuth();
   }, []);
@@ -51,41 +40,16 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   useEffect(() => {
     if (!authReady || !scoutId) return;
 
-    let playersLoaded = false;
-    let reportsLoaded = false;
-
-    const checkLoading = () => {
-      if (playersLoaded && reportsLoaded) {
-        setLoading(false);
-      }
-    };
-
-    // Si es directivo, suscribe a datos globales. Si es analista, a datos personales.
+    // Directivos ven todo el club, Scouts ven solo su patrimonio
     const unsubPlayers = isManagement 
-      ? subscribeToGlobalPlayers((data) => {
-          setPlayers(data);
-          playersLoaded = true;
-          checkLoading();
-        })
-      : subscribeToPlayers(scoutId, (data) => {
-          setPlayers(data);
-          playersLoaded = true;
-          checkLoading();
-        });
+      ? subscribeToGlobalPlayers(setPlayers)
+      : subscribeToPlayers(scoutId, setPlayers);
 
     const unsubReports = isManagement
-      ? subscribeToGlobalReports((data) => {
-          setReports(data);
-          reportsLoaded = true;
-          checkLoading();
-        })
-      : subscribeToReports(scoutId, (data) => {
-          setReports(data);
-          reportsLoaded = true;
-          checkLoading();
-        });
+      ? subscribeToGlobalReports(setReports)
+      : subscribeToReports(scoutId, setReports);
 
-    const timer = setTimeout(() => setLoading(false), 5000);
+    const timer = setTimeout(() => setLoading(false), 2000);
 
     return () => {
       unsubPlayers();
@@ -96,211 +60,102 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 animate-in fade-in duration-700">
-        <div className="relative">
-          <div className="h-20 w-20 rounded-2xl border-2 border-primary/20 animate-spin" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
-          </div>
-        </div>
-        <div className="text-center space-y-2">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-primary animate-pulse">
-            {t.dashboard.stats.syncing}
-          </p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+        <div className="h-16 w-16 rounded-2xl border-4 border-primary/20 border-t-primary animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">{t.dashboard.stats.syncing}</p>
       </div>
     );
   }
 
-  // Lógica de Métricas Profesionales Sincronizada con la BD
-  const detectedCount = players.length;
+  // Lógica de Métricas de Captación
+  const totalInDb = players.length;
+  const analyzedCount = players.filter(p => reports.some(r => r.playerId === p.id)).length;
+  const identifiedOnly = Math.max(0, totalInDb - analyzedCount);
+  const totalReports = reports.length;
   
-  // Jugadores Analizados: Jugadores que existen en la BD y tienen al menos un informe
-  const analyzedCount = players.filter(p => 
-    reports.some(r => r.playerId === p.id)
-  ).length;
-  
-  // Talento Identificado: Jugadores en BD que NO tienen informes aún
-  const identifiedCount = Math.max(0, detectedCount - analyzedCount);
-  
-  // Informes Generados: Solo PDFs exportados (o total de informes si prefieres)
-  const generatedCount = reports.length;
-  
-  // Media PIM: Solo de jugadores evaluados (PIM > 0)
   const evaluatedPlayers = players.filter(p => (p.currentPIM || 0) > 0);
   const avgPim = evaluatedPlayers.length > 0 
     ? (evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length).toFixed(1) 
     : "0.0";
 
-  // Ordenar recientes en memoria
   const recentPlayers = [...players]
-    .sort((a, b) => {
-      const dateA = a.createdAt?.seconds || 0;
-      const dateB = b.createdAt?.seconds || 0;
-      return dateB - dateA;
-    })
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
     .slice(0, 5);
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+    <div className="space-y-10 animate-in fade-in duration-700 pb-20">
       <div className="flex flex-col gap-2">
         <div className="h-1 w-12 bg-primary rounded-full mb-2" />
-        <div className="flex flex-col sm:flex-row sm:items-baseline gap-3">
-          <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
-            {t.dashboard.title}
-          </h1>
-          {isManagement && (
-            <Badge className="bg-primary/20 text-primary border-primary/30 font-black text-[9px] uppercase tracking-widest px-3 py-1">
-              Modo Inteligencia Global (Club)
-            </Badge>
-          )}
+        <div className="flex items-center gap-3">
+          <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">{t.dashboard.title}</h1>
+          {isManagement && <Badge className="bg-primary/20 text-primary border-primary/30 font-black text-[9px] uppercase tracking-widest px-3 py-1">Modo Club</Badge>}
         </div>
         <p className="text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        <DashboardStatCard
-          title={t.dashboard.stats.detected}
-          value={detectedCount.toString()}
-          icon={<User className="text-primary" />}
-          color="border-primary/20"
-          delay="0"
-        />
-        <DashboardStatCard
-          title={t.dashboard.stats.identified}
-          value={identifiedCount.toString()}
-          icon={<Binoculars className="text-accent" />}
-          color="border-accent/20"
-          delay="100"
-        />
-        <DashboardStatCard
-          title={t.dashboard.stats.analyzed}
-          value={analyzedCount.toString()}
-          icon={<ShieldCheck className="text-primary" />}
-          color="border-primary/20"
-          delay="200"
-        />
-        <DashboardStatCard
-          title={t.dashboard.stats.reports}
-          value={generatedCount.toString()}
-          icon={<ClipboardCheck className="text-accent" />}
-          color="border-accent/20"
-          delay="300"
-        />
-        <DashboardStatCard
-          title={t.dashboard.stats.avgPim}
-          value={avgPim}
-          icon={<TrendingUp className="text-primary" />}
-          color="border-primary/20"
-          suffix="%"
-          delay="400"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <StatCard title={t.dashboard.stats.detected} value={totalInDb.toString()} icon={<User className="text-primary" />} />
+        <StatCard title={t.dashboard.stats.identified} value={identifiedOnly.toString()} icon={<Binoculars className="text-accent" />} />
+        <StatCard title={t.dashboard.stats.analyzed} value={analyzedCount.toString()} icon={<ShieldCheck className="text-primary" />} />
+        <StatCard title={t.dashboard.stats.reports} value={totalReports.toString()} icon={<ClipboardCheck className="text-accent" />} />
+        <StatCard title={t.dashboard.stats.avgPim} value={avgPim} suffix="%" icon={<TrendingUp className="text-primary" />} />
       </div>
 
-      <div className="grid grid-cols-1 gap-8">
-        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
-          <CardHeader className="p-8 border-b border-border/10 flex flex-row items-center justify-between bg-secondary/10">
-            <div className="space-y-1">
-              <CardTitle className="text-lg font-black uppercase tracking-widest flex items-center gap-2">
-                <Star className="h-5 w-5 text-primary fill-primary" />
-                {t.dashboard.recentProspects.title}
-              </CardTitle>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                {isManagement ? 'Último talento detectado en toda la red' : t.dashboard.recentProspects.subtitle}
-              </p>
-            </div>
-            <Badge variant="outline" className="border-primary/30 text-primary font-black text-[9px] uppercase tracking-widest px-3 py-1">
-              {recentPlayers.length} {t.dashboard.recentProspects.new}
-            </Badge>
-          </CardHeader>
-          <CardContent className="p-0">
-            {recentPlayers.length > 0 ? (
-              <div className="divide-y divide-border/10">
-                {recentPlayers.map((player) => (
-                  <div 
-                    key={player.id} 
-                    className="p-6 flex items-center justify-between hover:bg-primary/5 transition-all group cursor-pointer"
-                    onClick={() => onEditPlayer(player.id)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-12 w-12 rounded-xl border border-primary/20 shadow-lg group-hover:scale-105 transition-transform">
-                        <AvatarFallback className="font-black text-primary bg-primary/10">
-                          {player.name[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="space-y-1">
-                        <p className="font-black text-sm uppercase tracking-tight group-hover:text-primary transition-colors">
-                          {player.name}
-                        </p>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
-                            <MapPin className="h-3 w-3" /> {player.club}
-                          </span>
-                          <span className="h-1 w-1 rounded-full bg-border" />
-                          <span className="text-[10px] text-primary font-black uppercase tracking-widest">
-                            {player.tacticalRole}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right hidden sm:block">
-                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">PIM IMPACT</p>
-                        <p className="text-xl font-black text-accent">{player.currentPIM}%</p>
-                      </div>
-                      <div className={cn(
-                        "h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-lg",
-                        player.grade === 'A' ? "border-primary/50" : ""
-                      )}>
-                        <ChevronRight className="h-5 w-5" />
-                      </div>
+      <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+        <CardHeader className="p-8 border-b border-border/10 flex flex-row items-center justify-between bg-secondary/10">
+          <div>
+            <CardTitle className="text-lg font-black uppercase tracking-widest flex items-center gap-2">
+              <Star className="h-5 w-5 text-primary fill-primary" /> {t.dashboard.recentProspects.title}
+            </CardTitle>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold">{t.dashboard.recentProspects.subtitle}</p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {recentPlayers.length > 0 ? (
+            <div className="divide-y divide-border/10">
+              {recentPlayers.map(player => (
+                <div key={player.id} className="p-6 flex items-center justify-between hover:bg-primary/5 transition-all cursor-pointer group" onClick={() => onEditPlayer(player.id)}>
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-12 w-12 rounded-xl border border-primary/20 shadow-lg">
+                      <AvatarFallback className="font-black text-primary bg-primary/10">{player.name[0].toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-black text-sm uppercase group-hover:text-primary transition-colors">{player.name}</p>
+                      <p className="text-[10px] text-muted-foreground flex items-center gap-2 font-bold"><MapPin className="h-3 w-3" /> {player.club} · <span className="text-primary uppercase">{player.tacticalRole}</span></p>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-20 text-center space-y-4 opacity-40">
-                <div className="h-12 w-12 rounded-full bg-secondary/50 flex items-center justify-center mx-auto">
-                  <User className="h-6 w-6 text-muted-foreground" />
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <p className="text-[9px] font-black text-muted-foreground uppercase">PIM</p>
+                      <p className="text-xl font-black text-accent">{player.currentPIM}%</p>
+                    </div>
+                    <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                      <ChevronRight className="h-5 w-5" />
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                  {t.dashboard.recentProspects.noData}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-20 text-center text-muted-foreground font-black text-[10px] uppercase tracking-widest opacity-40">{t.dashboard.recentProspects.noData}</div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function DashboardStatCard({
-  title, value, icon, color, suffix = "", delay = "0"
-}: {
-  title: string, value: string, icon: React.ReactNode, color: string, suffix?: string, delay?: string
-}) {
+function StatCard({ title, value, icon, suffix = "" }: { title: string, value: string, icon: any, suffix?: string }) {
   return (
-    <Card 
-      className={`border-2 ${color} bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden hover:scale-[1.03] transition-all cursor-default group shadow-2xl animate-in zoom-in-95 duration-500`}
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors leading-tight">
-            {title}
-          </p>
-          <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary/10 transition-colors shrink-0">
-            {icon}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-2 pb-8">
-        <div className="flex items-baseline gap-1">
-          <p className="text-5xl font-black font-headline text-foreground tracking-tighter">{value}</p>
-          {suffix && <span className="text-xl font-black text-primary/60">{suffix}</span>}
-        </div>
-      </CardContent>
+    <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] p-6 hover:scale-[1.03] transition-all cursor-default group shadow-xl">
+      <div className="flex justify-between items-start mb-4">
+        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">{title}</p>
+        <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary/10 transition-colors">{icon}</div>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <p className="text-5xl font-black font-headline tracking-tighter">{value}</p>
+        {suffix && <span className="text-xl font-black text-primary/60">{suffix}</span>}
+      </div>
     </Card>
   );
 }

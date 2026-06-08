@@ -43,7 +43,7 @@ export interface Player {
   currentPIM: number;
   tacticalRole: string;
   grade: Grade;
-  scoutId: string;
+  scoutId: string; // Mandatory
   birthDate?: string;
   height?: string;
   weight?: string;
@@ -90,7 +90,7 @@ export interface ScoutingReport {
   id?: string;
   playerId: string;
   playerName: string;
-  scoutId: string;
+  scoutId: string; // Mandatory
   scoutName: string;
   pimScore: number;
   summary: string;
@@ -108,7 +108,6 @@ export interface ScoutingReport {
   pitchPosition?: Point;
   heatmapPoints?: Point[];
   pdfGenerated?: boolean;
-  // Campos de Contexto
   matchStyle?: string;
   matchSystem?: string;
   matchPace?: string;
