@@ -1,21 +1,21 @@
 'use server';
 /**
- * @fileOverview This file implements a Genkit flow for calculating the Player Impact Metric (PIM).
- * Optimized with relaxed safety filters and robust prompt logic.
+ * @fileOverview Flujo de Genkit para calcular la Métrica de Impacto del Jugador (PIM).
+ * Optimizado para robustez técnica y cumplimiento de esquema.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const CalculatePlayerImpactMetricInputSchema = z.object({
-  playerId: z.string().describe('The ID of the player being evaluated.'),
+  playerId: z.string(),
   currentEvaluation: z.object({
-    tacticalRole: z.string().describe('The specific tactical role of the player.'),
+    tacticalRole: z.string(),
     metrics: z.object({
-      technical: z.record(z.number().min(1).max(5)),
-      tactical: z.record(z.number().min(1).max(5)),
-      physical: z.record(z.number().min(1).max(5)),
-      mental: z.record(z.number().min(1).max(5)),
+      technical: z.record(z.number()),
+      tactical: z.record(z.number()),
+      physical: z.record(z.number()),
+      mental: z.number().or(z.record(z.number())),
     }),
   }),
   historicalClubData: z.string().optional(),
@@ -24,8 +24,8 @@ const CalculatePlayerImpactMetricInputSchema = z.object({
 export type CalculatePlayerImpactMetricInput = z.infer<typeof CalculatePlayerImpactMetricInputSchema>;
 
 const CalculatePlayerImpactMetricOutputSchema = z.object({
-  playerImpactMetric: z.number().describe('A score from 0 to 100'),
-  explanation: z.string().describe('A brief explanation of the score'),
+  playerImpactMetric: z.number().describe('Un número entero entre 0 y 100'),
+  explanation: z.string().describe('Explicación técnica detallada del impacto'),
 });
 export type CalculatePlayerImpactMetricOutput = z.infer<typeof CalculatePlayerImpactMetricOutputSchema>;
 
@@ -38,7 +38,7 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
       tactical: z.string(),
       physical: z.string(),
       mental: z.string(),
-      historicalClubData: z.string(),
+      context: z.string(),
       language: z.string(),
     })
   },
@@ -52,24 +52,24 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
       { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
     ],
   },
-  prompt: `You are an elite football performance data scientist. Your task is to calculate the Player Impact Metric (PIM) from 0 to 100.
-The PIM is a composite score representing the player's potential success in a top-tier professional environment.
+  prompt: `Actúa como un científico de datos especializado en rendimiento futbolístico de élite.
+Calcula el Player Impact Metric (PIM) de 0 a 100 basado en los siguientes datos técnicos.
 
-STRICTLY provide the explanation in {{{language}}}.
+IMPORTANTE: Devuelve SIEMPRE el resultado en el formato JSON solicitado. La puntuación debe ser un número entero.
+Idioma de respuesta: {{{language}}}.
 
-CONTEXT DATA:
-- Tactical Role: {{{tacticalRole}}}
-- Technical: {{{technical}}}
-- Tactical: {{{tactical}}}
-- Physical: {{{physical}}}
-- Mental: {{{mental}}}
-- Context: {{{historicalClubData}}}
+DATOS DE EVALUACIÓN:
+- Rol Táctico: {{{tacticalRole}}}
+- Métricas Técnicas: {{{technical}}}
+- Métricas Tácticas: {{{tactical}}}
+- Métricas Físicas: {{{physical}}}
+- Métricas Mentales: {{{mental}}}
+- Notas Adicionales: {{{context}}}
 
-INSTRUCTIONS:
-1. Weight attributes based on the Tactical Role importance.
-2. If metrics are empty or sparse, provide a reasonable estimate based on the role and any available data.
-3. Return a clean integer between 0 and 100.
-4. The explanation must be professional, technical, and strictly in {{{language}}}.`,
+INSTRUCCIONES:
+1. Pesa los atributos según la importancia del rol (ej: la finalización pesa más en un DC que en un MCD).
+2. Analiza el potencial de impacto inmediato en un entorno profesional.
+3. Proporciona una explicación técnica coherente y breve.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
@@ -78,10 +78,9 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
     return result;
   } catch (error) {
     console.error("PIM Flow Error:", error);
-    // Fallback response to avoid complete UI breakage
     return {
       playerImpactMetric: 50,
-      explanation: "Error en el cálculo automático. Por favor, revisa las métricas e inténtalo de nuevo."
+      explanation: "Error en la sincronización con el analista virtual. Usando puntuación base de seguridad."
     };
   }
 }
@@ -99,14 +98,17 @@ const calculatePlayerImpactMetricFlow = ai.defineFlow(
       tactical: JSON.stringify(input.currentEvaluation.metrics.tactical || {}),
       physical: JSON.stringify(input.currentEvaluation.metrics.physical || {}),
       mental: JSON.stringify(input.currentEvaluation.metrics.mental || {}),
-      historicalClubData: input.historicalClubData || "Club Standard Benchmark: 70",
-      language: input.language === 'es' ? 'Spanish' : 'English',
+      context: input.historicalClubData || "No hay contexto adicional.",
+      language: input.language === 'es' ? 'Español' : 'English',
     });
     
     if (!output) {
-      throw new Error('AI output was null or blocked by safety filters.');
+      throw new Error('AI Response was empty');
     }
 
-    return output;
+    return {
+      playerImpactMetric: Math.round(output.playerImpactMetric),
+      explanation: output.explanation
+    };
   }
 );
