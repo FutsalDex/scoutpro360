@@ -43,6 +43,7 @@ export interface Player {
   currentPIM: number;
   tacticalRole: string;
   grade: Grade;
+  scoutId: string;
   birthDate?: string;
   height?: string;
   weight?: string;

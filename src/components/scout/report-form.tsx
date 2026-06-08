@@ -354,6 +354,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       setActiveTab("player");
       return;
     }
+    const scoutId = auth.currentUser?.uid;
+    if (!scoutId) {
+      toast({ variant: "destructive", title: "Authentication required" });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const playerId = await savePlayer({
@@ -365,12 +371,13 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         currentPIM: ratings['pim'] || 0,
         tacticalRole: activeRole.id,
         grade: (ratings['pim'] || 0) > 85 ? 'A' : ((ratings['pim'] || 0) > 70 ? 'B' : 'C'),
+        scoutId,
         birthDate, height, weight, dominantFoot, secondaryPositions
       }, editingPlayerId || undefined);
       
       await saveReport({
-        playerId, playerName, scoutId: auth.currentUser?.uid || "guest",
-        scoutName: scoutName || "Guest",
+        playerId, playerName, scoutId,
+        scoutName: scoutName || userProfile?.displayName || "Scout",
         pimScore: ratings['pim'] || 0,
         summary: notes['summary'] || "",
         ratings: ratings, notes: notes, actions: scoutingActions,

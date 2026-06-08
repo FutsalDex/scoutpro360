@@ -56,7 +56,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
       }
     };
 
-    const unsubPlayers = subscribeToPlayers((data) => {
+    const unsubPlayers = subscribeToPlayers(scoutId, (data) => {
       setPlayers(data);
       playersLoaded = true;
       checkLoading();

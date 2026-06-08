@@ -87,7 +87,7 @@ function AppShell({
       case 'dashboard': return t.sidebar.commandCenter;
       case 'report': return editingPlayerId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
       case 'match-analysis': return t.sidebar.matchAnalysis;
-      case 'database': return t.sidebar.globalDatabase;
+      case 'database': return t.sidebar.playersDatabase;
       case 'mapping': return t.sidebar.talentMapping;
       case 'analytics': return t.sidebar.analytics;
       case 'benchmarking': return t.sidebar.pimBenchmarking;
@@ -198,7 +198,7 @@ function AppShell({
                     className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                   >
                     <Users className="h-5 w-5" />
-                    <span className="font-medium">{t.sidebar.globalDatabase}</span>
+                    <span className="font-medium">{t.sidebar.playersDatabase}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}

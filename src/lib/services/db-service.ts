@@ -20,7 +20,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
- * Jugadores - Suscripción simplificada para evitar bloqueos por falta de índices
+ * Jugadores - Suscripción filtrada por scoutId
  */
 export async function savePlayer(playerData: Omit<Player, 'id'>, id?: string) {
   if (id) {
@@ -56,11 +56,13 @@ export async function getPlayer(id: string): Promise<Player | null> {
   }
 }
 
-export function subscribeToPlayers(callback: (players: Player[]) => void) {
+export function subscribeToPlayers(scoutId: string | null, callback: (players: Player[]) => void) {
+  if (!scoutId) return () => {};
   const colRef = collection(db, "players");
-  // Eliminamos orderBy temporalmente para asegurar que cargue sin necesidad de índices manuales
+  const q = query(colRef, where("scoutId", "==", scoutId));
+  
   return onSnapshot(
-    colRef,
+    q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
@@ -105,7 +107,6 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
 export function subscribeToReports(scoutId: string, callback: (reports: ScoutingReport[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "reports");
-  // Filtramos por scoutId pero sin orderBy para evitar errores de índice compuesto
   const q = query(colRef, where("scoutId", "==", scoutId));
   return onSnapshot(
     q,

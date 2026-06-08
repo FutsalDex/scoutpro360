@@ -21,11 +21,15 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try { await user.getIdToken(true); } catch (_) {}
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
       }
       setAuthReady(!!user);
       if (!user) setLoading(false);
@@ -34,13 +38,13 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
   }, []);
 
   useEffect(() => {
-    if (!authReady) return;
-    const unsubscribe = subscribeToPlayers((data) => {
+    if (!authReady || !userId) return;
+    const unsubscribe = subscribeToPlayers(userId, (data) => {
       setPlayers(data);
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [authReady]);
+  }, [authReady, userId]);
 
   const filteredPlayers = players.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

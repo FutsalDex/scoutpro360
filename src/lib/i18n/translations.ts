@@ -5,7 +5,7 @@ export const translations = {
       commandCenter: 'Command Center',
       liveReport: 'Player Report',
       matchAnalysis: 'Match Analysis',
-      globalDatabase: 'Global Database',
+      playersDatabase: 'Players Database',
       talentMapping: 'Talent Mapping',
       analytics: 'Analytics',
       pimBenchmarking: 'PIM Benchmarking',
@@ -41,19 +41,19 @@ export const translations = {
       },
       recentProspects: {
         title: 'Recent Prospects',
-        subtitle: 'Latest talent identified by the network',
+        subtitle: 'Latest talent identified by you',
         new: 'New',
         noData: 'No players detected yet',
       }
     },
     database: {
-      title: 'Global Database',
-      subtitle: 'Access to our repository of 15,000+ evaluated players worldwide.',
+      title: 'Players Database',
+      subtitle: 'Access to your repository of evaluated players.',
       export: 'Export CSV',
       add: 'Add Prospect',
       search: 'Search name, club or nationality...',
       filters: 'Filters',
-      noRecords: 'No records found in database',
+      noRecords: 'No records found in your database',
       table: {
         player: 'Player Details',
         position: 'Position',
@@ -264,7 +264,7 @@ export const translations = {
       commandCenter: 'Centro de Mando',
       liveReport: 'Informe Jugador',
       matchAnalysis: 'Análisis de Partido',
-      globalDatabase: 'Base de Datos Global',
+      playersDatabase: 'Base de Datos Jugadores',
       talentMapping: 'Mapeo de Talento',
       analytics: 'Analítica',
       pimBenchmarking: 'Benchmarking PIM',
@@ -300,19 +300,19 @@ export const translations = {
       },
       recentProspects: {
         title: 'Prospectos Recientes',
-        subtitle: 'Último talento identificado por la red',
+        subtitle: 'Último talento identificado por ti',
         new: 'Nuevos',
         noData: 'Aún no hay jugadores detectados',
       }
     },
     database: {
-      title: 'Base de Datos Global',
-      subtitle: 'Acceso a nuestro repositorio de más de 15,000 jugadores evaluados en todo el mundo.',
+      title: 'Base de Datos Jugadores',
+      subtitle: 'Acceso a tu repositorio de jugadores evaluados.',
       export: 'Exportar CSV',
       add: 'Añadir Prospecto',
       search: 'Buscar nombre, club o nacionalidad...',
       filters: 'Filtros',
-      noRecords: 'No se encontraron registros en la base de datos',
+      noRecords: 'No se encontraron registros en tu base de datos',
       table: {
         player: 'Detalles del Jugador',
         position: 'Posición',
@@ -494,7 +494,7 @@ export const translations = {
       summary: {
         title: 'RESUMEN EJECUTIVO',
         placeholder: 'Generar un resumen objetivo basado en los hallazgos del informe...',
-        generate: 'GENERAR RESUMEN AI',
+        generate: 'GENERAR RESUMEN IA',
         generating: 'Analizando Informe...',
       },
       tacticalRoles: {
