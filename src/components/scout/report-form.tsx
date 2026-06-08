@@ -357,32 +357,42 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
     setIsCalculatingPIM(true);
     try {
-      const categorizedMetrics = {
-        technical: {} as Record<string, number>,
-        tactical: {} as Record<string, number>,
-        physical: {} as Record<string, number>,
-        mental: {} as Record<string, number>,
-      };
-
-      // Clasificación estricta de métricas
-      activeRole.kpis.technical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.technical[k] = ratings[k]; });
-      activeRole.kpis.technical.impact.forEach(k => { if(ratings[k]) categorizedMetrics.technical[k] = ratings[k]; });
-      activeRole.kpis.tactical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.tactical[k] = ratings[k]; });
-      activeRole.kpis.physical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.physical[k] = ratings[k]; });
-      activeRole.kpis.mental.observation.forEach(k => { if(ratings[k]) categorizedMetrics.mental[k] = ratings[k]; });
+      const getMetricsArray = (list: string[]) => 
+        list.map(name => ({ name, value: ratings[name] || 0 }));
 
       const result = await calculatePlayerImpactMetric({
-        playerId: editingPlayerId || "temp_id",
-        currentEvaluation: {
+        playerInfo: {
+          name: playerName,
           tacticalRole: activeRole.name,
-          metrics: categorizedMetrics
+          minPlayed,
+          physicalCondition,
+          dominantFoot,
         },
-        historicalClubData: `Player: ${playerName}. General notes: ${overallDescription}`,
+        matchContext: {
+          matchStyle,
+          matchTempo: matchPace,
+          teamDominance,
+          score: observingScore,
+          matchImportance,
+          weather,
+        },
+        technicalMetrics: getMetricsArray([...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact]),
+        tacticalMetrics: getMetricsArray([...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact]),
+        physicalMetrics: getMetricsArray([...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact]),
+        mentalMetrics: getMetricsArray([...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact]),
+        generalProfile: {
+          technicalLevel: ratings['Nivel técnico'] || 0,
+          tacticalIntelligence: ratings['Inteligencia táctica'] || 0,
+          physicalQuality: ratings['Calidad física'] || 0,
+          mentalStrength: ratings['Fortaleza mental'] || 0,
+          competitiveLevel: ratings['Nivel competitivo'] || 0,
+          potential: ratings['Potencial'] || 0,
+          currentLevel: ratings['Nivel actual'] || 0,
+        },
         language: 'es'
       });
 
       if (result) {
-        // Clamping estricto a 100 también en el cliente
         const clampedPim = Math.max(0, Math.min(100, Math.round(result.playerImpactMetric)));
         handleRatingChange('pim', clampedPim);
         handleNoteChange('pim_explanation', result.explanation);
@@ -390,7 +400,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       }
     } catch (e: any) {
       console.error("AI Error (PIM):", e);
-      toast({ variant: "destructive", title: "Error IA", description: "No se pudo calcular el PIM. Verifica tu conexión e inténtalo de nuevo." });
+      toast({ variant: "destructive", title: "Error IA", description: "No se pudo calcular el PIM." });
     } finally { setIsCalculatingPIM(false); }
   };
 
@@ -603,7 +613,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
-                  <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={teamDominance} t={t} />
+                  <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <ChipGroup label={t.report.contextTab.scoreAtObserving} options={['winning', 'drawing', 'losing']} selected={observingScore} onSelect={setObservingScore} t={t} />
