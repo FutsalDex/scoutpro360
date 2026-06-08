@@ -13,6 +13,7 @@ import { UserProfile, UserRole, SubscriptionPlan } from "@/lib/types";
 import { updateUserProfile } from "@/lib/services/user-service";
 import { useToast } from "@/hooks/use-toast";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
+import { useTranslation } from '@/lib/i18n/context';
 
 interface ProfileViewProps {
   profile: UserProfile | null;
@@ -20,6 +21,7 @@ interface ProfileViewProps {
 
 export function ProfileView({ profile }: ProfileViewProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
@@ -75,12 +77,14 @@ export function ProfileView({ profile }: ProfileViewProps) {
   };
 
   const planInfo: Record<SubscriptionPlan, { name: string, price: string, color: string, icon: any }> = {
-    'básico': { name: 'Plan Básico', price: '$29/mes', color: 'text-muted-foreground', icon: CreditCard },
-    'profesional': { name: 'Plan Profesional', price: '$99/mes', color: 'text-primary', icon: Zap },
-    'enterprise': { name: 'Plan Enterprise', price: 'Consultar', color: 'text-accent', icon: Shield }
+    'básico': { name: 'PLAN BÁSICO', price: '$29/mes', color: 'text-muted-foreground', icon: CreditCard },
+    'profesional': { name: 'PLAN PROFESIONAL', price: '$99/mes', color: 'text-primary', icon: Zap },
+    'enterprise': { name: 'PLAN ENTERPRISE', price: 'Consultar', color: 'text-accent', icon: Shield }
   };
 
   const currentPlan = planInfo[profile.subscriptionPlan || 'básico'];
+  const isClubPlan = profile.subscriptionPlan === 'enterprise' || profile.role === 'admin' || profile.role === 'gestion' || profile.role === 'director';
+  const isOpsRole = ['admin', 'analista', 'entrenador', 'director', 'gestion'].includes(profile.role);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
@@ -294,32 +298,30 @@ export function ProfileView({ profile }: ProfileViewProps) {
              </div>
 
              <div className="space-y-6">
-               {profile.role === 'admin' && (
-                 <PermissionItem 
-                   title="Acceso Maestro" 
-                   allowed={true} 
-                   desc="Control total del sistema, gestión de red y auditoría de informes."
-                 />
-               )}
                <PermissionItem 
-                 title="Informes en Vivo" 
-                 allowed={['admin', 'analista', 'entrenador', 'director'].includes(profile.role)} 
-                 desc="Creación de informes 360 con métricas IA y registro táctico."
+                 title={t.profile.caps.liveReports} 
+                 allowed={isOpsRole} 
+                 desc={t.profile.caps.liveReportsDesc}
                />
                <PermissionItem 
-                 title="Base de Datos Global" 
-                 allowed={profile.subscriptionPlan !== 'básico' || profile.role === 'admin'} 
-                 desc="Acceso completo al repositorio de 15,000+ prospectos internacionales."
+                 title={t.profile.caps.myTalents} 
+                 allowed={isOpsRole} 
+                 desc={t.profile.caps.myTalentsDesc}
                />
                <PermissionItem 
-                 title="Mapeo de Talento" 
-                 allowed={true} 
-                 desc="Visualización geoespacial de la red de captación en tiempo real."
+                 title={t.profile.caps.agenda} 
+                 allowed={isOpsRole} 
+                 desc={t.profile.caps.agendaDesc}
                />
                <PermissionItem 
-                 title="Analytics & Benchmarking" 
+                 title={t.profile.caps.globalDb} 
+                 allowed={isClubPlan} 
+                 desc={t.profile.caps.globalDbDesc}
+               />
+               <PermissionItem 
+                 title={t.profile.caps.analytics} 
                  allowed={profile.subscriptionPlan === 'enterprise' || profile.role === 'admin'} 
-                 desc="Modelado estratégico y comparación de prospectos contra plantilla."
+                 desc={t.profile.caps.analyticsDesc}
                />
              </div>
           </CardContent>
@@ -369,7 +371,7 @@ function PermissionItem({ title, allowed, desc }: { title: string, allowed: bool
       <div className="space-y-1 flex-1">
         <div className="flex items-center justify-between">
           <p className="text-sm font-black uppercase tracking-tight group-hover:text-primary transition-colors">{title}</p>
-          <Badge variant={allowed ? "default" : "destructive"} className="text-[8px] h-4 py-0 font-black uppercase tracking-tighter rounded-sm">
+          <Badge className={cn("text-[8px] h-4 py-0 font-black uppercase tracking-tighter rounded-sm", allowed ? "bg-primary/20 text-primary border-primary/30" : "bg-destructive/20 text-destructive border-destructive/30")}>
             {allowed ? 'Habilitado' : 'Restringido'}
           </Badge>
         </div>

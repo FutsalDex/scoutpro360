@@ -6,9 +6,11 @@ export const translations = {
       talentId: 'Talent Identification',
       liveReport: 'Player Report',
       matchAnalysis: 'Match Analysis',
-      playersDatabase: 'Players Database',
+      myTalents: 'My Talents DB',
+      globalDatabase: 'Global Database',
       agenda: 'Scouting Agenda',
       analytics: 'Analytics',
+      clubIntelligence: 'Club Intelligence',
       pimBenchmarking: 'PIM Benchmarking',
       personalProfile: 'Personal Profile',
       signOut: 'Sign Out',
@@ -61,8 +63,10 @@ export const translations = {
       submit: 'REGISTER TALENT',
     },
     database: {
-      title: 'Players Database',
+      title: 'My Talents',
+      globalTitle: 'Global Database',
       subtitle: 'Access to your repository of evaluated players.',
+      globalSubtitle: 'Full club intelligence repository (15,000+ prospects).',
       export: 'Export CSV',
       add: 'Add Prospect',
       search: 'Search name, club or nationality...',
@@ -340,6 +344,18 @@ export const translations = {
       pendingTitle: 'Profile Activation Required',
       pendingDesc: 'To use the professional network, you must complete your full name, phone number, and country.',
       action: 'Complete Profile',
+      caps: {
+        liveReports: 'LIVE REPORTS',
+        liveReportsDesc: 'Creation of 360 reports with AI metrics and tactical registry.',
+        myTalents: 'MY TALENTS DATABASE',
+        myTalentsDesc: 'Personal access to your identified prospects.',
+        agenda: 'SCOUTING AGENDA',
+        agendaDesc: 'Management and planning of match observations.',
+        globalDb: 'GLOBAL DATABASE',
+        globalDbDesc: 'Full access to the repository of 15,000+ international prospects.',
+        analytics: 'ANALYTICS & BENCHMARKING',
+        analyticsDesc: 'Strategic modeling and comparison of prospects against squad.',
+      }
     }
   },
   es: {
@@ -349,9 +365,11 @@ export const translations = {
       talentId: 'Identificación de Talento',
       liveReport: 'Informe Jugador',
       matchAnalysis: 'Análisis de Partido',
-      playersDatabase: 'Base de Datos Jugadores',
+      myTalents: 'Mis Talentos',
+      globalDatabase: 'Base de Datos Global',
       agenda: 'Agenda Scouting',
       analytics: 'Analítica',
+      clubIntelligence: 'Inteligencia de Club',
       pimBenchmarking: 'Benchmarking PIM',
       personalProfile: 'Perfil Personal',
       signOut: 'Cerrar Sesión',
@@ -404,12 +422,14 @@ export const translations = {
       submit: 'REGISTRAR TALENTO',
     },
     database: {
-      title: 'Base de Datos Jugadores',
+      title: 'Mis Talentos',
+      globalTitle: 'Base de Datos Global',
       subtitle: 'Acceso a tu repositorio de jugadores evaluados.',
+      globalSubtitle: 'Patrimonio de inteligencia total del club (15,000+ prospectos).',
       export: 'Exportar CSV',
       add: 'Añadir Prospecto',
       search: 'Buscar nombre, club o nacionalidad...',
-      filters: 'Filtros',
+      filters: 'Filters',
       noRecords: 'No se encontraron registros en tu base de datos',
       birthYear: 'Año Nac.',
       actions: {
@@ -683,6 +703,18 @@ export const translations = {
       pendingTitle: 'Se requiere activación de perfil',
       pendingDesc: 'Para utilizar la red profesional, debes completar tu nombre completo, teléfono y país.',
       action: 'Completar Perfil',
+      caps: {
+        liveReports: 'INFORMES EN VIVO',
+        liveReportsDesc: 'Creación de informes 360 con métricas IA y registro táctico.',
+        myTalents: 'BASE DE DATOS DE MIS TALENTOS',
+        myTalentsDesc: 'Acceso personal a tus prospectos identificados.',
+        agenda: 'AGENDA SCOUTING',
+        agendaDesc: 'Gestión y planificación de observaciones de partidos.',
+        globalDb: 'BASE DE DATOS GLOBAL',
+        globalDbDesc: 'Acceso completo al repositorio de 15,000+ prospectos internacionales.',
+        analytics: 'ANALYTICS & BENCHMARKING',
+        analyticsDesc: 'Modelado estratégico y comparación de prospectos contra plantilla.',
+      }
     }
   }
 };

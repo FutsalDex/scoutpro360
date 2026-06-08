@@ -1,4 +1,3 @@
-
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -12,7 +11,8 @@ import {
   where,
   getDocs,
   limit,
-  setDoc
+  setDoc,
+  orderBy
 } from "firebase/firestore";
 import { Player, ScoutingReport, PlayerList, ScheduledMatch, QuickNote } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -58,10 +58,29 @@ export async function getPlayer(id: string): Promise<Player | null> {
   }
 }
 
+/**
+ * Escucha solo los jugadores captados por el scout actual.
+ */
 export function subscribeToPlayers(scoutId: string | null, callback: (players: Player[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "players");
-  const q = query(colRef, where("scoutId", "==", scoutId));
+  const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
+  
+  return onSnapshot(
+    q,
+    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[]),
+    async (err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }));
+    }
+  );
+}
+
+/**
+ * Escucha todos los jugadores de la organización (Para planes de Club/Admin).
+ */
+export function subscribeToGlobalPlayers(callback: (players: Player[]) => void) {
+  const colRef = collection(db, "players");
+  const q = query(colRef, orderBy("createdAt", "desc"));
   
   return onSnapshot(
     q,

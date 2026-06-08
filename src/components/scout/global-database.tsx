@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Download, Loader2, MoreVertical, FileText, Calendar, Users, Clock, MapPin } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
-import { subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, saveScheduledMatch } from "@/lib/services/db-service";
+import { subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, saveScheduledMatch, subscribeToGlobalPlayers } from "@/lib/services/db-service";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
@@ -30,9 +30,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
+  global?: boolean;
 }
 
-export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
+export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,7 +69,12 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
 
   useEffect(() => {
     if (!authReady || !userId) return;
-    const unsubPlayers = subscribeToPlayers(userId, setPlayers);
+    
+    // Si es global, usamos el suscriptor global (para admins/club), si no, el de scout privado
+    const unsubPlayers = global 
+      ? subscribeToGlobalPlayers(setPlayers)
+      : subscribeToPlayers(userId, setPlayers);
+      
     const unsubReports = subscribeToReports(userId, setReports);
     const unsubMatches = subscribeToScheduledMatches(userId, setMatches);
     const timer = setTimeout(() => setLoading(false), 3000);
@@ -78,7 +84,7 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
       unsubMatches();
       clearTimeout(timer);
     };
-  }, [authReady, userId]);
+  }, [authReady, userId, global]);
 
   useEffect(() => {
     if (players.length > 0) setLoading(false);
@@ -118,7 +124,6 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
 
     const dateTimeValue = matchData.time ? `${matchData.date}T${matchData.time}` : matchData.date;
     
-    // Escritura no bloqueante
     saveScheduledMatch({
       playerId: schedulingPlayer.id,
       homeTeam: schedulingPlayer.club || "TBD",
@@ -146,8 +151,12 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
     <div className="space-y-6 animate-in fade-in duration-500 pb-12 overflow-hidden px-1">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-black text-foreground uppercase tracking-tight">{t.database.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">{t.database.subtitle}</p>
+          <h1 className="text-3xl font-headline font-black text-foreground uppercase tracking-tight">
+            {global ? t.database.globalTitle : t.database.title}
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {global ? t.database.globalSubtitle : t.database.subtitle}
+          </p>
         </div>
         <Button variant="outline" className="border-primary/30 text-primary font-black text-[10px] uppercase tracking-widest h-10 rounded-xl">
           <Download className="h-4 w-4 mr-2" /> {t.database.export}

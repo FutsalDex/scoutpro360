@@ -13,7 +13,7 @@ import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, LineChart } from "lucide-react";
+import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, LineChart, Globe } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -24,7 +24,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'database' | 'agenda' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'my-talents' | 'global-database' | 'agenda' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
 
 function AppShell({ 
   activeView, 
@@ -74,7 +74,8 @@ function AppShell({
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
-      case 'database': return <GlobalDatabase onEditPlayer={handleEditPlayer} />;
+      case 'my-talents': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={false} />;
+      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={true} />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} />;
       case 'analytics': return <AnalyticsHub />;
       case 'benchmarking': return <PIMBenchmarking />;
@@ -90,7 +91,8 @@ function AppShell({
       case 'talent-id': return t.sidebar.talentId;
       case 'report': return editingPlayerId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
       case 'match-analysis': return t.sidebar.matchAnalysis;
-      case 'database': return t.sidebar.playersDatabase;
+      case 'my-talents': return t.sidebar.myTalents;
+      case 'global-database': return t.sidebar.globalDatabase;
       case 'agenda': return t.sidebar.agenda;
       case 'analytics': return t.sidebar.analytics;
       case 'benchmarking': return t.sidebar.pimBenchmarking;
@@ -103,7 +105,7 @@ function AppShell({
   const role = userProfile?.role || 'invitado';
   const isAdmin = role === 'admin';
   const isOpsRole = ['admin', 'analista', 'entrenador', 'director'].includes(role);
-  const isClub = role === 'gestion' || isAdmin;
+  const isClub = role === 'gestion' || role === 'director' || isAdmin;
 
   return (
     <div className="flex min-h-screen w-full bg-background font-body animate-in fade-in duration-500 overflow-x-hidden relative">
@@ -130,7 +132,7 @@ function AppShell({
           {isAdmin && (
             <SidebarGroup>
               <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary/80 mb-4 flex items-center gap-2">
-                <ShieldAlert className="h-3 <change> w-3" /> {t.sidebar.administration}
+                <ShieldAlert className="h-3 w-3" /> {t.sidebar.administration}
               </SidebarGroupLabel>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -166,21 +168,18 @@ function AppShell({
               </SidebarMenuItem>
 
               {isOpsRole && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={activeView === 'talent-id'} 
-                    onClick={() => handleNavClick('talent-id')}
-                    disabled={needsProfileCompletion}
-                    className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
-                  >
-                    <Binoculars className="h-5 w-5" />
-                    <span className="font-medium">{t.sidebar.talentId}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              
-              {isOpsRole && (
                 <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'talent-id'} 
+                      onClick={() => handleNavClick('talent-id')}
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
+                    >
+                      <Binoculars className="h-5 w-5" />
+                      <span className="font-medium">{t.sidebar.talentId}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton 
                       isActive={activeView === 'report'} 
@@ -203,20 +202,15 @@ function AppShell({
                       <span className="font-medium">{t.sidebar.matchAnalysis}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                </>
-              )}
-
-              {(isOpsRole || isClub) && (
-                <>
                   <SidebarMenuItem>
                     <SidebarMenuButton 
-                      isActive={activeView === 'database'}
-                      onClick={() => handleNavClick('database')}
+                      isActive={activeView === 'my-talents'}
+                      onClick={() => handleNavClick('my-talents')}
                       disabled={needsProfileCompletion}
-                      className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
+                      className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
                     >
                       <Users className="h-5 w-5" />
-                      <span className="font-medium">{t.sidebar.playersDatabase}</span>
+                      <span className="font-medium">{t.sidebar.myTalents}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
@@ -238,9 +232,20 @@ function AppShell({
           {isClub && (
             <SidebarGroup className="mt-6">
               <SidebarGroupLabel className="px-4 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-4">
-                {t.sidebar.analytics}
+                {t.sidebar.clubIntelligence}
               </SidebarGroupLabel>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    isActive={activeView === 'global-database'}
+                    onClick={() => handleNavClick('global-database')}
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
+                  >
+                    <Globe className="h-5 w-5 text-primary" />
+                    <span className="font-medium">{t.sidebar.globalDatabase}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     isActive={activeView === 'analytics'}
