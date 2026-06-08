@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -67,6 +68,11 @@ const ChipGroup = ({ label, options, selected, onSelect, t, multi = false, icons
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => {
           const Icon = icons[opt];
+          // Buscamos traducción en contextTab (etiquetas directas) o en evaluationTab
+          const labelText = t.report.contextTab[opt as keyof typeof t.report.contextTab] || 
+                           t.report.evaluationTab.options[opt as keyof typeof t.report.evaluationTab.options] ||
+                           opt;
+
           return (
             <button
               key={opt}
@@ -80,10 +86,7 @@ const ChipGroup = ({ label, options, selected, onSelect, t, multi = false, icons
               )}
             >
               {Icon && <Icon className="h-3 w-3" />}
-              {t.report.contextTab[opt as keyof typeof t.report.contextTab] || 
-               t.report.context[opt as keyof typeof t.report.context] || 
-               t.report.evaluationTab.options[opt as keyof typeof t.report.evaluationTab.options] ||
-               opt}
+              {labelText}
             </button>
           );
         })}
@@ -343,12 +346,11 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       adaptationRisk, fitsPhilosophy, finalScoutRating, nextSteps, scoutingCommittee, decisionDate
     }, reportId || undefined);
 
-    // FIX: Update reportId to prevent duplicate entries on multiple clicks
     if (!reportId) {
       setReportId(finalReportId);
     }
 
-    toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito." });
+    toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito en español." });
   };
 
   const handleCalculatePIM = async () => {
@@ -361,7 +363,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           metrics: { technical: ratings, tactical: ratings, physical: ratings, mental: ratings }
         },
         historicalClubData: "Avg PIM: 75",
-        language: language as 'en' | 'es'
+        language: 'es'
       });
       handleRatingChange('pim', Math.round(result.playerImpactMetric));
       handleNoteChange('pim_explanation', result.explanation);
@@ -374,7 +376,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     setIsGeneratingSummary(true);
     try {
       const result = await generateExecutiveSummary({
-        playerName, tacticalRole: activeRole.name, scoutNotes: JSON.stringify(notes), language: language as 'en' | 'es'
+        playerName, tacticalRole: activeRole.name, scoutNotes: JSON.stringify(notes), language: 'es'
       });
       handleNoteChange('summary', result.summary);
     } catch (e) {
@@ -546,7 +548,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     options={Object.keys(t.report.observedFunctions).filter(k => k !== 'title')} 
                     selected={observedFunctions} 
                     onSelect={toggleObservedFunction} 
-                    t={{ report: { contextTab: t.report.observedFunctions } }}
+                    t={{ report: { contextTab: t.report.observedFunctions, evaluationTab: { options: {} } } }}
                     multi={true}
                   />
                 </CardContent>

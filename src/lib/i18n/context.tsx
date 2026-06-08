@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from './translations';
 
-type Language = 'en' | 'es';
+type Language = 'es'; // Forzado a español por instrucción del usuario
 
 interface LanguageContextType {
   language: Language;
@@ -15,25 +15,22 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('es');
 
-  // Load preferred language from localStorage on mount
   useEffect(() => {
-    const savedLang = localStorage.getItem('app-language') as Language;
-    if (savedLang && (savedLang === 'en' || savedLang === 'es')) {
-      setLanguage(savedLang);
-    }
+    // Forzamos español siempre
+    setLanguage('es');
+    localStorage.setItem('app-language', 'es');
   }, []);
 
   const handleSetLanguage = (lang: Language) => {
-    setLanguage(lang);
-    localStorage.setItem('app-language', lang);
+    setLanguage('es'); // Ignoramos cambios a otros idiomas
   };
 
   const value = {
     language,
     setLanguage: handleSetLanguage,
-    t: translations[language],
+    t: translations['es'],
   };
 
   return (

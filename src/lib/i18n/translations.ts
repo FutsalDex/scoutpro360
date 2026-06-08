@@ -1,424 +1,5 @@
+
 export const translations = {
-  en: {
-    sidebar: {
-      operations: 'Operations',
-      commandCenter: 'Command Center',
-      talentId: 'Talent Identification',
-      liveReport: 'Player Report',
-      matchAnalysis: 'Match Analysis',
-      myTalents: 'My Talents DB',
-      globalDatabase: 'Global Database',
-      agenda: 'Scouting Agenda',
-      analytics: 'Analytics',
-      clubIntelligence: 'Club Intelligence',
-      pimBenchmarking: 'PIM Benchmarking',
-      personalProfile: 'Personal Profile',
-      signOut: 'Sign Out',
-      adminPanel: 'Admin Panel',
-      administration: 'Administration',
-    },
-    admin: {
-      title: 'Admin Command Center',
-      subtitle: 'System oversight and user management.',
-      stats: {
-        totalUsers: 'Registered Users',
-        activeReports: 'Total Reports',
-        globalPlayers: 'Players in DB',
-      },
-      userTable: {
-        user: 'User Identity',
-        role: 'Assigned Role',
-        org: 'Organization',
-        joined: 'Joined Date',
-      }
-    },
-    dashboard: {
-      title: 'COMMAND CENTER',
-      subtitle: 'Real-time scouting operations oversight.',
-      stats: {
-        detected: 'Players in DB',
-        identified: 'Talent Identified',
-        analyzed: 'Analyzed Players',
-        reports: 'Reports Generated',
-        avgPim: 'Average PIM Impact',
-        syncing: 'Syncing Nodes...',
-      },
-      recentProspects: {
-        title: 'Recent Prospects',
-        subtitle: 'Latest talent identified by you',
-        new: 'New',
-        noData: 'No players detected yet',
-      }
-    },
-    talentId: {
-      title: 'TALENT IDENTIFICATION',
-      subtitle: 'Quickly register promising players for your database.',
-      success: 'Talent registered successfully.',
-      playerSection: 'PLAYER DETAILS',
-      playerName: 'Player Name',
-      currentTeam: 'Current Team',
-      position: 'Primary Position',
-      category: 'Birth Date',
-      notes: 'Initial Scouting Notes',
-      submit: 'REGISTER TALENT',
-    },
-    database: {
-      title: 'My Talents',
-      globalTitle: 'Global Database',
-      subtitle: 'Access to your repository of evaluated players.',
-      globalSubtitle: 'Full club intelligence repository (15,000+ prospects).',
-      export: 'Export CSV',
-      add: 'Add Prospect',
-      search: 'Search name, club or nationality...',
-      filters: 'Filters',
-      noRecords: 'No records found in your database',
-      birthYear: 'Birth Year',
-      actions: {
-        editReport: 'CREATE/EDIT REPORT',
-        createPdf: 'CREATE PDF REPORT',
-        scheduleMeeting: 'Schedule Meeting',
-        scheduleMatch: 'Schedule Match',
-        meetingSuccess: 'Meeting scheduled successfully',
-        matchSuccess: 'Match observation scheduled',
-        pdfIncomplete: 'Report incomplete (min 75%)',
-        pdfSuccess: 'PDF generated successfully',
-        pdfRequirement: 'To generate the PDF, the report must be at least 75% complete.',
-      },
-      scheduleModal: {
-        title: 'Schedule Observation',
-        matchDetails: 'Match Details',
-        opponent: 'Opponent',
-        date: 'Date',
-        time: 'Time',
-        venue: 'Venue / Category',
-        cancel: 'Cancel',
-        confirm: 'Schedule Event'
-      },
-      status: {
-        title: 'Status',
-        analizado: 'Analyzed',
-        agendado: 'Scheduled',
-        detectado: 'Detected'
-      },
-      table: {
-        player: 'Player Details',
-        position: 'Position',
-        age: 'Age',
-        clubNat: 'Club / Nat',
-        value: 'Value',
-        pim: 'PIM',
-        grade: 'Grade',
-        status: 'Status'
-      }
-    },
-    agenda: {
-      title: 'Scouting Agenda',
-      subtitle: 'Management of scheduled match observations.',
-      noMatches: 'No matches scheduled in your agenda.',
-      startScouting: 'Start Report',
-      matchDetails: 'Match Details',
-    },
-    analytics: {
-      title: 'Analytics Hub',
-      subtitle: 'Strategic intelligence and performance modeling.',
-      index: 'Global PIM Index',
-      historical: 'PIM Historical Trends',
-      historicalDesc: 'Average vs Top Talent PIM trajectory (Last 6 Months)',
-      matrix: 'Scout Productivity Matrix',
-      matrixDesc: 'Volume of reports vs Quality of identified talent.',
-      reportsGen: 'Reports Generated',
-      avgTargetPim: 'Avg. Target PIM',
-      decisionSpeed: 'Decision Speed',
-      roas: 'Recruitment ROAS',
-      marketValue: 'Market Value Growth'
-    },
-    benchmarking: {
-      title: 'PIM Benchmarking',
-      subtitle: 'Comparative analysis between identified prospects and squad benchmarks.',
-      new: 'New Comparison',
-      vs: 'VS',
-      tactical: 'Tactical Intelligence',
-      technical: 'Technical Execution',
-      physical: 'Physical Presence',
-      mental: 'Mental Resilience',
-      fit: 'Recruitment Fit',
-      delta: 'PIM Delta',
-      territory: 'Elite Prospect Territory',
-      upside: 'Market Upside',
-      projected: 'Projected Value (2 yrs)',
-      compatibility: 'Compatibility',
-      squadProfile: 'Fits Squad Profile'
-    },
-    matchAnalysis: {
-      title: 'Tactical Analysis Lab',
-      subtitle: 'Collective patterns and situational game reading.',
-      comingSoon: 'COMING SOON',
-      comingSoonDesc: 'Module currently under maintenance or being prepared for next deployment.',
-    },
-    report: {
-      title: 'Match Observation Report',
-      subtitle: 'Confidential 360 Scouting Assessment',
-      pdfHeader: 'PROFESSIONAL TECHNICAL SCOUTING REPORT',
-      pdfEmissionDate: 'EMISSION DATE',
-      pdfAttribute: 'Attribute',
-      pdfInformation: 'Information',
-      pdfMatchContext: 'MATCH CONTEXT',
-      pdfTacticalPosition: 'TACTICAL POSITION (PROFESSIONAL PITCH)',
-      pdfKeyActions: 'KEY MATCH ACTIONS REGISTRY',
-      pdfAiConclusions: 'CONCLUSIONS AND AI ANALYSIS',
-      pdfPimEstimated: 'ESTIMATED PIM IMPACT',
-      pitch: {
-        title: 'TACTICAL POSITIONING',
-      },
-      tabs: {
-        player: 'PLAYER',
-        context: 'CONTEXT',
-        technical: 'TECHNICAL',
-        tactical: 'TACTICAL',
-        physical: 'PHYSICAL',
-        mental: 'MENTAL',
-        actions: 'ACTIONS',
-        evaluation: 'EVALUATION',
-        analytics: 'AI ANALYTICS',
-      },
-      evaluationTab: {
-        strengthsTitle: 'STRENGTHS & AREAS TO IMPROVE',
-        mainStrengths: 'MAIN STRENGTHS',
-        areasToImprove: 'AREAS TO IMPROVE',
-        shortTerm: 'SHORT TERM',
-        longTerm: 'LONG TERM',
-        recTitle: 'FINAL SUMMARY',
-        playerDescription: 'GENERAL PLAYER DESCRIPTION',
-        comparative: 'COMPARATIVE (POSITION / PROFILE)',
-        finalRec: 'FINAL RECOMMENDATION',
-        additionalNotes: 'ADDITIONAL NOTES (CONTRACT, AGENT, ETC)',
-        recOptions: {
-          immediate: 'Immediate signing',
-          scouting: 'Follow-up',
-          priority: 'Priority monitor',
-          reevaluate: 'Re-evaluate'
-        },
-        signingTitle: 'RECRUITMENT EVALUATION',
-        fitsModel: 'FITS OUR MODEL?',
-        immediateImpact: 'IMMEDIATE IMPACT',
-        futurePotential: 'FUTURE POTENTIAL',
-        adaptationRisk: 'ADAPTATION RISK',
-        fitsPhilosophy: 'FITS PHILOSOPHY?',
-        finalRatingTitle: 'FINAL SCOUT RATING',
-        decisionTitle: 'INTERNAL DECISION',
-        nextSteps: 'NEXT STEPS',
-        committee: 'SCOUTING COMMITTEE',
-        decisionDate: 'DECISION DATE',
-        options: {
-          si: 'Yes',
-          no: 'No',
-          maybe: 'Follow-up',
-          alto: 'High',
-          medio: 'Medium',
-          bajo: 'Low',
-          elite: 'Elite'
-        }
-      },
-      observedFunctions: {
-        title: 'ROLES & OBSERVED FUNCTIONS',
-        'build_up': 'Build-up play',
-        'progression': 'Progression',
-        'final_third': 'Final third',
-        'def_balance': 'Def. balance',
-        'pressing': 'Pressing',
-        'transitions': 'Transitions',
-        'counter_pressing': 'Counter-pressing',
-        'space_occupation': 'Space occupation',
-        'ball_carrying': 'Ball carrying',
-        'aerial_play': 'Aerial play',
-        'finishing': 'Finishing',
-        'creativity': 'Creativity',
-        'leadership': 'Leadership',
-        'set_pieces': 'Set pieces'
-      },
-      playerInfo: {
-        title: 'PLAYER INFORMATION',
-        name: 'FULL NAME',
-        dorsal: 'DORSAL',
-        club: 'CURRENT CLUB',
-        rival: 'RIVAL',
-        competition: 'COMPETICION',
-        matchDate: 'DATE',
-        birthDate: 'BIRTH DATE',
-        nationality: 'NATIONALITY (COUNTRY)',
-        marketValue: 'MARKET VALUE',
-        height: 'HEIGHT (CM)',
-        weight: 'WEIGHT (KG)',
-        minPlayed: 'MIN. PLAYED',
-        primaryPos: 'PRIMARY POSITION',
-        secondaryPos: 'SECONDARY POSITIONS',
-        dominantFoot: 'DOMINANT FOOT',
-        physicalCondition: 'PHYSICAL CONDITION',
-        scout: 'SCOUT',
-      },
-      contextTab: {
-        matchContextTitle: 'MATCH CONTEXT',
-        offBallBehaviorTitle: 'OFF-BALL BEHAVIOR',
-        gameStyle: 'GAME STYLE',
-        system: 'SYSTEM / FORMATION',
-        pace: 'MATCH PACE',
-        teamDominance: 'TEAM DOMINANCE',
-        scoreAtObserving: 'SCORE AT OBSERVING',
-        importance: 'MATCH IMPORTANCE',
-        weather: 'WEATHER CONDITIONS',
-        noPossession: 'NO POSSESSION',
-        bodyLanguage: 'BODY LANGUAGE',
-        matchRole: 'PLAYER TACTICAL ROLE IN THIS MATCH',
-        matchRolePlaceholder: 'Describe the tactical role assigned to the player...',
-        styles: {
-          possession: 'Possession',
-          counter: 'Counter-attack',
-          highPress: 'High press',
-          direct: 'Direct',
-          defensive: 'Defensive'
-        },
-        paces: {
-          low: 'Low',
-          medium: 'Medium',
-          high: 'High'
-        },
-        dominance: {
-          dominant: 'Dominant',
-          balanced: 'Balanced',
-          disadvantage: 'Disadvantage'
-        },
-        scores: {
-          winning: 'Winning',
-          drawing: 'Drawing',
-          losing: 'Losing'
-        },
-        importances: {
-          low: 'Low',
-          medium: 'Medium',
-          high: 'High',
-          decisive: 'Decisive'
-        },
-        weathers: {
-          sun: 'Sun',
-          cloudy: 'Cloudy',
-          rain: 'Rain',
-          cold: 'Cold',
-          wind: 'Wind'
-        },
-        offBall: {
-          aggressive: 'Aggressive press',
-          central: 'Central spaces',
-          lines: 'Close passing lines',
-          recovery: 'Quick recovery',
-          block: 'Defend in block',
-          support: 'Offer support',
-          reading: 'Reads game well',
-          shape: 'Maintains shape'
-        },
-        body: {
-          positive: 'Positive',
-          competitive: 'Competitive',
-          focused: 'Focused',
-          frustrated: 'Frustrated',
-          emotional: 'Emotional',
-          reactive: 'Reactive',
-          mature: 'Mature/Calm',
-          indifferent: 'Indifferent'
-        }
-      },
-      generalProfile: {
-        title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
-        attributes: ['Technical level', 'Tactical intelligence', 'Physical quality', 'Mental strength', 'Competitive level', 'Potential', 'Current level']
-      },
-      actionsTab: {
-        title: 'KEY MATCH ACTIONS REGISTRY',
-        min: 'MIN.',
-        action: 'ACTION',
-        result: 'RESULT',
-        notes: 'OBSERVACIÓN / NOTES',
-        add: 'Add action',
-      },
-      context: {
-        right: 'Right',
-        left: 'Left',
-        both: 'Both',
-        excellent: 'Excellent',
-        good: 'Good',
-        normal: 'Normal',
-        low: 'Low',
-        injured: 'Injured'
-      },
-      sections: {
-        technical_obs: 'TECHNICAL OBSERVATION',
-        technical_imp: 'MATCH IMPACT',
-        tactical_obs: 'TACTICAL OBSERVATION',
-        physical_obs: 'PHYSICAL OBSERVATION',
-        mental_obs: 'MENTAL OBSERVATION',
-      },
-      kpis: {
-        technical: {
-          obs: ['First touch', 'Short pass', 'Long pass', 'Through ball', '1vs1 dribbling', 'Ball control', 'Possession', 'Shot', 'Cross', 'Finishing', 'Aerial game', 'Set pieces', 'Technique under pressure'],
-          imp: ['Con possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In the result']
-        },
-        tactical: {
-          obs: ['Posicionamiento', 'Conciencia espacial', 'Lectura del juego', 'Toma de decisiones', 'Movimiento sin balón', 'Posicionamiento defensivo', 'Entend. transiciones', 'Frecuencia de exploración', 'Tempo de juego', 'Ritmo', 'Adaptabilidad táctica'],
-          imp: []
-        },
-        physical: {
-          obs: ['Velocidad', 'Aceleración', 'Agilidad', 'Coordinación', 'Equilibrio', 'Fuerza', 'Resistencia', 'Fondo físico', 'Explosividad', 'Movilidad', 'Resistencia a lesiones'],
-          imp: []
-        },
-        mental: {
-          obs: ['Competitiveness', 'Confidence', 'Concentration', 'Work Ethics', 'Communication', 'Leadership', 'Emotional Control', 'Resilience', 'Learning Ability', 'Professionalism'],
-          imp: []
-        }
-      },
-      actions: {
-        next: 'Next',
-        previous: 'Previous',
-        save: 'SAVE REPORT',
-      },
-      pim: {
-        title: 'PLAYER IMPACT METRIC (PIM)',
-        calculate: 'Calculate PIM Score',
-      },
-      summary: {
-        title: 'EXECUTIVE SUMMARY',
-        placeholder: 'Generate summary...',
-        generate: 'GENERATE IA SUMMARY',
-      },
-      tacticalRoles: {
-        'po': 'GK - Goalkeeper',
-        'dc-def': 'CB - Center Back',
-        'ld': 'RB - Right Back',
-        'li': 'LB - Left Back',
-        'mcd': 'CDM - Def. Midfielder',
-        'mc': 'MC - Central Midfielder',
-        'mco': 'CAM - Att. Midfielder',
-        'ed': 'RW - Right Winger',
-        'ei': 'LW - Left Winger',
-        'sd': 'SS - Second Striker',
-        'dc-fwd': 'ST - Striker',
-      }
-    },
-    profile: {
-      pendingTitle: 'Profile Activation Required',
-      pendingDesc: 'To use the professional network, you must complete your full name, phone number, and country.',
-      action: 'Complete Profile',
-      caps: {
-        liveReports: 'LIVE REPORTS',
-        liveReportsDesc: 'Creation of 360 reports with AI metrics and tactical registry.',
-        myTalents: 'MY TALENTS DATABASE',
-        myTalentsDesc: 'Personal access to your identified prospects.',
-        agenda: 'SCOUTING AGENDA',
-        agendaDesc: 'Management and planning of match observations.',
-        globalDb: 'GLOBAL DATABASE',
-        globalDbDesc: 'Full access to the repository of 15,000+ international prospects.',
-        analytics: 'ANALYTICS & BENCHMARKING',
-        analyticsDesc: 'Strategic modeling and comparison of prospects against squad.',
-      }
-    }
-  },
   es: {
     sidebar: {
       operations: 'Operaciones',
@@ -490,7 +71,7 @@ export const translations = {
       export: 'Exportar CSV',
       add: 'Añadir Prospecto',
       search: 'Buscar nombre, club o nacionalidad...',
-      filters: 'Filters',
+      filters: 'Filtros',
       noRecords: 'No se encontraron registros en tu base de datos',
       birthYear: 'Año Nac.',
       actions: {
@@ -566,7 +147,7 @@ export const translations = {
       territory: 'Territorio de Prospecto Élite',
       upside: 'Potencial de Mercado',
       projected: 'Valor Proyectado (2 años)',
-      compatibility: 'Compatibility',
+      compatibility: 'Compatibilidad',
       squadProfile: 'Encaja en el perfil del equipo'
     },
     matchAnalysis: {
@@ -690,61 +271,50 @@ export const translations = {
         bodyLanguage: 'LENGUAJE CORPORAL',
         matchRole: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
         matchRolePlaceholder: 'Describe el rol táctico asignado al jugador...',
-        styles: {
-          possession: 'Posesión',
-          counter: 'Contragolpe',
-          highPress: 'Presión alta',
-          direct: 'Directo',
-          defensive: 'Defensivo'
-        },
-        paces: {
-          low: 'Bajo',
-          medium: 'Medio',
-          high: 'Alto'
-        },
-        dominance: {
-          dominant: 'Dominante',
-          balanced: 'Equilibrado',
-          disadvantage: 'En desventaja'
-        },
-        scores: {
-          winning: 'Ganando',
-          drawing: 'Empatando',
-          losing: 'Perdiendo'
-        },
-        importances: {
-          low: 'Baja',
-          medium: 'Media',
-          high: 'Alta',
-          decisive: 'Decisiva'
-        },
-        weathers: {
-          sun: 'Sol',
-          cloudy: 'Nublado',
-          rain: 'Lluvia',
-          cold: 'Frío',
-          wind: 'Viento'
-        },
-        offBall: {
-          aggressive: 'Presiona agresivo',
-          central: 'Espacios centrales',
-          lines: 'Cierra líneas pase',
-          recovery: 'Recuperación rápida',
-          block: 'Defiende en bloque',
-          support: 'Ofrece apoyo',
-          reading: 'Lee bien el juego',
-          shape: 'Mantiene la forma'
-        },
-        body: {
-          positive: 'Positivo',
-          competitive: 'Competitivo',
-          focused: 'Concentrado',
-          frustrated: 'Frustrado',
-          emotional: 'Emotivo',
-          reactive: 'Reactivo',
-          mature: 'Tranquilo/Maduro',
-          indifferent: 'Indiferente'
-        }
+        // Opciones de chips traducidas
+        possession: 'Posesión',
+        counter: 'Contragolpe',
+        highPress: 'Presión alta',
+        direct: 'Directo',
+        defensive: 'Defensivo',
+        low: 'Bajo su nivel',
+        medium: 'Medio',
+        high: 'Alto',
+        dominant: 'Dominante',
+        balanced: 'Equilibrado',
+        disadvantage: 'En desventaja',
+        winning: 'Ganando',
+        drawing: 'Empatando',
+        losing: 'Perdiendo',
+        decisive: 'Decisiva',
+        sun: 'Sol',
+        cloudy: 'Nublado',
+        rain: 'Lluvia',
+        cold: 'Frío',
+        wind: 'Viento',
+        aggressive: 'Presiona agresivo',
+        central: 'Espacios centrales',
+        lines: 'Cierra líneas pase',
+        recovery: 'Recuperación rápida',
+        block: 'Defiende en bloque',
+        support: 'Ofrece apoyo',
+        reading: 'Lee bien el juego',
+        shape: 'Mantiene la forma',
+        positive: 'Positivo',
+        competitive: 'Competitivo',
+        focused: 'Concentrado',
+        frustrated: 'Frustrado',
+        emotional: 'Emotivo',
+        reactive: 'Reactivo',
+        mature: 'Tranquilo/Maduro',
+        indifferent: 'Indiferente',
+        right: 'Derecho',
+        left: 'Izquierdo',
+        both: 'Ambos',
+        excellent: 'Excelente',
+        good: 'Buena',
+        normal: 'Normal',
+        injured: 'Lesionado'
       },
       generalProfile: {
         title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
@@ -757,16 +327,6 @@ export const translations = {
         result: 'RESULTADO',
         notes: 'OBSERVACIÓN / NOTAS',
         add: 'Añadir acción',
-      },
-      context: {
-        right: 'Derecho',
-        left: 'Izquierdo',
-        both: 'Ambos',
-        excellent: 'Excelente',
-        good: 'Buena',
-        normal: 'Normal',
-        low: 'Bajo su nivel',
-        injured: 'Lesionado'
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
@@ -837,6 +397,26 @@ export const translations = {
         analytics: 'ANALYTICS & BENCHMARKING',
         analyticsDesc: 'Modelado estratégico y comparación de prospectos contra plantilla.',
       }
+    }
+  },
+  // Mantenemos la clave en para no romper tipos pero con contenido español
+  en: {
+    sidebar: {
+      operations: 'Operaciones',
+      commandCenter: 'Centro de Mando',
+      talentId: 'Identificación de Talento',
+      liveReport: 'Informe Jugador',
+      matchAnalysis: 'Análisis de Partido',
+      myTalents: 'Mis Talentos',
+      globalDatabase: 'Base de Datos Global',
+      agenda: 'Agenda Scouting',
+      analytics: 'Analítica',
+      clubIntelligence: 'Inteligencia de Club',
+      pimBenchmarking: 'Benchmarking PIM',
+      personalProfile: 'Perfil Personal',
+      signOut: 'Cerrar Sesión',
+      adminPanel: 'Panel Admin',
+      administration: 'Administración',
     }
   }
 };
