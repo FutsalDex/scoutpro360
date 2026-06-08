@@ -68,7 +68,6 @@ const ChipGroup = ({ label, options, selected, onSelect, t, multi = false, icons
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => {
           const Icon = icons[opt];
-          // Buscamos traducción en contextTab (etiquetas directas) o en evaluationTab
           const labelText = t.report.contextTab[opt as keyof typeof t.report.contextTab] || 
                            t.report.evaluationTab.options[opt as keyof typeof t.report.evaluationTab.options] ||
                            opt;
@@ -239,7 +238,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           if (r.pitchPosition) setPitchMarker(r.pitchPosition);
           if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
           
-          // Evaluation data
           if (r.strengths) setStrengths(r.strengths);
           if (r.weaknesses) setWeaknesses(r.weaknesses);
           setShortTerm(r.shortTerm || "");
@@ -340,7 +338,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       observedFunctions: observedFunctions,
       matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
       offBallTraits, bodyLanguageTraits, specificMatchRole,
-      // Evaluation
       strengths, weaknesses, shortTerm, longTerm, overallDescription, comparativePlayer,
       finalRecommendation, additionalNotes, fitsModel, immediateImpact, futurePotential,
       adaptationRisk, fitsPhilosophy, finalScoutRating, nextSteps, scoutingCommittee, decisionDate
@@ -354,21 +351,46 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   };
 
   const handleCalculatePIM = async () => {
+    if (Object.keys(ratings).length === 0) {
+      toast({ variant: "destructive", title: "Datos insuficientes", description: "Por favor, valora algunos atributos antes de calcular el PIM." });
+      return;
+    }
+
     setIsCalculatingPIM(true);
     try {
+      // Filtrado manual de ratings por categoría basándonos en el rol activo
+      const categorizedMetrics = {
+        technical: {} as Record<string, number>,
+        tactical: {} as Record<string, number>,
+        physical: {} as Record<string, number>,
+        mental: {} as Record<string, number>,
+      };
+
+      // Clasificar cada rating en su categoría correspondiente
+      activeRole.kpis.technical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.technical[k] = ratings[k]; });
+      activeRole.kpis.technical.impact.forEach(k => { if(ratings[k]) categorizedMetrics.technical[k] = ratings[k]; });
+      activeRole.kpis.tactical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.tactical[k] = ratings[k]; });
+      activeRole.kpis.physical.observation.forEach(k => { if(ratings[k]) categorizedMetrics.physical[k] = ratings[k]; });
+      activeRole.kpis.mental.observation.forEach(k => { if(ratings[k]) categorizedMetrics.mental[k] = ratings[k]; });
+
       const result = await calculatePlayerImpactMetric({
         playerId: editingPlayerId || "temp",
         currentEvaluation: {
           tacticalRole: activeRole.name,
-          metrics: { technical: ratings, tactical: ratings, physical: ratings, mental: ratings }
+          metrics: categorizedMetrics
         },
-        historicalClubData: "Avg PIM: 75",
+        historicalClubData: "Reference Club Avg PIM: 75",
         language: 'es'
       });
-      handleRatingChange('pim', Math.round(result.playerImpactMetric));
-      handleNoteChange('pim_explanation', result.explanation);
-    } catch (e) {
-      toast({ variant: "destructive", title: "Error IA" });
+
+      if (result) {
+        handleRatingChange('pim', Math.round(result.playerImpactMetric));
+        handleNoteChange('pim_explanation', result.explanation);
+        toast({ title: "Cálculo Finalizado", description: "Métrica PIM actualizada por la IA." });
+      }
+    } catch (e: any) {
+      console.error("Error en flujo PIM:", e);
+      toast({ variant: "destructive", title: "Error IA", description: "No se pudo calcular el PIM. Inténtalo de nuevo." });
     } finally { setIsCalculatingPIM(false); }
   };
 
@@ -379,7 +401,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         playerName, tacticalRole: activeRole.name, scoutNotes: JSON.stringify(notes), language: 'es'
       });
       handleNoteChange('summary', result.summary);
+      toast({ title: "Resumen Generado", description: "El informe IA ha sido actualizado." });
     } catch (e) {
+      console.error("Error en flujo Resumen:", e);
       toast({ variant: "destructive", title: "Error IA" });
     } finally { setIsGeneratingSummary(false); }
   };

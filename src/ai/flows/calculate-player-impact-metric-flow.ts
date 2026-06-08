@@ -42,16 +42,25 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     })
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
-  prompt: `You are an expert football scout. Calculate PIM (0-100).
+  prompt: `You are an expert football performance analyst. Your task is to calculate the Player Impact Metric (PIM) on a scale of 0 to 100.
+The PIM represents the projected impact this player would have in a professional top-tier team based on their current performance metrics.
+
 STRICTLY provide the explanation in {{{language}}}. Do not use any other language than {{{language}}}.
 It is CRITICAL that the explanation is written entirely in {{{language}}}.
 
-Tactical Role: {{{tacticalRole}}}
-Technical: {{{technical}}}
-Tactical: {{{tactical}}}
-Physical: {{{physical}}}
-Mental: {{{mental}}}
-Context: {{{historicalClubData}}}`,
+CONTEXT DATA:
+- Tactical Role: {{{tacticalRole}}}
+- Technical Evaluation: {{{technical}}}
+- Tactical Intelligence: {{{tactical}}}
+- Physical Condition: {{{physical}}}
+- Mental Attributes: {{{mental}}}
+- Reference Data: {{{historicalClubData}}}
+
+CALCULATION LOGIC:
+1. Weight the metrics according to the importance for the tactical role (e.g., finishing for a striker, positioning for a center back).
+2. Consider the "Impact in the Match" ratings as high-weight multipliers.
+3. Generate a final score from 0 to 100.
+4. Provide a professional, concise scout-style explanation of why this PIM was assigned.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
@@ -64,5 +73,10 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
     historicalClubData: input.historicalClubData,
     language: input.language === 'es' ? 'Spanish' : 'English',
   });
-  return output!;
+  
+  if (!output) {
+    throw new Error('El modelo de IA no devolvió un resultado válido.');
+  }
+
+  return output;
 }
