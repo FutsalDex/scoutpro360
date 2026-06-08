@@ -104,7 +104,7 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
 }
 
 export function subscribeToReports(scoutId: string, callback: (reports: ScoutingReport[]) => void) {
-  if (!scoutId) return () => {};   // ← guard añadido
+  if (!scoutId) return () => {};
   const colRef = collection(db, "reports");
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
@@ -128,17 +128,6 @@ export function subscribeToPlayerLists(scoutId: string, callback: (lists: Player
   );
 }
 
-export async function createPlayerList(name: string, scoutId: string) {
-  const colRef = collection(db, "playerLists");
-  const data = { name, scoutId, playerIds: [], createdAt: serverTimestamp() };
-  try {
-    await addDoc(colRef, data);
-  } catch (serverError: any) {
-    errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-    throw serverError;
-  }
-}
-
 /**
  * Agenda de Partidos
  */
@@ -153,17 +142,6 @@ export function subscribeToScheduledMatches(scoutId: string, callback: (matches:
   );
 }
 
-export async function createScheduledMatch(match: Omit<ScheduledMatch, 'id'>) {
-  const colRef = collection(db, "scheduledMatches");
-  const data = { ...match, status: 'scheduled' };
-  try {
-    await addDoc(colRef, data);
-  } catch (serverError: any) {
-    errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-    throw serverError;
-  }
-}
-
 /**
  * Notas Rápidas
  */
@@ -176,25 +154,4 @@ export function subscribeToQuickNotes(scoutId: string, callback: (notes: QuickNo
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as QuickNote[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
-}
-
-export async function createQuickNote(content: string, scoutId: string, type: 'text' | 'voice' = 'text') {
-  const colRef = collection(db, "quickNotes");
-  const data = { content, scoutId, createdAt: serverTimestamp(), type };
-  try {
-    await addDoc(colRef, data);
-  } catch (serverError: any) {
-    errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-    throw serverError;
-  }
-}
-
-export async function deleteQuickNote(id: string) {
-  const docRef = doc(db, "quickNotes", id);
-  try {
-    await deleteDoc(docRef);
-  } catch (serverError: any) {
-    errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'delete' }));
-    throw serverError;
-  }
 }
