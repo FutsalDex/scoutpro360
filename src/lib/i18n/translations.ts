@@ -7,6 +7,7 @@ export const translations = {
       liveReport: 'Player Report',
       matchAnalysis: 'Match Analysis',
       playersDatabase: 'Players Database',
+      agenda: 'Scouting Agenda',
       talentMapping: 'Talent Mapping',
       analytics: 'Analytics',
       pimBenchmarking: 'PIM Benchmarking',
@@ -88,6 +89,13 @@ export const translations = {
         grade: 'Grade',
         status: 'Status'
       }
+    },
+    agenda: {
+      title: 'Scouting Agenda',
+      subtitle: 'Management of scheduled match observations.',
+      noMatches: 'No matches scheduled in your agenda.',
+      startScouting: 'Start Report',
+      matchDetails: 'Match Details',
     },
     mapping: {
       title: 'Talent Mapping',
@@ -183,7 +191,7 @@ export const translations = {
         scout: 'SCOUT',
       },
       observedFunctions: {
-        title: 'OBSERVED ROLES & FUNCTIONS',
+        title: 'ROLES & FUNCTIONS OBSERVED',
         options: ['Build-up play', 'Progression', 'Final third', 'Defensive balance', 'Pressing', 'Transitions', 'Press. after loss', 'Space occupation', 'Ball carrying', 'Aerial game', 'Finishing', 'Creativity', 'Leadership', 'Set pieces']
       },
       generalProfile: {
@@ -345,6 +353,7 @@ export const translations = {
       liveReport: 'Informe Jugador',
       matchAnalysis: 'Análisis de Partido',
       playersDatabase: 'Base de Datos Jugadores',
+      agenda: 'Agenda Scouting',
       talentMapping: 'Mapeo de Talento',
       analytics: 'Analítica',
       pimBenchmarking: 'Benchmarking PIM',
@@ -364,7 +373,7 @@ export const translations = {
       userTable: {
         user: 'Identidad de Usuario',
         role: 'Rol Asignado',
-        org: 'Organización',
+        org: 'Organization',
         joined: 'Fecha Registro',
       }
     },
@@ -426,6 +435,13 @@ export const translations = {
         grade: 'Grado',
         status: 'Estado'
       }
+    },
+    agenda: {
+      title: 'Agenda de Scouting',
+      subtitle: 'Gestión de partidos programados para observación.',
+      noMatches: 'No tienes partidos programados en tu agenda.',
+      startScouting: 'Iniciar Informe',
+      matchDetails: 'Detalles del Partido',
     },
     mapping: {
       title: 'Mapeo de Talento',
