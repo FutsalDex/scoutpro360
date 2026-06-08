@@ -36,6 +36,7 @@ export const translations = {
       subtitle: 'Real-time scouting operations oversight.',
       stats: {
         detected: 'Players in DB',
+        identified: 'Talent Identified',
         analyzed: 'Analyzed Players',
         reports: 'Reports Generated',
         avgPim: 'Average PIM Impact',
@@ -395,6 +396,7 @@ export const translations = {
       subtitle: 'Supervisión de operaciones de captación en tiempo real.',
       stats: {
         detected: 'Jugadores en la BD',
+        identified: 'Talento Identificado',
         analyzed: 'Jugadores Analizados',
         reports: 'Informes Generados',
         avgPim: 'Media de Impacto PIM',

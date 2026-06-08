@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, ShieldCheck, ClipboardCheck, TrendingUp, ChevronRight, MapPin, Star } from "lucide-react";
+import { User, ShieldCheck, ClipboardCheck, TrendingUp, ChevronRight, MapPin, Star, Binoculars } from "lucide-react";
 import { Player, ScoutingReport } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers, subscribeToReports } from "@/lib/services/db-service";
@@ -97,12 +97,18 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
 
   // Lógica de Métricas Profesionales
   const detectedCount = players.length;
-  // Analizados: Jugadores únicos que tienen al menos un informe guardado
-  const analyzedCount = Array.from(new Set(reports.map(r => r.playerId))).length;
-  // Informes Generados: Solo aquellos que han sido exportados a PDF
+  
+  // Jugadores Analizados: Tienen al menos un informe
+  const analyzedPlayerIds = new Set(reports.map(r => r.playerId));
+  const analyzedCount = analyzedPlayerIds.size;
+  
+  // Talento Identificado: Jugadores en BD que NO tienen informes aún
+  const identifiedCount = players.filter(p => !analyzedPlayerIds.has(p.id)).length;
+  
+  // Informes Generados: Solo PDFs exportados
   const generatedCount = reports.filter(r => r.pdfGenerated).length;
   
-  // Media PIM: Solo de los jugadores que realmente han sido analizados (PIM > 0)
+  // Media PIM: Solo de jugadores analizados
   const evaluatedPlayers = players.filter(p => (p.currentPIM || 0) > 0);
   const avgPim = evaluatedPlayers.length > 0 
     ? (evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length).toFixed(1) 
@@ -126,7 +132,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
         <p className="text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         <DashboardStatCard
           title={t.dashboard.stats.detected}
           value={detectedCount.toString()}
@@ -135,26 +141,33 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
           delay="0"
         />
         <DashboardStatCard
-          title={t.dashboard.stats.analyzed}
-          value={analyzedCount.toString()}
-          icon={<ShieldCheck className="text-accent" />}
+          title={t.dashboard.stats.identified}
+          value={identifiedCount.toString()}
+          icon={<Binoculars className="text-accent" />}
           color="border-accent/20"
           delay="100"
         />
         <DashboardStatCard
-          title={t.dashboard.stats.reports}
-          value={generatedCount.toString()}
-          icon={<ClipboardCheck className="text-primary" />}
+          title={t.dashboard.stats.analyzed}
+          value={analyzedCount.toString()}
+          icon={<ShieldCheck className="text-primary" />}
           color="border-primary/20"
           delay="200"
         />
         <DashboardStatCard
+          title={t.dashboard.stats.reports}
+          value={generatedCount.toString()}
+          icon={<ClipboardCheck className="text-accent" />}
+          color="border-accent/20"
+          delay="300"
+        />
+        <DashboardStatCard
           title={t.dashboard.stats.avgPim}
           value={avgPim}
-          icon={<TrendingUp className="text-accent" />}
-          color="border-accent/20"
+          icon={<TrendingUp className="text-primary" />}
+          color="border-primary/20"
           suffix="%"
-          delay="300"
+          delay="400"
         />
       </div>
 
@@ -248,18 +261,18 @@ function DashboardStatCard({
     >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors">
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors leading-tight">
             {title}
           </p>
-          <div className="h-12 w-12 rounded-2xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary/10 transition-colors">
+          <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary/10 transition-colors shrink-0">
             {icon}
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-2 pb-8">
         <div className="flex items-baseline gap-1">
-          <p className="text-6xl font-black font-headline text-foreground tracking-tighter">{value}</p>
-          {suffix && <span className="text-2xl font-black text-primary/60">{suffix}</span>}
+          <p className="text-5xl font-black font-headline text-foreground tracking-tighter">{value}</p>
+          {suffix && <span className="text-xl font-black text-primary/60">{suffix}</span>}
         </div>
       </CardContent>
     </Card>
