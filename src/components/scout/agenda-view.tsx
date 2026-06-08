@@ -143,9 +143,7 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
                 {match.homeTeam} <span className="text-primary italic mx-1">vs</span> {match.awayTeam}
               </h3>
             </div>
-            <Badge variant="outline" className="border-primary/30 text-primary font-black text-[9px] uppercase tracking-widest h-6">
-              {match.category}
-            </Badge>
+            {/* Opcional: Mostrar categoría arriba si es necesario, pero el usuario pidió el campo abajo */}
           </div>
 
           <div className="p-4 bg-secondary/20 rounded-2xl border border-border/10 flex items-center justify-between">
@@ -171,7 +169,9 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
           </div>
           <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-xl border border-white/5 overflow-hidden">
             <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
-            <span className="text-[10px] font-bold text-muted-foreground truncate">Estadio / Stadium</span>
+            <span className="text-[10px] font-bold text-muted-foreground truncate">
+              {match.category || 'Estadio / Stadium'}
+            </span>
           </div>
         </div>
 
