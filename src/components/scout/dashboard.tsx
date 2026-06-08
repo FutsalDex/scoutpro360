@@ -10,7 +10,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ScoutDashboardProps {
@@ -103,7 +102,6 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
     ? (players.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / players.length).toFixed(1) 
     : "0.0";
 
-  // Ordenar prospectos por fecha de creación (localmente)
   const recentPlayers = [...players]
     .sort((a, b) => {
       const dateA = a.createdAt?.seconds || 0;
@@ -154,8 +152,8 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        <Card className="xl:col-span-2 border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+      <div className="grid grid-cols-1 gap-8">
+        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
           <CardHeader className="p-8 border-b border-border/10 flex flex-row items-center justify-between bg-secondary/10">
             <div className="space-y-1">
               <CardTitle className="text-lg font-black uppercase tracking-widest flex items-center gap-2">
@@ -225,19 +223,6 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
                 </p>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl flex flex-col">
-          <CardHeader className="p-8 border-b border-border/10 bg-secondary/10">
-            <CardTitle className="text-lg font-black uppercase tracking-widest">{t.dashboard.scoutNotes.title}</CardTitle>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">{t.dashboard.scoutNotes.subtitle}</p>
-          </CardHeader>
-          <CardContent className="p-8 flex-1 flex flex-col items-center justify-center text-center space-y-4 opacity-50">
-            <div className="h-16 w-16 rounded-3xl bg-secondary/30 flex items-center justify-center border border-border/20">
-              <ClipboardCheck className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <p className="text-xs font-bold uppercase tracking-widest italic">{t.dashboard.scoutNotes.comingSoon}</p>
           </CardContent>
         </Card>
       </div>

@@ -44,11 +44,6 @@ export const translations = {
         subtitle: 'Latest talent identified by the network',
         new: 'New',
         noData: 'No players detected yet',
-      },
-      scoutNotes: {
-        title: 'Quick Notes',
-        subtitle: 'Unassigned voice and text notes',
-        comingSoon: 'Feature integration pending',
       }
     },
     database: {
@@ -308,11 +303,6 @@ export const translations = {
         subtitle: 'Último talento identificado por la red',
         new: 'Nuevos',
         noData: 'Aún no hay jugadores detectados',
-      },
-      scoutNotes: {
-        title: 'Notas Rápidas',
-        subtitle: 'Notas de voz y texto sin asignar',
-        comingSoon: 'Integración pendiente',
       }
     },
     database: {
