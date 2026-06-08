@@ -148,20 +148,8 @@ export const translations = {
     matchAnalysis: {
       title: 'Tactical Analysis Lab',
       subtitle: 'Collective patterns and situational game reading.',
-      scenarioTitle: 'Situational Scenario: Wing Overload',
-      scenarioDesc: 'Attacker uses joker on the wing. Defender decides when to intercept the pass. Real-time game reading.',
-      metrics: {
-        gameReading: 'Game Reading',
-        interceptionProb: 'Interception Prob.',
-        reactionTime: 'Reaction Time',
-        defensiveDepth: 'Defensive Depth',
-      },
-      decisionMatrix: {
-        title: 'Decision Matrix',
-        intercept: 'Intercept',
-        contain: 'Contain',
-        delay: 'Delay',
-      }
+      comingSoon: 'COMING SOON',
+      comingSoonDesc: 'Module currently under maintenance or being prepared for next deployment.',
     },
     report: {
       title: 'Match Observation Report',
@@ -195,7 +183,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETITION',
+        competition: 'COMPETICIÓN',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -525,20 +513,8 @@ export const translations = {
     matchAnalysis: {
       title: 'Laboratorio de Análisis Táctico',
       subtitle: 'Patrones colectivos y lectura de juego situacional.',
-      scenarioTitle: 'Escenario Situacional: Desborde en Banda',
-      scenarioDesc: 'Atacante usa comodín en banda. Defensor decide cuándo interceptar el pase. Lectura de juego real.',
-      metrics: {
-        gameReading: 'Lectura de Juego',
-        interceptionProb: 'Prob. Intercepción',
-        reactionTime: 'Tiempo Reacción',
-        defensiveDepth: 'Profundidad Defensiva',
-      },
-      decisionMatrix: {
-        title: 'Matriz de Decisión',
-        intercept: 'Interceptar',
-        contain: 'Contener',
-        delay: 'Temporizar',
-      }
+      comingSoon: 'PRÓXIMAMENTE',
+      comingSoonDesc: 'Módulo actualmente en mantenimiento o preparación para el próximo despliegue.',
     },
     report: {
       title: 'Informe de Observación de Partido',
@@ -611,7 +587,7 @@ export const translations = {
         weather: 'CONDICIONES METEOROLÓGICAS',
         offBallTitle: 'COMPORTAMIENTO SIN BALÓN',
         noPossession: 'SIN POSESIÓN',
-        bodyLanguage: 'LENGUAJE CORPORAL',
+        bodyLanguage: 'LENGUARAL',
         roleInMatch: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
         styles: ['Posesión', 'Contragolpe', 'Presión alta', 'Directo', 'Defensivo'],
         paces: ['Bajo', 'Medio', 'Alto'],
