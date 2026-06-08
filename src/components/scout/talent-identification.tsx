@@ -8,11 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Binoculars, User, Calendar, MapPin, Save, Loader2, Sparkles, Clock } from "lucide-react";
+import { User, Save, Loader2, Sparkles } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
-import { savePlayer, saveScheduledMatch } from "@/lib/services/db-service";
+import { savePlayer } from "@/lib/services/db-service";
 import { TACTICAL_ROLES } from "@/lib/types";
 
 export function TalentIdentification({ onComplete }: { onComplete: () => void }) {
@@ -25,10 +25,6 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
   const [currentTeam, setCurrentTeam] = useState("");
   const [position, setPosition] = useState("");
   const [category, setCategory] = useState("");
-  const [rival, setRival] = useState("");
-  const [matchDate, setMatchDate] = useState("");
-  const [matchTime, setMatchTime] = useState("");
-  const [venue, setVenue] = useState("");
   const [notes, setNotes] = useState("");
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -38,7 +34,6 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       return;
     }
 
-    // OBTENEMOS EL ID DEL USUARIO ACTUAL (SCOUT)
     const scoutId = auth.currentUser?.uid;
     if (!scoutId) {
       toast({ variant: "destructive", title: "Auth Required", description: "Inicia sesión para registrar talento." });
@@ -47,34 +42,18 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
 
     setLoading(true);
     try {
-      // 1. CREAR REGISTRO DE JUGADOR (CON SCOUTID OBLIGATORIO)
-      const playerId = await savePlayer({
+      await savePlayer({
         name: playerName,
         club: currentTeam,
         tacticalRole: position || 'mc',
         nationality: "N/A",
-        age: parseInt(category) || 0,
+        age: 0,
         marketValue: "€0",
         currentPIM: 0,
         grade: 'C',
-        scoutId: scoutId, // AUTORÍA GARANTIZADA
+        scoutId: scoutId,
         secondaryPositions: category
       });
-
-      // 2. CREAR PARTIDO PROGRAMADO (VINCULADO AL SCOUTID)
-      if (matchDate) {
-        const dateTimeValue = matchTime ? `${matchDate}T${matchTime}` : matchDate;
-        
-        await saveScheduledMatch({
-          playerId, 
-          homeTeam: currentTeam,
-          awayTeam: rival || "TBD",
-          category: category || "Pro",
-          dateTime: dateTimeValue,
-          scoutId: scoutId, // AUTORÍA GARANTIZADA
-          status: 'scheduled'
-        });
-      }
 
       toast({ title: t.talentId.success });
       onComplete();
@@ -96,7 +75,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       </div>
 
       <form onSubmit={handleRegister} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
             <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-accent/20">
               <div className="flex items-center gap-3">
@@ -107,25 +86,27 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
               </div>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.playerName}</Label>
-                <Input 
-                  value={playerName} 
-                  onChange={(e) => setPlayerName(e.target.value)}
-                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
-                  placeholder="Ej: Lamine Yamal" 
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.playerName}</Label>
+                  <Input 
+                    value={playerName} 
+                    onChange={(e) => setPlayerName(e.target.value)}
+                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
+                    placeholder="Ej: Lamine Yamal" 
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.currentTeam}</Label>
+                  <Input 
+                    value={currentTeam} 
+                    onChange={(e) => setCurrentTeam(e.target.value)}
+                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
+                    placeholder="Club Actual" 
+                  />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.currentTeam}</Label>
-                <Input 
-                  value={currentTeam} 
-                  onChange={(e) => setCurrentTeam(e.target.value)}
-                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
-                  placeholder="Club Actual" 
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.position}</Label>
                   <Select value={position} onValueChange={setPosition}>
@@ -146,63 +127,6 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
                     onChange={(e) => setCategory(e.target.value)}
                     className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
                     placeholder="U19 / 2007" 
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
-            <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-primary/20">
-              <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-primary" />
-                <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-white">
-                  {t.talentId.matchSection}
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-8 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.matchDate}</Label>
-                  <Input 
-                    type="date" 
-                    value={matchDate} 
-                    onChange={(e) => setMatchDate(e.target.value)}
-                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.matchTime}</Label>
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      type="time" 
-                      value={matchTime} 
-                      onChange={(e) => setMatchTime(e.target.value)}
-                      className="h-12 pl-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.rival}</Label>
-                <Input 
-                  value={rival} 
-                  onChange={(e) => setRival(e.target.value)}
-                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
-                  placeholder="AD Justink" 
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.venue}</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    value={venue} 
-                    onChange={(e) => setVenue(e.target.value)}
-                    className="h-12 pl-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
-                    placeholder="Estadio o Ciudad" 
                   />
                 </div>
               </div>
