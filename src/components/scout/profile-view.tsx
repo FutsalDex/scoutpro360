@@ -14,6 +14,7 @@ import { updateUserProfile } from "@/lib/services/user-service";
 import { useToast } from "@/hooks/use-toast";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { useTranslation } from '@/lib/i18n/context';
+import { cn } from "@/lib/utils";
 
 interface ProfileViewProps {
   profile: UserProfile | null;
