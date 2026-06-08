@@ -158,6 +158,20 @@ export const translations = {
         physicalCondition: 'PHYSICAL CONDITION',
         scout: 'SCOUT',
       },
+      observedFunctions: {
+        title: 'OBSERVED ROLES & FUNCTIONS',
+        options: ['Build-up play', 'Progression', 'Final third', 'Defensive balance', 'Pressing', 'Transitions', 'Press. after loss', 'Space occupation', 'Ball carrying', 'Aerial game', 'Finishing', 'Creativity', 'Leadership', 'Set pieces']
+      },
+      generalProfile: {
+        title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
+        technical: 'Technical Level',
+        tactical: 'Tactical Intelligence',
+        physical: 'Physical Quality',
+        mental: 'Mental Strength',
+        competitive: 'Competitive Level',
+        potential: 'Potential',
+        current: 'Current Level',
+      },
       context: {
         title: 'MATCH CONTEXT',
         style: 'STYLE OF PLAY',
@@ -185,16 +199,6 @@ export const translations = {
         },
         offBallTraits: ['Presses aggressive', 'Central spaces', 'Closes pass lines', 'Fast recovery', 'Defends in block', 'Offers support', 'Reads game well', 'Maintains shape'],
         bodyTraits: ['Positive', 'Competitive', 'Focused', 'Frustrated', 'Emotional', 'Reactive', 'Calm/Mature', 'Indifferent']
-      },
-      generalProfile: {
-        title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
-        technical: 'Technical Level',
-        tactical: 'Tactical Intelligence',
-        physical: 'Physical Quality',
-        mental: 'Mental Strength',
-        competitive: 'Competitive Level',
-        potential: 'Potential',
-        current: 'Current Level',
       },
       dominantFootOptions: {
         right: 'Right',
@@ -468,6 +472,20 @@ export const translations = {
         physicalCondition: 'CONDICIÓN FÍSICA',
         scout: 'SCOUT',
       },
+      observedFunctions: {
+        title: 'ROLES Y FUNCIONES OBSERVADAS',
+        options: ['Juego de construcción', 'Progresión', 'Último tercio', 'Eq. defensivo', 'Presión', 'Transiciones', 'Pres. tras pérdida', 'Ocup. espacios', 'Transporte balón', 'Juego aéreo', 'Definición/Final.', 'Creatividad', 'Liderazgo', 'Balones parados']
+      },
+      generalProfile: {
+        title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
+        technical: 'Nivel técnico',
+        tactical: 'Inteligencia táctica',
+        physical: 'Calidad física',
+        mental: 'Fortaleza mental',
+        competitive: 'Nivel competitivo',
+        potential: 'Potencial',
+        current: 'Nivel actual',
+      },
       context: {
         title: 'CONTEXTO DEL PARTIDO',
         style: 'ESTILO DE JUEGO',
@@ -495,16 +513,6 @@ export const translations = {
         },
         offBallTraits: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
         bodyTraits: ['Positivo', 'Competitivo', 'Concentrado', 'Frustrado', 'Emotivo', 'Reactivo', 'Tranquilo/Maduro', 'Indiferente']
-      },
-      generalProfile: {
-        title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
-        technical: 'Nivel técnico',
-        tactical: 'Inteligencia táctica',
-        physical: 'Calidad física',
-        mental: 'Fortaleza mental',
-        competitive: 'Nivel competitivo',
-        potential: 'Potencial',
-        current: 'Nivel actual',
       },
       dominantFootOptions: {
         right: 'Derecho',

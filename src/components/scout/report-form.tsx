@@ -13,7 +13,7 @@ import {
   FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, 
   Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Brain, Sparkles, 
   Trash2, Download, Sun, Cloud, CloudRain, Thermometer, Wind, Globe,
-  ShieldAlert, UserCheck
+  ShieldAlert, UserCheck, LayoutGrid
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type ScoutingReport, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -163,6 +163,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
@@ -230,6 +231,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setMinPlayed(report.minPlayed || "90");
           setPhysicalCondition(report.physicalCondition || "");
           setSelectedRoles(report.selectedRoles || []);
+          setObservedFunctions(report.observedFunctions || []);
           setRatings(report.ratings || {});
           setNotes(report.notes || {});
           setScoutingActions(report.actions || []);
@@ -418,6 +420,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         pimScore: ratings['pim'] || 0,
         summary: notes['summary'] || "",
         ratings: ratings, notes: notes, actions: scoutingActions,
+        observedFunctions,
         dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition, selectedRoles,
         matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
         offBallTraits, bodyLanguageTraits, specificMatchRole,
@@ -624,14 +627,90 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </Card>
             </div>
 
-            <div className="lg:col-span-4">
-              <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md sticky top-24">
+            <div className="lg:col-span-4 space-y-6">
+              <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md">
                 <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                   <Target className="h-5 w-5 text-primary" />
                   <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
                 </div>
                 <CardContent className="p-4">
                   <TacticalCanvas marker={pitchMarker} onMarkerChange={setPitchMarker} heatmapPoints={heatmapPoints} onHeatmapChange={setHeatmapPoints} />
+                </CardContent>
+              </Card>
+
+              {/* ROLES Y FUNCIONES OBSERVADAS */}
+              <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md overflow-hidden">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <LayoutGrid className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.observedFunctions.title}</h2>
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex flex-wrap gap-2">
+                    {t.report.observedFunctions.options.map((func: string) => (
+                      <button
+                        key={func}
+                        type="button"
+                        onClick={() => handleTraitToggle(func, observedFunctions, setObservedFunctions)}
+                        className={cn(
+                          "px-4 py-1.5 rounded-full border text-[10px] font-medium transition-all",
+                          observedFunctions.includes(func) 
+                            ? "bg-primary text-primary-foreground border-primary shadow-lg scale-105" 
+                            : "bg-white/5 border-border/40 text-muted-foreground hover:border-primary/50"
+                        )}
+                      >
+                        {func}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* PERFIL GENERAL (IMPRESIÓN GLOBAL) - ANCHO COMPLETO */}
+            <div className="col-span-full">
+              <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md overflow-hidden">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <Star className="h-5 w-5 text-primary fill-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.generalProfile.title}</h2>
+                </div>
+                <CardContent className="p-0">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 px-2">
+                    <RatingRow 
+                      kpi={t.report.generalProfile.technical} 
+                      rating={ratings['gen_technical']} 
+                      onRatingChange={(val) => handleRatingChange('gen_technical', val)} 
+                    />
+                    <RatingRow 
+                      kpi={t.report.generalProfile.tactical} 
+                      rating={ratings['gen_tactical']} 
+                      onRatingChange={(val) => handleRatingChange('gen_tactical', val)} 
+                    />
+                    <RatingRow 
+                      kpi={t.report.generalProfile.physical} 
+                      rating={ratings['gen_physical']} 
+                      onRatingChange={(val) => handleRatingChange('gen_physical', val)} 
+                    />
+                    <RatingRow 
+                      kpi={t.report.generalProfile.mental} 
+                      rating={ratings['gen_mental']} 
+                      onRatingChange={(val) => handleRatingChange('gen_mental', val)} 
+                    />
+                    <RatingRow 
+                      kpi={t.report.generalProfile.competitive} 
+                      rating={ratings['gen_competitive']} 
+                      onRatingChange={(val) => handleRatingChange('gen_competitive', val)} 
+                    />
+                    <RatingRow 
+                      kpi={t.report.generalProfile.potential} 
+                      rating={ratings['gen_potential']} 
+                      onRatingChange={(val) => handleRatingChange('gen_potential', val)} 
+                    />
+                    <RatingRow 
+                      kpi={t.report.generalProfile.current} 
+                      rating={ratings['gen_current']} 
+                      onRatingChange={(val) => handleRatingChange('gen_current', val)} 
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>

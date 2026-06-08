@@ -96,6 +96,7 @@ export interface ScoutingReport {
   ratings: Record<string, number>;
   notes: Record<string, string>;
   actions?: ScoutingAction[];
+  observedFunctions?: string[];
   dorsal?: string;
   rivalName?: string;
   competition?: string;
