@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Binoculars, User, Calendar, MapPin, Save, Loader2, Sparkles } from "lucide-react";
+import { Binoculars, User, Calendar, MapPin, Save, Loader2, Sparkles, Clock } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
@@ -26,6 +26,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
   const [category, setCategory] = useState("");
   const [rival, setRival] = useState("");
   const [matchDate, setMatchDate] = useState("");
+  const [matchTime, setMatchTime] = useState("");
   const [venue, setVenue] = useState("");
   const [notes, setNotes] = useState("");
 
@@ -57,12 +58,15 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
 
       // 2. Create a Scheduled Match record if date provided
       if (matchDate) {
+        // Combinar fecha y hora para el registro cronológico preciso
+        const dateTimeValue = matchTime ? `${matchDate}T${matchTime}` : matchDate;
+        
         await saveScheduledMatch({
           playerId, // Link to the newly created player
           homeTeam: currentTeam,
           awayTeam: rival || "TBD",
           category: category || "Pro",
-          dateTime: matchDate,
+          dateTime: dateTimeValue,
           scoutId,
           status: 'scheduled'
         });
@@ -105,7 +109,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
                 <Input 
                   value={playerName} 
                   onChange={(e) => setPlayerName(e.target.value)}
-                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
+                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
                   placeholder="Ej: Lamine Yamal" 
                 />
               </div>
@@ -114,7 +118,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
                 <Input 
                   value={currentTeam} 
                   onChange={(e) => setCurrentTeam(e.target.value)}
-                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
+                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
                   placeholder="Club Actual" 
                 />
               </div>
@@ -137,7 +141,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
                   <Input 
                     value={category} 
                     onChange={(e) => setCategory(e.target.value)}
-                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
+                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
                     placeholder="U19 / 2007" 
                   />
                 </div>
@@ -156,22 +160,36 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
               </div>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.matchDate}</Label>
-                <Input 
-                  type="date" 
-                  value={matchDate} 
-                  onChange={(e) => setMatchDate(e.target.value)}
-                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.matchDate}</Label>
+                  <Input 
+                    type="date" 
+                    value={matchDate} 
+                    onChange={(e) => setMatchDate(e.target.value)}
+                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.matchTime}</Label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      type="time" 
+                      value={matchTime} 
+                      onChange={(e) => setMatchTime(e.target.value)}
+                      className="h-12 pl-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
+                    />
+                  </div>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.rival}</Label>
                 <Input 
                   value={rival} 
                   onChange={(e) => setRival(e.target.value)}
-                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
-                  placeholder="Equipo Rival" 
+                  className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
+                  placeholder="AD Justink" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -181,7 +199,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
                   <Input 
                     value={venue} 
                     onChange={(e) => setVenue(e.target.value)}
-                    className="h-12 pl-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" 
+                    className="h-12 pl-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl placeholder:opacity-40" 
                     placeholder="Estadio o Ciudad" 
                   />
                 </div>
@@ -201,7 +219,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
               <Textarea 
                 value={notes} 
                 onChange={(e) => setNotes(e.target.value)}
-                className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-sm italic font-medium" 
+                className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-sm italic font-medium placeholder:opacity-30" 
                 placeholder="Describe brevemente por qué es un talento de interés..." 
               />
             </CardContent>
