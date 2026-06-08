@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -193,17 +194,6 @@ function AppShell({
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton 
-                      isActive={activeView === 'match-analysis'} 
-                      onClick={() => handleNavClick('match-analysis')}
-                      disabled={needsProfileCompletion}
-                      className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
-                    >
-                      <Video className="h-5 w-5" />
-                      <span className="font-medium">{t.sidebar.matchAnalysis}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
                       isActive={activeView === 'my-talents'}
                       onClick={() => handleNavClick('my-talents')}
                       disabled={needsProfileCompletion}
@@ -222,6 +212,17 @@ function AppShell({
                     >
                       <Calendar className="h-5 w-5" />
                       <span className="font-medium">{t.sidebar.agenda}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'match-analysis'} 
+                      onClick={() => handleNavClick('match-analysis')}
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
+                    >
+                      <Video className="h-5 w-5" />
+                      <span className="font-medium">{t.sidebar.matchAnalysis}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </>
