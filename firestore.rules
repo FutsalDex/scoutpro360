@@ -38,7 +38,7 @@ service cloud.firestore {
       allow list:   if isAuthenticated();
       allow get:    if isAuthenticated() && (isAdmin() || isOwner(resource.data.scoutId));
       allow create: if canWrite() && isOwner(request.resource.data.scoutId);
-      allow update: if canWrite() && isOwner(resource.data.scoutId);
+      allow update: if canWrite() && isOwner(request.resource.data.scoutId);
       allow delete: if canWrite() && (isAdmin() || isOwner(resource.data.scoutId));
     }
 
@@ -46,7 +46,7 @@ service cloud.firestore {
       allow list:   if isAuthenticated();
       allow get:    if isAuthenticated() && (isAdmin() || isOwner(resource.data.scoutId));
       allow create: if canWrite() && isOwner(request.resource.data.scoutId);
-      allow update: if canWrite() && isOwner(resource.data.scoutId);
+      allow update: if canWrite() && isOwner(request.resource.data.scoutId);
       allow delete: if canWrite() && (isAdmin() || isOwner(resource.data.scoutId));
     }
 
@@ -54,7 +54,7 @@ service cloud.firestore {
       allow list:   if isAuthenticated();
       allow get:    if isAuthenticated() && (isAdmin() || isOwner(resource.data.scoutId));
       allow create: if canWrite() && isOwner(request.resource.data.scoutId);
-      allow update: if canWrite() && isOwner(resource.data.scoutId);
+      allow update: if canWrite() && isOwner(request.resource.data.scoutId);
       allow delete: if canWrite() && (isAdmin() || isOwner(resource.data.scoutId));
     }
 
@@ -62,7 +62,7 @@ service cloud.firestore {
       allow list:   if isAuthenticated();
       allow get:    if isAuthenticated() && (isAdmin() || isOwner(resource.data.scoutId));
       allow create: if canWrite() && isOwner(request.resource.data.scoutId);
-      allow update: if canWrite() && isOwner(resource.data.scoutId);
+      allow update: if canWrite() && isOwner(request.resource.data.scoutId);
       allow delete: if canWrite() && (isAdmin() || isOwner(resource.data.scoutId));
     }
 

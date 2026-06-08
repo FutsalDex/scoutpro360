@@ -23,10 +23,21 @@ export function ScoutDashboard({ userProfile }: ScoutDashboardProps) {
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, (user) => {
-      setScoutId(user?.uid ?? null);
+    const unsubAuth = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          // Forzamos actualización del token para asegurar que Firestore lo reconozca
+          await user.getIdToken(true);
+          setScoutId(user.uid);
+        } catch (e) {
+          console.error("Token refresh error:", e);
+          setScoutId(user.uid);
+        }
+      } else {
+        setScoutId(null);
+        setLoading(false);
+      }
       setAuthReady(true);
-      if (!user) setLoading(false);
     });
     return () => unsubAuth();
   }, []);

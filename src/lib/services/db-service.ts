@@ -13,8 +13,7 @@ import {
   updateDoc,
   where,
   getDocs,
-  limit,
-  deleteDoc
+  limit
 } from "firebase/firestore";
 import { Player, ScoutingReport, PlayerList, ScheduledMatch, QuickNote } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -106,6 +105,7 @@ export async function getLatestReportForPlayer(playerId: string): Promise<Scouti
 export function subscribeToReports(scoutId: string, callback: (reports: ScoutingReport[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "reports");
+  // Filtro obligatorio para reglas de seguridad
   const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
   return onSnapshot(
     q,
