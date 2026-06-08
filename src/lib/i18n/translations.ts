@@ -309,11 +309,11 @@ export const translations = {
           imp: ['With possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In the result']
         },
         tactical: {
-          obs: ['Positioning', 'Spatial awareness', 'Game reading', 'Decision making', 'Off-ball movement', 'Defensive positioning', 'Transition understanding', 'Scanning frequency', 'Game tempo', 'Rhythm', 'Tactical adaptability'],
+          obs: ['Positioning', 'Spatial awareness', 'Game reading', 'Decision making', 'Off-ball movement', 'Defensive positioning', 'Transition understanding', 'Scanning frequency', 'Game tempo', 'Rhythm', 'Adaptabilidad táctica'],
           imp: []
         },
         physical: {
-          obs: ['Speed', 'Acceleration', 'Resistance', 'Strength', 'Agility', 'Balance', 'Jump/Aerial game', 'Coordination', 'Recovery'],
+          obs: ['Speed', 'Acceleration', 'Agility', 'Coordination', 'Balance', 'Strength', 'Resistance', 'Physical stamina', 'Explosiveness', 'Mobility', 'Injury resistance'],
           imp: []
         },
         mental: {
@@ -681,7 +681,7 @@ export const translations = {
           imp: []
         },
         physical: {
-          obs: ['Velocidad', 'Aceleración', 'Resistencia', 'Fuerza', 'Agilidad', 'Equilibrio', 'Salto/Juego aéreo', 'Coordinación', 'Recuperación'],
+          obs: ['Velocidad', 'Aceleración', 'Agilidad', 'Coordinación', 'Equilibrio', 'Fuerza', 'Resistencia', 'Fondo físico', 'Explosividad', 'Movilidad', 'Resistencia a lesiones'],
           imp: []
         },
         mental: {
