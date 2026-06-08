@@ -66,7 +66,7 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     ],
   },
   prompt: `Eres un sistema experto de scouting de fútbol profesional. Tu tarea es calcular el 
-Player Impact Metric (PIM) de un jugador en una escala de 0 a 100.
+Player Impact Metric (PIM) de un jugador en una escala de 0 a 100 basándote exclusivamente en los datos proporcionados.
 
 ## DATOS DEL JUGADOR
 - Nombre: {{{playerInfo.name}}}
@@ -112,9 +112,9 @@ Player Impact Metric (PIM) de un jugador en una escala de 0 a 100.
 - Potencial: {{{generalProfile.potential}}}/5
 - Nivel actual: {{{generalProfile.currentLevel}}}/5
 
-## INSTRUCCIONES DE CÁLCULO
+## INSTRUCCIONES DE CÁLCULO ESTRICTAS
 
-Aplica la siguiente fórmula ponderada según la posición del jugador:
+Aplica la siguiente fórmula ponderada según la posición del jugador. SI LOS VALORES SON MÍNIMOS (1/5), EL RESULTADO DEBE SER BAJO (cerca de 20 o menos).
 
 ### Pesos por posición:
 - Portero (PO): Técnico 25%, Táctico 30%, Físico 20%, Mental 25%
@@ -126,31 +126,16 @@ Aplica la siguiente fórmula ponderada según la posición del jugador:
 - Extremo (ED/EI): Técnico 30%, Táctico 20%, Físico 35%, Mental 15%
 - Delantero (DC/SD): Técnico 35%, Táctico 20%, Físico 25%, Mental 20%
 
-### Proceso:
-1. Normaliza cada categoría: suma de valores / (número de métricas × 5) × 100
-2. Aplica los pesos de posición
-3. Aplica multiplicadores de contexto:
+### Proceso matemático:
+1. Normaliza cada categoría: (suma de valores obtenidos) / (número de métricas en la lista x 5) * 100.
+2. Aplica los pesos de posición definidos arriba.
+3. Aplica multiplicadores de contexto (bonos/penalizaciones):
    - Partido de alta importancia + rendimiento destacado: +3 puntos
-   - Partido en condiciones adversas (lluvia/frío/viento): +2 puntos
+   - Condiciones adversas (lluvia/frío/viento): +2 puntos
    - Equipo en desventaja + rendimiento destacado: +3 puntos
    - Menos de 60 minutos jugados: -5 puntos
-4. Incorpora el perfil general con peso del 15% sobre el total
-5. Redondea al entero más cercano
-6. El resultado final debe estar entre 0 y 100
-
-### Escala de grados:
-- 90-100: A+ (Élite mundial)
-- 80-89: A (Élite)
-- 70-79: B (Alto rendimiento)
-- 60-69: C (Buen nivel)
-- 50-59: D (Nivel medio)
-- 0-49: F (Por debajo del estándar)
-
-### Opciones de recomendación en la explicación:
-- "Fichaje inmediato" (PIM ≥ 85)
-- "Seguimiento prioritario" (PIM 70-84)
-- "Monitorizar" (PIM 55-69)
-- "Reevaluar" (PIM < 55)
+4. Incorpora el perfil general con peso del 15% sobre la puntuación final.
+5. El resultado final debe estar entre 0 y 100. SI TODOS LOS INPUTS SON 1, EL SCORE DEBE SER MUY BAJO.
 
 Idioma de respuesta: {{{language}}}.`,
 });
@@ -159,7 +144,7 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
   try {
     const response = await calculatePlayerImpactMetricPrompt(input);
     
-    let score = 50;
+    let score = 0; // Cambiado de 50 a 0 para no sesgar el error
     let explanation = "No se pudo procesar la explicación técnica.";
 
     if (response.output) {
@@ -177,8 +162,8 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
   } catch (error) {
     console.error("PIM Flow Error:", error);
     return {
-      playerImpactMetric: 50,
-      explanation: "Error de sincronización con el analista virtual. Se ha asignado una puntuación base de seguridad."
+      playerImpactMetric: 0, // Fallback a 0 en caso de error crítico
+      explanation: "Error de comunicación con el sistema de análisis. No se han detectado datos válidos para el cálculo."
     };
   }
 }
