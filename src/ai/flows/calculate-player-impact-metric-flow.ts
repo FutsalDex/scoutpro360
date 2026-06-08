@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flujo de Genkit para calcular la Métrica de Impacto del Jugador (PIM).
- * Optimizado para robustez técnica y cumplimiento de esquema.
+ * Optimizado para robustez técnica y cumplimiento estricto del rango 0-100.
  */
 
 import { ai } from '@/ai/genkit';
@@ -55,7 +55,8 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
   prompt: `Actúa como un científico de datos especializado en rendimiento futbolístico de élite.
 Calcula el Player Impact Metric (PIM) de 0 a 100 basado en los siguientes datos técnicos.
 
-IMPORTANTE: Devuelve SIEMPRE el resultado en el formato JSON solicitado. La puntuación debe ser un número entero.
+IMPORTANTE: El valor MÁXIMO absoluto es 100 (Jugador de élite mundial generacional).
+Devuelve SIEMPRE el resultado en el formato JSON solicitado. La puntuación debe ser un número entero.
 Idioma de respuesta: {{{language}}}.
 
 DATOS DE EVALUACIÓN:
@@ -69,7 +70,8 @@ DATOS DE EVALUACIÓN:
 INSTRUCCIONES:
 1. Pesa los atributos según la importancia del rol (ej: la finalización pesa más en un DC que en un MCD).
 2. Analiza el potencial de impacto inmediato en un entorno profesional.
-3. Proporciona una explicación técnica coherente y breve.`,
+3. El PIM 100 solo se asigna si el jugador es perfecto en todos los KPIs clave de su rol.
+4. Proporciona una explicación técnica coherente y breve.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
@@ -106,8 +108,11 @@ const calculatePlayerImpactMetricFlow = ai.defineFlow(
       throw new Error('AI Response was empty');
     }
 
+    // Clamping estricto entre 0 y 100
+    const finalScore = Math.max(0, Math.min(100, Math.round(output.playerImpactMetric)));
+
     return {
-      playerImpactMetric: Math.round(output.playerImpactMetric),
+      playerImpactMetric: finalScore,
       explanation: output.explanation
     };
   }
