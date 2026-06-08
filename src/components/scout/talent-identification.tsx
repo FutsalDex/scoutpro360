@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -37,12 +38,16 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       return;
     }
 
+    // OBTENEMOS EL ID DEL USUARIO ACTUAL (SCOUT)
     const scoutId = auth.currentUser?.uid;
-    if (!scoutId) return;
+    if (!scoutId) {
+      toast({ variant: "destructive", title: "Auth Required", description: "Inicia sesión para registrar talento." });
+      return;
+    }
 
     setLoading(true);
     try {
-      // 1. Create a minimal Player record
+      // 1. CREAR REGISTRO DE JUGADOR (CON SCOUTID OBLIGATORIO)
       const playerId = await savePlayer({
         name: playerName,
         club: currentTeam,
@@ -52,22 +57,21 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
         marketValue: "€0",
         currentPIM: 0,
         grade: 'C',
-        scoutId,
+        scoutId: scoutId, // AUTORÍA GARANTIZADA
         secondaryPositions: category
       });
 
-      // 2. Create a Scheduled Match record if date provided
+      // 2. CREAR PARTIDO PROGRAMADO (VINCULADO AL SCOUTID)
       if (matchDate) {
-        // Combinar fecha y hora para el registro cronológico preciso
         const dateTimeValue = matchTime ? `${matchDate}T${matchTime}` : matchDate;
         
         await saveScheduledMatch({
-          playerId, // Link to the newly created player
+          playerId, 
           homeTeam: currentTeam,
           awayTeam: rival || "TBD",
           category: category || "Pro",
           dateTime: dateTimeValue,
-          scoutId,
+          scoutId: scoutId, // AUTORÍA GARANTIZADA
           status: 'scheduled'
         });
       }
@@ -93,7 +97,6 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
 
       <form onSubmit={handleRegister} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* SECCIÓN JUGADOR */}
           <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
             <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-accent/20">
               <div className="flex items-center gap-3">
@@ -149,7 +152,6 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
             </CardContent>
           </Card>
 
-          {/* SECCIÓN PARTIDO */}
           <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
             <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-primary/20">
               <div className="flex items-center gap-3">
@@ -208,7 +210,6 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
           </Card>
         </div>
 
-        {/* NOTAS Y ACCIÓN */}
         <div className="space-y-6">
           <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
             <CardContent className="p-8 space-y-4">

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -12,7 +13,8 @@ import {
   updateDoc,
   where,
   getDocs,
-  limit
+  limit,
+  setDoc
 } from "firebase/firestore";
 import { Player, ScoutingReport, PlayerList, ScheduledMatch, QuickNote } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -20,8 +22,13 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * Jugadores - Gestión de Persistencia
+ * Garantizamos que el scoutId siempre esté presente.
  */
 export async function savePlayer(playerData: Omit<Player, 'id'>, id?: string) {
+  if (!playerData.scoutId) {
+    throw new Error("CRITICAL: scoutId is required to save a player record.");
+  }
+
   if (id) {
     const docRef = doc(db, "players", id);
     try {
@@ -55,6 +62,9 @@ export async function getPlayer(id: string): Promise<Player | null> {
   }
 }
 
+/**
+ * Suscripción filtrada por el ID del scout (usuario actual)
+ */
 export function subscribeToPlayers(scoutId: string | null, callback: (players: Player[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "players");
@@ -63,12 +73,15 @@ export function subscribeToPlayers(scoutId: string | null, callback: (players: P
   return onSnapshot(
     q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[]),
-    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
+    async (err) => {
+      console.warn("Firestore list error (players):", err);
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }));
+    }
   );
 }
 
 /**
- * Informes - Gestión de Persistencia y Exportación
+ * Informes - Gestión de Persistencia
  */
 export async function saveReport(reportData: Partial<ScoutingReport>, id?: string) {
   if (id) {
@@ -149,34 +162,6 @@ export function subscribeToScheduledMatches(scoutId: string, callback: (matches:
   return onSnapshot(
     q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScheduledMatch[]),
-    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
-  );
-}
-
-/**
- * Carteras de Talento (Listas)
- */
-export function subscribeToPlayerLists(scoutId: string, callback: (lists: PlayerList[]) => void) {
-  if (!scoutId) return () => {};
-  const colRef = collection(db, "playerLists");
-  const q = query(colRef, where("scoutId", "==", scoutId));
-  return onSnapshot(
-    q,
-    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as PlayerList[]),
-    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
-  );
-}
-
-/**
- * Notas Rápidas
- */
-export function subscribeToQuickNotes(scoutId: string, callback: (notes: QuickNote[]) => void) {
-  if (!scoutId) return () => {};
-  const colRef = collection(db, "quickNotes");
-  const q = query(colRef, where("scoutId", "==", scoutId));
-  return onSnapshot(
-    q,
-    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as QuickNote[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
 }

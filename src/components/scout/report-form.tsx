@@ -381,7 +381,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
       doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}.pdf`);
 
-      // Marcar informe como exportado para métricas del dashboard
+      // Marcar informe como exportado
       if (reportId) {
         await saveReport({ pdfGenerated: true }, reportId);
       }
@@ -400,6 +400,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       setActiveTab("player");
       return;
     }
+    
+    // OBTENEMOS EL ID DEL USUARIO ACTUAL
     const scoutId = auth.currentUser?.uid;
     if (!scoutId) {
       toast({ variant: "destructive", title: "Authentication required" });
@@ -408,7 +410,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
     setIsSaving(true);
     try {
-      // Al guardar, nos aseguramos de que el jugador pertenezca al scout actual (reclamando registros antiguos si es necesario)
+      // 1. GUARDAR/ACTUALIZAR JUGADOR (FORZANDO SCOUTID)
       const playerId = await savePlayer({
         name: playerName,
         age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
@@ -418,12 +420,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         currentPIM: ratings['pim'] || 0,
         tacticalRole: activeRole.id,
         grade: (ratings['pim'] || 0) > 85 ? 'A' : ((ratings['pim'] || 0) > 70 ? 'B' : 'C'),
-        scoutId,
+        scoutId: scoutId, // AUTORÍA GARANTIZADA
         birthDate, height, weight, dominantFoot, secondaryPositions
       }, editingPlayerId || undefined);
       
+      // 2. GUARDAR/ACTUALIZAR INFORME (VINCULADO AL SCOUTID)
       const newReportId = await saveReport({
-        playerId, playerName, scoutId,
+        playerId, playerName, 
+        scoutId: scoutId, // AUTORÍA GARANTIZADA
         scoutName: scoutName || userProfile?.displayName || "Scout",
         pimScore: ratings['pim'] || 0,
         summary: notes['summary'] || "",
@@ -438,9 +442,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       
       if (newReportId) setReportId(newReportId);
       
-      toast({ title: "Saved" });
+      toast({ title: "Cambios sincronizados con la Base de Datos" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Error saving" });
+      toast({ variant: "destructive", title: "Error saving report" });
     } finally {
       setIsSaving(false);
     }
@@ -729,14 +733,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
         <TabsContent value="context" className="space-y-8 animate-in fade-in">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* CONTEXTO DEL PARTIDO */}
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#0f766e] px-6 py-4 flex items-center gap-3 border-b border-teal-500/20">
                 <Globe className="h-5 w-5 text-white" />
                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.context.title}</h2>
               </div>
               <CardContent className="p-8 space-y-8">
-                {/* Estilo de Juego */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.style}</Label>
                   <div className="flex flex-wrap gap-2">
@@ -756,8 +758,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     ))}
                   </div>
                 </div>
-
-                {/* Sistema / Formación */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.system}</Label>
                   <Input 
@@ -767,8 +767,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     className="h-10 bg-secondary/10 border-border/20 rounded-xl"
                   />
                 </div>
-
-                {/* Ritmo del Partido */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.pace}</Label>
                   <div className="flex gap-2">
@@ -788,8 +786,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     ))}
                   </div>
                 </div>
-
-                {/* Dominio del Equipo */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.dominance}</Label>
                   <div className="flex gap-2">
@@ -809,8 +805,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     ))}
                   </div>
                 </div>
-
-                {/* Marcador al observar */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.score}</Label>
                   <div className="flex gap-2">
@@ -830,8 +824,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     ))}
                   </div>
                 </div>
-
-                {/* Importancia del Partido */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.importance}</Label>
                   <div className="flex gap-2">
@@ -851,8 +843,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     ))}
                   </div>
                 </div>
-
-                {/* Condiciones Meteorológicas */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.weather}</Label>
                   <div className="flex flex-wrap gap-2">
@@ -916,14 +906,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </CardContent>
             </Card>
 
-            {/* COMPORTAMIENTO SIN BALÓN */}
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1e293b] px-6 py-4 flex items-center gap-3 border-b border-slate-500/20">
                 <ShieldAlert className="h-5 w-5 text-white" />
                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest">{t.report.context.offBallTitle}</h2>
               </div>
               <CardContent className="p-8 space-y-8">
-                {/* Sin Posesión */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.noPossession}</Label>
                   <div className="flex flex-wrap gap-2">
@@ -943,8 +931,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     ))}
                   </div>
                 </div>
-
-                {/* Lenguaje Corporal */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.bodyLanguage}</Label>
                   <div className="flex flex-wrap gap-2">
@@ -964,8 +950,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     ))}
                   </div>
                 </div>
-
-                {/* Rol Táctico en este partido */}
                 <div className="space-y-3">
                   <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.context.roleInMatch}</Label>
                   <Textarea 
