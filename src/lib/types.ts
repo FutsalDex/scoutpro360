@@ -118,6 +118,26 @@ export interface ScoutingReport {
   offBallTraits?: string[];
   bodyLanguageTraits?: string[];
   specificMatchRole?: string;
+  
+  // Evaluation Fields
+  strengths?: string[];
+  weaknesses?: string[];
+  shortTerm?: string;
+  longTerm?: string;
+  overallDescription?: string;
+  comparativePlayer?: string;
+  finalRecommendation?: string;
+  additionalNotes?: string;
+  fitsModel?: string;
+  immediateImpact?: string;
+  futurePotential?: string;
+  adaptationRisk?: string;
+  fitsPhilosophy?: string;
+  finalScoutRating?: number;
+  nextSteps?: string[];
+  scoutingCommittee?: string;
+  decisionDate?: string;
+  
   createdAt: any;
   updatedAt?: any;
 }
