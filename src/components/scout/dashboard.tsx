@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -95,20 +96,21 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
     );
   }
 
-  // Lógica de Métricas Profesionales
+  // Lógica de Métricas Profesionales Sincronizada con la BD
   const detectedCount = players.length;
   
-  // Jugadores Analizados: Tienen al menos un informe
-  const analyzedPlayerIds = new Set(reports.map(r => r.playerId));
-  const analyzedCount = analyzedPlayerIds.size;
+  // Jugadores Analizados: Jugadores que existen en la BD y tienen al menos un informe
+  const analyzedCount = players.filter(p => 
+    reports.some(r => r.playerId === p.id)
+  ).length;
   
   // Talento Identificado: Jugadores en BD que NO tienen informes aún
-  const identifiedCount = players.filter(p => !analyzedPlayerIds.has(p.id)).length;
+  const identifiedCount = detectedCount - analyzedCount;
   
   // Informes Generados: Solo PDFs exportados
   const generatedCount = reports.filter(r => r.pdfGenerated).length;
   
-  // Media PIM: Solo de jugadores analizados
+  // Media PIM: Solo de jugadores evaluados (PIM > 0)
   const evaluatedPlayers = players.filter(p => (p.currentPIM || 0) > 0);
   const avgPim = evaluatedPlayers.length > 0 
     ? (evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length).toFixed(1) 
