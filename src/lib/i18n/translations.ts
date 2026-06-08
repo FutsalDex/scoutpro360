@@ -3,6 +3,7 @@ export const translations = {
     sidebar: {
       operations: 'Operations',
       commandCenter: 'Command Center',
+      talentId: 'Talent Identification',
       liveReport: 'Player Report',
       matchAnalysis: 'Match Analysis',
       playersDatabase: 'Players Database',
@@ -45,6 +46,22 @@ export const translations = {
         new: 'New',
         noData: 'No players detected yet',
       }
+    },
+    talentId: {
+      title: 'TALENT IDENTIFICATION',
+      subtitle: 'Register promising players for future in-depth evaluation.',
+      success: 'Talent registered and match scheduled.',
+      playerSection: 'PLAYER DETAILS',
+      matchSection: 'FUTURE OBSERVATION MATCH',
+      playerName: 'Player Name',
+      currentTeam: 'Current Team',
+      position: 'Primary Position',
+      category: 'Category / Age',
+      rival: 'Opponent',
+      matchDate: 'Observation Date',
+      venue: 'Venue / Competition',
+      notes: 'Initial Scouting Notes',
+      submit: 'REGISTER TALENT',
     },
     database: {
       title: 'Players Database',
@@ -317,6 +334,7 @@ export const translations = {
     sidebar: {
       operations: 'Operaciones',
       commandCenter: 'Centro de Mando',
+      talentId: 'Identificación de Talento',
       liveReport: 'Informe Jugador',
       matchAnalysis: 'Análisis de Partido',
       playersDatabase: 'Base de Datos Jugadores',
@@ -359,6 +377,22 @@ export const translations = {
         new: 'Nuevos',
         noData: 'Aún no hay jugadores detectados',
       }
+    },
+    talentId: {
+      title: 'IDENTIFICACIÓN DE TALENTO',
+      subtitle: 'Registra jugadores prometedores para futuras evaluaciones profundas.',
+      success: 'Talento registrado y partido programado correctamente.',
+      playerSection: 'DATOS DEL JUGADOR',
+      matchSection: 'PARTIDO PARA SEGUIMIENTO',
+      playerName: 'Nombre del Jugador',
+      currentTeam: 'Equipo Actual',
+      position: 'Posición Principal',
+      category: 'Categoría / Edad',
+      rival: 'Rival',
+      matchDate: 'Fecha de Observación',
+      venue: 'Lugar / Competición',
+      notes: 'Notas Iniciales de Captación',
+      submit: 'REGISTRAR TALENTO',
     },
     database: {
       title: 'Base de Datos Jugadores',

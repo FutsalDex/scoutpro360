@@ -117,6 +117,43 @@ export function subscribeToReports(scoutId: string, callback: (reports: Scouting
 }
 
 /**
+ * Agenda de Partidos
+ */
+export async function saveScheduledMatch(matchData: Omit<ScheduledMatch, 'id'>, id?: string) {
+  if (id) {
+    const docRef = doc(db, "scheduledMatches", id);
+    try {
+      await updateDoc(docRef, { ...matchData, updatedAt: serverTimestamp() });
+      return id;
+    } catch (serverError: any) {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: matchData }));
+      throw serverError;
+    }
+  } else {
+    const colRef = collection(db, "scheduledMatches");
+    const data = { ...matchData, createdAt: serverTimestamp() };
+    try {
+      const docRef = await addDoc(colRef, data);
+      return docRef.id;
+    } catch (serverError: any) {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
+      throw serverError;
+    }
+  }
+}
+
+export function subscribeToScheduledMatches(scoutId: string, callback: (matches: ScheduledMatch[]) => void) {
+  if (!scoutId) return () => {};
+  const colRef = collection(db, "scheduledMatches");
+  const q = query(colRef, where("scoutId", "==", scoutId));
+  return onSnapshot(
+    q,
+    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScheduledMatch[]),
+    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
+  );
+}
+
+/**
  * Carteras de Talento (Listas)
  */
 export function subscribeToPlayerLists(scoutId: string, callback: (lists: PlayerList[]) => void) {
@@ -126,20 +163,6 @@ export function subscribeToPlayerLists(scoutId: string, callback: (lists: Player
   return onSnapshot(
     q,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as PlayerList[]),
-    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
-  );
-}
-
-/**
- * Agenda de Partidos
- */
-export function subscribeToScheduledMatches(scoutId: string, callback: (matches: ScheduledMatch[]) => void) {
-  if (!scoutId) return () => {};
-  const colRef = collection(db, "scheduledMatches");
-  const q = query(colRef, where("scoutId", "==", scoutId));
-  return onSnapshot(
-    q,
-    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScheduledMatch[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
 }

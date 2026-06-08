@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ScoutDashboard } from '@/components/scout/dashboard';
+import { TalentIdentification } from '@/components/scout/talent-identification';
 import { ReportForm } from '@/components/scout/report-form';
 import { MatchAnalysis } from '@/components/scout/match-analysis';
 import { GlobalDatabase } from '@/components/scout/global-database';
@@ -12,7 +13,7 @@ import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, FilePlus, Users, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ChevronRight, Map, LineChart, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -23,7 +24,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'report' | 'match-analysis' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'database' | 'mapping' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
 
 function AppShell({ 
   activeView, 
@@ -55,7 +56,7 @@ function AppShell({
 
   const handleNavClick = (view: ViewState) => {
     if (needsProfileCompletion && view !== 'profile') return;
-    if (view !== 'report') setEditingPlayerId(null);
+    if (view !== 'report' && view !== 'talent-id') setEditingPlayerId(null);
     setActiveView(view);
     if (isMobile) {
       setOpenMobile(false);
@@ -70,6 +71,7 @@ function AppShell({
   const renderActiveView = () => {
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
+      case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
       case 'database': return <GlobalDatabase onEditPlayer={handleEditPlayer} />;
@@ -85,6 +87,7 @@ function AppShell({
   const getViewTitle = () => {
     switch (activeView) {
       case 'dashboard': return t.sidebar.commandCenter;
+      case 'talent-id': return t.sidebar.talentId;
       case 'report': return editingPlayerId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
       case 'match-analysis': return t.sidebar.matchAnalysis;
       case 'database': return t.sidebar.playersDatabase;
@@ -161,6 +164,20 @@ function AppShell({
                   <span className="font-medium">{t.sidebar.commandCenter}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+
+              {isOpsRole && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    isActive={activeView === 'talent-id'} 
+                    onClick={() => handleNavClick('talent-id')}
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
+                  >
+                    <Binoculars className="h-5 w-5" />
+                    <span className="font-medium">{t.sidebar.talentId}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               
               {isOpsRole && (
                 <>
