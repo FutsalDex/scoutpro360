@@ -12,7 +12,7 @@ import { TacticalCanvas } from "./tactical-canvas";
 import { 
   FileText, ChevronRight, Activity, User, Target, Shield, 
   Zap as ZapIcon, Save, Star, Loader2, Brain, Sparkles, 
-  Sun, Cloud, CloudRain, Thermometer, Wind, LayoutGrid, ClipboardCheck
+  Sun, Cloud, CloudRain, Thermometer, Wind, LayoutGrid, ClipboardCheck, Plus, Trash2
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -238,6 +238,20 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     setBodyLanguageTraits(prev => 
       prev.includes(trait) ? prev.filter(t => t !== trait) : [...prev, trait]
     );
+  };
+
+  const addAction = () => {
+    setScoutingActions([...scoutingActions, { minute: '', action: '', result: '', notes: '' }]);
+  };
+
+  const updateAction = (index: number, field: keyof ScoutingAction, value: string) => {
+    const newActions = [...scoutingActions];
+    newActions[index] = { ...newActions[index], [field]: value };
+    setScoutingActions(newActions);
+  };
+
+  const removeAction = (index: number) => {
+    setScoutingActions(scoutingActions.filter((_, i) => i !== index));
   };
 
   const handleSaveAll = () => {
@@ -676,7 +690,86 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsContent>
 
         <TabsContent value="mental" className="animate-in fade-in">
-          <EvaluationModule t={t} icon={Brain} kpiSection={activeRole.kpis.mental} nextTab="analytics" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
+          <EvaluationModule t={t} icon={Brain} kpiSection={activeRole.kpis.mental} nextTab="actions" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
+        </TabsContent>
+
+        <TabsContent value="actions" className="animate-in fade-in space-y-6">
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+              <Star className="h-5 w-5 text-primary fill-primary" />
+              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.actionsTab.title}</h2>
+            </div>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="bg-[#1b263b]/50 border-b border-border/10">
+                      <th className="px-4 py-3 text-[10px] font-black uppercase text-muted-foreground w-20">{t.report.actionsTab.min}</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase text-muted-foreground">{t.report.actionsTab.action}</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase text-muted-foreground">{t.report.actionsTab.result}</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase text-muted-foreground">{t.report.actionsTab.notes}</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase text-muted-foreground w-10"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/10">
+                    {scoutingActions.map((action, idx) => (
+                      <tr key={idx} className="hover:bg-white/5 transition-colors">
+                        <td className="px-2 py-2">
+                          <Input 
+                            value={action.minute} 
+                            onChange={(e) => updateAction(idx, 'minute', e.target.value)}
+                            className="h-9 bg-secondary/10 border-none text-[11px] font-bold text-center"
+                            placeholder="-"
+                          />
+                        </td>
+                        <td className="px-2 py-2">
+                          <Input 
+                            value={action.action} 
+                            onChange={(e) => updateAction(idx, 'action', e.target.value)}
+                            className="h-9 bg-secondary/10 border-none text-[11px] font-bold"
+                            placeholder="Tipo de acción..."
+                          />
+                        </td>
+                        <td className="px-2 py-2">
+                          <Input 
+                            value={action.result} 
+                            onChange={(e) => updateAction(idx, 'result', e.target.value)}
+                            className="h-9 bg-secondary/10 border-none text-[11px] font-bold"
+                            placeholder="Resultado..."
+                          />
+                        </td>
+                        <td className="px-2 py-2">
+                          <Input 
+                            value={action.notes} 
+                            onChange={(e) => updateAction(idx, 'notes', e.target.value)}
+                            className="h-9 bg-secondary/10 border-none text-[11px] italic"
+                            placeholder="Observación / contexto..."
+                          />
+                        </td>
+                        <td className="px-2 py-2">
+                          <Button variant="ghost" size="icon" onClick={() => removeAction(idx)} className="h-8 w-8 text-destructive hover:bg-destructive/10">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button 
+                type="button"
+                onClick={addAction}
+                className="w-full py-4 bg-secondary/20 hover:bg-secondary/30 text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center justify-center gap-2 transition-all border-t border-dashed border-border/20"
+              >
+                <Plus className="h-3 w-3" /> {t.report.actionsTab.add}
+              </button>
+            </CardContent>
+          </Card>
+          
+          <div className="flex justify-between gap-4 pt-10">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("mental")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.mental}</Button>
+            <Button type="button" onClick={() => setActiveTab("analytics")} className="h-12 px-12 bg-[#1b263b] text-white font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.tabs.analytics} →</Button>
+          </div>
         </TabsContent>
         
         <TabsContent value="analytics" className="animate-in fade-in space-y-8">

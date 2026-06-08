@@ -173,6 +173,7 @@ export const translations = {
         tactical: 'TACTICAL',
         physical: 'PHYSICAL',
         mental: 'MENTAL',
+        actions: 'ACTIONS',
         analytics: 'AI ANALYTICS',
       },
       observedFunctions: {
@@ -285,6 +286,14 @@ export const translations = {
       generalProfile: {
         title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
         attributes: ['Technical level', 'Tactical intelligence', 'Physical quality', 'Mental strength', 'Competitive level', 'Potential', 'Current level']
+      },
+      actionsTab: {
+        title: 'KEY MATCH ACTIONS REGISTRY',
+        min: 'MIN.',
+        action: 'ACTION',
+        result: 'RESULT',
+        notes: 'OBSERVATION / NOTES',
+        add: 'Add action',
       },
       context: {
         right: 'Right',
@@ -541,6 +550,7 @@ export const translations = {
         tactical: 'TÁCTICO',
         physical: 'FÍSICO',
         mental: 'MENTAL',
+        actions: 'ACCIONES',
         analytics: 'ANÁLISIS IA',
       },
       observedFunctions: {
@@ -653,6 +663,14 @@ export const translations = {
       generalProfile: {
         title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
         attributes: ['Nivel técnico', 'Inteligencia táctica', 'Calidad física', 'Fortaleza mental', 'Nivel competitivo', 'Potencial', 'Nivel actual']
+      },
+      actionsTab: {
+        title: 'REGISTRO DE ACCIONES CLAVE',
+        min: 'MIN.',
+        action: 'ACCIÓN',
+        result: 'RESULTADO',
+        notes: 'OBSERVACIÓN / NOTAS',
+        add: 'Añadir acción',
       },
       context: {
         right: 'Derecho',
