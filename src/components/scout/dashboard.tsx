@@ -95,11 +95,17 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
     );
   }
 
+  // Lógica de Métricas Profesionales
   const detectedCount = players.length;
-  const analyzedCount = players.filter(p => (p.currentPIM || 0) > 0).length;
-  const reportsCount = reports.length;
-  const avgPim = players.length > 0 
-    ? (players.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / players.length).toFixed(1) 
+  // Analizados: Jugadores únicos que tienen al menos un informe guardado
+  const analyzedCount = Array.from(new Set(reports.map(r => r.playerId))).length;
+  // Informes Generados: Solo aquellos que han sido exportados a PDF
+  const generatedCount = reports.filter(r => r.pdfGenerated).length;
+  
+  // Media PIM: Solo de los jugadores que realmente han sido analizados (PIM > 0)
+  const evaluatedPlayers = players.filter(p => (p.currentPIM || 0) > 0);
+  const avgPim = evaluatedPlayers.length > 0 
+    ? (evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length).toFixed(1) 
     : "0.0";
 
   const recentPlayers = [...players]
@@ -137,7 +143,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
         />
         <DashboardStatCard
           title={t.dashboard.stats.reports}
-          value={reportsCount.toString()}
+          value={generatedCount.toString()}
           icon={<ClipboardCheck className="text-primary" />}
           color="border-primary/20"
           delay="200"

@@ -106,6 +106,7 @@ export interface ScoutingReport {
   selectedRoles?: string[];
   pitchPosition?: Point;
   heatmapPoints?: Point[];
+  pdfGenerated?: boolean;
   // Campos de Contexto
   matchStyle?: string;
   matchSystem?: string;

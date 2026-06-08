@@ -13,7 +13,7 @@ import {
   FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, 
   Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Brain, Sparkles, 
   Trash2, Download, Sun, Cloud, CloudRain, Thermometer, Wind, Globe,
-  ShieldAlert, UserCheck, LayoutGrid
+  ShieldAlert, LayoutGrid
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type ScoutingReport, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -379,6 +379,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       });
 
       doc.save(`ScoutPro360_${playerName.replace(/\s+/g, '_')}.pdf`);
+
+      // Marcar informe como exportado para métricas del dashboard
+      if (reportId) {
+        await saveReport({ pdfGenerated: true }, reportId);
+      }
+
       toast({ title: t.report.actions.exported || "PDF Generado" });
     } catch (e: any) {
       toast({ variant: "destructive", title: "Error PDF" });
@@ -414,7 +420,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         birthDate, height, weight, dominantFoot, secondaryPositions
       }, editingPlayerId || undefined);
       
-      await saveReport({
+      const newReportId = await saveReport({
         playerId, playerName, scoutId,
         scoutName: scoutName || userProfile?.displayName || "Scout",
         pimScore: ratings['pim'] || 0,
@@ -427,6 +433,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         pitchPosition: pitchMarker, heatmapPoints,
         createdAt: serverTimestamp()
       }, reportId || undefined);
+      
+      if (newReportId) setReportId(newReportId);
       
       toast({ title: "Saved" });
     } catch (e) {

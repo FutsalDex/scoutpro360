@@ -5,7 +5,6 @@ import {
   collection, 
   addDoc, 
   query, 
-  orderBy, 
   onSnapshot,
   serverTimestamp,
   doc,
@@ -20,7 +19,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
- * Jugadores - Suscripción filtrada por scoutId
+ * Jugadores - Gestión de Persistencia
  */
 export async function savePlayer(playerData: Omit<Player, 'id'>, id?: string) {
   if (id) {
@@ -69,13 +68,14 @@ export function subscribeToPlayers(scoutId: string | null, callback: (players: P
 }
 
 /**
- * Informes - Consulta optimizada
+ * Informes - Gestión de Persistencia y Exportación
  */
-export async function saveReport(reportData: Omit<ScoutingReport, 'id'>, id?: string) {
+export async function saveReport(reportData: Partial<ScoutingReport>, id?: string) {
   if (id) {
     const docRef = doc(db, "reports", id);
     try {
       await updateDoc(docRef, { ...reportData, updatedAt: serverTimestamp() });
+      return id;
     } catch (serverError: any) {
       errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: reportData }));
       throw serverError;
@@ -84,7 +84,8 @@ export async function saveReport(reportData: Omit<ScoutingReport, 'id'>, id?: st
     const colRef = collection(db, "reports");
     const data = { ...reportData, createdAt: serverTimestamp() };
     try {
-      await addDoc(colRef, data);
+      const docRef = await addDoc(colRef, data);
+      return docRef.id;
     } catch (serverError: any) {
       errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
       throw serverError;
