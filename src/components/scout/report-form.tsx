@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -407,6 +408,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
     setIsSaving(true);
     try {
+      // Al guardar, nos aseguramos de que el jugador pertenezca al scout actual (reclamando registros antiguos si es necesario)
       const playerId = await savePlayer({
         name: playerName,
         age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,

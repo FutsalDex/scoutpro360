@@ -1,3 +1,4 @@
+
 "use client"
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,7 +27,10 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        try { await user.getIdToken(true); } catch (_) {}
+        try { 
+          // Asegurar que el token esté fresco para evitar errores de permisos iniciales
+          await user.getIdToken(true); 
+        } catch (_) {}
         setUserId(user.uid);
       } else {
         setUserId(null);
@@ -39,18 +43,24 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
 
   useEffect(() => {
     if (!authReady || !userId) return;
+    
+    // Suscripción a los jugadores del scout actual
     const unsubscribe = subscribeToPlayers(userId, (data) => {
       setPlayers(data);
       setLoading(false);
     });
+    
     return () => unsubscribe();
   }, [authReady, userId]);
 
-  const filteredPlayers = players.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.club.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.nationality.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPlayers = players.filter(p => {
+    const search = searchTerm.toLowerCase();
+    const name = (p.name || "").toLowerCase();
+    const club = (p.club || "").toLowerCase();
+    const nationality = (p.nationality || "").toLowerCase();
+    
+    return name.includes(search) || club.includes(search) || nationality.includes(search);
+  });
 
   if (loading) {
     return (
@@ -91,25 +101,27 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
               {filteredPlayers.map(player => (
                 <div
                   key={player.id}
-                  className="flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors cursor-pointer"
+                  className="flex items-center justify-between p-4 hover:bg-secondary/20 transition-all cursor-pointer group"
                   onClick={() => onEditPlayer(player.id)}
                 >
                   <div className="flex items-center gap-4">
-                    <Avatar className="h-10 w-10 rounded-xl border border-primary/20">
-                      <AvatarFallback className="font-bold text-sm">{player.name[0]}</AvatarFallback>
+                    <Avatar className="h-10 w-10 rounded-xl border border-primary/20 group-hover:scale-105 transition-transform">
+                      <AvatarFallback className="font-black text-primary bg-primary/10 text-sm">
+                        {player.name ? player.name[0].toUpperCase() : '?'}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-black text-sm uppercase tracking-tight">{player.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{player.club} · {player.nationality}</p>
+                      <p className="font-black text-sm uppercase tracking-tight group-hover:text-primary transition-colors">{player.name || 'Sin nombre'}</p>
+                      <p className="text-[10px] text-muted-foreground">{player.club || 'Sin club'} · {player.nationality || 'Nacionalidad N/A'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="text-right">
+                    <div className="text-right hidden sm:block">
                       <p className="text-[9px] uppercase tracking-widest text-muted-foreground">PIM</p>
-                      <p className="text-lg font-black text-accent">{player.currentPIM}</p>
+                      <p className="text-lg font-black text-accent">{player.currentPIM || 0}</p>
                     </div>
-                    <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center font-black text-primary border border-primary/30">
-                      {player.grade}
+                    <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center font-black text-primary border border-primary/30 shadow-sm">
+                      {player.grade || 'C'}
                     </div>
                   </div>
                 </div>
