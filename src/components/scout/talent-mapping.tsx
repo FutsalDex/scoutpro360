@@ -4,14 +4,14 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Globe, Loader2, Crosshair } from "lucide-react";
+import { Globe, Loader2, Crosshair } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers } from "@/lib/services/db-service";
 import { Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
-// Coordenadas calibradas para el nuevo SVG detallado (viewBox="0 0 1000 500")
+// Coordenadas calibradas para el nuevo mapa realista (viewBox="0 0 1000 500")
 const COUNTRY_COORDS: Record<string, { x: number, y: number }> = {
   "España": { x: 485, y: 155 },
   "Argentina": { x: 315, y: 420 },
@@ -60,7 +60,6 @@ export function TalentMapping() {
     return () => unsub();
   }, [scoutId]);
 
-  // Agrupar jugadores por país
   const statsByCountry = players.reduce((acc, player) => {
     const country = player.nationality || 'Unknown';
     if (!acc[country]) {
@@ -110,55 +109,50 @@ export function TalentMapping() {
         </CardHeader>
         
         <CardContent className="p-0 h-[calc(100%-80px)] relative">
-          {/* Tactical Grid Background */}
           <div className="absolute inset-0 grid grid-cols-[repeat(30,minmax(0,1fr))] grid-rows-[repeat(20,minmax(0,1fr))] opacity-[0.03]">
             {[...Array(600)].map((_, i) => (
               <div key={i} className="border-[0.5px] border-white/20" />
             ))}
           </div>
 
-          {/* Radar Sweep Effect */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
              <div className="w-[200%] h-[200%] absolute -top-1/2 -left-1/2 bg-[conic-gradient(from_0deg,transparent_0deg,var(--primary)_10deg,transparent_40deg)] opacity-[0.02] animate-[spin_12s_linear_infinite]" />
           </div>
 
           <div className="relative h-full w-full flex items-center justify-center p-8 sm:p-12">
-             <div className="w-full h-full max-w-[1200px] aspect-[2/1] relative">
-                {/* World Map SVG Detailed Silhouette */}
+             <div className="w-full h-full max-w-[1100px] aspect-[2/1] relative">
+                {/* World Map SVG Realista Silueteado */}
                 <svg viewBox="0 0 1000 500" className="w-full h-full fill-white/[0.08] stroke-white/20 stroke-[0.5] drop-shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                    <g>
                      {/* Norteamérica */}
-                     <path d="M120,80 L280,80 L310,180 L240,280 L140,240 L80,180 Z" />
-                     <path d="M100,50 L200,40 L180,70 Z" /> {/* Groenlandia */}
+                     <path d="M120,60 C150,55 180,50 210,45 C230,40 250,50 270,70 C290,90 310,120 315,150 C320,180 300,210 280,240 C260,270 230,280 200,285 C170,290 140,270 120,250 C100,230 80,180 85,150 C90,120 100,70 120,60 Z" />
+                     {/* Groenlandia */}
+                     <path d="M360,30 C380,25 420,20 440,35 C460,50 450,80 430,95 C410,110 370,105 350,90 C330,75 340,40 360,30 Z" />
                      
                      {/* Sudamérica */}
-                     <path d="M280,290 L380,290 L400,460 L330,495 L270,360 Z" />
+                     <path d="M280,300 C310,295 350,290 380,310 C410,330 430,380 420,430 C410,480 370,500 330,490 C290,480 260,430 255,380 C250,330 260,305 280,300 Z" />
                      
                      {/* Europa */}
-                     <path d="M460,110 L560,100 L580,180 L500,190 L450,160 Z" />
-                     <path d="M440,80 L470,70 L460,90 Z" /> {/* Islandia */}
+                     <path d="M450,130 C470,120 520,100 550,110 C580,120 600,150 580,180 C560,210 510,215 480,200 C450,185 440,150 450,130 Z" />
+                     <path d="M440,90 C450,85 470,80 480,95 C490,110 470,125 455,120 C440,115 435,100 440,90 Z" /> {/* UK/Ireland area */}
                      
                      {/* África */}
-                     <path d="M460,200 L600,210 L640,340 L570,470 L500,400 L440,260 Z" />
-                     <path d="M640,350 L660,360 L650,400 Z" /> {/* Madagascar */}
+                     <path d="M450,210 C480,205 550,200 590,220 C630,240 650,290 640,360 C630,430 580,480 540,470 C500,460 460,420 440,360 C420,300 430,230 450,210 Z" />
+                     <path d="M640,370 C650,365 670,360 680,380 C690,400 675,425 660,420 C645,415 635,380 640,370 Z" /> {/* Madagascar */}
                      
-                     {/* Asia y Rusia */}
-                     <path d="M560,60 L920,50 L980,250 L850,400 L620,400 L580,200 Z" />
-                     
-                     {/* Sudeste Asiático e Islas */}
-                     <path d="M780,330 L830,330 L820,360 Z" />
-                     <path d="M850,300 L880,300 L870,330 Z" />
+                     {/* Asia */}
+                     <path d="M580,100 C650,80 750,70 850,85 C950,100 980,150 970,250 C960,350 900,420 800,410 C700,400 620,350 590,250 C570,150 550,110 580,100 Z" />
                      
                      {/* Australia */}
-                     <path d="M800,390 L920,390 L940,480 L840,490 Z" />
-                     <path d="M950,470 L970,470 L960,495 Z" /> {/* N.Zelanda */}
+                     <path d="M820,400 C850,390 920,385 940,410 C960,435 960,475 930,490 C900,505 840,495 820,470 C800,445 810,410 820,400 Z" />
+                     <path d="M950,480 C960,475 980,475 980,490 C980,505 965,510 955,505 C945,500 945,485 950,480 Z" /> {/* NZ area */}
                    </g>
                 </svg>
 
                 {/* Nodes represent real players from DB */}
                 {Object.entries(statsByCountry).map(([name, stat]) => {
                   const pos = COUNTRY_COORDS[name];
-                  if (!pos) return null; // No renderizar si no tenemos coordenadas para el país
+                  if (!pos) return null;
                   
                   return (
                     <div 
@@ -173,7 +167,6 @@ export function TalentMapping() {
                         <div className="h-8 w-8 bg-primary/20 rounded-full absolute -inset-2.5 animate-ping opacity-30" />
                         <div className="h-4 w-4 bg-primary rounded-full border-2 border-white shadow-[0_0_20px_hsl(var(--primary))] transition-all group-hover:scale-150 cursor-pointer" />
                         
-                        {/* Tooltip on hover */}
                         <div className="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/95 px-4 py-3 rounded-2xl border border-primary/40 opacity-0 group-hover:opacity-100 transition-all z-20 pointer-events-none scale-90 group-hover:scale-100 shadow-2xl">
                           <p className="text-[11px] font-black uppercase text-primary tracking-widest">{name}</p>
                           <div className="flex items-center gap-4 mt-2">
