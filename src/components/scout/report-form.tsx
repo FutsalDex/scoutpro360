@@ -10,12 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
 import { 
-  FileText, ChevronRight, ChevronLeft, Activity, User, Target, Shield, 
-  Zap as ZapIcon, Heart, Save, Star, Plus, Loader2, Brain, Sparkles, 
-  Trash2, Download, Sun, Cloud, CloudRain, Thermometer, Wind, Globe,
-  ShieldAlert, LayoutGrid, ClipboardCheck
+  FileText, ChevronRight, Activity, User, Target, Shield, 
+  Zap as ZapIcon, Save, Star, Loader2, Brain, Sparkles, 
+  Sun, Cloud, CloudRain, Thermometer, Wind, LayoutGrid, ClipboardCheck
 } from "lucide-react";
-import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type ScoutingReport, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
+import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
@@ -93,24 +92,48 @@ const ChipGroup = ({ label, options, selected, onSelect, t, multi = false, icons
 
 const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, ratings, onRatingChange, notes, onNoteChange, setActiveTab, t }: { icon: any, kpiSection: KPISection, nextTab: string, prevTab: string, tabType: string, ratings: Record<string, number>, onRatingChange: (k: string, v: number) => void, notes: Record<string, string>, onNoteChange: (k: string, v: string) => void, setActiveTab: (t: string) => void, t: any }) => (
   <div className="space-y-6">
-    <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-      <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
-        <Icon className="h-5 w-5 text-primary" />
-        <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_obs`]}</h2>
-      </div>
-      <CardContent className="p-0">
-        {kpiSection.observation.map(kpi => (
-          <RatingRow 
-            key={kpi} 
-            kpi={kpi} 
-            rating={ratings[kpi]} 
-            onRatingChange={(val) => onRatingChange(kpi, val)} 
-            note={notes[kpi]} 
-            onNoteChange={(val) => onNoteChange(kpi, val)} 
-          />
-        ))}
-      </CardContent>
-    </Card>
+    <div className={cn("grid grid-cols-1 gap-8", kpiSection.impact.length > 0 ? "lg:grid-cols-2" : "")}>
+      <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+        <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+          <Icon className="h-5 w-5 text-primary" />
+          <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_obs`]}</h2>
+        </div>
+        <CardContent className="p-0">
+          {kpiSection.observation.map(kpi => (
+            <RatingRow 
+              key={kpi} 
+              kpi={kpi} 
+              rating={ratings[kpi]} 
+              onRatingChange={(val) => onRatingChange(kpi, val)} 
+              note={notes[kpi]} 
+              onNoteChange={(val) => onNoteChange(kpi, val)} 
+            />
+          ))}
+        </CardContent>
+      </Card>
+
+      {kpiSection.impact.length > 0 && (
+        <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+          <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+            <ZapIcon className="h-5 w-5 text-primary" />
+            <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_imp`]}</h2>
+          </div>
+          <CardContent className="p-0">
+            {kpiSection.impact.map(kpi => (
+              <RatingRow 
+                key={kpi} 
+                kpi={kpi} 
+                rating={ratings[kpi]} 
+                onRatingChange={(val) => onRatingChange(kpi, val)} 
+                note={notes[kpi]} 
+                onNoteChange={(val) => onNoteChange(kpi, val)} 
+              />
+            ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+    
     <div className="flex justify-between gap-4 pt-10">
       <Button type="button" variant="ghost" onClick={() => setActiveTab(prevTab)} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">{t.report.actions.previous}</Button>
       <Button type="button" onClick={() => setActiveTab(nextTab)} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
@@ -133,7 +156,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
   const [heatmapPoints, setHeatmapPoints] = useState<Point[]>([]);
 
-  // Campos Información del Jugador
+  // Player Info Fields
   const [playerName, setPlayerName] = useState("");
   const [dorsal, setDorsal] = useState("");
   const [clubName, setClubName] = useState("");
@@ -151,7 +174,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
 
-  // Campos Contexto
+  // Context Fields
   const [matchStyle, setMatchStyle] = useState("");
   const [matchSystem, setMatchSystem] = useState("");
   const [matchPace, setMatchPace] = useState("");

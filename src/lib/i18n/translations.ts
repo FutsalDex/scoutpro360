@@ -298,6 +298,7 @@ export const translations = {
       },
       sections: {
         technical_obs: 'TECHNICAL OBSERVATION',
+        technical_imp: 'MATCH IMPACT',
         tactical_obs: 'TACTICAL OBSERVATION',
         physical_obs: 'PHYSICAL OBSERVATION',
         mental_obs: 'MENTAL OBSERVATION',
@@ -305,7 +306,7 @@ export const translations = {
       kpis: {
         technical: {
           obs: ['First touch', 'Short pass', 'Long pass', 'Through ball', '1vs1 dribbling', 'Ball control', 'Possession', 'Shot', 'Cross', 'Finishing', 'Aerial game', 'Set pieces', 'Technique under pressure'],
-          imp: []
+          imp: ['With possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In the result']
         },
         tactical: {
           obs: ['Positioning', 'Game reading', 'Tactical discipline', 'Covering', 'Pressure', 'Offensive support', 'Surveillance', 'Anticipation', 'Spatial intelligence'],
@@ -665,6 +666,7 @@ export const translations = {
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
+        technical_imp: 'IMPACTO EN EL PARTIDO',
         tactical_obs: 'OBSERVACIÓN TÁCTICA',
         physical_obs: 'OBSERVACIÓN FÍSICA',
         mental_obs: 'OBSERVACIÓN MENTAL',
@@ -672,7 +674,7 @@ export const translations = {
       kpis: {
         technical: {
           obs: ['Primer toque', 'Pase corto', 'Pase largo', 'Pase en profundidad', 'Regate 1vs1', 'Control de balón', 'Posesión', 'Disparo', 'Centro', 'Finalización', 'Juego aéreo', 'Balón parado', 'Técnica bajo presión'],
-          imp: []
+          imp: ['Con posesión', 'Sin posesión', 'Momentos clave', 'Consistencia', 'Bajo presión', 'En el resultado']
         },
         tactical: {
           obs: ['Posicionamiento', 'Lectura de juego', 'Disciplina táctica', 'Coberturas', 'Presión', 'Apoyo ofensivo', 'Vigilancias', 'Anticipación', 'Inteligencia espacial'],
