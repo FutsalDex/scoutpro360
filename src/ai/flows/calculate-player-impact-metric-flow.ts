@@ -17,14 +17,14 @@ const CalculatePlayerImpactMetricInputSchema = z.object({
       mental: z.record(z.number().min(1).max(5)),
     }),
   }),
-  historicalClubData: z.string(),
-  language: z.enum(['en', 'es']).default('en'),
+  historicalClubData: z.string().optional(),
+  language: z.enum(['en', 'es']).default('es'),
 });
 export type CalculatePlayerImpactMetricInput = z.infer<typeof CalculatePlayerImpactMetricInputSchema>;
 
 const CalculatePlayerImpactMetricOutputSchema = z.object({
-  playerImpactMetric: z.number(),
-  explanation: z.string(),
+  playerImpactMetric: z.number().describe('A score from 0 to 100'),
+  explanation: z.string().describe('A brief explanation of the score'),
 });
 export type CalculatePlayerImpactMetricOutput = z.infer<typeof CalculatePlayerImpactMetricOutputSchema>;
 
@@ -42,6 +42,14 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     })
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
+  config: {
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+    ],
+  },
   prompt: `You are an expert football performance analyst. Your task is to calculate the Player Impact Metric (PIM) on a scale of 0 to 100.
 The PIM represents the projected impact this player would have in a professional top-tier team based on their current performance metrics.
 
@@ -57,26 +65,38 @@ CONTEXT DATA:
 - Reference Data: {{{historicalClubData}}}
 
 CALCULATION LOGIC:
-1. Weight the metrics according to the importance for the tactical role (e.g., finishing for a striker, positioning for a center back).
-2. Consider the "Impact in the Match" ratings as high-weight multipliers.
-3. Generate a final score from 0 to 100.
-4. Provide a professional, concise scout-style explanation of why this PIM was assigned.`,
+1. Weight the metrics according to the importance for the tactical role.
+2. If some metrics are missing, provide the best estimation based on available data.
+3. Generate a final score from 0 to 100 as an integer.
+4. Provide a professional, concise scout-style explanation in {{{language}}}.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
-  const { output } = await calculatePlayerImpactMetricPrompt({
-    tacticalRole: input.currentEvaluation.tacticalRole,
-    technical: JSON.stringify(input.currentEvaluation.metrics.technical),
-    tactical: JSON.stringify(input.currentEvaluation.metrics.tactical),
-    physical: JSON.stringify(input.currentEvaluation.metrics.physical),
-    mental: JSON.stringify(input.currentEvaluation.metrics.mental),
-    historicalClubData: input.historicalClubData,
-    language: input.language === 'es' ? 'Spanish' : 'English',
-  });
-  
-  if (!output) {
-    throw new Error('El modelo de IA no devolvió un resultado válido.');
-  }
-
-  return output;
+  const result = await calculatePlayerImpactMetricFlow(input);
+  return result;
 }
+
+const calculatePlayerImpactMetricFlow = ai.defineFlow(
+  {
+    name: 'calculatePlayerImpactMetricFlow',
+    inputSchema: CalculatePlayerImpactMetricInputSchema,
+    outputSchema: CalculatePlayerImpactMetricOutputSchema,
+  },
+  async (input) => {
+    const { output } = await calculatePlayerImpactMetricPrompt({
+      tacticalRole: input.currentEvaluation.tacticalRole,
+      technical: JSON.stringify(input.currentEvaluation.metrics.technical),
+      tactical: JSON.stringify(input.currentEvaluation.metrics.tactical),
+      physical: JSON.stringify(input.currentEvaluation.metrics.physical),
+      mental: JSON.stringify(input.currentEvaluation.metrics.mental),
+      historicalClubData: input.historicalClubData || "Standard Benchmark: 70",
+      language: input.language === 'es' ? 'Spanish' : 'English',
+    });
+    
+    if (!output) {
+      throw new Error('El modelo de IA no devolvió un resultado válido.');
+    }
+
+    return output;
+  }
+);
