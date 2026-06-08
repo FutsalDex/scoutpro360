@@ -33,7 +33,7 @@ export const translations = {
       title: 'COMMAND CENTER',
       subtitle: 'Real-time scouting operations oversight.',
       stats: {
-        detected: 'Detected Players',
+        detected: 'Players in DB',
         analyzed: 'Analyzed Players',
         reports: 'Reports Generated',
         avgPim: 'Average PIM Impact',
@@ -347,7 +347,7 @@ export const translations = {
       title: 'CENTRO DE MANDO',
       subtitle: 'Supervisión de operaciones de captación en tiempo real.',
       stats: {
-        detected: 'Jugadores Detectados',
+        detected: 'Jugadores en la BD',
         analyzed: 'Jugadores Analizados',
         reports: 'Informes Generados',
         avgPim: 'Media de Impacto PIM',
