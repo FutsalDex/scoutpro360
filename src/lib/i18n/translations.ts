@@ -157,6 +157,28 @@ export const translations = {
         physicalCondition: 'PHYSICAL CONDITION',
         scout: 'SCOUT',
       },
+      generalProfile: {
+        title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
+        technical: 'Technical Level',
+        tactical: 'Tactical Intelligence',
+        physical: 'Physical Quality',
+        mental: 'Mental Strength',
+        competitive: 'Competitive Level',
+        potential: 'Potential',
+        current: 'Current Level',
+      },
+      dominantFootOptions: {
+        right: 'Right',
+        left: 'Left',
+        both: 'Both'
+      },
+      physicalConditionOptions: {
+        excellent: 'Excellent',
+        good: 'Good',
+        normal: 'Normal',
+        low: 'Below Level',
+        injured: 'Injured'
+      },
       sections: {
         technical_obs: 'TECHNICAL OBSERVATION',
         technical_impact: 'MATCH IMPACT',
@@ -415,6 +437,28 @@ export const translations = {
         dominantFoot: 'PIE DOMINANTE',
         physicalCondition: 'CONDICIÓN FÍSICA',
         scout: 'SCOUT',
+      },
+      generalProfile: {
+        title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
+        technical: 'Nivel técnico',
+        tactical: 'Inteligencia táctica',
+        physical: 'Calidad física',
+        mental: 'Fortaleza mental',
+        competitive: 'Nivel competitivo',
+        potential: 'Potencial',
+        current: 'Nivel actual',
+      },
+      dominantFootOptions: {
+        right: 'Derecho',
+        left: 'Izquierdo',
+        both: 'Ambos'
+      },
+      physicalConditionOptions: {
+        excellent: 'Excelente',
+        good: 'Buena',
+        normal: 'Normal',
+        low: 'Bajo su nivel',
+        injured: 'Lesionado'
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',

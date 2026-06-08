@@ -34,32 +34,34 @@ const RatingRow = ({
   rating?: number, 
   onRatingChange: (value: number) => void,
   note?: string,
-  onNoteChange: (value: string) => void
+  onNoteChange?: (value: string) => void
 }) => (
-  <div className="flex flex-col py-4 border-b border-border/10 last:border-0 px-4 w-full gap-3">
-    <Label className="text-[10px] font-black text-foreground uppercase tracking-wider">{kpi}</Label>
-    <div className="flex flex-col gap-3 w-full">
-      <div className="flex gap-1 w-full">
+  <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/10 last:border-0 px-4 w-full gap-4 group hover:bg-white/5 transition-colors">
+    <Label className="text-[10px] font-black text-foreground uppercase tracking-wider w-full sm:w-1/3 truncate">{kpi}</Label>
+    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-2/3">
+      <div className="flex gap-1 shrink-0">
         {[1, 2, 3, 4, 5].map(num => (
           <button
             key={num}
             type="button"
             onClick={() => onRatingChange(num)}
             className={cn(
-              "h-8 flex-1 rounded-lg border border-border/40 text-[9px] font-black flex items-center justify-center transition-all",
-              rating === num ? "bg-primary text-primary-foreground border-primary shadow-md" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
+              "h-8 w-8 rounded-full border border-border/40 text-[9px] font-black flex items-center justify-center transition-all",
+              rating === num ? "bg-primary text-primary-foreground border-primary shadow-md scale-110" : "bg-white/5 hover:border-primary/50 text-muted-foreground"
             )}
           >
             {num}
           </button>
         ))}
       </div>
-      <Input 
-        className="h-8 text-[9px] bg-secondary/10 border-none rounded-md italic placeholder:opacity-40 w-full" 
-        placeholder="Nota..." 
-        value={note || ""}
-        onChange={(e) => onNoteChange(e.target.value)}
-      />
+      {onNoteChange && (
+        <Input 
+          className="h-8 text-[9px] bg-secondary/10 border-none rounded-md italic placeholder:opacity-40 w-full" 
+          placeholder="Nota..." 
+          value={note || ""}
+          onChange={(e) => onNoteChange(e.target.value)}
+        />
+      )}
     </div>
   </div>
 );
@@ -447,37 +449,174 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsList>
 
         <TabsContent value="player" className="space-y-8 animate-in fade-in">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border/40 shadow-xl rounded-3xl bg-card/40 backdrop-blur-md">
-              <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20 rounded-t-3xl">
-                <User className="h-5 w-5 text-primary" />
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.playerInfo.title}</h2>
-              </div>
-              <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="col-span-full space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
-                  <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 space-y-8">
+              <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md overflow-hidden">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <User className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.playerInfo.title}</h2>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dorsal}</Label>
-                  <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
-                  <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" />
-                </div>
-              </CardContent>
-            </Card>
+                <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-6 gap-6">
+                  <div className="sm:col-span-4 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.name}</Label>
+                    <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Nombre del jugador" />
+                  </div>
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dorsal}</Label>
+                    <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="-" />
+                  </div>
+                  
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.club}</Label>
+                    <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Club" />
+                  </div>
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.rival}</Label>
+                    <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="vs" />
+                  </div>
 
-            <Card className="border-border/40 shadow-xl rounded-3xl bg-card/40 backdrop-blur-md">
-              <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20 rounded-t-3xl">
-                <Target className="h-5 w-5 text-primary" />
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
-              </div>
-              <CardContent className="p-4">
-                <TacticalCanvas marker={pitchMarker} onMarkerChange={setPitchMarker} heatmapPoints={heatmapPoints} onHeatmapChange={setHeatmapPoints} />
-              </CardContent>
-            </Card>
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.competition}</Label>
+                    <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Liga / Copa" />
+                  </div>
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.matchDate}</Label>
+                    <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" />
+                  </div>
+
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.birthDate}</Label>
+                    <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" />
+                  </div>
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.nationality}</Label>
+                    <Select value={nationality} onValueChange={setNationality}>
+                      <SelectTrigger className="h-10 bg-secondary/10 border-border/20 rounded-xl">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px] bg-[#1b263b] border-border/20">
+                        {ALL_COUNTRIES.map(country => (
+                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.height}</Label>
+                    <Input value={height} onChange={(e) => setHeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="-" />
+                  </div>
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.weight}</Label>
+                    <Input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="-" />
+                  </div>
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.minPlayed}</Label>
+                    <Input value={minPlayed} onChange={(e) => setMinPlayed(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="90" />
+                  </div>
+
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.primaryPos}</Label>
+                    <Select 
+                      value={activeRole.id} 
+                      onValueChange={(v) => {
+                        const role = TACTICAL_ROLES.find(r => r.id === v);
+                        if (role) setActiveRole({ ...role, kpis: localizedKPIs });
+                      }}
+                    >
+                      <SelectTrigger className="h-10 bg-secondary/10 border-border/20 rounded-xl text-xs font-bold">
+                        <SelectValue placeholder="Seleccionar..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1b263b] border-border/20">
+                        {TACTICAL_ROLES.map(role => (
+                          <SelectItem key={role.id} value={role.id}>{t.report.tacticalRoles[role.id as keyof typeof t.report.tacticalRoles] || role.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.secondaryPos}</Label>
+                    <Input value={secondaryPositions} onChange={(e) => setSecondaryPositions(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Ej: ED, MCO" />
+                  </div>
+
+                  <div className="sm:col-span-full space-y-3">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.dominantFoot}</Label>
+                    <div className="flex gap-2">
+                      {['right', 'left', 'both'].map((opt) => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant="outline"
+                          onClick={() => setDominantFoot(opt)}
+                          className={cn(
+                            "h-9 flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest border-border/40",
+                            dominantFoot === opt ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
+                          )}
+                        >
+                          {t.report.dominantFootOptions[opt as keyof typeof t.report.dominantFootOptions]}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-full space-y-3">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.physicalCondition}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {['excellent', 'good', 'normal', 'low', 'injured'].map((opt) => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant="outline"
+                          onClick={() => setPhysicalCondition(opt)}
+                          className={cn(
+                            "h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest border-border/40",
+                            physicalCondition === opt ? "bg-primary text-primary-foreground border-primary" : "bg-white/5"
+                          )}
+                        >
+                          {t.report.physicalConditionOptions[opt as keyof typeof t.report.physicalConditionOptions]}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-full space-y-1.5">
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.report.playerInfo.scout}</Label>
+                    <Input value={scoutName} onChange={(e) => setScoutName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="Nombre del observador" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* PERFIL GENERAL Card */}
+              <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md overflow-hidden">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <Activity className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.generalProfile.title}</h2>
+                </div>
+                <CardContent className="p-0">
+                  <div className="divide-y divide-border/10">
+                    <RatingRow kpi={t.report.generalProfile.technical} rating={ratings['gen_technical']} onRatingChange={(v) => handleRatingChange('gen_technical', v)} onNoteChange={(v) => handleNoteChange('gen_technical_note', v)} note={notes['gen_technical_note']} />
+                    <RatingRow kpi={t.report.generalProfile.tactical} rating={ratings['gen_tactical']} onRatingChange={(v) => handleRatingChange('gen_tactical', v)} onNoteChange={(v) => handleNoteChange('gen_tactical_note', v)} note={notes['gen_tactical_note']} />
+                    <RatingRow kpi={t.report.generalProfile.physical} rating={ratings['gen_physical']} onRatingChange={(v) => handleRatingChange('gen_physical', v)} onNoteChange={(v) => handleNoteChange('gen_physical_note', v)} note={notes['gen_physical_note']} />
+                    <RatingRow kpi={t.report.generalProfile.mental} rating={ratings['gen_mental']} onRatingChange={(v) => handleRatingChange('gen_mental', v)} onNoteChange={(v) => handleNoteChange('gen_mental_note', v)} note={notes['gen_mental_note']} />
+                    <RatingRow kpi={t.report.generalProfile.competitive} rating={ratings['gen_competitive']} onRatingChange={(v) => handleRatingChange('gen_competitive', v)} onNoteChange={(v) => handleNoteChange('gen_competitive_note', v)} note={notes['gen_competitive_note']} />
+                    <RatingRow kpi={t.report.generalProfile.potential} rating={ratings['gen_potential']} onRatingChange={(v) => handleRatingChange('gen_potential', v)} onNoteChange={(v) => handleNoteChange('gen_potential_note', v)} note={notes['gen_potential_note']} />
+                    <RatingRow kpi={t.report.generalProfile.current} rating={ratings['gen_current']} onRatingChange={(v) => handleRatingChange('gen_current', v)} onNoteChange={(v) => handleNoteChange('gen_current_note', v)} note={notes['gen_current_note']} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="lg:col-span-4">
+              <Card className="border-border/40 shadow-xl rounded-2xl bg-card/40 backdrop-blur-md sticky top-24">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <Target className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
+                </div>
+                <CardContent className="p-4">
+                  <TacticalCanvas marker={pitchMarker} onMarkerChange={setPitchMarker} heatmapPoints={heatmapPoints} onHeatmapChange={setHeatmapPoints} />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
 
