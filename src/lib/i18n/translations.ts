@@ -176,7 +176,7 @@ export const translations = {
         player: 'PLAYER',
         context: 'CONTEXT',
         technical: 'TECHNICAL',
-        tactical: 'TÁCTICO',
+        tactical: 'TACTICAL',
         physical: 'PHYSICAL',
         mental: 'MENTAL',
         actions: 'ACTIONS',
@@ -189,7 +189,7 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETICIÓN',
+        competition: 'COMPETITION',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
         nationality: 'NATIONALITY (COUNTRY)',
@@ -292,7 +292,7 @@ export const translations = {
           main: 'MAIN STRENGTHS',
           areas: 'AREAS TO IMPROVE',
           shortTerm: 'SHORT TERM',
-          longTerm: 'LARGO PLAZO',
+          longTerm: 'LONG TERM',
         },
         finalSummary: {
           title: 'FINAL SUMMARY',
@@ -386,7 +386,7 @@ export const translations = {
       userTable: {
         user: 'Identidad de Usuario',
         role: 'Rol Asignado',
-        org: 'Organization',
+        org: 'Organización',
         joined: 'Fecha Registro',
       }
     },
@@ -641,7 +641,7 @@ export const translations = {
           imp: ['Duelos ganados', 'Intensidad', 'Presencia física', 'Despliegue', 'Potencia']
         },
         mental: {
-          obs: ['Liderazgo', 'Determinación', 'Agresividad', 'Compostura', 'Toma de decisiones', 'Concentración', 'Sacrificio', 'Valentía', 'Madurez'],
+          obs: ['Leadership', 'Determinación', 'Agresividad', 'Compostura', 'Toma de decisiones', 'Concentración', 'Sacrificio', 'Valentía', 'Madurez'],
           imp: ['Resiliencia', 'Comunicación', 'Impacto anímico', 'Enfoque', 'Espíritu de equipo']
         }
       },

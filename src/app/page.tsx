@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -57,7 +58,7 @@ function AppShell({
 
   const handleNavClick = (view: ViewState) => {
     if (needsProfileCompletion && view !== 'profile') return;
-    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda') setEditingPlayerId(null);
+    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda' && view !== 'mapping') setEditingPlayerId(null);
     setActiveView(view);
     if (isMobile) {
       setOpenMobile(false);
