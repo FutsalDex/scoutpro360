@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Download, Loader2, MoreVertical, FileText, Calendar, Users, Clock, MapPin } from "lucide-react";
+import { Search, Download, Loader2, MoreVertical, FileText, Calendar, Users, Clock, MapPin, FileDown, AlertCircle } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, saveScheduledMatch, subscribeToGlobalPlayers } from "@/lib/services/db-service";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
@@ -70,12 +72,14 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
   useEffect(() => {
     if (!authReady || !userId) return;
     
-    // Si es global, usamos el suscriptor global (para admins/club), si no, el de scout privado
     const unsubPlayers = global 
       ? subscribeToGlobalPlayers(setPlayers)
       : subscribeToPlayers(userId, setPlayers);
       
-    const unsubReports = subscribeToReports(userId, setReports);
+    const unsubReports = global
+      ? subscribeToReports(null, setReports) // Solo para club/admin? Ajustar si es necesario
+      : subscribeToReports(userId, setReports);
+
     const unsubMatches = subscribeToScheduledMatches(userId, setMatches);
     const timer = setTimeout(() => setLoading(false), 3000);
     return () => {
@@ -102,6 +106,138 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
     if (reports.some(r => r.playerId === player.id)) return 'analizado';
     if (matches.some(m => m.playerId === player.id && m.status === 'scheduled')) return 'agendado';
     return 'detectado';
+  };
+
+  const getReportForPlayer = (playerId: string) => {
+    return reports.find(r => r.playerId === playerId);
+  };
+
+  const calculateCompletion = (report: ScoutingReport | undefined): number => {
+    if (!report) return 0;
+    
+    // Lista de campos críticos para auditar completitud
+    const criticalFields = [
+      report.pimScore,
+      report.summary,
+      report.rivalName,
+      report.competition,
+      report.matchDate,
+      report.matchStyle,
+      report.matchSystem,
+      report.overallDescription,
+      report.finalRecommendation,
+      report.finalScoutRating,
+      report.strengths?.length ? 1 : null,
+      report.weaknesses?.length ? 1 : null,
+      ...(report.ratings ? Object.values(report.ratings) : [])
+    ];
+
+    const filled = criticalFields.filter(f => f !== undefined && f !== null && f !== '' && f !== 0).length;
+    const total = criticalFields.length;
+    
+    return Math.round((filled / total) * 100);
+  };
+
+  const generatePDF = (player: Player) => {
+    const report = getReportForPlayer(player.id);
+    const completion = calculateCompletion(report);
+
+    if (!report || completion < 75) {
+      toast({
+        variant: "destructive",
+        title: t.database.actions.pdfIncomplete,
+        description: `Completitud actual: ${completion}% (Requerido: 75%)`,
+      });
+      return;
+    }
+
+    const doc = new jsPDF() as any;
+    const primaryColor = [224, 176, 80]; // Golden Harvest
+    const navyColor = [27, 38, 59]; // Deep Navy
+
+    // Header
+    doc.setFillColor(...navyColor);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("SCOUTPRO 360", 105, 20, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(t.report.pdfHeader, 105, 28, { align: "center" });
+
+    // Player Basic Info Table
+    doc.autoTable({
+      startY: 45,
+      head: [[t.report.playerInfo.title, ""]],
+      body: [
+        [t.report.playerInfo.name, player.name.toUpperCase()],
+        [t.report.playerInfo.club, player.club.toUpperCase()],
+        [t.report.playerInfo.nationality, player.nationality || 'N/A'],
+        [t.report.playerInfo.primaryPos, player.tacticalRole.toUpperCase()],
+        [t.report.playerInfo.birthDate, player.birthDate || 'N/A'],
+        ["PIM IMPACT SCORE", `${report.pimScore || 0}%`]
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: primaryColor, textColor: navyColor },
+      styles: { fontSize: 9, cellPadding: 3 }
+    });
+
+    // Match Context
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 10,
+      head: [[t.report.pdfMatchContext, ""]],
+      body: [
+        [t.report.playerInfo.rival, report.rivalName || 'N/A'],
+        [t.report.playerInfo.competition, report.competition || 'N/A'],
+        [t.report.playerInfo.matchDate, report.matchDate || 'N/A'],
+        [t.report.contextTab.gameStyle, report.matchStyle || 'N/A'],
+        [t.report.contextTab.system, report.matchSystem || 'N/A']
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: primaryColor, textColor: navyColor },
+      styles: { fontSize: 9 }
+    });
+
+    // AI Summary
+    doc.setFillColor(245, 245, 245);
+    doc.rect(14, doc.lastAutoTable.finalY + 10, 182, 30, 'F');
+    doc.setTextColor(...navyColor);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text(t.report.summary.title, 20, doc.lastAutoTable.finalY + 18);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9);
+    const summaryLines = doc.splitTextToSize(report.summary || "No summary available.", 170);
+    doc.text(summaryLines, 20, doc.lastAutoTable.finalY + 25);
+
+    // Final Recommendation
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 50,
+      head: [[t.report.evaluationTab.recTitle.toUpperCase(), ""]],
+      body: [
+        [t.report.evaluationTab.finalRec, report.finalRecommendation?.toUpperCase() || 'N/A'],
+        [t.report.evaluationTab.finalRatingTitle, `${report.finalScoutRating || 0} / 5`],
+        [t.report.evaluationTab.signingTitle, report.fitsPhilosophy === 'si' ? 'POSITIVE' : 'NEGATIVE']
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: navyColor, textColor: [255, 255, 255] },
+      styles: { fontSize: 9 }
+    });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`ScoutPro 360 Intelligence - Confidential Report - Page ${i}`, 105, 285, { align: "center" });
+    }
+
+    doc.save(`ScoutPro_Report_${player.name.replace(/\s+/g, '_')}.pdf`);
+    toast({ title: t.database.actions.pdfSuccess });
   };
 
   const statusColors: Record<string, string> = {
@@ -183,7 +319,9 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
             <div className="divide-y divide-border/20">
               {filteredPlayers.map(player => {
                 const status = getPlayerStatus(player);
-                const birthYear = player.birthDate ? new Date(player.birthDate).getFullYear() : (player.secondaryPositions && /^\d{4}$/.test(player.secondaryPositions) ? player.secondaryPositions : null);
+                const report = getReportForPlayer(player.id);
+                const completion = calculateCompletion(report);
+                const birthYear = player.birthDate ? new Date(player.birthDate).getFullYear() : null;
 
                 return (
                   <div key={player.id} className="flex items-center justify-between p-5 hover:bg-secondary/10 transition-all group">
@@ -222,13 +360,30 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
                             <MoreVertical className="h-5 w-5 text-muted-foreground" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 bg-[#1b263b] border-border/40 shadow-2xl p-2 rounded-xl">
+                        <DropdownMenuContent align="end" className="w-64 bg-[#1b263b] border-border/40 shadow-2xl p-2 rounded-xl">
                           <DropdownMenuItem onClick={() => onEditPlayer(player.id)} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-primary/10 text-foreground transition-all">
                             <FileText className="h-4 w-4 text-primary" />
                             <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.editReport}</span>
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleScheduleMatch(player)} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-accent/10 text-foreground transition-all">
-                            <Calendar className="h-4 w-4 text-accent" />
+                          
+                          <DropdownMenuItem 
+                            onClick={() => generatePDF(player)} 
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
+                              completion >= 75 ? "hover:bg-accent/10 text-foreground" : "opacity-50 grayscale cursor-not-allowed"
+                            )}
+                          >
+                            <FileDown className="h-4 w-4 text-accent" />
+                            <div className="flex flex-col">
+                              <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.createPdf}</span>
+                              <span className={cn("text-[8px] font-black", completion >= 75 ? "text-accent" : "text-destructive")}>
+                                {completion}% COMPLETADO
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem onClick={() => handleScheduleMatch(player)} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-white/5 text-foreground transition-all">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.scheduleMatch}</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>

@@ -74,11 +74,14 @@ export const translations = {
       noRecords: 'No records found in your database',
       birthYear: 'Birth Year',
       actions: {
-        editReport: 'Edit Report',
+        editReport: 'CREATE/EDIT REPORT',
+        createPdf: 'CREATE PDF REPORT',
         scheduleMeeting: 'Schedule Meeting',
         scheduleMatch: 'Schedule Match',
         meetingSuccess: 'Meeting scheduled successfully',
         matchSuccess: 'Match observation scheduled',
+        pdfIncomplete: 'Report incomplete (min 75%)',
+        pdfSuccess: 'PDF generated successfully',
       },
       scheduleModal: {
         title: 'Schedule Observation',
@@ -354,7 +357,7 @@ export const translations = {
       kpis: {
         technical: {
           obs: ['First touch', 'Short pass', 'Long pass', 'Through ball', '1vs1 dribbling', 'Ball control', 'Possession', 'Shot', 'Cross', 'Finishing', 'Aerial game', 'Set pieces', 'Technique under pressure'],
-          imp: ['With possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In the result']
+          imp: ['Con possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In the result']
         },
         tactical: {
           obs: ['Posicionamiento', 'Conciencia espacial', 'Lectura del juego', 'Toma de decisiones', 'Movimiento sin balón', 'Posicionamiento defensivo', 'Entend. transiciones', 'Frecuencia de exploración', 'Tempo de juego', 'Ritmo', 'Adaptabilidad táctica'],
@@ -490,11 +493,14 @@ export const translations = {
       noRecords: 'No se encontraron registros en tu base de datos',
       birthYear: 'Año Nac.',
       actions: {
-        editReport: 'Editar Informe',
+        editReport: 'CREAR/EDITAR INFORME',
+        createPdf: 'CREAR INFORME PDF',
         scheduleMeeting: 'Agendar Reunión',
         scheduleMatch: 'Agendar Partido',
         meetingSuccess: 'Reunión agendada correctamente',
         matchSuccess: 'Observación de partido agendada',
+        pdfIncomplete: 'Informe incompleto (mínimo 75%)',
+        pdfSuccess: 'PDF generado correctamente',
       },
       scheduleModal: {
         title: 'Programar Evento',
@@ -596,7 +602,7 @@ export const translations = {
       evaluationTab: {
         strengthsTitle: 'FORTALEZAS Y ÁREAS DE MEJORA',
         mainStrengths: 'FORTALEZAS PRINCIPALES',
-        areasToImprove: 'ÁREAS A MEJORAR',
+        areasToImprove: 'AREAS A MEJORAR',
         shortTerm: 'CORTO PLAZO',
         longTerm: 'LARGO PLAZO',
         recTitle: 'RESUMEN FINAL',
