@@ -66,7 +66,7 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     ],
   },
   prompt: `Eres un sistema experto de scouting de fútbol profesional. Tu tarea es calcular el 
-Player Impact Metric (PIM) de un jugador en una escala de 0 a 100 basándote exclusivamente en los datos proporcionados.
+Player Impact Metric (PIM) de un jugador en una escala de 0 a 100.
 
 ## DATOS DEL JUGADOR
 - Nombre: {{{playerInfo.name}}}
@@ -114,7 +114,7 @@ Player Impact Metric (PIM) de un jugador en una escala de 0 a 100 basándote exc
 
 ## INSTRUCCIONES DE CÁLCULO ESTRICTAS
 
-Aplica la siguiente fórmula ponderada según la posición del jugador. SI LOS VALORES SON MÍNIMOS (1/5), EL RESULTADO DEBE SER BAJO (cerca de 20 o menos).
+Aplica la siguiente fórmula ponderada según la posición del jugador:
 
 ### Pesos por posición:
 - Portero (PO): Técnico 25%, Táctico 30%, Físico 20%, Mental 25%
@@ -135,7 +135,21 @@ Aplica la siguiente fórmula ponderada según la posición del jugador. SI LOS V
    - Equipo en desventaja + rendimiento destacado: +3 puntos
    - Menos de 60 minutos jugados: -5 puntos
 4. Incorpora el perfil general con peso del 15% sobre la puntuación final.
-5. El resultado final debe estar entre 0 y 100. SI TODOS LOS INPUTS SON 1, EL SCORE DEBE SER MUY BAJO.
+5. El resultado final debe estar entre 0 y 100.
+
+### Escala de grados:
+- 90-100: A+ (Élite mundial)
+- 80-89: A (Élite)
+- 70-79: B (Alto rendimiento)
+- 60-69: C (Buen nivel)
+- 50-59: D (Nivel medio)
+- 0-49: F (Por debajo del estándar)
+
+### Opciones de recomendación:
+- "Fichaje inmediato" (PIM ≥ 85)
+- "Seguimiento prioritario" (PIM 70-84)
+- "Monitorizar" (PIM 55-69)
+- "Reevaluar" (PIM < 55)
 
 Idioma de respuesta: {{{language}}}.`,
 });
@@ -144,26 +158,29 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
   try {
     const response = await calculatePlayerImpactMetricPrompt(input);
     
-    let score = 0; // Cambiado de 50 a 0 para no sesgar el error
-    let explanation = "No se pudo procesar la explicación técnica.";
-
     if (response.output) {
-      score = response.output.playerImpactMetric;
-      explanation = response.output.explanation;
+      return {
+        playerImpactMetric: Math.max(0, Math.min(100, Math.round(response.output.playerImpactMetric))),
+        explanation: response.output.explanation
+      };
     }
 
-    // Clamping estricto
-    const finalScore = Math.max(0, Math.min(100, Math.round(score)));
+    // Fallback si el modelo devuelve texto pero no JSON estructurado correctamente
+    if (response.text) {
+      const scoreMatch = response.text.match(/"playerImpactMetric":\s*(\d+)/) || response.text.match(/(\d+)\/100/);
+      const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+      return {
+        playerImpactMetric: Math.max(0, Math.min(100, score)),
+        explanation: response.text.substring(0, 500) // Truncar si es muy largo
+      };
+    }
 
-    return {
-      playerImpactMetric: finalScore,
-      explanation: explanation
-    };
+    throw new Error("Respuesta de IA vacía");
   } catch (error) {
     console.error("PIM Flow Error:", error);
     return {
-      playerImpactMetric: 0, // Fallback a 0 en caso de error crítico
-      explanation: "Error de comunicación con el sistema de análisis. No se han detectado datos válidos para el cálculo."
+      playerImpactMetric: 0,
+      explanation: "Error técnico en el motor de cálculo. Por favor, asegúrate de haber completado las métricas de perfil general y tácticas."
     };
   }
 }
