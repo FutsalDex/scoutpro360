@@ -38,6 +38,17 @@ export const translations = {
         reports: 'Reports Generated',
         avgPim: 'Average PIM Impact',
         syncing: 'Syncing Nodes...',
+      },
+      recentProspects: {
+        title: 'Recent Prospects',
+        subtitle: 'Latest talent identified by the network',
+        new: 'New',
+        noData: 'No players detected yet',
+      },
+      scoutNotes: {
+        title: 'Quick Notes',
+        subtitle: 'Unassigned voice and text notes',
+        comingSoon: 'Feature integration pending',
       }
     },
     database: {
@@ -123,7 +134,6 @@ export const translations = {
       },
       tabs: {
         player: 'PLAYER',
-        context: 'CONTEXT',
         technical: 'TECHNICAL',
         tactical: 'TACTICAL',
         physical: 'PHYSICAL',
@@ -151,29 +161,6 @@ export const translations = {
         dominantFoot: 'DOMINANT FOOT',
         physicalCondition: 'PHYSICAL CONDITION',
         scout: 'SCOUT',
-      },
-      matchContext: {
-        title: 'MATCH CONTEXT',
-        gameStyle: 'GAME STYLE',
-        system: 'SYSTEM / FORMATION',
-        tempo: 'MATCH TEMPO',
-        dominance: 'TEAM DOMINANCE',
-        score: 'SCORE WHEN OBSERVING',
-        importance: 'MATCH IMPORTANCE',
-        weather: 'WEATHER CONDITIONS',
-        behaviorTitle: 'BEHAVIOR WITHOUT BALL',
-        withoutPossession: 'WITHOUT POSSESSION',
-        bodyLanguage: 'BODY LANGUAGE',
-        tacticalRoleInMatch: 'PLAYER TACTICAL ROLE IN THIS MATCH',
-        placeholderRole: 'Describe the tactical role assigned to the player...',
-        styles: ['Possession', 'Counter-Attack', 'High Press', 'Direct', 'Defensive'],
-        tempos: ['Low', 'Medium', 'High'],
-        dominances: ['Dominant', 'Balanced', 'Underdog'],
-        scores: ['Winning', 'Drawing', 'Losing'],
-        importances: ['Low', 'Medium', 'High', 'Decisive'],
-        weathers: ['Sun', 'Cloudy', 'Rain', 'Cold', 'Wind'],
-        behaviors: ['Aggressive press', 'Central spaces', 'Close pass lines', 'Quick recovery', 'Block defense', 'Offer support', 'Reads game well', 'Maintains shape'],
-        languages: ['Positive', 'Competitive', 'Focused', 'Frustrated', 'Emotional', 'Reactive', 'Calm/Mature', 'Indifferent']
       },
       sections: {
         technical_obs: 'TECHNICAL OBSERVATION',
@@ -210,7 +197,7 @@ export const translations = {
           main: 'MAIN STRENGTHS',
           areas: 'AREAS TO IMPROVE',
           shortTerm: 'SHORT TERM',
-          longTerm: 'LONG TERM',
+          longTerm: 'LARGO PLAZO',
         },
         finalSummary: {
           title: 'FINAL SUMMARY',
@@ -315,6 +302,17 @@ export const translations = {
         reports: 'Informes Generados',
         avgPim: 'Media de Impacto PIM',
         syncing: 'Sincronizando Nodos...',
+      },
+      recentProspects: {
+        title: 'Prospectos Recientes',
+        subtitle: 'Último talento identificado por la red',
+        new: 'Nuevos',
+        noData: 'Aún no hay jugadores detectados',
+      },
+      scoutNotes: {
+        title: 'Notas Rápidas',
+        subtitle: 'Notas de voz y texto sin asignar',
+        comingSoon: 'Integración pendiente',
       }
     },
     database: {
@@ -400,7 +398,6 @@ export const translations = {
       },
       tabs: {
         player: 'JUGADOR',
-        context: 'CONTEXTO',
         technical: 'TÉCNICO',
         tactical: 'TÁCTICO',
         physical: 'FÍSICO',
@@ -428,29 +425,6 @@ export const translations = {
         dominantFoot: 'PIE DOMINANTE',
         physicalCondition: 'CONDICIÓN FÍSICA',
         scout: 'SCOUT',
-      },
-      matchContext: {
-        title: 'CONTEXTO DEL PARTIDO',
-        gameStyle: 'ESTILO DE JUEGO',
-        system: 'SISTEMA / FORMACIÓN',
-        tempo: 'RITMO DEL PARTIDO',
-        dominance: 'DOMINIO DEL EQUIPO',
-        score: 'MARCADOR AL OBSERVAR',
-        importance: 'IMPORTANCIA DEL PARTIDO',
-        weather: 'CONDICIONES METEOROLÓGICAS',
-        behaviorTitle: 'COMPORTAMIENTO SIN BALÓN',
-        withoutPossession: 'SIN POSESIÓN',
-        bodyLanguage: 'LENGUAJE CORPORAL',
-        tacticalRoleInMatch: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
-        placeholderRole: 'Describe el rol táctico asignado al jugador...',
-        styles: ['Posesión', 'Contragolpe', 'Presión alta', 'Directo', 'Defensivo'],
-        tempos: ['Bajo', 'Medio', 'Alto'],
-        dominances: ['Dominante', 'Equilibrado', 'En desventaja'],
-        scores: ['Winning', 'Drawing', 'Losing'],
-        importances: ['Baja', 'Media', 'Alta', 'Decisiva'],
-        weathers: ['Sol', 'Nublado', 'Lluvia', 'Frío', 'Viento'],
-        behaviors: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
-        languages: ['Positivo', 'Competitivo', 'Enfocado', 'Frustrado', 'Emocional', 'Reactivo', 'Calmado/Maduro', 'Indiferente']
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
