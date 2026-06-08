@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Save, Sparkles } from "lucide-react";
+import { User, Save, Sparkles, Calendar } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
@@ -21,7 +21,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
   const [playerName, setPlayerName] = useState("");
   const [currentTeam, setCurrentTeam] = useState("");
   const [position, setPosition] = useState("");
-  const [category, setCategory] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [notes, setNotes] = useState("");
 
   const handleRegister = (e: React.FormEvent) => {
@@ -44,12 +44,12 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       club: currentTeam,
       tacticalRole: position || 'mc',
       nationality: "N/A",
-      age: 0,
+      age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
       marketValue: "€0",
       currentPIM: 0,
       grade: 'C',
       scoutId: scoutId,
-      secondaryPositions: category
+      birthDate: birthDate
     });
 
     toast({ title: t.talentId.success });
@@ -101,7 +101,15 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.category}</Label>
-                <Input value={category} onChange={(e) => setCategory(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl" placeholder="U19 / 2007" />
+                <div className="relative">
+                  <Input 
+                    type="date" 
+                    value={birthDate} 
+                    onChange={(e) => setBirthDate(e.target.value)} 
+                    className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl pl-10" 
+                  />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                </div>
               </div>
             </div>
           </CardContent>
