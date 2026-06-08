@@ -1,4 +1,3 @@
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -222,10 +221,6 @@ export function GlobalDatabase({ onEditPlayer }: GlobalDatabaseProps) {
                           <DropdownMenuItem onClick={() => handleScheduleMatch(player)} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-accent/10 text-foreground transition-all">
                             <Calendar className="h-4 w-4 text-accent" />
                             <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.scheduleMatch}</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast({ title: t.database.actions.meetingSuccess })} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-primary/10 text-foreground transition-all">
-                            <Users className="h-4 w-4 text-primary" />
-                            <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.scheduleMeeting}</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

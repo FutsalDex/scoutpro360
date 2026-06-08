@@ -30,9 +30,6 @@ export function MatchAnalysis() {
           </div>
           <div className="space-y-2">
             <h2 className="text-4xl font-headline font-black text-foreground uppercase tracking-tighter">Próximamente</h2>
-            <p className="text-muted-foreground font-medium max-w-md mx-auto">
-              Estamos integrando algoritmos de visión artificial para el análisis automatizado de video y patrones tácticos colectivos.
-            </p>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-secondary/30 rounded-full border border-border/40">
             <Lock className="h-3 w-3 text-primary" />
