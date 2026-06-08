@@ -82,6 +82,7 @@ export const translations = {
         matchSuccess: 'Match observation scheduled',
         pdfIncomplete: 'Report incomplete (min 75%)',
         pdfSuccess: 'PDF generated successfully',
+        pdfRequirement: 'To generate the PDF, the report must be at least 75% complete.',
       },
       scheduleModal: {
         title: 'Schedule Observation',
@@ -244,7 +245,7 @@ export const translations = {
         competition: 'COMPETICION',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
-        nationality: 'NATIONALITY',
+        nationality: 'NATIONALITY (COUNTRY)',
         marketValue: 'MARKET VALUE',
         height: 'HEIGHT (CM)',
         weight: 'WEIGHT (KG)',
@@ -501,6 +502,7 @@ export const translations = {
         matchSuccess: 'Observación de partido agendada',
         pdfIncomplete: 'Informe incompleto (mínimo 75%)',
         pdfSuccess: 'PDF generado correctamente',
+        pdfRequirement: 'Para generar el PDF, el informe debe estar completado al menos al 75%.',
       },
       scheduleModal: {
         title: 'Programar Evento',
@@ -663,7 +665,7 @@ export const translations = {
         competition: 'COMPETICIÓN',
         matchDate: 'FECHA',
         birthDate: 'FECHA DE NACIMIENTO',
-        nationality: 'NACIONALIDAD',
+        nationality: 'NACIONALIDAD (PAÍS)',
         marketValue: 'VALOR DE MERCADO',
         height: 'ALTURA (CM)',
         weight: 'PESO (KG)',

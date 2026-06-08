@@ -324,7 +324,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       birthDate, height, weight, dominantFoot, secondaryPositions
     }, editingPlayerId || undefined);
 
-    saveReport({
+    const finalReportId = saveReport({
       playerId,
       playerName,
       scoutId: scoutId,
@@ -342,6 +342,11 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       finalRecommendation, additionalNotes, fitsModel, immediateImpact, futurePotential,
       adaptationRisk, fitsPhilosophy, finalScoutRating, nextSteps, scoutingCommittee, decisionDate
     }, reportId || undefined);
+
+    // FIX: Update reportId to prevent duplicate entries on multiple clicks
+    if (!reportId) {
+      setReportId(finalReportId);
+    }
 
     toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito." });
   };
@@ -403,11 +408,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           ))}
         </TabsList>
 
-        {/* Tab JUGADOR, CONTEXTO, TECNICO, TACTICO, FISICO, MENTAL, ACCIONES (Omitidas para brevedad, ya presentes) */}
-        
-        {/* Renderizado de pestañas ya existentes */}
         <TabsContent value="player" className="space-y-8 animate-in fade-in">
-          {/* Implementación ya presente en el historial... */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-8">
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
@@ -493,14 +494,61 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   </div>
                 </CardContent>
               </Card>
+
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <LayoutGrid className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.generalProfile.title}</h2>
+                </div>
+                <CardContent className="p-0">
+                  {t.report.generalProfile.attributes.map((attr: string) => (
+                    <RatingRow 
+                      key={attr} 
+                      kpi={attr} 
+                      rating={ratings[attr]} 
+                      onRatingChange={(v) => handleRatingChange(attr, v)} 
+                      note={notes[attr]} 
+                      onNoteChange={(v) => handleNoteChange(attr, v)} 
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.dominantFoot}</Label>
+                  <ChipGroup label="" options={['right', 'left', 'both']} selected={dominantFoot} onSelect={setDominantFoot} t={t} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.physicalCondition}</Label>
+                  <ChipGroup label="" options={['excellent', 'good', 'normal', 'low', 'injured']} selected={physicalCondition} onSelect={setPhysicalCondition} t={t} />
+                </div>
+              </div>
             </div>
-            <div className="lg:col-span-4">
+            
+            <div className="lg:col-span-4 space-y-8">
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl sticky top-24">
                 <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
                   <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
                 </div>
                 <CardContent className="p-4">
                   <TacticalCanvas marker={pitchMarker} onMarkerChange={setPitchMarker} heatmapPoints={heatmapPoints} onHeatmapChange={setHeatmapPoints} />
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.observedFunctions.title}</h2>
+                </div>
+                <CardContent className="p-6">
+                  <ChipGroup 
+                    label="" 
+                    options={Object.keys(t.report.observedFunctions).filter(k => k !== 'title')} 
+                    selected={observedFunctions} 
+                    onSelect={toggleObservedFunction} 
+                    t={{ report: { contextTab: t.report.observedFunctions } }}
+                    multi={true}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -523,8 +571,14 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.system}</Label>
                   <Input value={matchSystem} onChange={(e) => setMatchSystem(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: 4-3-3, 4-2-3-1" />
                 </div>
-                <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
-                <ChipGroup label={t.report.contextTab.importance} options={['low', 'medium', 'high', 'decisive']} selected={matchImportance} onSelect={setMatchImportance} t={t} />
+                <div className="grid grid-cols-2 gap-4">
+                  <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
+                  <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <ChipGroup label={t.report.contextTab.scoreAtObserving} options={['winning', 'drawing', 'losing']} selected={observingScore} onSelect={setObservingScore} t={t} />
+                  <ChipGroup label={t.report.contextTab.importance} options={['low', 'medium', 'high', 'decisive']} selected={matchImportance} onSelect={setMatchImportance} t={t} />
+                </div>
                 <ChipGroup label={t.report.contextTab.weather} options={['sun', 'cloudy', 'rain', 'cold', 'wind']} selected={weather} onSelect={setWeather} t={t} icons={weatherIcons} />
               </CardContent>
             </Card>
@@ -536,6 +590,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               <CardContent className="p-8 space-y-8">
                 <ChipGroup label={t.report.contextTab.noPossession} options={['aggressive', 'central', 'lines', 'recovery', 'block', 'support', 'reading', 'shape']} selected={offBallTraits} onSelect={(v) => toggleOffBallTrait(v)} multi={true} t={t} />
                 <ChipGroup label={t.report.contextTab.bodyLanguage} options={['positive', 'competitive', 'focused', 'frustrated', 'emotional', 'reactive', 'mature', 'indifferent']} selected={bodyLanguageTraits} onSelect={(v) => toggleBodyLanguageTrait(v)} multi={true} t={t} />
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.matchRole}</Label>
+                  <Textarea value={specificMatchRole} onChange={(e) => setSpecificMatchRole(e.target.value)} className="min-h-[100px] bg-secondary/10 border-border/20 text-xs italic" placeholder={t.report.contextTab.matchRolePlaceholder} />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -603,7 +661,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
         <TabsContent value="evaluation" className="animate-in fade-in space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Fortalezas y Áreas de Mejora */}
             <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
               <div className="bg-[#2e7d32] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                 <CheckCircle2 className="h-5 w-5 text-white" />
@@ -635,7 +692,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </CardContent>
             </Card>
 
-            {/* Resumen Final */}
             <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
               <div className="bg-[#00695c] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                 <Sparkles className="h-5 w-5 text-white" />
@@ -678,7 +734,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </CardContent>
             </Card>
 
-            {/* Evaluación de Fichaje */}
             <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
               <div className="bg-[#00796b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                 <ClipboardCheck className="h-5 w-5 text-white" />
@@ -693,7 +748,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </CardContent>
             </Card>
 
-            {/* Valoración Final y Decisión */}
             <div className="space-y-8">
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#d4af37] px-6 py-4 flex items-center gap-3 border-b border-primary/20">

@@ -5,9 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Download, Loader2, MoreVertical, FileText, Calendar, Users, Clock, MapPin, FileDown, AlertCircle } from "lucide-react";
+import { 
+  Search, Download, Loader2, MoreVertical, FileText, 
+  Calendar, Users, Clock, MapPin, FileDown, AlertCircle, Info 
+} from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
-import { subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, saveScheduledMatch, subscribeToGlobalPlayers } from "@/lib/services/db-service";
+import { 
+  subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, 
+  saveScheduledMatch, subscribeToGlobalPlayers 
+} from "@/lib/services/db-service";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
@@ -29,6 +35,12 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
@@ -77,7 +89,7 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
       : subscribeToPlayers(userId, setPlayers);
       
     const unsubReports = global
-      ? subscribeToReports(null, setReports) // Solo para club/admin? Ajustar si es necesario
+      ? subscribeToReports(null, setReports)
       : subscribeToReports(userId, setReports);
 
     const unsubMatches = subscribeToScheduledMatches(userId, setMatches);
@@ -115,7 +127,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
   const calculateCompletion = (report: ScoutingReport | undefined): number => {
     if (!report) return 0;
     
-    // Lista de campos críticos para auditar completitud
     const criticalFields = [
       report.pimScore,
       report.summary,
@@ -360,31 +371,46 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
                             <MoreVertical className="h-5 w-5 text-muted-foreground" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-64 bg-[#1b263b] border-border/40 shadow-2xl p-2 rounded-xl">
-                          <DropdownMenuItem onClick={() => onEditPlayer(player.id)} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-primary/10 text-foreground transition-all">
+                        <DropdownMenuContent align="end" className="w-72 bg-[#1b263b] border-border/40 shadow-2xl p-2 rounded-2xl flex flex-col gap-1">
+                          <DropdownMenuItem onClick={() => onEditPlayer(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-primary/10 text-foreground transition-all">
                             <FileText className="h-4 w-4 text-primary" />
-                            <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.editReport}</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.editReport}</span>
                           </DropdownMenuItem>
                           
-                          <DropdownMenuItem 
-                            onClick={() => generatePDF(player)} 
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
-                              completion >= 75 ? "hover:bg-accent/10 text-foreground" : "opacity-50 grayscale cursor-not-allowed"
-                            )}
-                          >
-                            <FileDown className="h-4 w-4 text-accent" />
-                            <div className="flex flex-col">
-                              <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.createPdf}</span>
-                              <span className={cn("text-[8px] font-black", completion >= 75 ? "text-accent" : "text-destructive")}>
-                                {completion}% COMPLETADO
-                              </span>
-                            </div>
-                          </DropdownMenuItem>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="w-full">
+                                  <DropdownMenuItem 
+                                    onClick={() => completion >= 75 && generatePDF(player)} 
+                                    className={cn(
+                                      "flex flex-col items-center justify-center p-4 rounded-xl transition-all h-20",
+                                      completion >= 75 
+                                        ? "bg-accent/10 hover:bg-accent/20 text-foreground cursor-pointer" 
+                                        : "bg-muted/5 opacity-50 grayscale cursor-help"
+                                    )}
+                                  >
+                                    <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.createPdf}</span>
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <span className={cn("text-[9px] font-black uppercase", completion >= 75 ? "text-accent" : "text-muted-foreground")}>
+                                        {completion}% COMPLETADO
+                                      </span>
+                                      {completion < 75 && <Info className="h-3 w-3 text-muted-foreground" />}
+                                    </div>
+                                  </DropdownMenuItem>
+                                </div>
+                              </TooltipTrigger>
+                              {completion < 75 && (
+                                <TooltipContent side="left" className="bg-[#1b263b] border-border/40 text-[10px] font-bold uppercase tracking-widest text-primary p-3 max-w-[220px]">
+                                  {t.database.actions.pdfRequirement}
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          </TooltipProvider>
 
-                          <DropdownMenuItem onClick={() => handleScheduleMatch(player)} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-white/5 text-foreground transition-all">
+                          <DropdownMenuItem onClick={() => handleScheduleMatch(player)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground transition-all">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-xs font-bold uppercase tracking-tight">{t.database.actions.scheduleMatch}</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.scheduleMatch}</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -397,7 +423,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
         </CardContent>
       </Card>
 
-      {/* SCHEDULE MODAL */}
       <Dialog open={isScheduleModalOpen} onOpenChange={setIsScheduleModalOpen}>
         <DialogContent className="bg-[#1b263b] border-border/40 text-foreground rounded-2xl sm:max-w-[450px] p-0 overflow-hidden shadow-2xl">
           <DialogHeader className="p-6 bg-secondary/10 border-b border-border/20">
