@@ -771,7 +771,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 <ChipGroup label={t.report.evaluationTab.fitsModel} options={['si', 'no', 'maybe']} selected={fitsModel} onSelect={setFitsModel} t={t} />
                 <ChipGroup label={t.report.evaluationTab.immediateImpact} options={['alto', 'medio', 'bajo']} selected={immediateImpact} onSelect={setImmediateImpact} t={t} />
                 <ChipGroup label={t.report.evaluationTab.futurePotential} options={['elite', 'alto', 'medio', 'bajo']} selected={futurePotential} onSelect={setFuturePotential} t={t} />
-                <ChipGroup label={t.report.evaluationTab.adaptationRisk} options={['alto', 'medio', 'bajo']} selected={adaptationRisk} onSelect={setAdjustmentRisk} t={t} />
+                <ChipGroup label={t.report.evaluationTab.adaptationRisk} options={['alto', 'medio', 'bajo']} selected={adaptationRisk} onSelect={setAdaptationRisk} t={t} />
                 <ChipGroup label={t.report.evaluationTab.fitsPhilosophy} options={['si', 'no']} selected={fitsPhilosophy} onSelect={setFitsPhilosophy} t={t} />
               </CardContent>
             </Card>
