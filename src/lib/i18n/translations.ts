@@ -145,6 +145,24 @@ export const translations = {
       compatibility: 'Compatibility',
       squadProfile: 'Fits Squad Profile'
     },
+    matchAnalysis: {
+      title: 'Tactical Analysis Lab',
+      subtitle: 'Collective patterns and situational game reading.',
+      scenarioTitle: 'Situational Scenario: Wing Overload',
+      scenarioDesc: 'Attacker uses joker on the wing. Defender decides when to intercept the pass. Real-time game reading.',
+      metrics: {
+        gameReading: 'Game Reading',
+        interceptionProb: 'Interception Prob.',
+        reactionTime: 'Reaction Time',
+        defensiveDepth: 'Defensive Depth',
+      },
+      decisionMatrix: {
+        title: 'Decision Matrix',
+        intercept: 'Intercept',
+        contain: 'Contain',
+        delay: 'Delay',
+      }
+    },
     report: {
       title: 'Match Observation Report',
       subtitle: 'Confidential 360 Scouting Assessment',
@@ -503,6 +521,24 @@ export const translations = {
       projected: 'Valor Proyectado (2 años)',
       compatibility: 'Compatibility',
       squadProfile: 'Encaja en el perfil del equipo'
+    },
+    matchAnalysis: {
+      title: 'Laboratorio de Análisis Táctico',
+      subtitle: 'Patrones colectivos y lectura de juego situacional.',
+      scenarioTitle: 'Escenario Situacional: Desborde en Banda',
+      scenarioDesc: 'Atacante usa comodín en banda. Defensor decide cuándo interceptar el pase. Lectura de juego real.',
+      metrics: {
+        gameReading: 'Lectura de Juego',
+        interceptionProb: 'Prob. Intercepción',
+        reactionTime: 'Tiempo Reacción',
+        defensiveDepth: 'Profundidad Defensiva',
+      },
+      decisionMatrix: {
+        title: 'Matriz de Decisión',
+        intercept: 'Interceptar',
+        contain: 'Contener',
+        delay: 'Temporizar',
+      }
     },
     report: {
       title: 'Informe de Observación de Partido',
