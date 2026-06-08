@@ -26,7 +26,6 @@ export function savePlayer(playerData: Omit<Player, 'id'>, id?: string): string 
   }
 
   // Requerimiento: Al registrar un talento, el ID del documento debe ser su nombre completo.
-  // Si ya tiene un ID (edición), usamos ese; si no, usamos el nombre como ID.
   const finalId = id || playerData.name.trim();
   const docRef = doc(db, "players", finalId);
   const isUpdate = !!id;

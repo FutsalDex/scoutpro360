@@ -24,8 +24,6 @@ import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: string, rating?: number, onRatingChange: (v: number) => void, note?: string, onNoteChange?: (v: string) => void }) => (
   <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/10 last:border-0 px-4 w-full gap-4 hover:bg-white/5 transition-colors">
@@ -33,10 +31,52 @@ const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: s
     <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-2/3">
       <div className="flex gap-1 shrink-0">
         {[1, 2, 3, 4, 5].map(num => (
-          <button key={num} type="button" onClick={() => onRatingChange(num)} className={cn("h-8 w-8 rounded-full border border-border/40 text-[9px] font-black flex items-center justify-center transition-all", rating === num ? "bg-primary text-primary-foreground border-primary shadow-md scale-110" : "bg-white/5 hover:border-primary/50 text-muted-foreground")}>{num}</button>
+          <button 
+            key={num} 
+            type="button" 
+            onClick={() => onRatingChange(num)} 
+            className={cn(
+              "h-8 w-8 rounded-full border border-border/40 text-[9px] font-black flex items-center justify-center transition-all", 
+              rating === num 
+                ? "bg-primary text-primary-foreground border-primary shadow-md scale-110" 
+                : "bg-white/5 hover:border-primary/50 text-muted-foreground"
+            )}
+          >
+            {num}
+          </button>
         ))}
       </div>
-      {onNoteChange && <Input className="h-8 text-[9px] bg-secondary/10 border-none rounded-md italic" placeholder="Nota..." value={note || ""} onChange={(e) => onNoteChange(e.target.value)} />}
+      {onNoteChange && (
+        <Input 
+          className="h-8 text-[9px] bg-secondary/10 border-none rounded-md italic" 
+          placeholder="Nota..." 
+          value={note || ""} 
+          onChange={(e) => onNoteChange(e.target.value)} 
+        />
+      )}
+    </div>
+  </div>
+);
+
+const ChipGroup = ({ label, options, selected, onSelect, t }: { label: string, options: string[], selected: string, onSelect: (v: string) => void, t: any }) => (
+  <div className="space-y-2">
+    <Label className="text-[10px] font-black uppercase text-muted-foreground">{label}</Label>
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt}
+          type="button"
+          onClick={() => onSelect(opt)}
+          className={cn(
+            "px-4 py-2 rounded-full border text-[10px] font-bold transition-all",
+            selected === opt 
+              ? "bg-secondary text-foreground border-primary shadow-lg" 
+              : "bg-white/5 border-border/40 text-muted-foreground hover:bg-white/10"
+          )}
+        >
+          {t.report.context[opt as keyof typeof t.report.context] || opt}
+        </button>
+      ))}
     </div>
   </div>
 );
@@ -49,7 +89,16 @@ const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, r
         <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_obs`]}</h2>
       </div>
       <CardContent className="p-0">
-        {kpiSection.observation.map(kpi => <RatingRow key={kpi} kpi={kpi} rating={ratings[kpi]} onRatingChange={(val) => onRatingChange(kpi, val)} note={notes[kpi]} onNoteChange={(val) => onNoteChange(kpi, val)} />)}
+        {kpiSection.observation.map(kpi => (
+          <RatingRow 
+            key={kpi} 
+            kpi={kpi} 
+            rating={ratings[kpi]} 
+            onRatingChange={(val) => onRatingChange(kpi, val)} 
+            note={notes[kpi]} 
+            onNoteChange={(val) => onNoteChange(kpi, val)} 
+          />
+        ))}
       </CardContent>
     </Card>
     <div className="flex justify-between gap-4 pt-10">
@@ -68,12 +117,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>({ ...TACTICAL_ROLES[0], kpis: localizedKPIs });
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
-  const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
   const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
   const [heatmapPoints, setHeatmapPoints] = useState<Point[]>([]);
 
+  // Campos Información del Jugador
   const [playerName, setPlayerName] = useState("");
   const [dorsal, setDorsal] = useState("");
   const [clubName, setClubName] = useState("");
@@ -90,17 +139,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [dominantFoot, setDominantFoot] = useState("");
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
-
-  const [matchStyle, setMatchStyle] = useState("");
-  const [matchSystem, setMatchSystem] = useState("");
-  const [matchPace, setMatchPace] = useState("");
-  const [teamDominance, setTeamDominance] = useState("");
-  const [observingScore, setObservingScore] = useState("");
-  const [matchImportance, setMatchImportance] = useState("");
-  const [weather, setWeather] = useState("");
-  const [offBallTraits, setOffBallTraits] = useState<string[]>([]);
-  const [bodyLanguageTraits, setBodyLanguageTraits] = useState<string[]>([]);
-  const [specificMatchRole, setSpecificMatchRole] = useState("");
 
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
@@ -121,6 +159,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setReportId(r.id || null); setDorsal(r.dorsal || ""); setRivalName(r.rivalName || "");
           setCompetition(r.competition || ""); setMatchDate(r.matchDate || "");
           setRatings(r.ratings || {}); setNotes(r.notes || {}); setScoutingActions(r.actions || []);
+          setMinPlayed(r.minPlayed || "90"); setPhysicalCondition(r.physicalCondition || "");
+          setScoutName(r.scoutName || "");
           if (r.pitchPosition) setPitchMarker(r.pitchPosition);
           if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
         }
@@ -144,7 +184,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       return;
     }
 
-    // 1. Guardar Jugador (Sincronizado con scoutId)
     const playerId = savePlayer({
       name: playerName,
       age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
@@ -158,8 +197,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       birthDate, height, weight, dominantFoot, secondaryPositions
     }, editingPlayerId || undefined);
 
-    // 2. Guardar Informe Vinculado
-    const newReportId = saveReport({
+    saveReport({
       playerId,
       playerName,
       scoutId: scoutId,
@@ -168,13 +206,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       summary: notes['summary'] || "",
       ratings, notes, actions: scoutingActions,
       dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition,
-      matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
-      offBallTraits, bodyLanguageTraits, specificMatchRole,
       pitchPosition: pitchMarker, heatmapPoints
     }, reportId || undefined);
 
-    setReportId(newReportId);
-    toast({ title: "Base de Datos Actualizada", description: "Jugador e Informe sincronizados con éxito." });
+    toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito." });
   };
 
   const handleCalculatePIM = async () => {
@@ -208,6 +243,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     } finally { setIsGeneratingSummary(false); }
   };
 
+  const generalProfileKPIs = t.report.generalProfile.attributes;
+
   return (
     <div className="space-y-6 pb-32">
       <div className="bg-card/90 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
@@ -220,7 +257,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <p className="text-[10px] text-primary font-black uppercase tracking-widest">REGISTRO DE INTELIGENCIA DE SCOUTING</p>
           </div>
         </div>
-        <Button onClick={handleSaveAll} className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg">
+        <Button onClick={handleSaveAll} className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg hover:scale-105 transition-all">
           <Save className="h-4 w-4 mr-2" /> {t.report.actions.save}
         </Button>
       </div>
@@ -233,54 +270,173 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsList>
 
         <TabsContent value="player" className="space-y-8 animate-in fade-in">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <Card className="lg:col-span-8 border-border/40 bg-card/40 rounded-2xl overflow-hidden">
-              <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
-                <User className="h-5 w-5 text-primary" />
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.playerInfo.title}</h2>
-              </div>
-              <CardContent className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.name}</Label>
-                  <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-8 space-y-8">
+              {/* FICHA TÉCNICA PRINCIPAL */}
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <User className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.playerInfo.title}</h2>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.club}</Label>
-                  <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
+                <CardContent className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-9 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.name}</Label>
+                      <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Nombre del jugador" />
+                    </div>
+                    <div className="lg:col-span-3 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.dorsal}</Label>
+                      <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="-" />
+                    </div>
+
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.club}</Label>
+                      <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Club" />
+                    </div>
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.rival}</Label>
+                      <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="vs" />
+                    </div>
+
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.competition}</Label>
+                      <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Liga / Copa" />
+                    </div>
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.matchDate}</Label>
+                      <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
+                    </div>
+
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.birthDate}</Label>
+                      <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
+                    </div>
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.nationality}</Label>
+                      <Select value={nationality} onValueChange={setNationality}>
+                        <SelectTrigger className="h-10 bg-secondary/10 border-border/20 font-bold">
+                          <SelectValue placeholder="-" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px] bg-[#1b263b] border-border/20">
+                          {ALL_COUNTRIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="lg:col-span-4 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.height}</Label>
+                      <Input value={height} onChange={(e) => setHeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="-" />
+                    </div>
+                    <div className="lg:col-span-4 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.weight}</Label>
+                      <Input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="-" />
+                    </div>
+                    <div className="lg:col-span-4 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.minPlayed}</Label>
+                      <Input value={minPlayed} onChange={(e) => setMinPlayed(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="90" />
+                    </div>
+
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.primaryPos}</Label>
+                      <Select value={activeRole.id} onValueChange={(v) => {
+                        const role = TACTICAL_ROLES.find(r => r.id === v);
+                        if (role) setActiveRole({ ...role, kpis: localizedKPIs });
+                      }}>
+                        <SelectTrigger className="h-10 bg-secondary/10 border-border/20 font-bold">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1b263b] border-border/20">
+                          {TACTICAL_ROLES.map(r => (
+                            <SelectItem key={r.id} value={r.id}>
+                              {t.report.tacticalRoles[r.id as keyof typeof t.report.tacticalRoles] || r.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="lg:col-span-6 space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.secondaryPos}</Label>
+                      <Input value={secondaryPositions} onChange={(e) => setSecondaryPositions(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: ED, MCO" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                    <ChipGroup 
+                      label={t.report.playerInfo.dominantFoot} 
+                      options={['right', 'left', 'both']} 
+                      selected={dominantFoot} 
+                      onSelect={setDominantFoot} 
+                      t={t}
+                    />
+                    <ChipGroup 
+                      label={t.report.playerInfo.physicalCondition} 
+                      options={['excellent', 'good', 'normal', 'low', 'injured']} 
+                      selected={physicalCondition} 
+                      onSelect={setPhysicalCondition} 
+                      t={t}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 pt-4">
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.scout}</Label>
+                    <Input value={scoutName} onChange={(e) => setScoutName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Nombre del observador" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* PERFIL GENERAL (IMPRESIÓN GLOBAL) */}
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#0f172a] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <Star className="h-5 w-5 text-accent" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.generalProfile.title}</h2>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.primaryPos}</Label>
-                  <Select value={activeRole.id} onValueChange={(v) => {
-                    const role = TACTICAL_ROLES.find(r => r.id === v);
-                    if (role) setActiveRole({ ...role, kpis: localizedKPIs });
-                  }}>
-                    <SelectTrigger className="h-10 bg-secondary/10 border-border/20 font-bold">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#1b263b] border-border/20">
-                      {TACTICAL_ROLES.map(r => <SelectItem key={r.id} value={r.id}>{t.report.tacticalRoles[r.id as keyof typeof t.report.tacticalRoles] || r.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                <CardContent className="p-0">
+                  {generalProfileKPIs.map((kpi: string) => (
+                    <RatingRow 
+                      key={kpi} 
+                      kpi={kpi} 
+                      rating={ratings[kpi]} 
+                      onRatingChange={(val) => handleRatingChange(kpi, val)} 
+                      note={notes[kpi]} 
+                      onNoteChange={(val) => handleNoteChange(kpi, val)} 
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="lg:col-span-4 space-y-8">
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl sticky top-24">
+                <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.matchDate}</Label>
-                  <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="lg:col-span-4 border-border/40 bg-card/40 rounded-2xl overflow-hidden">
-              <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
-              </div>
-              <CardContent className="p-4">
-                <TacticalCanvas marker={pitchMarker} onMarkerChange={setPitchMarker} heatmapPoints={heatmapPoints} onHeatmapChange={setHeatmapPoints} />
-              </CardContent>
-            </Card>
+                <CardContent className="p-4">
+                  <TacticalCanvas 
+                    marker={pitchMarker} 
+                    onMarkerChange={setPitchMarker} 
+                    heatmapPoints={heatmapPoints} 
+                    onHeatmapChange={setHeatmapPoints} 
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="technical" className="animate-in fade-in">
           <EvaluationModule t={t} icon={Shield} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="player" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
+        </TabsContent>
+
+        <TabsContent value="tactical" className="animate-in fade-in">
+          <EvaluationModule t={t} icon={Target} kpiSection={activeRole.kpis.tactical} nextTab="physical" prevTab="technical" tabType="tactical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
+        </TabsContent>
+
+        <TabsContent value="physical" className="animate-in fade-in">
+          <EvaluationModule t={t} icon={Activity} kpiSection={activeRole.kpis.physical} nextTab="mental" prevTab="tactical" tabType="physical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
+        </TabsContent>
+
+        <TabsContent value="mental" className="animate-in fade-in">
+          <EvaluationModule t={t} icon={Brain} kpiSection={activeRole.kpis.mental} nextTab="analytics" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} />
         </TabsContent>
         
         <TabsContent value="analytics" className="animate-in fade-in space-y-8">

@@ -168,13 +168,10 @@ export const translations = {
       },
       tabs: {
         player: 'PLAYER',
-        context: 'CONTEXT',
         technical: 'TECHNICAL',
         tactical: 'TACTICAL',
         physical: 'PHYSICAL',
         mental: 'MENTAL',
-        actions: 'ACTIONS',
-        evaluation: 'EVALUATION',
         analytics: 'AI ANALYTICS',
       },
       playerInfo: {
@@ -183,10 +180,10 @@ export const translations = {
         dorsal: 'DORSAL',
         club: 'CURRENT CLUB',
         rival: 'RIVAL',
-        competition: 'COMPETICIÓN',
+        competition: 'COMPETITION',
         matchDate: 'DATE',
         birthDate: 'BIRTH DATE',
-        nationality: 'NATIONALITY (COUNTRY)',
+        nationality: 'NATIONALITY',
         marketValue: 'MARKET VALUE',
         height: 'HEIGHT (CM)',
         weight: 'WEIGHT (KG)',
@@ -197,140 +194,57 @@ export const translations = {
         physicalCondition: 'PHYSICAL CONDITION',
         scout: 'SCOUT',
       },
-      observedFunctions: {
-        title: 'ROLES & FUNCTIONS OBSERVED',
-        options: ['Build-up play', 'Progression', 'Final third', 'Defensive balance', 'Pressing', 'Transitions', 'Press. after loss', 'Space occupation', 'Ball carrying', 'Aerial game', 'Finishing', 'Creativity', 'Leadership', 'Set pieces']
-      },
       generalProfile: {
         title: 'GENERAL PROFILE (GLOBAL IMPRESSION)',
-        technical: 'Technical Level',
-        tactical: 'Tactical Intelligence',
-        physical: 'Physical Quality',
-        mental: 'Mental Strength',
-        competitive: 'Competitive Level',
-        potential: 'Potential',
-        current: 'Current Level',
+        attributes: ['Technical level', 'Tactical intelligence', 'Physical quality', 'Mental strength', 'Competitive level', 'Potential', 'Current level']
       },
       context: {
-        title: 'MATCH CONTEXT',
-        style: 'STYLE OF PLAY',
-        system: 'SYSTEM / FORMATION',
-        pace: 'MATCH PACE',
-        dominance: 'TEAM DOMINANCE',
-        score: 'SCORE WHEN OBSERVING',
-        importance: 'MATCH IMPORTANCE',
-        weather: 'WEATHER CONDITIONS',
-        offBallTitle: 'BEHAVIOR WITHOUT BALL',
-        noPossession: 'WITHOUT POSSESSION',
-        bodyLanguage: 'BODY LANGUAGE',
-        roleInMatch: 'PLAYER TACTICAL ROLE IN THIS MATCH',
-        styles: ['Possession', 'Counter', 'High Press', 'Direct', 'Defensive'],
-        paces: ['Low', 'Mid', 'High'],
-        dominanceOpts: ['Dominant', 'Balanced', 'Disadvantage'],
-        scoreOpts: ['Winning', 'Drawing', 'Losing'],
-        importanceOpts: ['Low', 'Mid', 'High', 'Decisive'],
-        weatherOpts: {
-          sun: 'Sun',
-          cloudy: 'Cloudy',
-          rain: 'Rain',
-          cold: 'Cold',
-          wind: 'Wind'
-        },
-        offBallTraits: ['Presses aggressive', 'Central spaces', 'Closes pass lines', 'Fast recovery', 'Defends in block', 'Offers support', 'Reads game well', 'Maintains shape'],
-        bodyTraits: ['Positive', 'Competitive', 'Focused', 'Frustrated', 'Emotional', 'Reactive', 'Calm/Mature', 'Indifferent']
-      },
-      dominantFootOptions: {
         right: 'Right',
         left: 'Left',
-        both: 'Both'
-      },
-      physicalConditionOptions: {
+        both: 'Both',
         excellent: 'Excellent',
         good: 'Good',
         normal: 'Normal',
-        low: 'Below Level',
+        low: 'Low',
         injured: 'Injured'
       },
       sections: {
         technical_obs: 'TECHNICAL OBSERVATION',
-        technical_impact: 'MATCH IMPACT',
         tactical_obs: 'TACTICAL OBSERVATION',
-        tactical_impact: 'MATCH IMPACT',
         physical_obs: 'PHYSICAL OBSERVATION',
-        physical_impact: 'MATCH IMPACT',
         mental_obs: 'MENTAL OBSERVATION',
-        mental_impact: 'MATCH IMPACT',
-        actions_title: 'KEY ACTIONS REGISTRY',
       },
       kpis: {
         technical: {
           obs: ['First touch', 'Short pass', 'Long pass', 'Through ball', '1vs1 dribbling', 'Ball control', 'Possession', 'Shot', 'Cross', 'Finishing', 'Aerial game', 'Set pieces', 'Technique under pressure'],
-          imp: ['With possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In results']
+          imp: []
         },
         tactical: {
           obs: ['Positioning', 'Game reading', 'Tactical discipline', 'Covering', 'Pressure', 'Offensive support', 'Surveillance', 'Anticipation', 'Spatial intelligence'],
-          imp: ['Defensive balance', 'Ball exit', 'Transitions', 'Organization', 'Adaptability']
+          imp: []
         },
         physical: {
           obs: ['Speed', 'Acceleration', 'Resistance', 'Strength', 'Agility', 'Balance', 'Jump/Aerial game', 'Coordination', 'Recovery'],
-          imp: ['Duels won', 'Intensity', 'Physical presence', 'Deployment', 'Power']
+          imp: []
         },
         mental: {
           obs: ['Leadership', 'Determination', 'Aggressiveness', 'Composure', 'Decision making', 'Concentration', 'Sacrifice', 'Bravery', 'Maturity'],
-          imp: ['Resilience', 'Communication', 'Emotional impact', 'Focus', 'Team spirit']
-        }
-      },
-      evaluation: {
-        strengths: {
-          title: 'STRENGTHS AND AREAS FOR IMPROVEMENT',
-          main: 'MAIN STRENGTHS',
-          areas: 'AREAS TO IMPROVE',
-          shortTerm: 'SHORT TERM',
-          longTerm: 'LONG TERM',
-        },
-        finalSummary: {
-          title: 'FINAL SUMMARY',
-          playerDesc: 'GENERAL PLAYER DESCRIPTION',
-          comparative: 'COMPARATIVE (POSITION / PROFILE)',
-          recommendation: 'FINAL RECOMMENDATION',
-          additionalNotes: 'ADDITIONAL NOTES',
-          options: {
-            immediate: 'Immediate signing',
-            follow: 'Follow-up',
-            monitor: 'Priority monitor',
-            reevaluate: 'Re-evaluate',
-            elite: '5 - ELITE',
-            high: '4 - HIGH',
-            good: '3 - GOOD',
-            limited: '2 - LIMITED',
-          }
+          imp: []
         }
       },
       actions: {
         next: 'Next',
         previous: 'Previous',
-        submit: 'SUBMIT FINAL REPORT',
-        export: 'EXPORT TO PDF',
         save: 'SAVE REPORT',
-        addEvent: '+ Add action',
-        min: 'MIN.',
-        action: 'ACTION',
-        result: 'Result',
-        notes: 'OBSERVATION / NOTES',
-        exported: 'PDF Generated',
-        incomplete: 'Incomplete',
-        resultLabel: 'Result',
       },
       pim: {
         title: 'PLAYER IMPACT METRIC (PIM)',
         calculate: 'Calculate PIM Score',
-        calculating: 'Analyzing Performance Data...',
       },
       summary: {
         title: 'EXECUTIVE SUMMARY',
-        placeholder: 'Generate an objective summary based on the report findings...',
-        generate: 'GENERATE AI SUMMARY',
-        generating: 'Analyzing Report...',
+        placeholder: 'Generate summary...',
+        generate: 'GENERATE IA SUMMARY',
       },
       tacticalRoles: {
         'po': 'GK - Goalkeeper',
@@ -533,13 +447,10 @@ export const translations = {
       },
       tabs: {
         player: 'JUGADOR',
-        context: 'CONTEXTO',
         technical: 'TÉCNICO',
         tactical: 'TÁCTICO',
         physical: 'FÍSICO',
         mental: 'MENTAL',
-        actions: 'ACCIONES',
-        evaluation: 'EVALUACIÓN',
         analytics: 'ANÁLISIS IA',
       },
       playerInfo: {
@@ -551,7 +462,7 @@ export const translations = {
         competition: 'COMPETICIÓN',
         matchDate: 'FECHA',
         birthDate: 'FECHA DE NACIMIENTO',
-        nationality: 'NACIONALIDAD (PAÍS)',
+        nationality: 'NACIONALIDAD',
         marketValue: 'VALOR DE MERCADO',
         height: 'ALTURA (CM)',
         weight: 'PESO (KG)',
@@ -562,54 +473,14 @@ export const translations = {
         physicalCondition: 'CONDICIÓN FÍSICA',
         scout: 'SCOUT',
       },
-      observedFunctions: {
-        title: 'ROLES Y FUNCIONES OBSERVADAS',
-        options: ['Juego de construcción', 'Progresión', 'Último tercio', 'Eq. defensivo', 'Presión', 'Transiciones', 'Pres. tras pérdida', 'Ocup. espacios', 'Transporte balón', 'Juego aéreo', 'Definición/Final.', 'Creatividad', 'Liderazgo', 'Balones parados']
-      },
       generalProfile: {
         title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
-        technical: 'Nivel técnico',
-        tactical: 'Inteligencia táctica',
-        physical: 'Calidad física',
-        mental: 'Fortaleza mental',
-        competitive: 'Nivel competitivo',
-        potential: 'Potencial',
-        current: 'Nivel actual',
+        attributes: ['Nivel técnico', 'Inteligencia táctica', 'Calidad física', 'Fortaleza mental', 'Nivel competitivo', 'Potencial', 'Nivel actual']
       },
       context: {
-        title: 'CONTEXTO DEL PARTIDO',
-        style: 'ESTILO DE JUEGO',
-        system: 'SISTEMA / FORMACIÓN',
-        pace: 'RITMO DEL PARTIDO',
-        dominance: 'DOMINIO DEL EQUIPO',
-        score: 'MARCADOR AL OBSERVAR',
-        importance: 'IMPORTANCIA DEL PARTIDO',
-        weather: 'CONDICIONES METEOROLÓGICAS',
-        offBallTitle: 'COMPORTAMIENTO SIN BALÓN',
-        noPossession: 'SIN POSESIÓN',
-        bodyLanguage: 'LENGUARAL',
-        roleInMatch: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
-        styles: ['Posesión', 'Contragolpe', 'Presión alta', 'Directo', 'Defensivo'],
-        paces: ['Bajo', 'Medio', 'Alto'],
-        dominanceOpts: ['Dominante', 'Equilibrado', 'En desventaja'],
-        scoreOpts: ['Ganando', 'Empatando', 'Perdiendo'],
-        importanceOpts: ['Baja', 'Media', 'Alta', 'Decisiva'],
-        weatherOpts: {
-          sun: 'Sol',
-          cloudy: 'Nublado',
-          rain: 'Lluvia',
-          cold: 'Frío',
-          wind: 'Viento'
-        },
-        offBallTraits: ['Presiona agresivo', 'Espacios centrales', 'Cierra líneas pase', 'Recuperación rápida', 'Defiende en bloque', 'Ofrece apoyo', 'Lee bien el juego', 'Mantiene la forma'],
-        bodyTraits: ['Positivo', 'Competitivo', 'Concentrado', 'Frustrado', 'Emotivo', 'Reactivo', 'Tranquilo/Maduro', 'Indiferente']
-      },
-      dominantFootOptions: {
         right: 'Derecho',
         left: 'Izquierdo',
-        both: 'Ambos'
-      },
-      physicalConditionOptions: {
+        both: 'Ambos',
         excellent: 'Excelente',
         good: 'Buena',
         normal: 'Normal',
@@ -618,84 +489,41 @@ export const translations = {
       },
       sections: {
         technical_obs: 'OBSERVACIÓN TÉCNICA',
-        technical_impact: 'IMPACTO EN EL PARTIDO',
         tactical_obs: 'OBSERVACIÓN TÁCTICA',
-        tactical_impact: 'IMPACTO EN EL PARTIDO',
         physical_obs: 'OBSERVACIÓN FÍSICA',
-        physical_impact: 'IMPACTO EN EL PARTIDO',
         mental_obs: 'OBSERVACIÓN MENTAL',
-        mental_impact: 'IMPACTO EN EL PARTIDO',
-        actions_title: 'REGISTRO DE ACCIONES CLAVE',
       },
       kpis: {
         technical: {
           obs: ['Primer toque', 'Pase corto', 'Pase largo', 'Pase en profundidad', 'Regate 1vs1', 'Control de balón', 'Posesión', 'Disparo', 'Centro', 'Finalización', 'Juego aéreo', 'Balón parado', 'Técnica bajo presión'],
-          imp: ['Con posesión', 'Sin posesión', 'Momentos clave', 'Consistencia', 'Bajo presión', 'En el resultado']
+          imp: []
         },
         tactical: {
           obs: ['Posicionamiento', 'Lectura de juego', 'Disciplina táctica', 'Coberturas', 'Presión', 'Apoyo ofensivo', 'Vigilancias', 'Anticipación', 'Inteligencia espacial'],
-          imp: ['Equilibrio defensivo', 'Salida de balón', 'Transiciones', 'Organización', 'Adaptabilidad']
+          imp: []
         },
         physical: {
           obs: ['Velocidad', 'Aceleración', 'Resistencia', 'Fuerza', 'Agilidad', 'Equilibrio', 'Salto/Juego aéreo', 'Coordinación', 'Recuperación'],
-          imp: ['Duelos ganados', 'Intensidad', 'Presencia física', 'Despliegue', 'Potencia']
+          imp: []
         },
         mental: {
           obs: ['Leadership', 'Determinación', 'Agresividad', 'Compostura', 'Toma de decisiones', 'Concentración', 'Sacrificio', 'Valentía', 'Madurez'],
-          imp: ['Resiliencia', 'Comunicación', 'Impacto anímico', 'Enfoque', 'Espíritu de equipo']
-        }
-      },
-      evaluation: {
-        strengths: {
-          title: 'FORTALEZAS Y ÁREAS DE MEJORA',
-          main: 'FORTALEZAS PRINCIPALES',
-          areas: 'AREAS A MEJORAR',
-          shortTerm: 'CORTO PLAZO',
-          longTerm: 'LARGO PLAZO',
-        },
-        finalSummary: {
-          title: 'RESUMEN FINAL',
-          playerDesc: 'DESCRIPCIÓN GENERAL DEL JUGADOR',
-          comparative: 'COMPARATIVA (POSICIÓN / PERFIL)',
-          recommendation: 'RECOMENDACIÓN FINAL',
-          additionalNotes: 'NOTAS ADICIONALES',
-          options: {
-            immediate: 'Fichaje inmediato',
-            follow: 'Seguimiento',
-            monitor: 'Monitor prioritario',
-            reevaluate: 'Reevaluar',
-            elite: '5 - ELITE',
-            high: '4 - HIGH',
-            good: '3 - GOOD',
-            limited: '2 - LIMITED',
-          }
+          imp: []
         }
       },
       actions: {
         next: 'Siguiente',
         previous: 'Anterior',
-        submit: 'ENVIAR INFORME FINAL',
-        export: 'EXPORTAR A PDF',
         save: 'GUARDAR INFORME',
-        addEvent: '+ Añadir acción',
-        min: 'MIN.',
-        action: 'ACCIÓN',
-        result: 'Resultado',
-        notes: 'OBSERVACIÓN / NOTAS',
-        exported: 'PDF Generado',
-        incomplete: 'Incompleto',
-        resultLabel: 'Resultado',
       },
       pim: {
         title: 'MÉTRICA DE IMPACTO DEL JUGADOR (PIM)',
         calculate: 'Calcular Puntuación PIM',
-        calculating: 'Analizando Datos de Rendimiento...',
       },
       summary: {
         title: 'RESUMEN EJECUTIVO',
-        placeholder: 'Generar un resumen objetivo basado en los hallazgos del informe...',
+        placeholder: 'Generar resumen...',
         generate: 'GENERAR RESUMEN IA',
-        generating: 'Analizando Informe...',
       },
       tacticalRoles: {
         'po': 'PO – Portero',
