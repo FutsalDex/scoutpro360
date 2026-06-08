@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect } from 'react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { useToast } from '@/hooks/use-toast';
@@ -9,18 +8,17 @@ export function FirebaseErrorListener() {
 
   useEffect(() => {
     const handlePermissionError = (error: any) => {
-      // En desarrollo, dejamos que Next.js muestre el error en pantalla completa
-      // para facilitar la depuración de reglas de seguridad.
-      if (process.env.NODE_ENV === 'development') {
-        throw error;
-      }
+      // Nunca hacer throw — crashea React en desarrollo
+      // Solo loggear en consola para depuración
+      console.warn('[FirestorePermissionError]', error?.message || error);
 
-      // En producción, mostramos un toast amigable
-      toast({
-        variant: "destructive",
-        title: "Error de Permisos",
-        description: "No tienes autorización para realizar esta acción.",
-      });
+      if (process.env.NODE_ENV !== 'development') {
+        toast({
+          variant: "destructive",
+          title: "Error de Permisos",
+          description: "No tienes autorización para realizar esta acción.",
+        });
+      }
     };
 
     errorEmitter.on('permission-error', handlePermissionError);

@@ -33,9 +33,10 @@ export const translations = {
       title: 'COMMAND CENTER',
       subtitle: 'Real-time scouting operations oversight.',
       stats: {
-        pending: 'Pending Evaluation',
-        evaluated: 'Evaluated Players',
-        reports: 'Players with Report',
+        detected: 'Detected Players',
+        analyzed: 'Analyzed Players',
+        reports: 'Reports Generated',
+        avgPim: 'Average PIM Impact',
         syncing: 'Syncing Nodes...',
       }
     },
@@ -309,9 +310,10 @@ export const translations = {
       title: 'CENTRO DE MANDO',
       subtitle: 'Supervisión de operaciones de captación en tiempo real.',
       stats: {
-        pending: 'Pendientes de Evaluar',
-        evaluated: 'Jugadores Evaluados',
-        reports: 'Jugadores con Informe',
+        detected: 'Jugadores Detectados',
+        analyzed: 'Jugadores Analizados',
+        reports: 'Informes Generados',
+        avgPim: 'Media de Impacto PIM',
         syncing: 'Sincronizando Nodos...',
       }
     },
