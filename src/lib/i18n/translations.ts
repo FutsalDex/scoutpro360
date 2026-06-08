@@ -309,7 +309,7 @@ export const translations = {
           imp: ['With possession', 'Without possession', 'Key moments', 'Consistency', 'Under pressure', 'In the result']
         },
         tactical: {
-          obs: ['Positioning', 'Game reading', 'Tactical discipline', 'Covering', 'Pressure', 'Offensive support', 'Surveillance', 'Anticipation', 'Spatial intelligence'],
+          obs: ['Positioning', 'Spatial awareness', 'Game reading', 'Decision making', 'Off-ball movement', 'Defensive positioning', 'Transition understanding', 'Scanning frequency', 'Game tempo', 'Rhythm', 'Tactical adaptability'],
           imp: []
         },
         physical: {
@@ -677,7 +677,7 @@ export const translations = {
           imp: ['Con posesión', 'Sin posesión', 'Momentos clave', 'Consistencia', 'Bajo presión', 'En el resultado']
         },
         tactical: {
-          obs: ['Posicionamiento', 'Lectura de juego', 'Disciplina táctica', 'Coberturas', 'Presión', 'Apoyo ofensivo', 'Vigilancias', 'Anticipación', 'Inteligencia espacial'],
+          obs: ['Posicionamiento', 'Conciencia espacial', 'Lectura del juego', 'Toma de decisiones', 'Movimiento sin balón', 'Posicionamiento defensivo', 'Entend. transiciones', 'Frecuencia de exploración', 'Tempo de juego', 'Ritmo', 'Adaptabilidad táctica'],
           imp: []
         },
         physical: {
