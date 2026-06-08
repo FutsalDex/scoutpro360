@@ -63,6 +63,7 @@ export interface PlayerList {
 
 export interface ScheduledMatch {
   id: string;
+  playerId?: string;
   homeTeam: string;
   awayTeam: string;
   category: string;

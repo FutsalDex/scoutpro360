@@ -71,6 +71,13 @@ export const translations = {
       search: 'Search name, club or nationality...',
       filters: 'Filters',
       noRecords: 'No records found in your database',
+      birthYear: 'Birth Year',
+      status: {
+        title: 'Status',
+        analizado: 'Analyzed',
+        agendado: 'Scheduled',
+        detectado: 'Detected'
+      },
       table: {
         player: 'Player Details',
         position: 'Position',
@@ -402,6 +409,13 @@ export const translations = {
       search: 'Buscar nombre, club o nacionalidad...',
       filters: 'Filtros',
       noRecords: 'No se encontraron registros en tu base de datos',
+      birthYear: 'Año Nac.',
+      status: {
+        title: 'Estado',
+        analizado: 'Analizado',
+        agendado: 'Agendado',
+        detectado: 'Detectado'
+      },
       table: {
         player: 'Detalles del Jugador',
         position: 'Posición',

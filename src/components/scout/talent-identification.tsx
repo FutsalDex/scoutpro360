@@ -58,6 +58,7 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       // 2. Create a Scheduled Match record if date provided
       if (matchDate) {
         await saveScheduledMatch({
+          playerId, // Link to the newly created player
           homeTeam: currentTeam,
           awayTeam: rival || "TBD",
           category: category || "Pro",
