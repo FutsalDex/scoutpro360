@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, ShieldCheck, ClipboardCheck, TrendingUp, ChevronRight, MapPin, Star, Binoculars } from "lucide-react";
 import { Player, ScoutingReport } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
-import { subscribeToPlayers, subscribeToReports } from "@/lib/services/db-service";
+import { subscribeToPlayers, subscribeToReports, subscribeToGlobalPlayers, subscribeToGlobalReports } from "@/lib/services/db-service";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -25,6 +25,9 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
   const [scoutId, setScoutId] = useState<string | null>(null);
+
+  const role = userProfile?.role || 'invitado';
+  const isManagement = ['admin', 'gestion', 'director'].includes(role);
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
@@ -57,17 +60,30 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
       }
     };
 
-    const unsubPlayers = subscribeToPlayers(scoutId, (data) => {
-      setPlayers(data);
-      playersLoaded = true;
-      checkLoading();
-    });
+    // Si es directivo, suscribe a datos globales. Si es analista, a datos personales.
+    const unsubPlayers = isManagement 
+      ? subscribeToGlobalPlayers((data) => {
+          setPlayers(data);
+          playersLoaded = true;
+          checkLoading();
+        })
+      : subscribeToPlayers(scoutId, (data) => {
+          setPlayers(data);
+          playersLoaded = true;
+          checkLoading();
+        });
 
-    const unsubReports = subscribeToReports(scoutId, (data) => {
-      setReports(data);
-      reportsLoaded = true;
-      checkLoading();
-    });
+    const unsubReports = isManagement
+      ? subscribeToGlobalReports((data) => {
+          setReports(data);
+          reportsLoaded = true;
+          checkLoading();
+        })
+      : subscribeToReports(scoutId, (data) => {
+          setReports(data);
+          reportsLoaded = true;
+          checkLoading();
+        });
 
     const timer = setTimeout(() => setLoading(false), 5000);
 
@@ -76,7 +92,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
       unsubReports();
       clearTimeout(timer);
     };
-  }, [authReady, scoutId]);
+  }, [authReady, scoutId, isManagement]);
 
   if (loading) {
     return (
@@ -105,10 +121,10 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   ).length;
   
   // Talento Identificado: Jugadores en BD que NO tienen informes aún
-  const identifiedCount = detectedCount - analyzedCount;
+  const identifiedCount = Math.max(0, detectedCount - analyzedCount);
   
-  // Informes Generados: Solo PDFs exportados
-  const generatedCount = reports.filter(r => r.pdfGenerated).length;
+  // Informes Generados: Solo PDFs exportados (o total de informes si prefieres)
+  const generatedCount = reports.length;
   
   // Media PIM: Solo de jugadores evaluados (PIM > 0)
   const evaluatedPlayers = players.filter(p => (p.currentPIM || 0) > 0);
@@ -116,6 +132,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
     ? (evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length).toFixed(1) 
     : "0.0";
 
+  // Ordenar recientes en memoria
   const recentPlayers = [...players]
     .sort((a, b) => {
       const dateA = a.createdAt?.seconds || 0;
@@ -128,9 +145,16 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="flex flex-col gap-2">
         <div className="h-1 w-12 bg-primary rounded-full mb-2" />
-        <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
-          {t.dashboard.title}
-        </h1>
+        <div className="flex flex-col sm:flex-row sm:items-baseline gap-3">
+          <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
+            {t.dashboard.title}
+          </h1>
+          {isManagement && (
+            <Badge className="bg-primary/20 text-primary border-primary/30 font-black text-[9px] uppercase tracking-widest px-3 py-1">
+              Modo Inteligencia Global (Club)
+            </Badge>
+          )}
+        </div>
         <p className="text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
       </div>
 
@@ -182,7 +206,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
                 {t.dashboard.recentProspects.title}
               </CardTitle>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                {t.dashboard.recentProspects.subtitle}
+                {isManagement ? 'Último talento detectado en toda la red' : t.dashboard.recentProspects.subtitle}
               </p>
             </div>
             <Badge variant="outline" className="border-primary/30 text-primary font-black text-[9px] uppercase tracking-widest px-3 py-1">

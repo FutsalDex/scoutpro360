@@ -1,3 +1,4 @@
+
 'use client';
 
 import { db } from "@/lib/firebase/config";
@@ -60,15 +61,19 @@ export async function getPlayer(id: string): Promise<Player | null> {
 
 /**
  * Escucha solo los jugadores captados por el scout actual.
+ * Se elimina orderBy para evitar requerir índices compuestos en el prototipo.
  */
 export function subscribeToPlayers(scoutId: string | null, callback: (players: Player[]) => void) {
   if (!scoutId) return () => {};
   const colRef = collection(db, "players");
-  const q = query(colRef, where("scoutId", "==", scoutId), orderBy("createdAt", "desc"));
+  const q = query(colRef, where("scoutId", "==", scoutId));
   
   return onSnapshot(
     q,
-    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[]),
+    (snap) => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() })) as Player[];
+      callback(data);
+    },
     async (err) => {
       errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }));
     }
@@ -80,7 +85,7 @@ export function subscribeToPlayers(scoutId: string | null, callback: (players: P
  */
 export function subscribeToGlobalPlayers(callback: (players: Player[]) => void) {
   const colRef = collection(db, "players");
-  const q = query(colRef, orderBy("createdAt", "desc"));
+  const q = query(colRef);
   
   return onSnapshot(
     q,
@@ -134,6 +139,15 @@ export function subscribeToReports(scoutId: string | null, callback: (reports: S
   const q = query(colRef, where("scoutId", "==", scoutId));
   return onSnapshot(
     q,
+    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScoutingReport[]),
+    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
+  );
+}
+
+export function subscribeToGlobalReports(callback: (reports: ScoutingReport[]) => void) {
+  const colRef = collection(db, "reports");
+  return onSnapshot(
+    colRef,
     (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScoutingReport[]),
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
