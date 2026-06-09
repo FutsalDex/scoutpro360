@@ -13,10 +13,10 @@ import { Badge } from "@/components/ui/badge";
 
 interface ScoutDashboardProps {
   userProfile: any;
-  onEditPlayer: (id: string) => void;
+  onViewFicha: (id: string) => void;
 }
 
-export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProps) {
+export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps) {
   const { t } = useTranslation();
   const [players, setPlayers] = useState<Player[]>([]);
   const [reports, setReports] = useState<ScoutingReport[]>([]);
@@ -105,7 +105,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
           {recentPlayers.length > 0 ? (
             <div className="divide-y divide-border/10">
               {recentPlayers.map(player => (
-                <div key={player.id} className="p-6 flex items-center justify-between hover:bg-primary/5 transition-all cursor-pointer group" onClick={() => onEditPlayer(player.id)}>
+                <div key={player.id} className="p-6 flex items-center justify-between hover:bg-primary/5 transition-all cursor-pointer group" onClick={() => onViewFicha(player.id)}>
                   <div className="flex items-center gap-4">
                     <Avatar className="h-12 w-12 rounded-xl border border-primary/20 shadow-lg">
                       <AvatarFallback className="font-black text-primary bg-primary/10">{player.name[0].toUpperCase()}</AvatarFallback>

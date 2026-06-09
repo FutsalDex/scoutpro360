@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -85,18 +84,26 @@ function AppShell({
 
   const renderActiveView = () => {
     switch (activeView) {
-      case 'dashboard': return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
+      case 'dashboard': return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
-      case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
+      case 'report': return editingPlayerId ? `${t.report.title} (Edit)` : t.report.title; // Note: simplified placeholder for active report component as used in actual report-form
       case 'match-analysis': return <MatchAnalysis />;
-      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="analyzed" />;
       case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="pending" />;
+      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="analyzed" />;
       case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} initialPlayerId={schedulingPlayerId} onClearScheduleContext={() => setSchedulingPlayerId(null)} />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
-      default: return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
+      default: return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
     }
+  };
+
+  // Re-inserting the actual ReportForm for the 'report' view which was accidentally simplified in the switch above
+  const renderActualActiveView = () => {
+    if (activeView === 'report') {
+      return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
+    }
+    return renderActiveView();
   };
 
   const getViewTitle = () => {
@@ -340,7 +347,7 @@ function AppShell({
             </div>
           )}
           <div className="w-full overflow-x-hidden">
-            {renderActiveView()}
+            {renderActualActiveView()}
           </div>
         </main>
       </SidebarInset>
