@@ -11,7 +11,7 @@ import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe } from "lucide-react";
+import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe, Database } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -22,7 +22,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'my-talents' | 'global-database' | 'agenda' | 'profile' | 'admin';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin';
 
 function AppShell({ 
   activeView, 
@@ -71,8 +71,9 @@ function AppShell({
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
-      case 'my-talents': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={false} />;
-      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={true} />;
+      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={false} mode="analyzed" />;
+      case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={false} mode="pending" />;
+      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
@@ -86,7 +87,8 @@ function AppShell({
       case 'talent-id': return t.sidebar.talentId;
       case 'report': return editingPlayerId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
       case 'match-analysis': return t.sidebar.matchAnalysis;
-      case 'my-talents': return t.sidebar.myTalents;
+      case 'bd-scout': return t.sidebar.bdScout;
+      case 'bd-talentos': return t.sidebar.bdTalentos;
       case 'global-database': return t.sidebar.globalDatabase;
       case 'agenda': return t.sidebar.agenda;
       case 'profile': return t.sidebar.personalProfile;
@@ -184,17 +186,33 @@ function AppShell({
                       <span className="font-medium">{t.sidebar.liveReport}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  
+                  {/* BD SCOUT */}
                   <SidebarMenuItem>
                     <SidebarMenuButton 
-                      isActive={activeView === 'my-talents'}
-                      onClick={() => handleNavClick('my-talents')}
+                      isActive={activeView === 'bd-scout'}
+                      onClick={() => handleNavClick('bd-scout')}
                       disabled={needsProfileCompletion}
                       className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
                     >
                       <Users className="h-5 w-5" />
-                      <span className="font-medium">{t.sidebar.myTalents}</span>
+                      <span className="font-medium">{t.sidebar.bdScout}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+
+                  {/* BD TALENTOS */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'bd-talentos'}
+                      onClick={() => handleNavClick('bd-talentos')}
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
+                    >
+                      <Database className="h-5 w-5" />
+                      <span className="font-medium">{t.sidebar.bdTalentos}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
                   <SidebarMenuItem>
                     <SidebarMenuButton 
                       isActive={activeView === 'agenda'}

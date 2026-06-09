@@ -1,4 +1,3 @@
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,20 +27,15 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { format } from 'date-fns';
 
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
   global?: boolean;
+  mode?: 'analyzed' | 'pending' | 'all';
 }
 
-export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseProps) {
+export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: GlobalDatabaseProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -87,11 +81,21 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
   }, [authReady, userId, global]);
 
   const filteredPlayers = players.filter(p => {
+    // 1. Filtro por Búsqueda
     const search = searchTerm.toLowerCase();
     const name = (p.name || "").toLowerCase();
     const club = (p.club || "").toLowerCase();
     const nationality = (p.nationality || "").toLowerCase();
-    return name.includes(search) || club.includes(search) || nationality.includes(search);
+    const matchesSearch = name.includes(search) || club.includes(search) || nationality.includes(search);
+    
+    if (!matchesSearch) return false;
+
+    // 2. Filtro por Modo (Analizado vs Pendiente)
+    const hasReport = reports.some(r => r.playerId === p.id);
+    if (mode === 'analyzed') return hasReport;
+    if (mode === 'pending') return !hasReport;
+    
+    return true; // Mode 'all'
   });
 
   const getPlayerStatus = (player: Player) => {
@@ -163,6 +167,20 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
     toast({ title: t.database.actions.pdfSuccess });
   };
 
+  const getPageTitle = () => {
+    if (global) return t.database.globalTitle;
+    if (mode === 'analyzed') return t.database.titleScout;
+    if (mode === 'pending') return t.database.titleTalentos;
+    return t.database.titleScout;
+  };
+
+  const getPageSubtitle = () => {
+    if (global) return t.database.globalSubtitle;
+    if (mode === 'analyzed') return t.database.subtitleScout;
+    if (mode === 'pending') return t.database.subtitleTalentos;
+    return t.database.subtitleScout;
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
@@ -177,10 +195,10 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-headline font-black text-white uppercase tracking-tight">
-            {global ? t.database.globalTitle : t.database.title}
+            {getPageTitle()}
           </h1>
           <p className="text-muted-foreground text-sm font-medium">
-            {global ? t.database.globalSubtitle : t.database.subtitle}
+            {getPageSubtitle()}
           </p>
         </div>
         <div className="flex gap-3">
@@ -228,7 +246,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
                   const report = getReportForPlayer(player.id);
                   const completion = calculateCompletion(report);
                   const rating = report?.finalScoutRating || 0;
-                  // Escalar rating 1-5 a 0-100 para visualización
                   const score = rating > 0 ? rating * 20 : 0;
                   const dateStr = player.createdAt?.seconds 
                     ? format(new Date(player.createdAt.seconds * 1000), 'yyyy-MM-dd') 
@@ -307,20 +324,22 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
                               <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.editReport}</span>
                             </DropdownMenuItem>
                             
-                            <DropdownMenuItem 
-                              disabled={completion < 75}
-                              onClick={() => generatePDF(player)} 
-                              className={cn(
-                                "flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5",
-                                completion < 75 && "opacity-50 grayscale cursor-not-allowed"
-                              )}
-                            >
-                              <Download className="h-4 w-4 text-muted-foreground" />
-                              <div className="flex flex-col">
-                                <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.createPdf}</span>
-                                <span className="text-[8px] font-bold text-muted-foreground uppercase">{completion}% Completado</span>
-                              </div>
-                            </DropdownMenuItem>
+                            {status === 'analizado' && (
+                              <DropdownMenuItem 
+                                disabled={completion < 75}
+                                onClick={() => generatePDF(player)} 
+                                className={cn(
+                                  "flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5",
+                                  completion < 75 && "opacity-50 grayscale cursor-not-allowed"
+                                )}
+                              >
+                                <Download className="h-4 w-4 text-muted-foreground" />
+                                <div className="flex flex-col">
+                                  <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.createPdf}</span>
+                                  <span className="text-[8px] font-bold text-muted-foreground uppercase">{completion}% Completado</span>
+                                </div>
+                              </DropdownMenuItem>
+                            )}
 
                             <DropdownMenuItem onClick={() => {
                               const newMatch: Omit<ScheduledMatch, 'id'> = {
