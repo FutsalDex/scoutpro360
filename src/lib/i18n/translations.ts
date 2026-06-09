@@ -81,6 +81,7 @@ export const translations = {
       actions: {
         viewFicha: 'ACCEDER A FICHA',
         editReport: 'CREAR/EDITAR INFORME',
+        createReport: 'CREAR INFORME',
         createPdf: 'CREAR INFORME PDF',
         scheduleMeeting: 'Agendar Reunión',
         scheduleMatch: 'AGENDAR PARTIDO',

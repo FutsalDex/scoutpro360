@@ -275,7 +275,9 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
 
                             <DropdownMenuItem onClick={() => onEditPlayer(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-primary/10 text-foreground">
                               <FileText className="h-4 w-4 text-primary" />
-                              <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.editReport}</span>
+                              <span className="text-[11px] font-black uppercase tracking-widest">
+                                {mode === 'pending' ? t.database.actions.createReport : t.database.actions.editReport}
+                              </span>
                             </DropdownMenuItem>
                             
                             {score > 0 && (
