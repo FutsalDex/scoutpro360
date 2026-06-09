@@ -48,6 +48,10 @@ export interface Player {
   weight?: string;
   dominantFoot?: string;
   secondaryPositions?: string;
+  phone?: string;
+  email?: string;
+  dorsal?: string;
+  socials?: string;
   createdAt?: any;
   updatedAt?: any;
 }

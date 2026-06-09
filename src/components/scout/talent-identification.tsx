@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Save, Sparkles, Calendar } from "lucide-react";
+import { User, Save, Sparkles, Calendar, Phone, Mail, Globe, Hash, Share2 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
 import { savePlayer } from "@/lib/services/db-service";
 import { TACTICAL_ROLES } from "@/lib/types";
+import { ALL_COUNTRIES } from "@/lib/data/countries";
 
 export function TalentIdentification({ onComplete }: { onComplete: () => void }) {
   const { t } = useTranslation();
@@ -22,6 +23,11 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
   const [currentTeam, setCurrentTeam] = useState("");
   const [position, setPosition] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [dorsal, setDorsal] = useState("");
+  const [socials, setSocials] = useState("");
   const [notes, setNotes] = useState("");
 
   const handleRegister = (e: React.FormEvent) => {
@@ -38,18 +44,20 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       return;
     }
 
-    // Vinculación Estricta con el UID del Scout actual
     savePlayer({
       name: playerName,
       club: currentTeam,
       tacticalRole: position || 'mc',
-      nationality: "N/A",
+      nationality: nationality || "N/A",
       age: birthDate ? new Date().getFullYear() - new Date(birthDate).getFullYear() : 0,
       marketValue: "€0",
-      currentPIM: 0,
       grade: 'C',
       scoutId: scoutId,
-      birthDate: birthDate
+      birthDate: birthDate,
+      phone: phone,
+      email: email,
+      dorsal: dorsal,
+      socials: socials
     });
 
     toast({ title: t.talentId.success });
@@ -109,6 +117,50 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
                     className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl pl-10" 
                   />
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                </div>
+              </div>
+
+              {/* Nuevos campos */}
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.phone}</Label>
+                <div className="relative">
+                  <Input value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl pl-10" placeholder="+34 600 000 000" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.email}</Label>
+                <div className="relative">
+                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl pl-10" placeholder="jugador@ejemplo.com" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.nationality}</Label>
+                <div className="relative">
+                  <Select value={nationality} onValueChange={setNationality}>
+                    <SelectTrigger className="h-12 bg-secondary/10 border-border/20 rounded-xl font-bold pl-10">
+                      <SelectValue placeholder="-" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px] bg-[#1b263b] border-border/20">
+                      {ALL_COUNTRIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50 z-10" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.dorsal}</Label>
+                <div className="relative">
+                  <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl pl-10" placeholder="10" />
+                  <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                </div>
+              </div>
+              <div className="md:col-span-2 space-y-1.5">
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.socials}</Label>
+                <div className="relative">
+                  <Input value={socials} onChange={(e) => setSocials(e.target.value)} className="h-12 bg-secondary/10 border-border/20 text-sm font-bold rounded-xl pl-10" placeholder="@usuario_ig / @twitter_handle" />
+                  <Share2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
                 </div>
               </div>
             </div>
