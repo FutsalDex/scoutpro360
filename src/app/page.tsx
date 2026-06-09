@@ -187,7 +187,6 @@ function AppShell({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   
-                  {/* BD SCOUT */}
                   <SidebarMenuItem>
                     <SidebarMenuButton 
                       isActive={activeView === 'bd-scout'}
@@ -200,7 +199,6 @@ function AppShell({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
-                  {/* BD TALENTOS */}
                   <SidebarMenuItem>
                     <SidebarMenuButton 
                       isActive={activeView === 'bd-talentos'}

@@ -155,7 +155,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
   const [heatmapPoints, setHeatmapPoints] = useState<Point[]>([]);
 
-  // Player Info Fields
   const [playerName, setPlayerName] = useState("");
   const [dorsal, setDorsal] = useState("");
   const [clubName, setClubName] = useState("");
@@ -173,7 +172,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [physicalCondition, setPhysicalCondition] = useState("");
   const [scoutName, setScoutName] = useState("");
 
-  // Context Fields
   const [matchStyle, setMatchStyle] = useState("");
   const [matchSystem, setMatchSystem] = useState("");
   const [matchPace, setMatchPace] = useState("");
@@ -185,14 +183,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [bodyLanguageTraits, setBodyLanguageTraits] = useState<string[]>([]);
   const [specificMatchRole, setSpecificMatchRole] = useState("");
 
-  // Evaluation Fields
   const [strengths, setStrengths] = useState<string[]>(['', '', '', '']);
   const [weaknesses, setWeaknesses] = useState<string[]>(['', '', '', '']);
   const [overallDescription, setOverallDescription] = useState("");
   const [comparativePlayer, setComparativePlayer] = useState("");
   const [finalRecommendation, setFinalRecommendation] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
-  const [fitsPhilosophy, setFitsPhilosophy] = useState("");
   const [finalScoutRating, setFinalScoutRating] = useState<number>(0);
 
   useEffect(() => {
@@ -226,7 +222,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setComparativePlayer(r.comparativePlayer || "");
           setFinalRecommendation(r.finalRecommendation || "");
           setAdditionalNotes(r.additionalNotes || "");
-          setFitsPhilosophy(r.fitsPhilosophy || "");
           setFinalScoutRating(r.finalScoutRating || 0);
         }
       });
@@ -270,10 +265,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const handleSaveAll = () => {
     const scoutId = auth.currentUser?.uid;
-    if (!scoutId) {
-      toast({ variant: "destructive", title: "Error", description: "Inicia sesión para guardar." });
-      return;
-    }
+    if (!scoutId) return;
 
     if (!playerName) {
       toast({ variant: "destructive", title: "Error", description: "Nombre del jugador requerido." });
@@ -306,7 +298,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
       offBallTraits, bodyLanguageTraits, specificMatchRole,
       strengths, weaknesses, overallDescription, comparativePlayer,
-      finalRecommendation, additionalNotes, fitsPhilosophy, finalScoutRating
+      finalRecommendation, additionalNotes, finalScoutRating
     }, reportId || undefined);
 
     if (!reportId) {
@@ -354,31 +346,27 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-9 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.name}</Label>
-                      <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Nombre del jugador" />
+                      <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-3 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.dorsal}</Label>
-                      <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="-" />
+                      <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.club}</Label>
-                      <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Club" />
+                      <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.rival}</Label>
-                      <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="vs" />
+                      <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.competition}</Label>
-                      <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Liga / Copa" />
+                      <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.matchDate}</Label>
                       <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
-                    </div>
-                    <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.birthDate}</Label>
-                      <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.nationality}</Label>
@@ -390,18 +378,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                           {ALL_COUNTRIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div className="lg:col-span-4 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.height}</Label>
-                      <Input value={height} onChange={(e) => setHeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="-" />
-                    </div>
-                    <div className="lg:col-span-4 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.weight}</Label>
-                      <Input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="-" />
-                    </div>
-                    <div className="lg:col-span-4 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.minPlayed}</Label>
-                      <Input value={minPlayed} onChange={(e) => setMinPlayed(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" placeholder="90" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
                       <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.primaryPos}</Label>
@@ -420,10 +396,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.secondaryPos}</Label>
-                      <Input value={secondaryPositions} onChange={(e) => setSecondaryPositions(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: ED, MCO" />
                     </div>
                   </div>
                 </CardContent>
@@ -448,7 +420,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             </div>
 
             <div className="lg:col-span-4 space-y-8">
-              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl sticky top-24">
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
                   <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
                 </div>
@@ -503,13 +475,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.system}</Label>
-                  <Input value={matchSystem} onChange={(e) => setMatchSystem(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: 4-3-3" />
+                  <Input value={matchSystem} onChange={(e) => setMatchSystem(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.matchRole}</Label>
-                  <Input value={specificMatchRole} onChange={(e) => setSpecificMatchRole(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: Pivote único" />
+                  <Input value={specificMatchRole} onChange={(e) => setSpecificMatchRole(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" />
                 </div>
-                
                 <ChipGroup label={t.report.contextTab.gameStyle} options={['possession', 'counter', 'highPress', 'direct', 'defensive']} selected={matchStyle} onSelect={setMatchStyle} t={t} />
                 <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
                 <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
@@ -587,7 +558,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     {scoutingActions.map((action, idx) => (
                       <tr key={idx} className="hover:bg-white/5 transition-colors">
                         <td className="p-2"><Input value={action.minute} onChange={(e) => updateAction(idx, 'minute', e.target.value)} className="h-9 bg-transparent border-none font-bold text-center" placeholder="00'" /></td>
-                        <td className="p-2"><Input value={action.action} onChange={(e) => updateAction(idx, 'action', e.target.value)} className="h-9 bg-transparent border-none font-bold" placeholder="Acción..." /></td>
+                        <td className="p-2"><Input value={action.action} onChange={(e) => updateAction(idx, 'action', e.target.value)} className="h-9 bg-transparent border-none font-bold" /></td>
                         <td className="p-2">
                            <Select value={action.result} onValueChange={(v) => updateAction(idx, 'result', v)}>
                               <SelectTrigger className="h-9 bg-transparent border-none font-bold">
@@ -600,7 +571,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                               </SelectContent>
                            </Select>
                         </td>
-                        <td className="p-2"><Input value={action.notes} onChange={(e) => updateAction(idx, 'notes', e.target.value)} className="h-9 bg-transparent border-none text-xs italic" placeholder="Notas adicionales..." /></td>
+                        <td className="p-2"><Input value={action.notes} onChange={(e) => updateAction(idx, 'notes', e.target.value)} className="h-9 bg-transparent border-none text-xs italic" /></td>
                         <td className="p-2"><Button onClick={() => removeAction(idx)} variant="ghost" size="icon" className="h-8 w-8 text-destructive/50 hover:text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button></td>
                       </tr>
                     ))}
@@ -628,7 +599,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     <span className="text-[10px] font-black text-primary/40">{i+1}</span>
                     <Input value={s} onChange={(e) => {
                       const newS = [...strengths]; newS[i] = e.target.value; setStrengths(newS);
-                    }} className="h-10 bg-secondary/10 border-none font-bold" placeholder="..." />
+                    }} className="h-10 bg-secondary/10 border-none font-bold" />
                   </div>
                 ))}
               </CardContent>
@@ -645,7 +616,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     <span className="text-[10px] font-black text-primary/40">{i+1}</span>
                     <Input value={w} onChange={(e) => {
                       const newW = [...weaknesses]; newW[i] = e.target.value; setWeaknesses(newW);
-                    }} className="h-10 bg-secondary/10 border-none font-bold" placeholder="..." />
+                    }} className="h-10 bg-secondary/10 border-none font-bold" />
                   </div>
                 ))}
               </CardContent>
@@ -691,10 +662,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                         </button>
                       ))}
                     </div>
-                 </div>
-                 <div className="space-y-1.5">
-                    <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.fitsPhilosophy}</Label>
-                    <ChipGroup label="" options={['si', 'no', 'maybe']} selected={fitsPhilosophy} onSelect={setFitsPhilosophy} t={t} />
                  </div>
               </div>
 

@@ -42,7 +42,7 @@ export interface Player {
   marketValue: string;
   tacticalRole: string;
   grade: Grade;
-  scoutId: string; // Mandatory
+  scoutId: string;
   birthDate?: string;
   height?: string;
   weight?: string;
@@ -52,44 +52,11 @@ export interface Player {
   updatedAt?: any;
 }
 
-export interface PlayerList {
-  id: string;
-  name: string;
-  playerIds: string[];
-  scoutId: string;
-  createdAt: any;
-}
-
-export interface ScheduledMatch {
-  id: string;
-  playerId?: string;
-  homeTeam: string;
-  awayTeam: string;
-  category: string;
-  dateTime: any;
-  scoutId: string;
-  status: 'scheduled' | 'in-progress' | 'completed';
-}
-
-export interface QuickNote {
-  id: string;
-  content: string;
-  scoutId: string;
-  assignedPlayerId?: string;
-  createdAt: any;
-  type: 'text' | 'voice';
-}
-
-export interface KPISection {
-  observation: string[];
-  impact: string[];
-}
-
 export interface ScoutingReport {
   id?: string;
   playerId: string;
   playerName: string;
-  scoutId: string; // Mandatory
+  scoutId: string;
   scoutName: string;
   summary: string;
   ratings: Record<string, number>;
@@ -102,10 +69,8 @@ export interface ScoutingReport {
   matchDate?: string;
   minPlayed?: string;
   physicalCondition?: string;
-  selectedRoles?: string[];
   pitchPosition?: Point;
   heatmapPoints?: Point[];
-  pdfGenerated?: boolean;
   matchStyle?: string;
   matchSystem?: string;
   matchPace?: string;
@@ -117,27 +82,22 @@ export interface ScoutingReport {
   bodyLanguageTraits?: string[];
   specificMatchRole?: string;
   
-  // Evaluation Fields
   strengths?: string[];
   weaknesses?: string[];
-  shortTerm?: string;
-  longTerm?: string;
   overallDescription?: string;
   comparativePlayer?: string;
   finalRecommendation?: string;
   additionalNotes?: string;
-  fitsModel?: string;
-  immediateImpact?: string;
-  futurePotential?: string;
-  adaptationRisk?: string;
   fitsPhilosophy?: string;
   finalScoutRating?: number;
-  nextSteps?: string[];
-  scoutingCommittee?: string;
-  decisionDate?: string;
   
   createdAt: any;
   updatedAt?: any;
+}
+
+export interface KPISection {
+  observation: string[];
+  impact: string[];
 }
 
 export interface TacticalRoleConfig {

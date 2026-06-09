@@ -66,7 +66,7 @@ export const translations = {
       globalTitle: 'Base de Datos Global',
       subtitleScout: 'Patrimonio de jugadores analizados con informe técnico.',
       subtitleTalentos: 'Jugadores identificados pendientes de evaluación.',
-      globalSubtitle: 'Patrimonio de inteligencia total del club (15,000+ prospectos).',
+      globalSubtitle: 'Patrimonio de inteligencia total del club.',
       export: 'Exportar CSV',
       add: 'Añadir Prospecto',
       search: 'Buscar nombre, club o nacionalidad...',
@@ -91,12 +91,12 @@ export const translations = {
         detectado: 'Detectado'
       },
       table: {
-        player: 'Detalles del Jugador',
-        position: 'Posición',
-        age: 'Edad',
-        clubNat: 'Club / Nac',
-        value: 'Valor',
-        grade: 'Grado',
+        player: 'Jugador',
+        pos: 'Pos',
+        club: 'Club',
+        score: 'Puntuación',
+        country: 'País',
+        date: 'Fecha',
         status: 'Estado'
       }
     },
@@ -111,7 +111,7 @@ export const translations = {
       title: 'Laboratorio de Análisis Táctico',
       subtitle: 'Patrones colectivos y lectura de juego situacional.',
       comingSoon: 'PRÓXIMAMENTE',
-      comingSoonDesc: 'Módulo actualmente en mantenimiento o preparación para el próximo despliegue.',
+      comingSoonDesc: 'Módulo actualmente en mantenimiento.',
     },
     mapping: {
       title: 'MAPEADO DE TALENTO',
@@ -123,15 +123,6 @@ export const translations = {
       title: 'Informe de Observación de Partido',
       subtitle: 'Evaluación Confidencial 360 Scouting',
       pdfHeader: 'INFORME TÉCNICO PROFESIONAL DE SCOUTING',
-      pdfEmissionDate: 'FECHA EMISIÓN',
-      pdfAttribute: 'Atributo',
-      pdfInformation: 'Información',
-      pdfMatchContext: 'CONTEXTO DEL PARTIDO',
-      pdfTacticalPosition: 'POSICIÓN TÁCTICA (CAMPO PROFESIONAL)',
-      pdfKeyActions: 'REGISTRO DE ACCIONES CLAVE',
-      pitch: {
-        title: 'POSICIONAMIENTO TÁCTICO',
-      },
       tabs: {
         player: 'JUGADOR',
         context: 'CONTEXTO',
@@ -143,41 +134,24 @@ export const translations = {
         evaluation: 'EVALUACIÓN',
       },
       evaluationTab: {
-        strengthsTitle: 'FORTALEZAS Y ÁREAS DE MEJORA',
         mainStrengths: 'FORTALEZAS PRINCIPALES',
         areasToImprove: 'AREAS A MEJORAR',
-        shortTerm: 'CORTO PLAZO',
-        longTerm: 'LARGO PLAZO',
         recTitle: 'RESUMEN FINAL',
         playerDescription: 'DESCRIPCIÓN GENERAL DEL JUGADOR',
         comparative: 'COMPARATIVA (POSICIÓN / PERFIL)',
         finalRec: 'RECOMENDACIÓN FINAL',
-        additionalNotes: 'NOTAS ADICIONALES (CONTRATO, AGENTE, ETC)',
         recOptions: {
           immediate: 'Fichaje inmediato',
           scouting: 'Seguimiento',
           priority: 'Monitor prioritario',
           reevaluate: 'Reevaluar'
         },
-        signingTitle: 'EVALUACIÓN DE FICHAJE',
-        fitsModel: '¿ENCAJA EN NUESTRO MODELO?',
-        immediateImpact: 'IMPACTO INMEDIATO',
-        futurePotential: 'POTENCIAL FUTURO',
-        adaptationRisk: 'RIESGO DE ADAPTACIÓN',
         fitsPhilosophy: '¿ENCAJA EN LA FILOSOFÍA?',
         finalRatingTitle: 'VALORACIÓN FINAL DEL SCOUT',
-        decisionTitle: 'DECISIÓN INTERNA',
-        nextSteps: 'PRÓXIMOS PASOS',
-        committee: 'COMITÉ DE SCOUTING',
-        decisionDate: 'FECHA DE DECISIÓN',
         options: {
           si: 'Sí',
           no: 'No',
-          maybe: 'Seguimiento',
-          alto: 'Alto',
-          medio: 'Medio',
-          bajo: 'Bajo',
-          elite: 'Élite'
+          maybe: 'Seguimiento'
         }
       },
       observedFunctions: {
@@ -227,10 +201,8 @@ export const translations = {
         scoreAtObserving: 'MARCADOR AL OBSERVAR',
         importance: 'IMPORTANCIA DEL PARTIDO',
         weather: 'CONDICIONES METEOROLÓGICAS',
-        noPossession: 'SIN POSESIÓN',
         bodyLanguage: 'LENGUAJE CORPORAL',
         matchRole: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
-        matchRolePlaceholder: 'Describe el rol táctico asignado al jugador...',
         possession: 'Posesión',
         counter: 'Contragolpe',
         highPress: 'Presión alta',
@@ -266,14 +238,7 @@ export const translations = {
         emotional: 'Emotivo',
         reactive: 'Reactivo',
         mature: 'Tranquilo/Maduro',
-        indifferent: 'Indiferente',
-        right: 'Derecho',
-        left: 'Izquierdo',
-        both: 'Ambos',
-        excellent: 'Excelente',
-        good: 'Buena',
-        normal: 'Normal',
-        injured: 'Lesionado'
+        indifferent: 'Indiferente'
       },
       generalProfile: {
         title: 'PERFIL GENERAL (IMPRESIÓN GLOBAL)',
@@ -347,7 +312,7 @@ export const translations = {
         agenda: 'AGENDA SCOUTING',
         agendaDesc: 'Gestión y planificación de observaciones de partidos.',
         globalDb: 'BASE DE DATOS GLOBAL',
-        globalDbDesc: 'Acceso completo al repositorio de 15,000+ prospectos internacionales.',
+        globalDbDesc: 'Acceso completo al repositorio de prospectos internacionales.',
       }
     }
   },

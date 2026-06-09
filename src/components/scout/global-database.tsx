@@ -1,13 +1,11 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, Download, Loader2, MoreVertical, FileText, 
-  Calendar, Info, MapPin 
+  Calendar, MapPin 
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { 
@@ -28,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { format } from 'date-fns';
+import { Input } from "@/components/ui/input";
 
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
@@ -71,7 +70,7 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
       : subscribeToReports(userId, setReports);
 
     const unsubMatches = subscribeToScheduledMatches(userId, setMatches);
-    const timer = setTimeout(() => setLoading(false), 2000);
+    const timer = setTimeout(() => setLoading(false), 1500);
     return () => {
       unsubPlayers();
       unsubReports();
@@ -81,7 +80,6 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
   }, [authReady, userId, global]);
 
   const filteredPlayers = players.filter(p => {
-    // 1. Filtro por Búsqueda
     const search = searchTerm.toLowerCase();
     const name = (p.name || "").toLowerCase();
     const club = (p.club || "").toLowerCase();
@@ -90,12 +88,11 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
     
     if (!matchesSearch) return false;
 
-    // 2. Filtro por Modo (Analizado vs Pendiente)
     const hasReport = reports.some(r => r.playerId === p.id);
     if (mode === 'analyzed') return hasReport;
     if (mode === 'pending') return !hasReport;
     
-    return true; // Mode 'all'
+    return true;
   });
 
   const getPlayerStatus = (player: Player) => {
@@ -125,16 +122,7 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
 
   const generatePDF = (player: Player) => {
     const report = getReportForPlayer(player.id);
-    const completion = calculateCompletion(report);
-
-    if (!report || completion < 75) {
-      toast({
-        variant: "destructive",
-        title: t.database.actions.pdfIncomplete,
-        description: `Completitud actual: ${completion}% (Requerido: 75%)`,
-      });
-      return;
-    }
+    if (!report) return;
 
     const doc = new jsPDF() as any;
     const primaryColor = [224, 176, 80];
@@ -144,7 +132,6 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
     doc.rect(0, 0, 210, 40, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
     doc.text("SCOUTPRO 360", 105, 20, { align: "center" });
     doc.setFontSize(10);
     doc.text(t.report.pdfHeader, 105, 28, { align: "center" });
@@ -160,11 +147,9 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
       ],
       theme: 'grid',
       headStyles: { fillColor: primaryColor, textColor: navyColor },
-      styles: { fontSize: 9 }
     });
 
     doc.save(`ScoutPro_Report_${player.name.replace(/\s+/g, '_')}.pdf`);
-    toast({ title: t.database.actions.pdfSuccess });
   };
 
   const getPageTitle = () => {
@@ -185,7 +170,7 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
         <Loader2 className="h-10 w-10 text-primary animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60">Accediendo a la red de inteligencia...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60">Sincronizando patrimonio de inteligencia...</p>
       </div>
     );
   }
@@ -201,11 +186,9 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
             {getPageSubtitle()}
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="bg-secondary/20 border-border/40 text-foreground font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-secondary/40">
-            <Download className="h-4 w-4 mr-2" /> {t.database.export}
-          </Button>
-        </div>
+        <Button variant="outline" className="bg-secondary/20 border-border/40 text-foreground font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-secondary/40">
+          <Download className="h-4 w-4 mr-2" /> {t.database.export}
+        </Button>
       </div>
 
       <div className="relative group">
@@ -218,18 +201,18 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
         />
       </div>
 
-      <div className="overflow-hidden rounded-[2rem] border border-border/40 bg-card/20 backdrop-blur-xl shadow-2xl">
+      <div className="overflow-hidden rounded-[1.5rem] border border-border/40 bg-card/20 backdrop-blur-xl shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-secondary/30 border-b border-border/20">
-                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Jugador</th>
-                <th className="px-6 py-5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Pos</th>
-                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Club</th>
-                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Puntuación</th>
-                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">País</th>
-                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Fecha</th>
-                <th className="px-6 py-5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Estado</th>
+                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.player}</th>
+                <th className="px-6 py-5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.pos}</th>
+                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.club}</th>
+                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.score}</th>
+                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.country}</th>
+                <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.date}</th>
+                <th className="px-6 py-5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.status}</th>
                 <th className="px-6 py-5 w-16"></th>
               </tr>
             </thead>
@@ -244,7 +227,6 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
                 filteredPlayers.map(player => {
                   const status = getPlayerStatus(player);
                   const report = getReportForPlayer(player.id);
-                  const completion = calculateCompletion(report);
                   const rating = report?.finalScoutRating || 0;
                   const score = rating > 0 ? rating * 20 : 0;
                   const dateStr = player.createdAt?.seconds 
@@ -326,18 +308,11 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
                             
                             {status === 'analizado' && (
                               <DropdownMenuItem 
-                                disabled={completion < 75}
                                 onClick={() => generatePDF(player)} 
-                                className={cn(
-                                  "flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5",
-                                  completion < 75 && "opacity-50 grayscale cursor-not-allowed"
-                                )}
+                                className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5"
                               >
                                 <Download className="h-4 w-4 text-muted-foreground" />
-                                <div className="flex flex-col">
-                                  <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.createPdf}</span>
-                                  <span className="text-[8px] font-bold text-muted-foreground uppercase">{completion}% Completado</span>
-                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.createPdf}</span>
                               </DropdownMenuItem>
                             )}
 

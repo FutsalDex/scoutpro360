@@ -10,7 +10,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 interface ScoutDashboardProps {
   userProfile: any;
@@ -48,7 +47,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
       ? subscribeToGlobalReports(setReports)
       : subscribeToReports(scoutId, setReports);
 
-    const timer = setTimeout(() => setLoading(false), 2000);
+    const timer = setTimeout(() => setLoading(false), 1000);
 
     return () => {
       unsubPlayers();
@@ -113,7 +112,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
                     </Avatar>
                     <div>
                       <p className="font-black text-sm uppercase group-hover:text-primary transition-colors">{player.name}</p>
-                      <p className="text-[10px] text-muted-foreground flex items-center gap-2 font-bold"><MapPin className="h-3 v-3" /> {player.club} · <span className="text-primary uppercase">{player.tacticalRole}</span></p>
+                      <p className="text-[10px] text-muted-foreground flex items-center gap-2 font-bold"><MapPin className="h-3 w-3" /> {player.club} · <span className="text-primary uppercase">{player.tacticalRole}</span></p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
