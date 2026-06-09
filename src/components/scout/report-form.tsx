@@ -153,6 +153,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>({ ...TACTICAL_ROLES[0], kpis: localizedKPIs });
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [pimScore, setPimScore] = useState<number>(0); // Estado independiente para el PIM
   const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
@@ -218,6 +219,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setPlayerName(p.name); setClubName(p.club); setNationality(p.nationality); setMarketValue(p.marketValue);
           setBirthDate(p.birthDate || ""); setHeight(p.height || ""); setWeight(p.weight || "");
           setDominantFoot(p.dominantFoot || ""); setSecondaryPositions(p.secondaryPositions || "");
+          setPimScore(p.currentPIM || 0);
           const role = TACTICAL_ROLES.find(r => r.id === p.tacticalRole);
           if (role) setActiveRole({ ...role, kpis: localizedKPIs });
         }
@@ -234,6 +236,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setObservingScore(r.observingScore || ""); setMatchImportance(r.matchImportance || "");
           setWeather(r.weather || ""); setOffBallTraits(r.offBallTraits || []);
           setBodyLanguageTraits(r.bodyLanguageTraits || []); setSpecificMatchRole(r.specificMatchRole || "");
+          if (r.pimScore) setPimScore(r.pimScore);
           if (r.pitchPosition) setPitchMarker(r.pitchPosition);
           if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
           
@@ -317,9 +320,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       club: clubName || "No club",
       nationality: nationality || "Unknown",
       marketValue: marketValue || "€0",
-      currentPIM: Math.round(ratings['pim'] || 0),
+      currentPIM: pimScore,
       tacticalRole: activeRole.id,
-      grade: (ratings['pim'] || 0) > 85 ? 'A' : ((ratings['pim'] || 0) > 70 ? 'B' : 'C'),
+      grade: pimScore > 85 ? 'A' : (pimScore > 70 ? 'B' : 'C'),
       scoutId: scoutId,
       birthDate, height, weight, dominantFoot, secondaryPositions
     }, editingPlayerId || undefined);
@@ -329,7 +332,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       playerName,
       scoutId: scoutId,
       scoutName: scoutName || userProfile?.displayName || "Scout",
-      pimScore: Math.round(ratings['pim'] || 0),
+      pimScore: pimScore,
       summary: notes['summary'] || "",
       ratings, notes, actions: scoutingActions,
       dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition,
@@ -390,9 +393,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         language: 'es'
       });
 
-      if (result && result.playerImpactMetric >= 0) {
+      if (result && result.playerImpactMetric !== undefined) {
         const finalPim = Math.max(0, Math.min(100, Math.round(result.playerImpactMetric)));
-        handleRatingChange('pim', finalPim);
+        setPimScore(finalPim);
         handleNoteChange('pim_explanation', result.explanation);
         toast({ title: "Motor IA Sincronizado", description: `Nueva métrica PIM calculada: ${finalPim}` });
       }
@@ -818,7 +821,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="p-10 border-2 border-primary/30 bg-[#1b263b]/60 rounded-[2.5rem] flex flex-col items-center justify-between text-center">
               <Brain className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-sm font-black uppercase tracking-[0.2em]">{t.report.pim.title}</h3>
-              <div className="text-8xl font-black text-primary my-6">{Math.round(ratings['pim'] || 0)}</div>
+              <div className="text-8xl font-black text-primary my-6">{pimScore}</div>
               <Button onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="w-full h-12 bg-primary font-black uppercase text-[10px] rounded-xl shadow-lg shadow-primary/20">
                 {isCalculatingPIM ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.pim.calculate}
               </Button>

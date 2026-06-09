@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flujo de Genkit para calcular la Métrica de Impacto del Jugador (PIM).
- * Optimizado para devolver un valor entero y corregir errores de mapeo que causaban el valor 0.
+ * Optimizado para devolver un valor entero y obligar a una respuesta JSON estricta.
  */
 
 import { ai } from '@/ai/genkit';
@@ -78,14 +78,16 @@ REGLAS DE CÁLCULO ESTRICTAS:
    - Si matchImportance es "high" y rendimiento > 4: +4 puntos.
 4. Redondea el resultado a un NÚMERO ENTERO.
 
-RESPONDE ÚNICAMENTE CON EL JSON ESTRUCTURADO.`,
+REGLAS DE FORMATO:
+- Debes responder EXCLUSIVAMENTE con un JSON válido.
+- No añadas texto explicativo antes ni después del bloque JSON.
+- Si el cálculo es menor a 0, devuelve 0. Si es mayor a 100, devuelve 100.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
   try {
     const response = await calculatePlayerImpactMetricPrompt(input);
     
-    // Si Genkit devuelve el objeto parseado correctamente
     if (response.output) {
       return {
         playerImpactMetric: Math.max(0, Math.min(100, Math.round(response.output.playerImpactMetric))),
@@ -93,7 +95,7 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
       };
     }
 
-    // Fallback de emergencia: Escaneo de texto plano
+    // Fallback de emergencia: Escaneo de texto plano por si el modelo rompe el JSON
     const text = response.text || "";
     const scoreMatch = text.match(/"playerImpactMetric":\s*(\d+)/) || 
                       text.match(/playerImpactMetric[:\s]+(\d+)/) ||
