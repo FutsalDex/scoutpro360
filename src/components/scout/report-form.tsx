@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -22,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
-import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
+import { calculatePlayerImpactMetric, type CalculatePlayerImpactMetricInput } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 
 const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: string, rating?: number, onRatingChange: (v: number) => void, note?: string, onNoteChange?: (v: string) => void }) => (
@@ -153,7 +154,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>({ ...TACTICAL_ROLES[0], kpis: localizedKPIs });
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
-  const [pimScore, setPimScore] = useState<number>(0); // Estado independiente para el PIM
+  const [pimScore, setPimScore] = useState<number>(0);
   const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
@@ -366,7 +367,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       const getMetricsArray = (list: string[]) => 
         list.map(name => ({ name, value: ratings[name] || 0 }));
 
-      const result = await calculatePlayerImpactMetric({
+      const payload: CalculatePlayerImpactMetricInput = {
         playerName: playerName || "Prospecto",
         tacticalRole: activeRole.name,
         minPlayed: minPlayed || "90",
@@ -391,7 +392,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           currentLevel: ratings['Nivel actual'] || 0,
         },
         language: 'es'
-      });
+      };
+
+      console.log("PAYLOAD ENVIADO A LA IA:", JSON.stringify(payload, null, 2));
+      const result = await calculatePlayerImpactMetric(payload);
 
       if (result && result.playerImpactMetric !== undefined) {
         const finalPim = Math.max(0, Math.min(100, Math.round(result.playerImpactMetric)));
