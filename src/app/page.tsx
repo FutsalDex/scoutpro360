@@ -65,15 +65,20 @@ function AppShell({
     setActiveView('report');
   };
 
+  const handleViewFicha = (playerId: string) => {
+    setEditingPlayerId(playerId);
+    setActiveView('talent-id');
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
-      case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} />;
+      case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
-      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={false} mode="analyzed" />;
-      case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={false} mode="pending" />;
-      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={true} mode="all" />;
+      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} global={false} mode="analyzed" />;
+      case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} global={false} mode="pending" />;
+      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;

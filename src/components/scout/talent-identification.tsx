@@ -1,21 +1,21 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Save, Sparkles, Calendar, Phone, Mail, Globe, Hash, Share2 } from "lucide-react";
+import { User, Save, Sparkles, Calendar, Phone, Mail, Globe, Hash, Share2, Loader2 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
-import { savePlayer } from "@/lib/services/db-service";
+import { savePlayer, getPlayer } from "@/lib/services/db-service";
 import { TACTICAL_ROLES } from "@/lib/types";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 
-export function TalentIdentification({ onComplete }: { onComplete: () => void }) {
+export function TalentIdentification({ onComplete, editingPlayerId }: { onComplete: () => void, editingPlayerId: string | null }) {
   const { t } = useTranslation();
   const { toast } = useToast();
 
@@ -29,6 +29,28 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
   const [dorsal, setDorsal] = useState("");
   const [socials, setSocials] = useState("");
   const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (editingPlayerId) {
+      setLoading(true);
+      getPlayer(editingPlayerId).then(p => {
+        if (p) {
+          setPlayerName(p.name || "");
+          setCurrentTeam(p.club || "");
+          setPosition(p.tacticalRole || "");
+          setBirthDate(p.birthDate || "");
+          setPhone(p.phone || "");
+          setEmail(p.email || "");
+          setNationality(p.nationality || "");
+          setDorsal(p.dorsal || "");
+          setSocials(p.socials || "");
+          // Las notas iniciales se podrían mapear si se guardan como string en un campo específico
+        }
+        setLoading(false);
+      });
+    }
+  }, [editingPlayerId]);
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,11 +80,20 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
       email: email,
       dorsal: dorsal,
       socials: socials
-    });
+    }, editingPlayerId || undefined);
 
     toast({ title: t.talentId.success });
     onComplete();
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60">Cargando perfil del jugador...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
@@ -120,7 +151,6 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
                 </div>
               </div>
 
-              {/* Nuevos campos */}
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.phone}</Label>
                 <div className="relative">
@@ -167,15 +197,17 @@ export function TalentIdentification({ onComplete }: { onComplete: () => void })
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
-          <CardContent className="p-8 space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.notes}</Label>
-            </div>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-sm italic font-medium" placeholder="Describe brevemente el potencial observado..." />
-          </CardContent>
-        </Card>
+        {!editingPlayerId && (
+          <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+            <CardContent className="p-8 space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.talentId.notes}</Label>
+              </div>
+              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="min-h-[120px] bg-secondary/10 border-border/20 rounded-2xl p-4 text-sm italic font-medium" placeholder="Describe brevemente el potencial observado..." />
+            </CardContent>
+          </Card>
+        )}
 
         <Button type="submit" className="w-full h-16 bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.3em] rounded-3xl shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-all">
           <Save className="mr-3 h-5 w-5" /> {t.talentId.submit}

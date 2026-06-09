@@ -51,7 +51,7 @@ export const translations = {
     talentId: {
       title: 'FICHA DE TALENTOS',
       subtitle: 'Registra prospectos detalladamente en tu base de datos.',
-      success: 'Ficha de talento creada correctamente.',
+      success: 'Ficha de talento actualizada correctamente.',
       playerSection: 'DATOS PERSONALES Y PROFESIONALES',
       playerName: 'Nombre del Jugador',
       currentTeam: 'Equipo Actual',
@@ -63,7 +63,7 @@ export const translations = {
       dorsal: 'Dorsal',
       socials: 'Redes Sociales (IG / Twitter)',
       notes: 'Notas Iniciales de Captación',
-      submit: 'CREAR FICHA DE TALENTO',
+      submit: 'ACTUALIZAR FICHA DE TALENTO',
     },
     database: {
       titleScout: 'BD SCOUT',
@@ -79,6 +79,7 @@ export const translations = {
       noRecords: 'No se encontraron registros en esta categoría',
       birthYear: 'Año Nac.',
       actions: {
+        viewFicha: 'ACCEDER A FICHA',
         editReport: 'CREAR/EDITAR INFORME',
         createPdf: 'CREAR INFORME PDF',
         scheduleMeeting: 'Agendar Reunión',

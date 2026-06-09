@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, Download, Loader2, MoreVertical, FileText, 
-  Calendar, MapPin 
+  Calendar, MapPin, User
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { 
@@ -30,11 +30,12 @@ import { Input } from "@/components/ui/input";
 
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
+  onViewFicha: (id: string) => void;
   global?: boolean;
   mode?: 'analyzed' | 'pending' | 'all';
 }
 
-export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: GlobalDatabaseProps) {
+export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode = 'all' }: GlobalDatabaseProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -103,21 +104,6 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
 
   const getReportForPlayer = (playerId: string) => {
     return reports.find(r => r.playerId === playerId);
-  };
-
-  const calculateCompletion = (report: ScoutingReport | undefined): number => {
-    if (!report) return 0;
-    const criticalFields = [
-      report.summary,
-      report.rivalName,
-      report.competition,
-      report.matchDate,
-      report.overallDescription,
-      report.finalRecommendation,
-      report.finalScoutRating
-    ];
-    const filled = criticalFields.filter(f => f !== undefined && f !== null && f !== '' && f !== 0).length;
-    return Math.round((filled / criticalFields.length) * 100);
   };
 
   const generatePDF = (player: Player) => {
@@ -301,6 +287,11 @@ export function GlobalDatabase({ onEditPlayer, global = false, mode = 'all' }: G
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-64 bg-[#1b263b] border-border/40 shadow-2xl p-2 rounded-2xl">
+                            <DropdownMenuItem onClick={() => onViewFicha(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground">
+                              <User className="h-4 w-4 text-accent" />
+                              <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.viewFicha}</span>
+                            </DropdownMenuItem>
+
                             <DropdownMenuItem onClick={() => onEditPlayer(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-primary/10 text-foreground">
                               <FileText className="h-4 w-4 text-primary" />
                               <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.editReport}</span>
