@@ -219,7 +219,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setPlayerName(p.name); setClubName(p.club); setNationality(p.nationality); setMarketValue(p.marketValue);
           setBirthDate(p.birthDate || ""); setHeight(p.height || ""); setWeight(p.weight || "");
           setDominantFoot(p.dominantFoot || ""); setSecondaryPositions(p.secondaryPositions || "");
-          setPimScore(p.currentPIM || 0);
+          if (p.currentPIM) setPimScore(p.currentPIM);
           const role = TACTICAL_ROLES.find(r => r.id === p.tacticalRole);
           if (role) setActiveRole({ ...role, kpis: localizedKPIs });
         }
@@ -355,7 +355,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const handleCalculatePIM = async () => {
     setIsCalculatingPIM(true);
     try {
-      // Función de normalización: si el valor es 0 o undefined, se envía un 3 (valor normal) para no penalizar el PIM
       const normalize = (val: number | undefined) => (val && val > 0 ? val : 3);
 
       const getNormalizedMetricsArray = (list: string[]) => 
@@ -388,14 +387,25 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         language: 'es'
       };
 
-      console.log("PAYLOAD ENVIADO A LA IA (MODO NORMALIZADO):", JSON.stringify(payload, null, 2));
+      console.log("PAYLOAD ENVIADO A LA IA:", JSON.stringify(payload, null, 2));
       const result = await calculatePlayerImpactMetric(payload);
 
       if (result && result.playerImpactMetric !== undefined) {
-        const finalPim = Math.max(10, Math.min(100, Math.round(result.playerImpactMetric)));
-        setPimScore(finalPim);
+        let finalPim = result.playerImpactMetric;
+        
+        // Lógica de validación de cordura (Sanity Check)
+        const ratingValues = Object.values(ratings).filter(v => typeof v === 'number');
+        const avgRating = ratingValues.reduce((a, b) => a + b, 0) / (ratingValues.length || 1);
+
+        // Si la IA es demasiado optimista (promedio bajo pero PIM alto)
+        if (avgRating < 2 && finalPim > 40) {
+          finalPim = Math.round(avgRating * 15); // Forzamos una bajada drástica (max 30 si avg es 2)
+        }
+        
+        const validatedPim = Math.max(10, Math.min(100, Math.round(finalPim)));
+        setPimScore(validatedPim);
         handleNoteChange('pim_explanation', result.explanation);
-        toast({ title: "Motor IA Sincronizado", description: `Nueva métrica PIM calculada: ${finalPim}` });
+        toast({ title: "Análisis Finalizado", description: `Métrica PIM calculada: ${validatedPim}` });
       }
     } catch (e: any) {
       console.error("AI Error (PIM):", e);
@@ -617,7 +627,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 
                 <ChipGroup label={t.report.contextTab.gameStyle} options={['possession', 'counter', 'highPress', 'direct', 'defensive']} selected={matchStyle} onSelect={setMatchStyle} t={t} />
                 <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
-                <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
+                <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={teamDominance} onSelect={setTeamDominance} t={t} />
                 <ChipGroup label={t.report.contextTab.scoreAtObserving} options={['winning', 'drawing', 'losing']} selected={observingScore} onSelect={setObservingScore} t={t} />
                 <ChipGroup label={t.report.contextTab.importance} options={['low', 'medium', 'high', 'decisive']} selected={matchImportance} onSelect={setMatchImportance} t={t} />
                 <ChipGroup label={t.report.contextTab.weather} options={['sun', 'cloudy', 'rain', 'cold', 'wind']} selected={weather} onSelect={setWeather} t={t} icons={weatherIcons} />

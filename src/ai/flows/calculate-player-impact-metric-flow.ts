@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flujo de Genkit para calcular la Métrica de Impacto del Jugador (PIM).
- * Modo "Scout de Élite" enfocado en patrones de rendimiento y rangos profesionales.
+ * Modo "Scout de Élite" enfocado en patrones cualitativos de rendimiento.
  */
 
 import { ai } from '@/ai/genkit';
@@ -52,29 +52,30 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     schema: CalculatePlayerImpactMetricInputSchema
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
-  prompt: `Eres un motor lógico de scouting profesional con 20 años de experiencia en captación de élite. Tu misión es calcular el Player Impact Metric (PIM) de forma audaz y técnica.
+  prompt: `Eres un experto en scouting de fútbol profesional con 20 años de experiencia en captación de élite. Tu tarea es analizar las métricas proporcionadas y asignar un Player Impact Metric (PIM) de 0 a 100 basado en la calidad del rendimiento observado.
 
-DATOS RECIBIDOS:
+DATOS DEL JUGADOR:
 - Jugador: {{{playerName}}} ({{{tacticalRole}}})
 - Contexto: {{{minPlayed}}} min, Condición {{{physicalCondition}}}, Importancia {{{matchImportance}}}
 
-MÉTRICAS DETALLADAS (Escala 1-5):
+MÉTRICAS RECIBIDAS (Escala 1-5):
 Técnicas: {{#each technicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Tácticas: {{#each tacticalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Físicas: {{#each physicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Mentales: {{#each mentalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 
 REGLAS DE CÁLCULO ESTRICTAS:
-1. Eres un scout de élite. Tu objetivo es valorar el impacto real en el juego.
-2. Si los datos técnicos/tácticos recibidos están en la escala 1-5, no promedies simplemente. Busca el PATRÓN de rendimiento.
-3. Si el jugador tiene varios valores de 4 o 5, su PIM DEBE ser superior a 75.
-4. Si el jugador tiene valores de 3 predominantes, su PIM DEBE estar en el rango de 50-60.
-5. ÚNICAMENTE devuelve valores por debajo de 30 si las métricas son consistentemente 1 o 2.
-6. SIEMPRE devuelve un número entre 10 y 100. NUNCA devuelvas 0 ni 1.
+1. ANÁLISIS CUALITATIVO: Analiza los patrones de puntuación (1-5) para determinar el impacto real. Ignora la aritmética simple.
+2. ESCALA DE VALORACIÓN:
+   - Si las métricas (1-5) son mayoritariamente 1 o 2: El PIM DEBE ser inferior a 30. Es un rendimiento insuficiente.
+   - Si las métricas son mayoritariamente 3: El PIM DEBE estar en el rango de 40 a 60. Es un rendimiento sólido/estándar.
+   - Si las métricas son mayoritariamente 4 o 5: El PIM DEBE ser superior a 70. Es un rendimiento de impacto alto o élite.
+3. CÁLCULO DIRECTO: Si los datos son extremos (ej: todo 1 o todo 5), la puntuación debe reflejarlo drásticamente. Un jugador con todo "1" no puede tener un PIM de 50.
+4. RANGO: Devuelve siempre un número entero entre 10 y 100. NUNCA devuelvas 0 ni 1.
 
 RESPUESTA JSON ESTRICTA:
-- Devuelve siempre un objeto JSON válido con las claves "playerImpactMetric" (número) y "explanation" (string).
-- No añadas texto explicativo fuera del JSON.`,
+- Devuelve EXCLUSIVAMENTE un objeto JSON válido con las claves "playerImpactMetric" (número entero) y "explanation" (string).
+- No añadas texto explicativo fuera del bloque JSON.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
@@ -94,17 +95,17 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
                       text.match(/playerImpactMetric[:\s]+(\d+)/) ||
                       text.match(/(\d+)/); 
     
-    const score = scoreMatch ? parseInt(scoreMatch[1]) : 50; // 50 como fallback neutro si todo falla
+    const score = scoreMatch ? parseInt(scoreMatch[1]) : 50;
     
     return {
       playerImpactMetric: Math.max(10, Math.min(100, Math.round(score))),
-      explanation: text.substring(0, 500) || "Cálculo realizado mediante análisis de patrón de rendimiento (Modo Scout Pro)."
+      explanation: text.substring(0, 500) || "Cálculo realizado mediante análisis de patrón de rendimiento cualitativo."
     };
   } catch (error) {
     console.error("PIM Flow Error:", error);
     return {
       playerImpactMetric: 50,
-      explanation: "Error en el motor de cálculo. Se asigna puntuación base profesional media."
+      explanation: "Error en el motor de análisis. Se asigna valoración estándar."
     };
   }
 }
