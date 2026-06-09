@@ -80,7 +80,7 @@ export const translations = {
       birthYear: 'Año Nac.',
       actions: {
         viewFicha: 'ACCEDER A FICHA',
-        editReport: 'CREAR/EDITAR INFORME',
+        editReport: 'EDITAR INFORME',
         createReport: 'CREAR INFORME',
         createPdf: 'CREAR INFORME PDF',
         scheduleMeeting: 'Agendar Reunión',
@@ -123,7 +123,7 @@ export const translations = {
         player: 'Jugador Objetivo',
         submit: 'AGENDAR CITA',
         cancel: 'CANCELAR',
-        success: 'Partido agendado correctamente'
+        success: 'Partido agendada correctamente'
       }
     },
     matchAnalysis: {
