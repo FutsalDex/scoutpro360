@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -355,6 +356,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const handleCalculatePIM = async () => {
     setIsCalculatingPIM(true);
     try {
+      console.clear();
+      
       const getMetricsArray = (list: string[]) => 
         list
           .filter(name => (ratings[name] || 0) > 0)
@@ -387,7 +390,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         language: 'es'
       };
 
-      // Logs de depuración solicitados
       console.log("RATINGS ACTUALES:", JSON.stringify(ratings, null, 2));
       console.log("PAYLOAD TÉCNICO:", JSON.stringify(payload.technicalMetrics, null, 2));
       console.log("PAYLOAD TÁCTICO:", JSON.stringify(payload.tacticalMetrics, null, 2));
@@ -405,9 +407,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           ? ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length 
           : 0;
 
-        // Si la IA es demasiado optimista (promedio bajo pero PIM alto)
         if (avgRating > 0 && avgRating < 2 && finalPim > 40) {
-          finalPim = Math.round(avgRating * 15); // Forzamos una bajada drástica (max 30 si avg es 2)
+          finalPim = Math.round(avgRating * 15);
         }
         
         const validatedPim = Math.max(0, Math.min(100, Math.round(finalPim)));
@@ -864,3 +865,4 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     </div>
   );
 }
+
