@@ -28,6 +28,35 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [selectedRole, setSelectedRole] = useState<UserRole>('analista');
   const { toast } = useToast();
 
+  const getAuthErrorMessage = (code: string) => {
+    switch (code) {
+      case 'auth/invalid-email':
+        return "El formato del correo electrónico no es válido.";
+      case 'auth/user-disabled':
+        return "Esta cuenta ha sido desactivada por el administrador.";
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return "Correo electrónico o contraseña incorrectos.";
+      case 'auth/email-already-in-use':
+        return "Este correo electrónico ya está registrado en otra cuenta.";
+      case 'auth/weak-password':
+        return "La contraseña es demasiado débil (mínimo 6 caracteres).";
+      case 'auth/popup-closed-by-user':
+        return "Se cerró la ventana de acceso antes de completar el proceso.";
+      case 'auth/operation-not-allowed':
+        return "Este método de acceso no está habilitado actualmente.";
+      case 'auth/network-request-failed':
+        return "Error de red. Por favor, verifica tu conexión a internet.";
+      case 'auth/too-many-requests':
+        return "Demasiados intentos fallidos. El acceso se ha bloqueado temporalmente por seguridad.";
+      case 'auth/internal-error':
+        return "Error interno del servidor. Inténtalo de nuevo en unos minutos.";
+      default:
+        return "No se pudo completar la operación. Por favor, verifica tus datos o inténtalo más tarde.";
+    }
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -36,7 +65,6 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // Crear perfil inmediatamente con el rol seleccionado (usando las claves en español para las reglas)
         await getOrCreateUserProfile(userCredential.user.uid, email, false, selectedRole);
       }
       toast({ title: isLogin ? "Acceso concedido" : "Cuenta creada", description: "Bienvenido a ScoutPro 360." });
@@ -45,7 +73,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       toast({
         variant: "destructive",
         title: "Error de autenticación",
-        description: error.code === 'auth/invalid-credential' ? "Credenciales incorrectas." : error.message,
+        description: getAuthErrorMessage(error.code),
       });
     } finally {
       setLoading(false);
@@ -63,7 +91,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       toast({
         variant: "destructive",
         title: "Error con Google",
-        description: error.message,
+        description: getAuthErrorMessage(error.code),
       });
     } finally {
       setLoading(false);
@@ -81,7 +109,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       toast({
         variant: "destructive",
         title: "Error con Apple",
-        description: "Asegúrate de tener configurado el Service ID en Firebase Console.",
+        description: getAuthErrorMessage(error.code),
       });
     } finally {
       setLoading(false);
