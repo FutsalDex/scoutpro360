@@ -58,30 +58,27 @@ DATOS RECIBIDOS:
 - Jugador: {{{playerName}}} ({{{tacticalRole}}})
 - Contexto: {{{minPlayed}}} min, Condición {{{physicalCondition}}}, Ritmo {{{matchTempo}}}
 
-MÉTRICAS DETALLADAS (Escala 1-5):
+MÉTRICAS DETALLADAS (Escala 1-5, donde 0 es "no evaluado"):
 Técnicas: {{#each technicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Tácticas: {{#each tacticalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Físicas: {{#each physicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Mentales: {{#each mentalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 
-PERFIL GENERAL (Peso 15%):
-Técnico: {{{generalProfile.technicalLevel}}}, Táctico: {{{generalProfile.tacticalIntelligence}}}, Físico: {{{generalProfile.physicalQuality}}}, Mental: {{{generalProfile.mentalStrength}}}, Potencial: {{{generalProfile.potential}}}
-
 REGLAS DE CÁLCULO ESTRICTAS:
-1. Calcula el promedio de cada categoría (Suma / (Num métricas * 5) * 100).
-2. Aplica pesos por posición:
+1. Solo considera para el promedio las métricas que tengan un valor mayor a 0.
+2. Si una categoría completa (técnica, táctica, física o mental) está vacía (todos sus valores son 0), no la penalices con 0; asígnale un valor base de 3 (nivel medio) para esa categoría antes de aplicar pesos.
+3. Aplica pesos por posición sobre los promedios calculados:
    - Porteros/Defensas: Táctico 35%, Mental 25%, Técnico 20%, Físico 20%.
    - Mediocentros: Táctico 30%, Técnico 30%, Mental 20%, Físico 20%.
    - Atacantes: Técnico 35%, Táctico 20%, Físico 25%, Mental 20%.
-3. Modificadores:
-   - Si minPlayed < 60: -5 puntos.
-   - Si matchImportance es "high" y rendimiento > 4: +4 puntos.
-4. SIEMPRE devuelve un número entre 1 y 100. NUNCA devuelvas 0 aunque los datos parezcan incompletos. Si no hay datos detallados, usa el Perfil General.
+4. Modificadores:
+   - Si minPlayed < 60: -5 puntos al total.
+   - Si matchImportance es "high" o "decisive" y el rendimiento medio es > 4: +4 puntos.
+5. SIEMPRE devuelve un número entero entre 1 y 100. NUNCA devuelvas 0. Si el cálculo final es menor a 1, devuelve 1.
 
 REGLAS DE FORMATO:
 - Debes responder EXCLUSIVAMENTE con un JSON válido.
-- No añadas texto explicativo antes ni después del bloque JSON.
-- Si el cálculo es menor a 1, devuelve 1. Si es mayor a 100, devuelve 100.`,
+- No añadas texto explicativo antes ni después del bloque JSON.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
