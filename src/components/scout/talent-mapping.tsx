@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useEffect, useState } from 'react';
@@ -11,9 +10,6 @@ import { Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
-/**
- * Coordenadas técnicas calibradas para el mapamundi profesional (viewBox="0 0 1000 500")
- */
 const COUNTRY_COORDS: Record<string, { x: number, y: number }> = {
   "España": { x: 485, y: 165 },
   "Argentina": { x: 315, y: 430 },
@@ -72,13 +68,11 @@ export function TalentMapping() {
   const statsByCountry = players.reduce((acc, player) => {
     const country = player.nationality || 'Unknown';
     if (!acc[country]) {
-      acc[country] = { count: 0, avgPim: 0, totalPim: 0 };
+      acc[country] = { count: 0 };
     }
     acc[country].count += 1;
-    acc[country].totalPim += player.currentPIM || 0;
-    acc[country].avgPim = Math.round(acc[country].totalPim / acc[country].count);
     return acc;
-  }, {} as Record<string, { count: number, avgPim: number, totalPim: number }>);
+  }, {} as Record<string, { count: number }>);
 
   if (loading) {
     return (
@@ -118,39 +112,29 @@ export function TalentMapping() {
         </CardHeader>
         
         <CardContent className="p-0 h-[calc(100%-80px)] relative">
-          {/* Tactical Grid Background */}
           <div className="absolute inset-0 grid grid-cols-[repeat(40,minmax(0,1fr))] grid-rows-[repeat(25,minmax(0,1fr))] opacity-[0.05]">
             {[...Array(1000)].map((_, i) => (
               <div key={i} className="border-[0.5px] border-white/10" />
             ))}
           </div>
 
-          {/* Radar Scan Effect */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
              <div className="w-[300%] h-[300%] absolute -top-full -left-full bg-[conic-gradient(from_0deg,transparent_0deg,var(--primary)_5deg,transparent_20deg)] opacity-[0.03] animate-[spin_10s_linear_infinite]" />
           </div>
 
           <div className="relative h-full w-full flex items-center justify-center p-4 sm:p-12">
              <div className="w-full h-full max-w-[1400px] aspect-[2/1] relative">
-                {/* World Map SVG Realista con Divisiones Nacionales */}
                 <svg viewBox="0 0 1000 500" className="w-full h-full fill-white/[0.04] stroke-white/20 stroke-[0.3] drop-shadow-[0_0_50px_rgba(0,0,0,0.7)]">
                    <g>
-                     {/* El trazado simula la geografía real con fronteras del mapa proporcionado */}
-                     <path d="M150,50 L250,45 L320,60 L330,120 L310,180 L280,240 L230,260 L180,250 L140,220 L100,150 L110,80 Z" /> {/* North America */}
-                     <path d="M280,300 L360,295 L410,320 L430,380 L420,470 L360,490 L300,480 L270,380 Z" /> {/* South America */}
-                     <path d="M460,120 L510,100 L560,110 L590,140 L580,190 L530,210 L490,200 L455,150 Z" /> {/* Europe */}
-                     <path d="M460,220 L530,210 L590,220 L630,260 L650,350 L620,440 L570,480 L510,470 L450,380 L430,300 Z" /> {/* Africa */}
-                     <path d="M590,100 L720,70 L870,85 L960,110 L980,200 L960,300 L870,380 L760,400 L660,350 L600,200 Z" /> {/* Asia */}
-                     <path d="M830,410 L930,405 L960,440 L940,490 L860,495 L810,450 Z" /> {/* Oceania */}
-                     {/* Fronteras Internas Esquematizadas */}
-                     <line x1="210" y1="170" x2="280" y2="170" strokeOpacity="0.3" />
-                     <line x1="310" y1="360" x2="380" y2="360" strokeOpacity="0.3" />
-                     <line x1="480" y1="160" x2="520" y2="160" strokeOpacity="0.3" />
-                     <line x1="500" y1="280" x2="600" y2="280" strokeOpacity="0.3" />
+                     <path d="M150,50 L250,45 L320,60 L330,120 L310,180 L280,240 L230,260 L180,250 L140,220 L100,150 L110,80 Z" />
+                     <path d="M280,300 L360,295 L410,320 L430,380 L420,470 L360,490 L300,480 L270,380 Z" />
+                     <path d="M460,120 L510,100 L560,110 L590,140 L580,190 L530,210 L490,200 L455,150 Z" />
+                     <path d="M460,220 L530,210 L590,220 L630,260 L650,350 L620,440 L570,480 L510,470 L450,380 L430,300 Z" />
+                     <path d="M590,100 L720,70 L870,85 L960,110 L980,200 L960,300 L870,380 L760,400 L660,350 L600,200 Z" />
+                     <path d="M830,410 L930,405 L960,440 L940,490 L860,495 L810,450 Z" />
                    </g>
                 </svg>
 
-                {/* Nodos de Talento Sincronizados */}
                 {Object.entries(statsByCountry).map(([name, stat]) => {
                   const pos = COUNTRY_COORDS[name];
                   if (!pos) return null;
@@ -165,26 +149,16 @@ export function TalentMapping() {
                       }}
                     >
                       <div className="relative -translate-x-1/2 -translate-y-1/2">
-                        {/* Halo Glow Pulsante */}
                         <div className="h-12 w-12 bg-primary/20 rounded-full absolute -inset-4 animate-ping opacity-30" />
-                        
-                        {/* Marcador Táctico Precision */}
                         <div className="h-5 w-5 bg-primary rounded-full border-2 border-white shadow-[0_0_25px_hsl(var(--primary))] transition-all group-hover:scale-125 cursor-pointer flex items-center justify-center">
                            <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                         </div>
-                        
-                        {/* Tooltip de Inteligencia Pro */}
                         <div className="absolute top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#1b263b] px-6 py-5 rounded-2xl border-2 border-primary/30 opacity-0 group-hover:opacity-100 transition-all z-30 pointer-events-none scale-95 group-hover:scale-100 shadow-[0_30px_60px_rgba(0,0,0,0.9)]">
                           <p className="text-[12px] font-black uppercase text-primary tracking-[0.2em]">{name}</p>
                           <div className="flex items-center gap-8 mt-4">
                             <div className="text-center">
                               <p className="text-[9px] text-muted-foreground uppercase font-black">Activos</p>
                               <p className="text-lg font-black text-white">{stat.count}</p>
-                            </div>
-                            <div className="h-10 w-[1px] bg-white/10" />
-                            <div className="text-center">
-                              <p className="text-[9px] text-muted-foreground uppercase font-black">PIM Medio</p>
-                              <p className="text-lg font-black text-accent">{stat.avgPim}%</p>
                             </div>
                           </div>
                         </div>
@@ -195,7 +169,6 @@ export function TalentMapping() {
              </div>
           </div>
 
-          {/* Leyenda de Centro de Mando */}
           <div className="absolute bottom-10 left-10 flex items-center gap-8 bg-black/60 p-6 rounded-[2rem] border border-white/10 backdrop-blur-2xl shadow-2xl z-20">
              <div className="flex items-center gap-4">
                <div className="h-3 w-3 rounded-full bg-primary animate-pulse" />

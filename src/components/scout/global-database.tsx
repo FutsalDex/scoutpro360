@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, Download, Loader2, MoreVertical, FileText, 
-  Calendar, Users, Clock, MapPin, FileDown, AlertCircle, Info 
+  Calendar, Info 
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { 
@@ -24,14 +24,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -57,16 +49,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-
-  // Modal State
-  const [schedulingPlayer, setSchedulingPlayer] = useState<Player | null>(null);
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-  const [matchData, setMatchData] = useState({
-    rival: '',
-    date: '',
-    time: '',
-    venue: ''
-  });
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
@@ -128,7 +110,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
     if (!report) return 0;
     
     const criticalFields = [
-      report.pimScore,
       report.summary,
       report.rivalName,
       report.competition,
@@ -188,8 +169,7 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
         [t.report.playerInfo.club, player.club.toUpperCase()],
         [t.report.playerInfo.nationality, player.nationality || 'N/A'],
         [t.report.playerInfo.primaryPos, player.tacticalRole.toUpperCase()],
-        [t.report.playerInfo.birthDate, player.birthDate || 'N/A'],
-        ["PIM IMPACT SCORE", `${Math.round(report.pimScore || 0)}`]
+        [t.report.playerInfo.birthDate, player.birthDate || 'N/A']
       ],
       theme: 'grid',
       headStyles: { fillColor: primaryColor, textColor: navyColor },
@@ -212,7 +192,7 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
       styles: { fontSize: 9 }
     });
 
-    // AI Summary
+    // AI Summary (Now Manual Summary)
     doc.setFillColor(245, 245, 245);
     doc.rect(14, doc.lastAutoTable.finalY + 10, 182, 30, 'F');
     doc.setTextColor(...navyColor);
@@ -238,7 +218,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
       styles: { fontSize: 9 }
     });
 
-    // Footer
     const pageCount = doc.internal.getNumberOfPages();
     for(let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -255,35 +234,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
     analizado: "bg-primary/20 text-primary border-primary/30",
     agendado: "bg-accent/20 text-accent border-accent/30",
     detectado: "bg-muted-foreground/20 text-muted-foreground border-muted-foreground/30"
-  };
-
-  const handleScheduleMatch = (player: Player) => {
-    setSchedulingPlayer(player);
-    setIsScheduleModalOpen(true);
-  };
-
-  const submitSchedule = () => {
-    if (!userId || !schedulingPlayer) return;
-    if (!matchData.date) {
-      toast({ variant: "destructive", title: "Error", description: "La fecha es obligatoria para programar el partido." });
-      return;
-    }
-
-    const dateTimeValue = matchData.time ? `${matchData.date}T${matchData.time}` : matchData.date;
-    
-    saveScheduledMatch({
-      playerId: schedulingPlayer.id,
-      homeTeam: schedulingPlayer.club || "TBD",
-      awayTeam: matchData.rival || "Opponent",
-      category: matchData.venue || "Pro",
-      dateTime: dateTimeValue,
-      scoutId: userId,
-      status: 'scheduled'
-    });
-
-    toast({ title: t.database.actions.matchSuccess });
-    setIsScheduleModalOpen(false);
-    setMatchData({ rival: '', date: '', time: '', venue: '' });
   };
 
   if (loading) {
@@ -357,10 +307,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
                     </div>
                     
                     <div className="flex items-center gap-4 sm:gap-10">
-                      <div className="text-right hidden sm:block">
-                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-black">PIM</p>
-                        <p className="text-xl font-black text-accent">{Math.round(player.currentPIM || 0)}</p>
-                      </div>
                       <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center font-black text-primary border border-primary/30 shadow-sm hidden sm:flex">
                         {player.grade || 'C'}
                       </div>
@@ -408,7 +354,20 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
                             </Tooltip>
                           </TooltipProvider>
 
-                          <DropdownMenuItem onClick={() => handleScheduleMatch(player)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground transition-all">
+                          <DropdownMenuItem onClick={() => {
+                            // Reutilizamos el handleScheduleMatch del componente original
+                            const newMatch: Omit<ScheduledMatch, 'id'> = {
+                              playerId: player.id,
+                              homeTeam: player.club || "TBD",
+                              awayTeam: "Opponent",
+                              category: "Pro",
+                              dateTime: new Date().toISOString(),
+                              scoutId: userId || "",
+                              status: 'scheduled'
+                            };
+                            saveScheduledMatch(newMatch);
+                            toast({ title: t.database.actions.matchSuccess });
+                          }} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground transition-all">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.scheduleMatch}</span>
                           </DropdownMenuItem>
@@ -422,7 +381,6 @@ export function GlobalDatabase({ onEditPlayer, global = false }: GlobalDatabaseP
           )}
         </CardContent>
       </Card>
-      {/* ... Diálogo de agenda igual ... */}
     </div>
   );
 }

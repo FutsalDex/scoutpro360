@@ -25,7 +25,6 @@ export function savePlayer(playerData: Omit<Player, 'id'>, id?: string): string 
     throw new Error("CRITICAL: scoutId is required to save a player.");
   }
 
-  // Requerimiento: Al registrar un talento, el ID del documento debe ser su nombre completo.
   const finalId = id || playerData.name.trim();
   const docRef = doc(db, "players", finalId);
   const isUpdate = !!id;

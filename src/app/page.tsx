@@ -7,13 +7,11 @@ import { ReportForm } from '@/components/scout/report-form';
 import { MatchAnalysis } from '@/components/scout/match-analysis';
 import { GlobalDatabase } from '@/components/scout/global-database';
 import { AgendaView } from '@/components/scout/agenda-view';
-import { AnalyticsHub } from '@/components/scout/analytics-hub';
-import { PIMBenchmarking } from '@/components/scout/pim-benchmarking';
 import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, LineChart, Globe } from "lucide-react";
+import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -24,7 +22,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'my-talents' | 'global-database' | 'agenda' | 'analytics' | 'benchmarking' | 'profile' | 'admin';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'my-talents' | 'global-database' | 'agenda' | 'profile' | 'admin';
 
 function AppShell({ 
   activeView, 
@@ -76,8 +74,6 @@ function AppShell({
       case 'my-talents': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={false} />;
       case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} global={true} />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} />;
-      case 'analytics': return <AnalyticsHub />;
-      case 'benchmarking': return <PIMBenchmarking />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
       default: return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
@@ -93,8 +89,6 @@ function AppShell({
       case 'my-talents': return t.sidebar.myTalents;
       case 'global-database': return t.sidebar.globalDatabase;
       case 'agenda': return t.sidebar.agenda;
-      case 'analytics': return t.sidebar.analytics;
-      case 'benchmarking': return t.sidebar.pimBenchmarking;
       case 'profile': return t.sidebar.personalProfile;
       case 'admin': return t.sidebar.adminPanel;
       default: return '';
@@ -243,28 +237,6 @@ function AppShell({
                   >
                     <Globe className="h-5 w-5 text-primary" />
                     <span className="font-medium">{t.sidebar.globalDatabase}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={activeView === 'analytics'}
-                    onClick={() => handleNavClick('analytics')}
-                    disabled={needsProfileCompletion}
-                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
-                  >
-                    <LineChart className="h-5 w-5" />
-                    <span className="font-medium">{t.sidebar.analytics}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={activeView === 'benchmarking'}
-                    onClick={() => handleNavClick('benchmarking')}
-                    disabled={needsProfileCompletion}
-                    className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
-                  >
-                    <ShieldCheck className="h-5 w-5" />
-                    <span className="font-medium">{t.sidebar.pimBenchmarking}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

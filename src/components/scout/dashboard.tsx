@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, ShieldCheck, ClipboardCheck, TrendingUp, ChevronRight, MapPin, Star, Binoculars } from "lucide-react";
+import { User, ShieldCheck, ClipboardCheck, ChevronRight, MapPin, Star, Binoculars } from "lucide-react";
 import { Player, ScoutingReport } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers, subscribeToReports, subscribeToGlobalPlayers, subscribeToGlobalReports } from "@/lib/services/db-service";
@@ -40,7 +40,6 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   useEffect(() => {
     if (!authReady || !scoutId) return;
 
-    // Directivos ven todo el club, Scouts ven solo su patrimonio
     const unsubPlayers = isManagement 
       ? subscribeToGlobalPlayers(setPlayers)
       : subscribeToPlayers(scoutId, setPlayers);
@@ -67,17 +66,11 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
     );
   }
 
-  // Lógica de Métricas de Captación
   const totalInDb = players.length;
   const analyzedCount = players.filter(p => reports.some(r => r.playerId === p.id)).length;
   const identifiedOnly = Math.max(0, totalInDb - analyzedCount);
   const totalReports = reports.length;
   
-  const evaluatedPlayers = players.filter(p => (p.currentPIM || 0) > 0);
-  const avgPim = evaluatedPlayers.length > 0 
-    ? Math.round(evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length)
-    : 0;
-
   const recentPlayers = [...players]
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
     .slice(0, 5);
@@ -93,12 +86,11 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
         <p className="text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title={t.dashboard.stats.detected} value={totalInDb.toString()} icon={<User className="text-primary" />} />
         <StatCard title={t.dashboard.stats.identified} value={identifiedOnly.toString()} icon={<Binoculars className="text-accent" />} />
         <StatCard title={t.dashboard.stats.analyzed} value={analyzedCount.toString()} icon={<ShieldCheck className="text-primary" />} />
         <StatCard title={t.dashboard.stats.reports} value={totalReports.toString()} icon={<ClipboardCheck className="text-accent" />} />
-        <StatCard title={t.dashboard.stats.avgPim} value={avgPim.toString()} icon={<TrendingUp className="text-primary" />} />
       </div>
 
       <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
@@ -125,10 +117,6 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <p className="text-[9px] font-black text-muted-foreground uppercase">PIM</p>
-                      <p className="text-xl font-black text-accent">{Math.round(player.currentPIM || 0)}</p>
-                    </div>
                     <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                       <ChevronRight className="h-5 w-5" />
                     </div>
@@ -145,7 +133,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   );
 }
 
-function StatCard({ title, value, icon, suffix = "" }: { title: string, value: string, icon: any, suffix?: string }) {
+function StatCard({ title, value, icon }: { title: string, value: string, icon: any }) {
   return (
     <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] p-6 hover:scale-[1.03] transition-all cursor-default group shadow-xl">
       <div className="flex justify-between items-start mb-4">
@@ -154,7 +142,6 @@ function StatCard({ title, value, icon, suffix = "" }: { title: string, value: s
       </div>
       <div className="flex items-baseline gap-1">
         <p className="text-5xl font-black font-headline tracking-tighter">{value}</p>
-        {suffix && <span className="text-xl font-black text-primary/60">{suffix}</span>}
       </div>
     </Card>
   );

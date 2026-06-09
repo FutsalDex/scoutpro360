@@ -40,7 +40,6 @@ export interface Player {
   club: string;
   nationality: string;
   marketValue: string;
-  currentPIM: number;
   tacticalRole: string;
   grade: Grade;
   scoutId: string; // Mandatory
@@ -92,7 +91,6 @@ export interface ScoutingReport {
   playerName: string;
   scoutId: string; // Mandatory
   scoutName: string;
-  pimScore: number;
   summary: string;
   ratings: Record<string, number>;
   notes: Record<string, string>;

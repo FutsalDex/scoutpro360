@@ -1,4 +1,3 @@
-
 export const translations = {
   es: {
     sidebar: {
@@ -10,9 +9,7 @@ export const translations = {
       myTalents: 'Mis Talentos',
       globalDatabase: 'Base de Datos Global',
       agenda: 'Agenda Scouting',
-      analytics: 'Analítica',
       clubIntelligence: 'Inteligencia de Club',
-      pimBenchmarking: 'Benchmarking PIM',
       personalProfile: 'Perfil Personal',
       signOut: 'Cerrar Sesión',
       adminPanel: 'Panel Admin',
@@ -41,7 +38,6 @@ export const translations = {
         identified: 'Talento Identificado',
         analyzed: 'Jugadores Analizados',
         reports: 'Informes Generados',
-        avgPim: 'Media de Impacto PIM',
         syncing: 'Sincronizando Nodos...',
       },
       recentProspects: {
@@ -85,16 +81,6 @@ export const translations = {
         pdfSuccess: 'PDF generado correctamente',
         pdfRequirement: 'Para generar el PDF, el informe debe estar completado al menos al 75%.',
       },
-      scheduleModal: {
-        title: 'Programar Evento',
-        matchDetails: 'Detalles del Evento',
-        opponent: 'Oponente / Asunto',
-        date: 'Fecha',
-        time: 'Hora',
-        venue: 'Lugar / Categoría',
-        cancel: 'Cancelar',
-        confirm: 'Agendar Evento'
-      },
       status: {
         title: 'Estado',
         analizado: 'Analizado',
@@ -107,7 +93,6 @@ export const translations = {
         age: 'Edad',
         clubNat: 'Club / Nac',
         value: 'Valor',
-        pim: 'PIM',
         grade: 'Grado',
         status: 'Estado'
       }
@@ -119,42 +104,17 @@ export const translations = {
       startScouting: 'Iniciar Informe',
       matchDetails: 'Detalles del Partido',
     },
-    analytics: {
-      title: 'Centro de Analítica',
-      subtitle: 'Inteligencia estratégica y modelado de rendimiento.',
-      index: 'Índice PIM Global',
-      historical: 'Tendencias Históricas PIM',
-      historicalDesc: 'Trayectoria PIM Promedio vs. Talento Top (Últimos 6 meses)',
-      matrix: 'Matriz de Productividad Scout',
-      matrixDesc: 'Matriz de productividad scout.',
-      reportsGen: 'Informes Generados',
-      avgTargetPim: 'PIM Objetivo Promedio',
-      decisionSpeed: 'Velocidad de Decisión',
-      roas: 'ROAS de Reclutamiento',
-      marketValue: 'Crecimiento de Valor de Mercado'
-    },
-    benchmarking: {
-      title: 'Benchmarking PIM',
-      subtitle: 'Análisis comparativo entre prospectos identificados y referentes de la plantilla.',
-      new: 'Nueva Comparación',
-      vs: 'VS',
-      tactical: 'Inteligencia Táctica',
-      technical: 'Ejecución Técnica',
-      physical: 'Presencia Física',
-      mental: 'Resiliencia Mental',
-      fit: 'Ajuste de Reclutamiento',
-      delta: 'Delta PIM',
-      territory: 'Territorio de Prospecto Élite',
-      upside: 'Potencial de Mercado',
-      projected: 'Valor Proyectado (2 años)',
-      compatibility: 'Compatibilidad',
-      squadProfile: 'Encaja en el perfil del equipo'
-    },
     matchAnalysis: {
       title: 'Laboratorio de Análisis Táctico',
       subtitle: 'Patrones colectivos y lectura de juego situacional.',
       comingSoon: 'PRÓXIMAMENTE',
       comingSoonDesc: 'Módulo actualmente en mantenimiento o preparación para el próximo despliegue.',
+    },
+    mapping: {
+      title: 'MAPEADO DE TALENTO',
+      subtitle: 'Distribución geográfica de la red de captación.',
+      globalFeed: 'RED SINCRONIZADA',
+      hotspotsTitle: 'HOTSPOTS DE RENDIMIENTO',
     },
     report: {
       title: 'Informe de Observación de Partido',
@@ -166,8 +126,6 @@ export const translations = {
       pdfMatchContext: 'CONTEXTO DEL PARTIDO',
       pdfTacticalPosition: 'POSICIÓN TÁCTICA (CAMPO PROFESIONAL)',
       pdfKeyActions: 'REGISTRO DE ACCIONES CLAVE',
-      pdfAiConclusions: 'CONCLUSIONES Y ANÁLISIS IA',
-      pdfPimEstimated: 'IMPACTO PIM ESTIMADO',
       pitch: {
         title: 'POSICIONAMIENTO TÁCTICO',
       },
@@ -180,7 +138,6 @@ export const translations = {
         mental: 'MENTAL',
         actions: 'ACCIONES',
         evaluation: 'EVALUACIÓN',
-        analytics: 'ANÁLISIS IA',
       },
       evaluationTab: {
         strengthsTitle: 'FORTALEZAS Y ÁREAS DE MEJORA',
@@ -271,7 +228,6 @@ export const translations = {
         bodyLanguage: 'LENGUAJE CORPORAL',
         matchRole: 'ROL TÁCTICO DEL JUGADOR EN ESTE PARTIDO',
         matchRolePlaceholder: 'Describe el rol táctico asignado al jugador...',
-        // Opciones de chips traducidas
         possession: 'Posesión',
         counter: 'Contragolpe',
         highPress: 'Presión alta',
@@ -358,14 +314,9 @@ export const translations = {
         previous: 'Anterior',
         save: 'GUARDAR INFORME',
       },
-      pim: {
-        title: 'MÉTRICA DE IMPACTO DEL JUGADOR (PIM)',
-        calculate: 'Calcular Puntuación PIM',
-      },
       summary: {
         title: 'RESUMEN EJECUTIVO',
-        placeholder: 'Generar resumen...',
-        generate: 'GENERAR RESUMEN IA',
+        placeholder: 'Escribe el resumen del informe...',
       },
       tacticalRoles: {
         'po': 'PO – Portero',
@@ -387,36 +338,31 @@ export const translations = {
       action: 'Completar Perfil',
       caps: {
         liveReports: 'INFORMES EN VIVO',
-        liveReportsDesc: 'Creación de informes 360 con métricas IA y registro táctico.',
+        liveReportsDesc: 'Creación de informes 360 con registro táctico.',
         myTalents: 'BASE DE DATOS DE MIS TALENTOS',
         myTalentsDesc: 'Acceso personal a tus prospectos identificados.',
         agenda: 'AGENDA SCOUTING',
         agendaDesc: 'Gestión y planificación de observaciones de partidos.',
         globalDb: 'BASE DE DATOS GLOBAL',
         globalDbDesc: 'Acceso completo al repositorio de 15,000+ prospectos internacionales.',
-        analytics: 'ANALYTICS & BENCHMARKING',
-        analyticsDesc: 'Modelado estratégico y comparación de prospectos contra plantilla.',
       }
     }
   },
-  // Mantenemos la clave en para no romper tipos pero con contenido español
   en: {
     sidebar: {
-      operations: 'Operaciones',
-      commandCenter: 'Centro de Mando',
-      talentId: 'Identificación de Talento',
-      liveReport: 'Informe Jugador',
-      matchAnalysis: 'Análisis de Partido',
-      myTalents: 'Mis Talentos',
-      globalDatabase: 'Base de Datos Global',
-      agenda: 'Agenda Scouting',
-      analytics: 'Analítica',
-      clubIntelligence: 'Inteligencia de Club',
-      pimBenchmarking: 'Benchmarking PIM',
-      personalProfile: 'Perfil Personal',
-      signOut: 'Cerrar Sesión',
-      adminPanel: 'Panel Admin',
-      administration: 'Administración',
+      operations: 'Operations',
+      commandCenter: 'Command Center',
+      talentId: 'Talent Identification',
+      liveReport: 'Player Report',
+      matchAnalysis: 'Match Analysis',
+      myTalents: 'My Talents',
+      globalDatabase: 'Global Database',
+      agenda: 'Scouting Agenda',
+      clubIntelligence: 'Club Intelligence',
+      personalProfile: 'Personal Profile',
+      signOut: 'Sign Out',
+      adminPanel: 'Admin Panel',
+      administration: 'Administration',
     }
   }
 };

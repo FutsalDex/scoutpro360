@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -12,9 +11,8 @@ import { Button } from "@/components/ui/button";
 import { TacticalCanvas } from "./tactical-canvas";
 import { 
   FileText, ChevronRight, Activity, User, Target, Shield, 
-  Zap as ZapIcon, Save, Star, Loader2, Brain, Sparkles, 
-  Sun, Cloud, CloudRain, Thermometer, Wind, LayoutGrid, ClipboardCheck, Plus, Trash2,
-  CheckCircle2, AlertTriangle, Info, Calendar as CalendarIcon
+  Save, Star, LayoutGrid, ClipboardCheck, Plus, Trash2,
+  CheckCircle2, AlertTriangle, Sun, Cloud, CloudRain, Thermometer, Wind
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -23,8 +21,6 @@ import { cn } from "@/lib/utils";
 import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
-import { calculatePlayerImpactMetric, type CalculatePlayerImpactMetricInput } from "@/ai/flows/calculate-player-impact-metric-flow";
-import { generateExecutiveSummary } from "@/ai/flows/generate-executive-summary";
 
 const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: string, rating?: number, onRatingChange: (v: number) => void, note?: string, onNoteChange?: (v: string) => void }) => (
   <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/10 last:border-0 px-4 w-full gap-4 hover:bg-white/5 transition-colors">
@@ -119,7 +115,6 @@ const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, r
       {kpiSection.impact.length > 0 && (
         <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
           <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
-            <ZapIcon className="h-5 w-5 text-primary" />
             <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_imp`]}</h2>
           </div>
           <CardContent className="p-0">
@@ -147,14 +142,13 @@ const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, r
 
 export function ReportForm({ userProfile, editingPlayerId }: { userProfile: UserProfile | null, editingPlayerId: string | null }) {
   const { toast } = useToast();
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const localizedKPIs = useMemo(() => getLocalizedKPIs(t), [t]);
 
   const [activeTab, setActiveTab] = useState("player");
   const [activeRole, setActiveRole] = useState<TacticalRoleConfig>({ ...TACTICAL_ROLES[0], kpis: localizedKPIs });
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
-  const [pimScore, setPimScore] = useState<number>(0);
   const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
@@ -194,24 +188,12 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   // Evaluation Fields
   const [strengths, setStrengths] = useState<string[]>(['', '', '', '']);
   const [weaknesses, setWeaknesses] = useState<string[]>(['', '', '', '']);
-  const [shortTerm, setShortTerm] = useState("");
-  const [longTerm, setLongTerm] = useState("");
   const [overallDescription, setOverallDescription] = useState("");
   const [comparativePlayer, setComparativePlayer] = useState("");
   const [finalRecommendation, setFinalRecommendation] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
-  const [fitsModel, setFitsModel] = useState("");
-  const [immediateImpact, setImmediateImpact] = useState("");
-  const [futurePotential, setFuturePotential] = useState("");
-  const [adaptationRisk, setAdaptationRisk] = useState("");
   const [fitsPhilosophy, setFitsPhilosophy] = useState("");
   const [finalScoutRating, setFinalScoutRating] = useState<number>(0);
-  const [nextSteps, setNextSteps] = useState<string[]>([]);
-  const [scoutingCommittee, setScoutingCommittee] = useState("");
-  const [decisionDate, setDecisionDate] = useState("");
-
-  const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   useEffect(() => {
     if (editingPlayerId) {
@@ -220,7 +202,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setPlayerName(p.name); setClubName(p.club); setNationality(p.nationality); setMarketValue(p.marketValue);
           setBirthDate(p.birthDate || ""); setHeight(p.height || ""); setWeight(p.weight || "");
           setDominantFoot(p.dominantFoot || ""); setSecondaryPositions(p.secondaryPositions || "");
-          if (p.currentPIM) setPimScore(p.currentPIM);
           const role = TACTICAL_ROLES.find(r => r.id === p.tacticalRole);
           if (role) setActiveRole({ ...role, kpis: localizedKPIs });
         }
@@ -237,27 +218,16 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setObservingScore(r.observingScore || ""); setMatchImportance(r.matchImportance || "");
           setWeather(r.weather || ""); setOffBallTraits(r.offBallTraits || []);
           setBodyLanguageTraits(r.bodyLanguageTraits || []); setSpecificMatchRole(r.specificMatchRole || "");
-          if (r.pimScore) setPimScore(r.pimScore);
           if (r.pitchPosition) setPitchMarker(r.pitchPosition);
           if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
-          
           if (r.strengths) setStrengths(r.strengths);
           if (r.weaknesses) setWeaknesses(r.weaknesses);
-          setShortTerm(r.shortTerm || "");
-          setLongTerm(r.longTerm || "");
           setOverallDescription(r.overallDescription || "");
           setComparativePlayer(r.comparativePlayer || "");
           setFinalRecommendation(r.finalRecommendation || "");
           setAdditionalNotes(r.additionalNotes || "");
-          setFitsModel(r.fitsModel || "");
-          setImmediateImpact(r.immediateImpact || "");
-          setFuturePotential(r.futurePotential || "");
-          setAdaptationRisk(r.adaptationRisk || "");
           setFitsPhilosophy(r.fitsPhilosophy || "");
           setFinalScoutRating(r.finalScoutRating || 0);
-          setNextSteps(r.nextSteps || []);
-          setScoutingCommittee(r.scoutingCommittee || "");
-          setDecisionDate(r.decisionDate || "");
         }
       });
     }
@@ -298,10 +268,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     setScoutingActions(scoutingActions.filter((_, i) => i !== index));
   };
 
-  const toggleNextStep = (step: string) => {
-    setNextSteps(prev => prev.includes(step) ? prev.filter(s => s !== step) : [...prev, step]);
-  };
-
   const handleSaveAll = () => {
     const scoutId = auth.currentUser?.uid;
     if (!scoutId) {
@@ -321,9 +287,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       club: clubName || "No club",
       nationality: nationality || "Unknown",
       marketValue: marketValue || "€0",
-      currentPIM: pimScore,
       tacticalRole: activeRole.id,
-      grade: pimScore > 85 ? 'A' : (pimScore > 70 ? 'B' : 'C'),
+      grade: 'C',
       scoutId: scoutId,
       birthDate, height, weight, dominantFoot, secondaryPositions
     }, editingPlayerId || undefined);
@@ -333,7 +298,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       playerName,
       scoutId: scoutId,
       scoutName: scoutName || userProfile?.displayName || "Scout",
-      pimScore: pimScore,
       summary: notes['summary'] || "",
       ratings, notes, actions: scoutingActions,
       dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition,
@@ -341,9 +305,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       observedFunctions: observedFunctions,
       matchStyle, matchSystem, matchPace, teamDominance, observingScore, matchImportance, weather,
       offBallTraits, bodyLanguageTraits, specificMatchRole,
-      strengths, weaknesses, shortTerm, longTerm, overallDescription, comparativePlayer,
-      finalRecommendation, additionalNotes, fitsModel, immediateImpact, futurePotential,
-      adaptationRisk, fitsPhilosophy, finalScoutRating, nextSteps, scoutingCommittee, decisionDate
+      strengths, weaknesses, overallDescription, comparativePlayer,
+      finalRecommendation, additionalNotes, fitsPhilosophy, finalScoutRating
     }, reportId || undefined);
 
     if (!reportId) {
@@ -351,98 +314,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     }
 
     toast({ title: "Base de Datos Actualizada", description: "Datos guardados con éxito." });
-  };
-
-  const handleCalculatePIM = async () => {
-    setIsCalculatingPIM(true);
-    try {
-      console.clear();
-      
-      const getMetricsArray = (list: string[]) => 
-        list
-          .filter(name => (ratings[name] || 0) > 0)
-          .map(name => ({ name, value: ratings[name] }));
-
-      const payload: CalculatePlayerImpactMetricInput = {
-        playerName: playerName || "Prospecto",
-        tacticalRole: activeRole.name,
-        minPlayed: minPlayed || "90",
-        physicalCondition: physicalCondition || "normal",
-        dominantFoot: dominantFoot || "right",
-        matchStyle: matchStyle || "possession",
-        matchTempo: matchPace || "medium",
-        teamDominance: teamDominance || "balanced",
-        score: observingScore || "drawing",
-        matchImportance: matchImportance || "medium",
-        technicalMetrics: getMetricsArray([...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact]),
-        tacticalMetrics: getMetricsArray([...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact]),
-        physicalMetrics: getMetricsArray([...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact]),
-        mentalMetrics: getMetricsArray([...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact]),
-        generalProfile: {
-          technicalLevel: ratings['Nivel técnico'] || 0,
-          tacticalIntelligence: ratings['Inteligencia táctica'] || 0,
-          physicalQuality: ratings['Calidad física'] || 0,
-          mentalStrength: ratings['Fortaleza mental'] || 0,
-          competitiveLevel: ratings['Nivel competitivo'] || 0,
-          potential: ratings['Potencial'] || 0,
-          currentLevel: ratings['Nivel actual'] || 0,
-        },
-        language: 'es'
-      };
-
-      console.log("RATINGS ACTUALES:", JSON.stringify(ratings, null, 2));
-      console.log("PAYLOAD TÉCNICO:", JSON.stringify(payload.technicalMetrics, null, 2));
-      console.log("PAYLOAD TÁCTICO:", JSON.stringify(payload.tacticalMetrics, null, 2));
-      console.log("GENERAL PROFILE:", JSON.stringify(payload.generalProfile, null, 2));
-      console.log("PAYLOAD ENVIADO A LA IA:", JSON.stringify(payload, null, 2));
-
-      const result = await calculatePlayerImpactMetric(payload);
-
-      if (result && result.playerImpactMetric !== undefined) {
-        let finalPim = result.playerImpactMetric;
-        
-        // Lógica de validación de cordura (Sanity Check)
-        const ratingValues = Object.values(ratings).filter(v => typeof v === 'number' && v > 0);
-        const avgRating = ratingValues.length > 0 
-          ? ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length 
-          : 0;
-
-        if (avgRating > 0 && avgRating < 2 && finalPim > 40) {
-          finalPim = Math.round(avgRating * 15);
-        }
-        
-        const validatedPim = Math.max(0, Math.min(100, Math.round(finalPim)));
-        setPimScore(validatedPim);
-        handleNoteChange('pim_explanation', result.explanation);
-        
-        if (validatedPim === 0) {
-          toast({ variant: "destructive", title: "Análisis Incompleto", description: result.explanation });
-        } else {
-          toast({ title: "Análisis Finalizado", description: `Métrica PIM calculada: ${validatedPim}` });
-        }
-      }
-    } catch (e: any) {
-      console.error("AI Error (PIM):", e);
-      toast({ variant: "destructive", title: "Fallo de Motor", description: "No se pudo establecer conexión con el motor de cálculo." });
-    } finally { setIsCalculatingPIM(false); }
-  };
-
-  const handleGenerateSummary = async () => {
-    setIsGeneratingSummary(true);
-    try {
-      const result = await generateExecutiveSummary({
-        playerName: playerName || "Prospecto",
-        tacticalRole: activeRole.name,
-        metrics: ratings,
-        scoutNotes: JSON.stringify({ notes, strengths, weaknesses, overallDescription }),
-        language: 'es'
-      });
-      handleNoteChange('summary', result.summary);
-      toast({ title: "Análisis Sintetizado", description: "El resumen ejecutivo ha sido generado por la IA." });
-    } catch (e) {
-      console.error("AI Error (Summary):", e);
-      toast({ variant: "destructive", title: "Error IA", description: "Fallo al generar el resumen ejecutivo." });
-    } finally { setIsGeneratingSummary(false); }
   };
 
   const weatherIcons = { sun: Sun, cloudy: Cloud, rain: CloudRain, cold: Thermometer, wind: Wind };
@@ -465,7 +336,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 sm:grid-cols-9 bg-secondary/20 p-1 border border-border/20 rounded-2xl gap-1 mb-8 h-auto">
+        <TabsList className="grid grid-cols-4 sm:grid-cols-8 bg-secondary/20 p-1 border border-border/20 rounded-2xl gap-1 mb-8 h-auto">
           {Object.entries(t.report.tabs).map(([k, v]) => (
             <TabsTrigger key={k} value={k} className="py-3 text-[9px] font-black uppercase tracking-tighter rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">{v as string}</TabsTrigger>
           ))}
@@ -736,9 +607,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   </tbody>
                 </table>
               </div>
-              {scoutingActions.length === 0 && (
-                <div className="p-12 text-center opacity-30 italic text-xs uppercase tracking-widest">No hay acciones registradas todavía.</div>
-              )}
             </CardContent>
           </Card>
           <div className="flex justify-between gap-4 pt-10">
@@ -829,40 +697,24 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     <ChipGroup label="" options={['si', 'no', 'maybe']} selected={fitsPhilosophy} onSelect={setFitsPhilosophy} t={t} />
                  </div>
               </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.summary.title}</Label>
+                <Textarea 
+                  value={notes['summary'] || ""} 
+                  onChange={(e) => handleNoteChange('summary', e.target.value)} 
+                  className="min-h-[120px] bg-secondary/10 border-border/20 text-sm font-bold" 
+                  placeholder={t.report.summary.placeholder}
+                />
+              </div>
             </CardContent>
           </Card>
 
-          <div className="flex justify-between gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.actions}</Button>
-            <Button type="button" onClick={() => setActiveTab("analytics")} className="h-12 px-12 bg-accent text-accent-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <Sparkles className="ml-2 h-4 w-4" /></Button>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="animate-in fade-in space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="p-10 border-2 border-primary/30 bg-[#1b263b]/60 rounded-[2.5rem] flex flex-col items-center justify-between text-center">
-              <Brain className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-sm font-black uppercase tracking-[0.2em]">{t.report.pim.title}</h3>
-              <div className="text-8xl font-black text-primary my-6">{pimScore}</div>
-              <Button onClick={handleCalculatePIM} disabled={isCalculatingPIM} className="w-full h-12 bg-primary font-black uppercase text-[10px] rounded-xl shadow-lg shadow-primary/20">
-                {isCalculatingPIM ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.pim.calculate}
-              </Button>
-            </Card>
-            <Card className="p-10 border-2 border-accent/30 bg-[#1b263b]/60 rounded-[2.5rem] flex flex-col items-center justify-between text-center">
-              <Sparkles className="h-12 w-12 text-accent mb-4" />
-              <h3 className="text-sm font-black uppercase tracking-[0.2em]">{t.report.summary.title}</h3>
-              <div className="text-xs italic text-muted-foreground text-left p-4 bg-background/40 rounded-xl my-6 line-clamp-6 min-h-[120px]">{notes['summary'] || t.report.summary.placeholder}</div>
-              <Button variant="secondary" onClick={handleGenerateSummary} disabled={isGeneratingSummary} className="w-full h-12 font-black uppercase text-[10px] rounded-xl shadow-lg shadow-accent/20">
-                {isGeneratingSummary ? <Loader2 className="h-5 w-5 animate-spin" /> : t.report.summary.generate}
-              </Button>
-            </Card>
-          </div>
           <div className="flex justify-start gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("evaluation")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.evaluation}</Button>
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.actions}</Button>
           </div>
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-
