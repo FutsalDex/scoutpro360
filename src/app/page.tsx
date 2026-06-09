@@ -194,18 +194,6 @@ function AppShell({
                   
                   <SidebarMenuItem>
                     <SidebarMenuButton 
-                      isActive={activeView === 'bd-scout'}
-                      onClick={() => handleNavClick('bd-scout')}
-                      disabled={needsProfileCompletion}
-                      className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
-                    >
-                      <Users className="h-5 w-5" />
-                      <span className="font-medium">{t.sidebar.bdScout}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
                       isActive={activeView === 'bd-talentos'}
                       onClick={() => handleNavClick('bd-talentos')}
                       disabled={needsProfileCompletion}
@@ -213,6 +201,18 @@ function AppShell({
                     >
                       <Database className="h-5 w-5" />
                       <span className="font-medium">{t.sidebar.bdTalentos}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'bd-scout'}
+                      onClick={() => handleNavClick('bd-scout')}
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
+                    >
+                      <Users className="h-5 w-5" />
+                      <span className="font-medium">{t.sidebar.bdScout}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 

@@ -198,14 +198,13 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode
                 <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.score}</th>
                 <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.country}</th>
                 <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.date}</th>
-                <th className="px-6 py-5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.status}</th>
                 <th className="px-6 py-5 w-16"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/10">
               {filteredPlayers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-20 text-center text-muted-foreground font-black text-[11px] uppercase tracking-widest opacity-40 italic">
+                  <td colSpan={7} className="py-20 text-center text-muted-foreground font-black text-[11px] uppercase tracking-widest opacity-40 italic">
                     {t.database.noRecords}
                   </td>
                 </tr>
@@ -266,18 +265,6 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode
                       </td>
                       <td className="px-6 py-5">
                         <span className="text-sm font-medium text-muted-foreground/80 font-mono tracking-tight">{dateStr}</span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex justify-center">
-                          <Badge variant="outline" className={cn(
-                            "px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border-2",
-                            status === 'analizado' 
-                              ? "bg-primary/10 text-primary border-primary/20" 
-                              : "bg-muted-foreground/5 text-muted-foreground border-border/40"
-                          )}>
-                            {t.database.status[status as keyof typeof t.database.status]}
-                          </Badge>
-                        </div>
                       </td>
                       <td className="px-6 py-5 text-right">
                         <DropdownMenu>
