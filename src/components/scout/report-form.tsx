@@ -64,8 +64,8 @@ const ChipGroup = ({ label, options, selected, onSelect, t, multi = false, icons
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => {
           const Icon = icons[opt];
-          const labelText = t.report.contextTab[opt as keyof typeof t.report.contextTab] || 
-                           t.report.evaluationTab.options[opt as keyof typeof t.report.evaluationTab.options] ||
+          const labelText = t.report?.contextTab?.[opt as keyof typeof t.report.contextTab] || 
+                           t.report?.evaluationTab?.options?.[opt as keyof typeof t.report.evaluationTab.options] ||
                            opt;
 
           return (
@@ -96,7 +96,7 @@ const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, r
       <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
         <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
           <Icon className="h-5 w-5 text-primary" />
-          <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_obs`]}</h2>
+          <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.sections?.[`${tabType}_obs`] || `${tabType.toUpperCase()} OBS`}</h2>
         </div>
         <CardContent className="p-0">
           {kpiSection.observation.map(kpi => (
@@ -115,7 +115,7 @@ const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, r
       {kpiSection.impact.length > 0 && (
         <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
           <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
-            <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.sections[`${tabType}_imp`]}</h2>
+            <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.sections?.[`${tabType}_imp`] || `${tabType.toUpperCase()} IMP`}</h2>
           </div>
           <CardContent className="p-0">
             {kpiSection.impact.map(kpi => (
@@ -134,8 +134,8 @@ const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, r
     </div>
     
     <div className="flex justify-between gap-4 pt-10">
-      <Button type="button" variant="ghost" onClick={() => setActiveTab(prevTab)} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs[prevTab as keyof typeof t.report.tabs]}</Button>
-      <Button type="button" onClick={() => setActiveTab(nextTab)} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+      <Button type="button" variant="ghost" onClick={() => setActiveTab(prevTab)} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report?.tabs?.[prevTab as keyof typeof t.report.tabs] || prevTab}</Button>
+      <Button type="button" onClick={() => setActiveTab(nextTab)} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report?.actions?.next || 'SIGUIENTE'} <ChevronRight className="ml-2 h-4 w-4" /></Button>
     </div>
   </div>
 );
@@ -318,18 +318,18 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <FileText className="h-7 w-7 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-black font-headline uppercase tracking-tight">{playerName || t.report.title}</h1>
+            <h1 className="text-2xl font-black font-headline uppercase tracking-tight">{playerName || t.report?.title || 'Informe'}</h1>
             <p className="text-[10px] text-primary font-black uppercase tracking-widest">REGISTRO DE INTELIGENCIA DE SCOUTING</p>
           </div>
         </div>
         <Button onClick={handleSaveAll} className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg hover:scale-105 transition-all">
-          <Save className="h-4 w-4 mr-2" /> {t.report.actions.save}
+          <Save className="h-4 w-4 mr-2" /> {t.report?.actions?.save || 'GUARDAR'}
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-4 sm:grid-cols-8 bg-secondary/20 p-1 border border-border/20 rounded-2xl gap-1 mb-8 h-auto">
-          {Object.entries(t.report.tabs).map(([k, v]) => (
+          {Object.entries(t.report?.tabs || {}).map(([k, v]) => (
             <TabsTrigger key={k} value={k} className="py-3 text-[9px] font-black uppercase tracking-tighter rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">{v as string}</TabsTrigger>
           ))}
         </TabsList>
@@ -340,36 +340,36 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                   <User className="h-5 w-5 text-primary" />
-                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.playerInfo.title}</h2>
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.playerInfo?.title || 'INFO JUGADOR'}</h2>
                 </div>
                 <CardContent className="p-8 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-9 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.name}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.name || 'NOMBRE'}</Label>
                       <Input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-3 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.dorsal}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.dorsal || 'DORSAL'}</Label>
                       <Input value={dorsal} onChange={(e) => setDorsal(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold text-center" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.club}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.club || 'CLUB'}</Label>
                       <Input value={clubName} onChange={(e) => setClubName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.rival}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.rival || 'RIVAL'}</Label>
                       <Input value={rivalName} onChange={(e) => setRivalName(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.competition}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.competition || 'COMPETICIÓN'}</Label>
                       <Input value={competition} onChange={(e) => setCompetition(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.matchDate}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.matchDate || 'FECHA'}</Label>
                       <Input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="h-10 bg-secondary/10 border-border/20 font-bold" />
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.nationality}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.nationality || 'PAÍS'}</Label>
                       <Select value={nationality} onValueChange={setNationality}>
                         <SelectTrigger className="h-10 bg-secondary/10 border-border/20 font-bold">
                           <SelectValue placeholder="-" />
@@ -380,7 +380,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                       </Select>
                     </div>
                     <div className="lg:col-span-6 space-y-1.5">
-                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.playerInfo.primaryPos}</Label>
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.playerInfo?.primaryPos || 'POSICIÓN'}</Label>
                       <Select value={activeRole.id} onValueChange={(v) => {
                         const role = TACTICAL_ROLES.find(r => r.id === v);
                         if (role) setActiveRole({ ...role, kpis: localizedKPIs });
@@ -391,7 +391,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                         <SelectContent className="bg-[#1b263b] border-border/20">
                           {TACTICAL_ROLES.map(r => (
                             <SelectItem key={r.id} value={r.id}>
-                              {t.report.tacticalRoles[r.id as keyof typeof t.report.tacticalRoles] || r.name}
+                              {t.report?.tacticalRoles?.[r.id as keyof typeof t.report.tacticalRoles] || r.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -404,10 +404,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                   <Shield className="h-5 w-5 text-primary" />
-                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.generalProfile.title}</h2>
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.generalProfile?.title || 'PERFIL GENERAL'}</h2>
                 </div>
                 <CardContent className="p-0">
-                  {t.report.generalProfile.attributes.map((attr: string) => (
+                  {(t.report?.generalProfile?.attributes || []).map((attr: string) => (
                     <RatingRow 
                       key={attr} 
                       kpi={attr} 
@@ -422,7 +422,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <div className="lg:col-span-4 space-y-8">
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
-                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.pitch?.title || 'UBICACIÓN'}</h2>
                 </div>
                 <CardContent className="p-4">
                   <TacticalCanvas 
@@ -436,11 +436,11 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
                 <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
-                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.observedFunctions.title}</h2>
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.observedFunctions?.title || 'ROLES OBSERVADOS'}</h2>
                 </div>
                 <CardContent className="p-6">
                   <div className="flex flex-wrap gap-2">
-                    {Object.entries(t.report.observedFunctions).filter(([k]) => k !== 'title').map(([k, v]) => (
+                    {Object.entries(t.report?.observedFunctions || {}).filter(([k]) => k !== 'title').map(([k, v]) => (
                       <button
                         key={k}
                         type="button"
@@ -461,7 +461,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             </div>
           </div>
           <div className="flex justify-end gap-4 pt-10">
-            <Button type="button" onClick={() => setActiveTab("context")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+            <Button type="button" onClick={() => setActiveTab("context")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report?.actions?.next || 'Siguiente'} <ChevronRight className="ml-2 h-4 w-4" /></Button>
           </div>
         </TabsContent>
 
@@ -469,24 +469,24 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
               <LayoutGrid className="h-5 w-5 text-primary" />
-              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.matchContextTitle}</h2>
+              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.contextTab?.matchContextTitle || 'CONTEXTO PARTIDO'}</h2>
             </div>
             <CardContent className="p-8 space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.system}</Label>
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.contextTab?.system || 'SISTEMA'}</Label>
                   <Input value={matchSystem} onChange={(e) => setMatchSystem(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.matchRole}</Label>
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.contextTab?.matchRole || 'ROL'}</Label>
                   <Input value={specificMatchRole} onChange={(e) => setSpecificMatchRole(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" />
                 </div>
-                <ChipGroup label={t.report.contextTab.gameStyle} options={['possession', 'counter', 'highPress', 'direct', 'defensive']} selected={matchStyle} onSelect={setMatchStyle} t={t} />
-                <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
-                <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
-                <ChipGroup label={t.report.contextTab.scoreAtObserving} options={['winning', 'drawing', 'losing']} selected={observingScore} onSelect={setObservingScore} t={t} />
-                <ChipGroup label={t.report.contextTab.importance} options={['low', 'medium', 'high', 'decisive']} selected={matchImportance} onSelect={setMatchImportance} t={t} />
-                <ChipGroup label={t.report.contextTab.weather} options={['sun', 'cloudy', 'rain', 'cold', 'wind']} selected={weather} onSelect={setWeather} t={t} icons={weatherIcons} />
+                <ChipGroup label={t.report?.contextTab?.gameStyle || 'ESTILO'} options={['possession', 'counter', 'highPress', 'direct', 'defensive']} selected={matchStyle} onSelect={setMatchStyle} t={t} />
+                <ChipGroup label={t.report?.contextTab?.pace || 'RITMO'} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
+                <ChipGroup label={t.report?.contextTab?.teamDominance || 'DOMINIO'} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
+                <ChipGroup label={t.report?.contextTab?.scoreAtObserving || 'MARCADOR'} options={['winning', 'drawing', 'losing']} selected={observingScore} onSelect={setObservingScore} t={t} />
+                <ChipGroup label={t.report?.contextTab?.importance || 'IMPORTANCIA'} options={['low', 'medium', 'high', 'decisive']} selected={matchImportance} onSelect={setMatchImportance} t={t} />
+                <ChipGroup label={t.report?.contextTab?.weather || 'CLIMA'} options={['sun', 'cloudy', 'rain', 'cold', 'wind']} selected={weather} onSelect={setWeather} t={t} icons={weatherIcons} />
               </div>
             </CardContent>
           </Card>
@@ -494,7 +494,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.offBallBehaviorTitle}</h2>
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.contextTab?.offBallBehaviorTitle || 'SIN BALÓN'}</h2>
               </div>
               <CardContent className="p-6">
                 <ChipGroup label="" options={['aggressive', 'central', 'lines', 'recovery', 'block', 'support', 'reading', 'shape']} selected={offBallTraits} onSelect={toggleOffBallTrait} t={t} multi />
@@ -503,7 +503,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.bodyLanguage}</h2>
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.contextTab?.bodyLanguage || 'LENGUAJE CORPORAL'}</h2>
               </div>
               <CardContent className="p-6">
                 <ChipGroup label="" options={['positive', 'competitive', 'focused', 'frustrated', 'emotional', 'reactive', 'mature', 'indifferent']} selected={bodyLanguageTraits} onSelect={toggleBodyLanguageTrait} t={t} multi />
@@ -512,8 +512,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
 
           <div className="flex justify-between gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.player}</Button>
-            <Button type="button" onClick={() => setActiveTab("technical")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report?.tabs?.player || 'Player'}</Button>
+            <Button type="button" onClick={() => setActiveTab("technical")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report?.actions?.next || 'Siguiente'} <ChevronRight className="ml-2 h-4 w-4" /></Button>
           </div>
         </TabsContent>
 
@@ -538,19 +538,19 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <div className="bg-[#1b263b] px-6 py-4 flex items-center justify-between border-b border-primary/20">
               <div className="flex items-center gap-3">
                 <ClipboardCheck className="h-5 w-5 text-primary" />
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.actionsTab.title}</h2>
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.actionsTab?.title || 'ACCIONES CLAVE'}</h2>
               </div>
-              <Button onClick={addAction} size="sm" variant="outline" className="h-8 border-primary/30 text-primary font-black text-[9px] uppercase tracking-widest"><Plus className="h-3 w-3 mr-1" /> {t.report.actionsTab.add}</Button>
+              <Button onClick={addAction} size="sm" variant="outline" className="h-8 border-primary/30 text-primary font-black text-[9px] uppercase tracking-widest"><Plus className="h-3 w-3 mr-1" /> {t.report?.actionsTab?.add || 'Añadir'}</Button>
             </div>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-secondary/20 border-b border-border/10">
-                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-20">{t.report.actionsTab.min}</th>
-                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-1/4">{t.report.actionsTab.action}</th>
-                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-1/4">{t.report.actionsTab.result}</th>
-                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground">{t.report.actionsTab.notes}</th>
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-20">{t.report?.actionsTab?.min || 'MIN'}</th>
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-1/4">{t.report?.actionsTab?.action || 'ACCIÓN'}</th>
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-1/4">{t.report?.actionsTab?.result || 'RESULTADO'}</th>
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground">{t.report?.actionsTab?.notes || 'NOTAS'}</th>
                       <th className="p-4 w-12"></th>
                     </tr>
                   </thead>
@@ -581,8 +581,8 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             </CardContent>
           </Card>
           <div className="flex justify-between gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("mental")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.mental}</Button>
-            <Button type="button" onClick={() => setActiveTab("evaluation")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("mental")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report?.tabs?.mental || 'Mental'}</Button>
+            <Button type="button" onClick={() => setActiveTab("evaluation")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report?.actions?.next || 'Siguiente'} <ChevronRight className="ml-2 h-4 w-4" /></Button>
           </div>
         </TabsContent>
 
@@ -591,7 +591,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.evaluationTab.mainStrengths}</h2>
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.evaluationTab?.mainStrengths || 'FORTALEZAS'}</h2>
               </div>
               <CardContent className="p-6 space-y-4">
                 {strengths.map((s, i) => (
@@ -608,7 +608,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
               <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
-                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.evaluationTab.areasToImprove}</h2>
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.evaluationTab?.areasToImprove || 'MEJORAS'}</h2>
               </div>
               <CardContent className="p-6 space-y-4">
                 {weaknesses.map((w, i) => (
@@ -625,36 +625,36 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
           <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
             <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
-              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.evaluationTab.recTitle}</h2>
+              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report?.evaluationTab?.recTitle || 'RESUMEN FINAL'}</h2>
             </div>
             <CardContent className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-1.5">
-                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.playerDescription}</Label>
+                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.evaluationTab?.playerDescription || 'DESCRIPCIÓN'}</Label>
                    <Textarea value={overallDescription} onChange={(e) => setOverallDescription(e.target.value)} className="min-h-[120px] bg-secondary/10 border-border/20 text-sm font-bold" />
                 </div>
                 <div className="space-y-1.5">
-                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.comparative}</Label>
+                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.evaluationTab?.comparative || 'COMPARATIVA'}</Label>
                    <Textarea value={comparativePlayer} onChange={(e) => setComparativePlayer(e.target.value)} className="min-h-[120px] bg-secondary/10 border-border/20 text-sm font-bold" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                  <div className="space-y-1.5">
-                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.finalRec}</Label>
+                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.evaluationTab?.finalRec || 'RECOMENDACIÓN'}</Label>
                    <Select value={finalRecommendation} onValueChange={setFinalRecommendation}>
                       <SelectTrigger className="h-12 bg-secondary/10 border-border/20 font-bold">
                         <SelectValue placeholder="-" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#1b263b] border-border/20">
-                        {Object.entries(t.report.evaluationTab.recOptions).map(([k,v]) => (
+                        {Object.entries(t.report?.evaluationTab?.recOptions || {}).map(([k,v]) => (
                           <SelectItem key={k} value={k}>{v as string}</SelectItem>
                         ))}
                       </SelectContent>
                    </Select>
                  </div>
                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.finalRatingTitle}</Label>
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.evaluationTab?.finalRatingTitle || 'VALORACIÓN'}</Label>
                     <div className="flex gap-2 h-12 items-center px-4 bg-secondary/10 rounded-xl">
                       {[1,2,3,4,5].map(star => (
                         <button key={star} type="button" onClick={() => setFinalScoutRating(star)} className="focus:outline-none">
@@ -666,19 +666,19 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.summary.title}</Label>
+                <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.summary?.title || 'RESUMEN EJECUTIVO'}</Label>
                 <Textarea 
                   value={notes['summary'] || ""} 
                   onChange={(e) => handleNoteChange('summary', e.target.value)} 
                   className="min-h-[120px] bg-secondary/10 border-border/20 text-sm font-bold" 
-                  placeholder={t.report.summary.placeholder}
+                  placeholder={t.report?.summary?.placeholder || 'Escribe aquí...'}
                 />
               </div>
             </CardContent>
           </Card>
 
           <div className="flex justify-start gap-4 pt-10">
-            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.actions}</Button>
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report?.tabs?.actions || 'Actions'}</Button>
           </div>
         </TabsContent>
       </Tabs>
