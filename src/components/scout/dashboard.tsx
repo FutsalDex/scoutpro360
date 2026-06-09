@@ -75,8 +75,8 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
   
   const evaluatedPlayers = players.filter(p => (p.currentPIM || 0) > 0);
   const avgPim = evaluatedPlayers.length > 0 
-    ? (evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length).toFixed(1) 
-    : "0.0";
+    ? Math.round(evaluatedPlayers.reduce((acc, p) => acc + (p.currentPIM || 0), 0) / evaluatedPlayers.length)
+    : 0;
 
   const recentPlayers = [...players]
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
@@ -98,7 +98,7 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
         <StatCard title={t.dashboard.stats.identified} value={identifiedOnly.toString()} icon={<Binoculars className="text-accent" />} />
         <StatCard title={t.dashboard.stats.analyzed} value={analyzedCount.toString()} icon={<ShieldCheck className="text-primary" />} />
         <StatCard title={t.dashboard.stats.reports} value={totalReports.toString()} icon={<ClipboardCheck className="text-accent" />} />
-        <StatCard title={t.dashboard.stats.avgPim} value={avgPim} suffix="%" icon={<TrendingUp className="text-primary" />} />
+        <StatCard title={t.dashboard.stats.avgPim} value={avgPim.toString()} icon={<TrendingUp className="text-primary" />} />
       </div>
 
       <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
@@ -121,13 +121,13 @@ export function ScoutDashboard({ userProfile, onEditPlayer }: ScoutDashboardProp
                     </Avatar>
                     <div>
                       <p className="font-black text-sm uppercase group-hover:text-primary transition-colors">{player.name}</p>
-                      <p className="text-[10px] text-muted-foreground flex items-center gap-2 font-bold"><MapPin className="h-3 w-3" /> {player.club} · <span className="text-primary uppercase">{player.tacticalRole}</span></p>
+                      <p className="text-[10px] text-muted-foreground flex items-center gap-2 font-bold"><MapPin className="h-3 v-3" /> {player.club} · <span className="text-primary uppercase">{player.tacticalRole}</span></p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="text-right">
                       <p className="text-[9px] font-black text-muted-foreground uppercase">PIM</p>
-                      <p className="text-xl font-black text-accent">{player.currentPIM}%</p>
+                      <p className="text-xl font-black text-accent">{Math.round(player.currentPIM || 0)}</p>
                     </div>
                     <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                       <ChevronRight className="h-5 w-5" />

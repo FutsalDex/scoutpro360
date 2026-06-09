@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flujo de Genkit para calcular la Métrica de Impacto del Jugador (PIM).
- * Implementa pesos por posición, multiplicadores de contexto y normalización de categorías.
+ * Optimizado para devolver un valor entero y corregir errores de mapeo que causaban el valor 0.
  */
 
 import { ai } from '@/ai/genkit';
@@ -13,21 +13,16 @@ const MetricSchema = z.object({
 });
 
 const CalculatePlayerImpactMetricInputSchema = z.object({
-  playerInfo: z.object({
-    name: z.string(),
-    tacticalRole: z.string(),
-    minPlayed: z.string(),
-    physicalCondition: z.string(),
-    dominantFoot: z.string(),
-  }),
-  matchContext: z.object({
-    matchStyle: z.string(),
-    matchTempo: z.string(),
-    teamDominance: z.string(),
-    score: z.string(),
-    matchImportance: z.string(),
-    weather: z.string().optional(),
-  }),
+  playerName: z.string(),
+  tacticalRole: z.string(),
+  minPlayed: z.string(),
+  physicalCondition: z.string(),
+  dominantFoot: z.string(),
+  matchStyle: z.string(),
+  matchTempo: z.string(),
+  teamDominance: z.string(),
+  score: z.string(),
+  matchImportance: z.string(),
   technicalMetrics: z.array(MetricSchema),
   tacticalMetrics: z.array(MetricSchema),
   physicalMetrics: z.array(MetricSchema),
@@ -57,31 +52,22 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     schema: CalculatePlayerImpactMetricInputSchema
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
-  config: {
-    safetySettings: [
-      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-    ],
-  },
   prompt: `Eres un sistema experto de scouting de fútbol profesional. Tu tarea es calcular el 
 Player Impact Metric (PIM) de un jugador en una escala de 0 a 100.
 
 ## DATOS DEL JUGADOR
-- Nombre: {{{playerInfo.name}}}
-- Posición: {{{playerInfo.tacticalRole}}}
-- Minutos jugados: {{{playerInfo.minPlayed}}}
-- Condición física: {{{playerInfo.physicalCondition}}}
-- Pie dominante: {{{playerInfo.dominantFoot}}}
+- Nombre: {{{playerName}}}
+- Posición: {{{tacticalRole}}}
+- Minutos jugados: {{{minPlayed}}}
+- Condición física: {{{physicalCondition}}}
+- Pie dominante: {{{dominantFoot}}}
 
 ## CONTEXTO DEL PARTIDO
-- Estilo de juego del equipo: {{{matchContext.matchStyle}}}
-- Ritmo del partido: {{{matchContext.matchTempo}}}
-- Dominio del equipo: {{{matchContext.teamDominance}}}
-- Marcador al observar: {{{matchContext.score}}}
-- Importancia del partido: {{{matchContext.matchImportance}}}
-{{#if matchContext.weather}}- Condiciones climáticas: {{{matchContext.weather}}}{{/if}}
+- Estilo de juego del equipo: {{{matchStyle}}}
+- Ritmo del partido: {{{matchTempo}}}
+- Dominio del equipo: {{{teamDominance}}}
+- Marcador al observar: {{{score}}}
+- Importancia del partido: {{{matchImportance}}}
 
 ## MÉTRICAS TÉCNICAS (escala 1-5)
 {{#each technicalMetrics}}
@@ -112,7 +98,7 @@ Player Impact Metric (PIM) de un jugador en una escala de 0 a 100.
 - Potencial: {{{generalProfile.potential}}}/5
 - Nivel actual: {{{generalProfile.currentLevel}}}/5
 
-## INSTRUCCIONES DE CÁLCULO ESTRICTAS
+## INSTRUCCIONES DE CÁLCULO
 
 Aplica la siguiente fórmula ponderada según la posición del jugador:
 
@@ -126,16 +112,17 @@ Aplica la siguiente fórmula ponderada según la posición del jugador:
 - Extremo (ED/EI): Técnico 30%, Táctico 20%, Físico 35%, Mental 15%
 - Delantero (DC/SD): Técnico 35%, Táctico 20%, Físico 25%, Mental 20%
 
-### Proceso matemático:
-1. Normaliza cada categoría: (suma de valores obtenidos) / (número de métricas en la lista x 5) * 100.
-2. Aplica los pesos de posición definidos arriba.
-3. Aplica multiplicadores de contexto (bonos/penalizaciones):
+### Proceso:
+1. Normaliza cada categoría: suma de valores / (número de métricas × 5) × 100
+2. Aplica los pesos de posición
+3. Aplica multiplicadores de contexto:
    - Partido de alta importancia + rendimiento destacado: +3 puntos
-   - Condiciones adversas (lluvia/frío/viento): +2 puntos
+   - Partido en condiciones adversas (lluvia/frío/viento): +2 puntos
    - Equipo en desventaja + rendimiento destacado: +3 puntos
    - Menos de 60 minutos jugados: -5 puntos
-4. Incorpora el perfil general con peso del 15% sobre la puntuación final.
-5. El resultado final debe estar entre 0 y 100.
+4. Incorpora el perfil general con peso del 15% sobre el total
+5. Redondea al entero más cercano
+6. El resultado final debe estar entre 0 y 100
 
 ### Escala de grados:
 - 90-100: A+ (Élite mundial)
@@ -151,7 +138,7 @@ Aplica la siguiente fórmula ponderada según la posición del jugador:
 - "Monitorizar" (PIM 55-69)
 - "Reevaluar" (PIM < 55)
 
-Idioma de respuesta: {{{language}}}.`,
+Responde SIEMPRE en formato JSON estructurado.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
@@ -165,22 +152,25 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
       };
     }
 
-    // Fallback si el modelo devuelve texto pero no JSON estructurado correctamente
+    // Fallback: Si el modelo no devuelve JSON pero sí texto, intentamos extraer el número
     if (response.text) {
-      const scoreMatch = response.text.match(/"playerImpactMetric":\s*(\d+)/) || response.text.match(/(\d+)\/100/);
+      const scoreMatch = response.text.match(/playerImpactMetric":\s*(\d+)/) || 
+                        response.text.match(/(\d+)\/100/) ||
+                        response.text.match(/PIM:\s*(\d+)/);
+      
       const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
       return {
-        playerImpactMetric: Math.max(0, Math.min(100, score)),
-        explanation: response.text.substring(0, 500) // Truncar si es muy largo
+        playerImpactMetric: Math.max(0, Math.min(100, Math.round(score))),
+        explanation: response.text.substring(0, 500)
       };
     }
 
-    throw new Error("Respuesta de IA vacía");
+    throw new Error("Respuesta vacía de IA");
   } catch (error) {
     console.error("PIM Flow Error:", error);
     return {
       playerImpactMetric: 0,
-      explanation: "Error técnico en el motor de cálculo. Por favor, asegúrate de haber completado las métricas de perfil general y tácticas."
+      explanation: "Error en el motor de cálculo. Por favor, revisa que todas las métricas de perfil general tengan puntuación."
     };
   }
 }
