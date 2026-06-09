@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -46,8 +45,7 @@ function AppShell({
   const { isMobile, setOpenMobile } = useSidebar();
 
   const isProfileComplete = userProfile?.displayName && userProfile?.phoneNumber && userProfile?.nationality;
-  const isAnonymous = auth.currentUser?.isAnonymous;
-  const needsProfileCompletion = !isAnonymous && !isProfileComplete;
+  const needsProfileCompletion = !isProfileComplete;
 
   useEffect(() => {
     if (needsProfileCompletion && activeView !== 'profile') {
@@ -103,7 +101,7 @@ function AppShell({
     }
   };
 
-  const role = userProfile?.role || 'invitado';
+  const role = userProfile?.role || 'analista';
   const isAdmin = role === 'admin';
   const isOpsRole = ['admin', 'analista', 'entrenador', 'director'].includes(role);
   const isClub = role === 'gestion' || role === 'director' || isAdmin;
