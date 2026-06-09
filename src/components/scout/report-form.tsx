@@ -387,7 +387,13 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         language: 'es'
       };
 
+      // Logs de depuración solicitados
+      console.log("RATINGS ACTUALES:", JSON.stringify(ratings, null, 2));
+      console.log("PAYLOAD TÉCNICO:", JSON.stringify(payload.technicalMetrics, null, 2));
+      console.log("PAYLOAD TÁCTICO:", JSON.stringify(payload.tacticalMetrics, null, 2));
+      console.log("GENERAL PROFILE:", JSON.stringify(payload.generalProfile, null, 2));
       console.log("PAYLOAD ENVIADO A LA IA:", JSON.stringify(payload, null, 2));
+
       const result = await calculatePlayerImpactMetric(payload);
 
       if (result && result.playerImpactMetric !== undefined) {
