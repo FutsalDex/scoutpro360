@@ -52,7 +52,7 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     schema: CalculatePlayerImpactMetricInputSchema
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
-  prompt: `Eres un motor lógico de scouting profesional. Tu única misión es calcular el Player Impact Metric (PIM) de 1 a 100.
+  prompt: `Eres un motor lógico de scouting profesional con 20 años de experiencia en captación de élite. Tu única misión es calcular el Player Impact Metric (PIM) de 1 a 100 de forma audaz y precisa.
 
 DATOS RECIBIDOS:
 - Jugador: {{{playerName}}} ({{{tacticalRole}}})
@@ -75,6 +75,8 @@ REGLAS DE CÁLCULO ESTRICTAS:
    - Si minPlayed < 60: -5 puntos al total.
    - Si matchImportance es "high" o "decisive" y el rendimiento medio es > 4: +4 puntos.
 5. SIEMPRE devuelve un número entero entre 1 y 100. NUNCA devuelvas 0. Si el cálculo final es menor a 1, devuelve 1.
+
+IMPORTANTE: No seas excesivamente conservador. Si el jugador demuestra habilidades básicas, su PIM debe reflejarlo. Un 1 es una puntuación de "jugador amateur que no aporta nada". Si el jugador tiene métricas de 3 o 4, el PIM debe ser coherente (ej: superior a 50). Un jugador con promedios de 4 debe estar cerca de los 80-85 puntos.
 
 REGLAS DE FORMATO:
 - Debes responder EXCLUSIVAMENTE con un JSON válido.
