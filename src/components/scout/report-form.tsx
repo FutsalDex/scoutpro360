@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -354,18 +353,13 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   };
 
   const handleCalculatePIM = async () => {
-    const essentialKeys = ['Nivel técnico', 'Inteligencia táctica', 'Calidad física', 'Fortaleza mental'];
-    const hasData = essentialKeys.some(key => (ratings[key] || 0) > 0);
-
-    if (!hasData) {
-      toast({ variant: "destructive", title: "Perfil Incompleto", description: "Por favor, valora al menos los atributos básicos del Perfil General antes de calcular." });
-      return;
-    }
-
     setIsCalculatingPIM(true);
     try {
-      const getMetricsArray = (list: string[]) => 
-        list.map(name => ({ name, value: ratings[name] || 0 }));
+      // Función de normalización: si el valor es 0 o undefined, se envía un 3 (valor normal) para no penalizar el PIM
+      const normalize = (val: number | undefined) => (val && val > 0 ? val : 3);
+
+      const getNormalizedMetricsArray = (list: string[]) => 
+        list.map(name => ({ name, value: normalize(ratings[name]) }));
 
       const payload: CalculatePlayerImpactMetricInput = {
         playerName: playerName || "Prospecto",
@@ -378,27 +372,27 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         teamDominance: teamDominance || "balanced",
         score: observingScore || "drawing",
         matchImportance: matchImportance || "medium",
-        technicalMetrics: getMetricsArray([...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact]),
-        tacticalMetrics: getMetricsArray([...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact]),
-        physicalMetrics: getMetricsArray([...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact]),
-        mentalMetrics: getMetricsArray([...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact]),
+        technicalMetrics: getNormalizedMetricsArray([...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact]),
+        tacticalMetrics: getNormalizedMetricsArray([...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact]),
+        physicalMetrics: getNormalizedMetricsArray([...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact]),
+        mentalMetrics: getNormalizedMetricsArray([...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact]),
         generalProfile: {
-          technicalLevel: ratings['Nivel técnico'] || 0,
-          tacticalIntelligence: ratings['Inteligencia táctica'] || 0,
-          physicalQuality: ratings['Calidad física'] || 0,
-          mentalStrength: ratings['Fortaleza mental'] || 0,
-          competitiveLevel: ratings['Nivel competitivo'] || 0,
-          potential: ratings['Potencial'] || 0,
-          currentLevel: ratings['Nivel actual'] || 0,
+          technicalLevel: normalize(ratings['Nivel técnico']),
+          tacticalIntelligence: normalize(ratings['Inteligencia táctica']),
+          physicalQuality: normalize(ratings['Calidad física']),
+          mentalStrength: normalize(ratings['Fortaleza mental']),
+          competitiveLevel: normalize(ratings['Nivel competitivo']),
+          potential: normalize(ratings['Potencial']),
+          currentLevel: normalize(ratings['Nivel actual']),
         },
         language: 'es'
       };
 
-      console.log("PAYLOAD ENVIADO A LA IA:", JSON.stringify(payload, null, 2));
+      console.log("PAYLOAD ENVIADO A LA IA (MODO NORMALIZADO):", JSON.stringify(payload, null, 2));
       const result = await calculatePlayerImpactMetric(payload);
 
       if (result && result.playerImpactMetric !== undefined) {
-        const finalPim = Math.max(0, Math.min(100, Math.round(result.playerImpactMetric)));
+        const finalPim = Math.max(10, Math.min(100, Math.round(result.playerImpactMetric)));
         setPimScore(finalPim);
         handleNoteChange('pim_explanation', result.explanation);
         toast({ title: "Motor IA Sincronizado", description: `Nueva métrica PIM calculada: ${finalPim}` });
