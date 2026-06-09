@@ -350,8 +350,11 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   };
 
   const handleCalculatePIM = async () => {
-    if (Object.keys(ratings).length === 0) {
-      toast({ variant: "destructive", title: "Datos insuficientes", description: "Por favor, valora algunos atributos antes de calcular el PIM." });
+    const essentialKeys = ['Nivel técnico', 'Inteligencia táctica', 'Calidad física', 'Fortaleza mental'];
+    const hasData = essentialKeys.some(key => (ratings[key] || 0) > 0);
+
+    if (!hasData) {
+      toast({ variant: "destructive", title: "Perfil Incompleto", description: "Por favor, valora al menos los atributos básicos del Perfil General antes de calcular." });
       return;
     }
 
@@ -361,7 +364,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         list.map(name => ({ name, value: ratings[name] || 0 }));
 
       const result = await calculatePlayerImpactMetric({
-        playerName: playerName || "Jugador",
+        playerName: playerName || "Prospecto",
         tacticalRole: activeRole.name,
         minPlayed: minPlayed || "90",
         physicalCondition: physicalCondition || "normal",
@@ -387,15 +390,15 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         language: 'es'
       });
 
-      if (result) {
-        const clampedPim = Math.max(0, Math.min(100, Math.round(result.playerImpactMetric)));
-        handleRatingChange('pim', clampedPim);
+      if (result && result.playerImpactMetric >= 0) {
+        const finalPim = Math.max(0, Math.min(100, Math.round(result.playerImpactMetric)));
+        handleRatingChange('pim', finalPim);
         handleNoteChange('pim_explanation', result.explanation);
-        toast({ title: "Cálculo Finalizado", description: `Métrica PIM: ${clampedPim}` });
+        toast({ title: "Motor IA Sincronizado", description: `Nueva métrica PIM calculada: ${finalPim}` });
       }
     } catch (e: any) {
       console.error("AI Error (PIM):", e);
-      toast({ variant: "destructive", title: "Error IA", description: "No se pudo calcular el PIM." });
+      toast({ variant: "destructive", title: "Fallo de Motor", description: "No se pudo establecer conexión con el motor de cálculo." });
     } finally { setIsCalculatingPIM(false); }
   };
 
@@ -410,7 +413,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         language: 'es'
       });
       handleNoteChange('summary', result.summary);
-      toast({ title: "Resumen Generado", description: "El informe ha sido sintetizado con éxito." });
+      toast({ title: "Análisis Sintetizado", description: "El resumen ejecutivo ha sido generado por la IA." });
     } catch (e) {
       console.error("AI Error (Summary):", e);
       toast({ variant: "destructive", title: "Error IA", description: "Fallo al generar el resumen ejecutivo." });
@@ -444,7 +447,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsList>
 
         <TabsContent value="player" className="space-y-8 animate-in fade-in">
-          {/* ... resto del contenido igual ... */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-8">
               <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
@@ -530,16 +532,286 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   </div>
                 </CardContent>
               </Card>
-              {/* ... resto de cards iguales ... */}
+
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <Shield className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.generalProfile.title}</h2>
+                </div>
+                <CardContent className="p-0">
+                  {t.report.generalProfile.attributes.map((attr: string) => (
+                    <RatingRow 
+                      key={attr} 
+                      kpi={attr} 
+                      rating={ratings[attr]} 
+                      onRatingChange={(val) => handleRatingChange(attr, val)} 
+                    />
+                  ))}
+                </CardContent>
+              </Card>
             </div>
-            {/* ... sticky canvas y observed functions igual ... */}
+
+            <div className="lg:col-span-4 space-y-8">
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl sticky top-24">
+                <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.pitch.title}</h2>
+                </div>
+                <CardContent className="p-4">
+                  <TacticalCanvas 
+                    marker={pitchMarker} 
+                    onMarkerChange={setPitchMarker}
+                    heatmapPoints={heatmapPoints}
+                    onHeatmapChange={setHeatmapPoints}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.observedFunctions.title}</h2>
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(t.report.observedFunctions).filter(([k]) => k !== 'title').map(([k, v]) => (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => toggleObservedFunction(k)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg border text-[9px] font-bold transition-all",
+                          observedFunctions.includes(k) 
+                            ? "bg-primary text-primary-foreground border-primary" 
+                            : "bg-white/5 border-border/40 text-muted-foreground hover:bg-white/10"
+                        )}
+                      >
+                        {v as string}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           <div className="flex justify-end gap-4 pt-10">
             <Button type="button" onClick={() => setActiveTab("context")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
           </div>
         </TabsContent>
 
-        {/* ... Tabs de contexto, técnico, táctico, físico, mental, acciones y evaluación se mantienen igual ... */}
+        <TabsContent value="context" className="space-y-8 animate-in fade-in">
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+              <LayoutGrid className="h-5 w-5 text-primary" />
+              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.matchContextTitle}</h2>
+            </div>
+            <CardContent className="p-8 space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.system}</Label>
+                  <Input value={matchSystem} onChange={(e) => setMatchSystem(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: 4-3-3" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.contextTab.matchRole}</Label>
+                  <Input value={specificMatchRole} onChange={(e) => setSpecificMatchRole(e.target.value)} className="h-12 bg-secondary/10 border-border/20 font-bold" placeholder="Ej: Pivote único" />
+                </div>
+                
+                <ChipGroup label={t.report.contextTab.gameStyle} options={['possession', 'counter', 'highPress', 'direct', 'defensive']} selected={matchStyle} onSelect={setMatchStyle} t={t} />
+                <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
+                <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
+                <ChipGroup label={t.report.contextTab.scoreAtObserving} options={['winning', 'drawing', 'losing']} selected={observingScore} onSelect={setObservingScore} t={t} />
+                <ChipGroup label={t.report.contextTab.importance} options={['low', 'medium', 'high', 'decisive']} selected={matchImportance} onSelect={setMatchImportance} t={t} />
+                <ChipGroup label={t.report.contextTab.weather} options={['sun', 'cloudy', 'rain', 'cold', 'wind']} selected={weather} onSelect={setWeather} t={t} icons={weatherIcons} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+              <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.offBallBehaviorTitle}</h2>
+              </div>
+              <CardContent className="p-6">
+                <ChipGroup label="" options={['aggressive', 'central', 'lines', 'recovery', 'block', 'support', 'reading', 'shape']} selected={offBallTraits} onSelect={toggleOffBallTrait} t={t} multi />
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+              <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.contextTab.bodyLanguage}</h2>
+              </div>
+              <CardContent className="p-6">
+                <ChipGroup label="" options={['positive', 'competitive', 'focused', 'frustrated', 'emotional', 'reactive', 'mature', 'indifferent']} selected={bodyLanguageTraits} onSelect={toggleBodyLanguageTrait} t={t} multi />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-between gap-4 pt-10">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("player")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.player}</Button>
+            <Button type="button" onClick={() => setActiveTab("technical")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="technical">
+          <EvaluationModule icon={Activity} kpiSection={activeRole.kpis.technical} nextTab="tactical" prevTab="context" tabType="technical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} t={t} />
+        </TabsContent>
+
+        <TabsContent value="tactical">
+          <EvaluationModule icon={Target} kpiSection={activeRole.kpis.tactical} nextTab="physical" prevTab="technical" tabType="tactical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} t={t} />
+        </TabsContent>
+
+        <TabsContent value="physical">
+          <EvaluationModule icon={Activity} kpiSection={activeRole.kpis.physical} nextTab="mental" prevTab="tactical" tabType="physical" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} t={t} />
+        </TabsContent>
+
+        <TabsContent value="mental">
+          <EvaluationModule icon={Shield} kpiSection={activeRole.kpis.mental} nextTab="actions" prevTab="physical" tabType="mental" ratings={ratings} onRatingChange={handleRatingChange} notes={notes} onNoteChange={handleNoteChange} setActiveTab={setActiveTab} t={t} />
+        </TabsContent>
+
+        <TabsContent value="actions" className="space-y-6 animate-in fade-in">
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-6 py-4 flex items-center justify-between border-b border-primary/20">
+              <div className="flex items-center gap-3">
+                <ClipboardCheck className="h-5 w-5 text-primary" />
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.actionsTab.title}</h2>
+              </div>
+              <Button onClick={addAction} size="sm" variant="outline" className="h-8 border-primary/30 text-primary font-black text-[9px] uppercase tracking-widest"><Plus className="h-3 w-3 mr-1" /> {t.report.actionsTab.add}</Button>
+            </div>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-secondary/20 border-b border-border/10">
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-20">{t.report.actionsTab.min}</th>
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-1/4">{t.report.actionsTab.action}</th>
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground w-1/4">{t.report.actionsTab.result}</th>
+                      <th className="p-4 text-[9px] font-black uppercase text-muted-foreground">{t.report.actionsTab.notes}</th>
+                      <th className="p-4 w-12"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/10">
+                    {scoutingActions.map((action, idx) => (
+                      <tr key={idx} className="hover:bg-white/5 transition-colors">
+                        <td className="p-2"><Input value={action.minute} onChange={(e) => updateAction(idx, 'minute', e.target.value)} className="h-9 bg-transparent border-none font-bold text-center" placeholder="00'" /></td>
+                        <td className="p-2"><Input value={action.action} onChange={(e) => updateAction(idx, 'action', e.target.value)} className="h-9 bg-transparent border-none font-bold" placeholder="Acción..." /></td>
+                        <td className="p-2">
+                           <Select value={action.result} onValueChange={(v) => updateAction(idx, 'result', v)}>
+                              <SelectTrigger className="h-9 bg-transparent border-none font-bold">
+                                 <SelectValue placeholder="-" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-[#1b263b] border-border/20">
+                                 <SelectItem value="positivo">Exitoso</SelectItem>
+                                 <SelectItem value="neutro">Neutro</SelectItem>
+                                 <SelectItem value="negativo">Fallido</SelectItem>
+                              </SelectContent>
+                           </Select>
+                        </td>
+                        <td className="p-2"><Input value={action.notes} onChange={(e) => updateAction(idx, 'notes', e.target.value)} className="h-9 bg-transparent border-none text-xs italic" placeholder="Notas adicionales..." /></td>
+                        <td className="p-2"><Button onClick={() => removeAction(idx)} variant="ghost" size="icon" className="h-8 w-8 text-destructive/50 hover:text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {scoutingActions.length === 0 && (
+                <div className="p-12 text-center opacity-30 italic text-xs uppercase tracking-widest">No hay acciones registradas todavía.</div>
+              )}
+            </CardContent>
+          </Card>
+          <div className="flex justify-between gap-4 pt-10">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("mental")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.mental}</Button>
+            <Button type="button" onClick={() => setActiveTab("evaluation")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="evaluation" className="space-y-8 animate-in fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+              <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.evaluationTab.mainStrengths}</h2>
+              </div>
+              <CardContent className="p-6 space-y-4">
+                {strengths.map((s, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-[10px] font-black text-primary/40">{i+1}</span>
+                    <Input value={s} onChange={(e) => {
+                      const newS = [...strengths]; newS[i] = e.target.value; setStrengths(newS);
+                    }} className="h-10 bg-secondary/10 border-none font-bold" placeholder="..." />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+              <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.evaluationTab.areasToImprove}</h2>
+              </div>
+              <CardContent className="p-6 space-y-4">
+                {weaknesses.map((w, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-[10px] font-black text-primary/40">{i+1}</span>
+                    <Input value={w} onChange={(e) => {
+                      const newW = [...weaknesses]; newW[i] = e.target.value; setWeaknesses(newW);
+                    }} className="h-10 bg-secondary/10 border-none font-bold" placeholder="..." />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-6 py-4 border-b border-primary/20">
+              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">{t.report.evaluationTab.recTitle}</h2>
+            </div>
+            <CardContent className="p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-1.5">
+                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.playerDescription}</Label>
+                   <Textarea value={overallDescription} onChange={(e) => setOverallDescription(e.target.value)} className="min-h-[120px] bg-secondary/10 border-border/20 text-sm font-bold" />
+                </div>
+                <div className="space-y-1.5">
+                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.comparative}</Label>
+                   <Textarea value={comparativePlayer} onChange={(e) => setComparativePlayer(e.target.value)} className="min-h-[120px] bg-secondary/10 border-border/20 text-sm font-bold" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                 <div className="space-y-1.5">
+                   <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.finalRec}</Label>
+                   <Select value={finalRecommendation} onValueChange={setFinalRecommendation}>
+                      <SelectTrigger className="h-12 bg-secondary/10 border-border/20 font-bold">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1b263b] border-border/20">
+                        {Object.entries(t.report.evaluationTab.recOptions).map(([k,v]) => (
+                          <SelectItem key={k} value={k}>{v as string}</SelectItem>
+                        ))}
+                      </SelectContent>
+                   </Select>
+                 </div>
+                 <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.finalRatingTitle}</Label>
+                    <div className="flex gap-2 h-12 items-center px-4 bg-secondary/10 rounded-xl">
+                      {[1,2,3,4,5].map(star => (
+                        <button key={star} type="button" onClick={() => setFinalScoutRating(star)} className="focus:outline-none">
+                          <Star className={cn("h-6 w-6 transition-all", star <= finalScoutRating ? "fill-primary text-primary scale-110" : "text-muted-foreground opacity-30 hover:opacity-50")} />
+                        </button>
+                      ))}
+                    </div>
+                 </div>
+                 <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report.evaluationTab.fitsPhilosophy}</Label>
+                    <ChipGroup label="" options={['si', 'no', 'maybe']} selected={fitsPhilosophy} onSelect={setFitsPhilosophy} t={t} />
+                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-between gap-4 pt-10">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report.tabs.actions}</Button>
+            <Button type="button" onClick={() => setActiveTab("analytics")} className="h-12 px-12 bg-accent text-accent-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report.actions.next} <Sparkles className="ml-2 h-4 w-4" /></Button>
+          </div>
+        </TabsContent>
 
         <TabsContent value="analytics" className="animate-in fade-in space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
