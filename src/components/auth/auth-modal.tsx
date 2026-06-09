@@ -35,17 +35,17 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       case 'auth/user-disabled':
         return "Esta cuenta ha sido desactivada por el administrador.";
       case 'auth/user-not-found':
-        return "No existe ninguna cuenta con este correo. ¿Te has registrado ya?";
+        return "No existe ninguna cuenta con este correo. Haz clic en 'Regístrate' para crear una.";
       case 'auth/wrong-password':
-        return "La contraseña no es correcta.";
+        return "La contraseña es incorrecta. Inténtalo de nuevo.";
       case 'auth/invalid-credential':
-        return "Credenciales incorrectas. Verifica tu correo y contraseña.";
+        return "Credenciales incorrectas. Verifica tu correo y contraseña o regístrate si no tienes cuenta.";
       case 'auth/email-already-in-use':
         return "Este correo electrónico ya está registrado. Intenta iniciar sesión.";
       case 'auth/weak-password':
         return "La contraseña debe tener al menos 6 caracteres.";
       case 'auth/operation-not-allowed':
-        return "El acceso con correo/contraseña no está habilitado en Firebase. Contacta al administrador.";
+        return "El acceso con correo/contraseña no está habilitado en la consola de Firebase.";
       case 'auth/popup-closed-by-user':
         return "Se cerró la ventana de acceso antes de finalizar.";
       case 'auth/network-request-failed':
@@ -53,9 +53,11 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       case 'auth/too-many-requests':
         return "Demasiados intentos. El acceso se ha bloqueado temporalmente.";
       case 'auth/unauthorized-domain':
-        return "Este dominio no está autorizado en la consola de Firebase.";
+        return "Este dominio no está autorizado en la consola de Firebase (Authentication > Settings > Domains).";
+      case 'auth/invalid-api-key':
+        return "Configuración de API incorrecta. Contacta con el administrador del sistema.";
       default:
-        return `Error técnico (${code}): Por favor, verifica tus datos o contacta con soporte.`;
+        return `Error técnico de acceso (${code}). Por favor, contacta con soporte.`;
     }
   };
 
@@ -80,7 +82,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       console.error("Auth Error:", error.code, error.message);
       toast({
         variant: "destructive",
-        title: "Error de autenticación",
+        title: "Error de Autenticación",
         description: getAuthErrorMessage(error.code),
       });
     } finally {
