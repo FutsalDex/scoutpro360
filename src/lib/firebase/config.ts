@@ -3,7 +3,10 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-// Configuración de Firebase para el entorno de producción
+/**
+ * Configuración oficial de Firebase para ScoutPro 360.
+ * Estos datos han sido proporcionados directamente desde la consola de Firebase del proyecto.
+ */
 const firebaseConfig = {
   apiKey: "AIzaSyAA0CuASNFvj9DNjTnJh1KtZmoakufthe4",
   authDomain: "studio-4533708423-7da6a.firebaseapp.com",
@@ -13,7 +16,7 @@ const firebaseConfig = {
   appId: "1:206496988263:web:c6b4e1a1371bb1f32828c2"
 };
 
-// Inicialización persistente
+// Inicialización persistente (Evita errores de re-inicialización en Next.js)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);

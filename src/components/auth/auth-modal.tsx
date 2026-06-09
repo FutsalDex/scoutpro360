@@ -53,7 +53,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       case 'auth/internal-error':
         return "Error interno del servidor. Inténtalo de nuevo en unos minutos.";
       case 'auth/invalid-api-key':
-        return "Error crítico de configuración (API Key). Por favor, contacta con soporte.";
+        return "Error de configuración (API Key). Por favor, contacta con el administrador del club.";
       default:
         return "No se pudo completar la operación. Por favor, verifica tus datos o inténtalo más tarde.";
     }
