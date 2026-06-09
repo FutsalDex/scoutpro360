@@ -5,7 +5,7 @@ import { getAuth, Auth } from "firebase/auth";
 
 /**
  * Configuración de Firebase - ScoutPro 360
- * Valores validados de la consola de Firebase.
+ * Valores extraídos de la consola oficial del proyecto.
  */
 const firebaseConfig = {
   apiKey: "AIzaSyAA0CuASNFvj9DNjTnJh1KtZmoakufthe4",
@@ -16,7 +16,7 @@ const firebaseConfig = {
   appId: "1:206496988263:web:c6b4e1a1371bb1f32828c2"
 };
 
-// Inicialización Singleton
+// Inicialización Singleton segura para Next.js
 const app: FirebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 const db: Firestore = getFirestore(app);

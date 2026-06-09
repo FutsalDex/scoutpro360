@@ -6,8 +6,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInWithPopup, 
-  GoogleAuthProvider,
-  OAuthProvider
+  GoogleAuthProvider
 } from 'firebase/auth';
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Mail, Lock, Loader2, Briefcase, Eye, EyeOff } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { getOrCreateUserProfile } from '@/lib/services/user-service';
 import { UserRole } from '@/lib/types';
 
@@ -29,25 +28,28 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const { toast } = useToast();
 
   const getAuthErrorMessage = (code: string) => {
+    // Manejo específico del error de dominio bloqueado
+    if (code.includes('requests-from-referer-blocked') || code.includes('requests-from-referer')) {
+      return "Acceso Bloqueado: Este dominio no está autorizado en Google Cloud Console. Si acabas de quitar las restricciones, espera 5-10 minutos a que Google actualice sus servidores.";
+    }
+
     switch (code) {
       case 'auth/invalid-api-key':
-        return "Error de configuración: La clave de API no es válida.";
+        return "Error crítico: La clave de API de Firebase no es válida o está mal configurada.";
       case 'auth/unauthorized-domain':
-        return "Dominio no autorizado en la consola de Firebase.";
+        return "Dominio no autorizado: Debes añadir esta URL a la lista de dominios permitidos en Firebase Authentication.";
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
-        return "Credenciales incorrectas. Si eres nuevo, por favor regístrate primero.";
+        return "Credenciales incorrectas. Si eres nuevo, regístrate primero pulsando el botón de abajo.";
       case 'auth/email-already-in-use':
-        return "Este correo ya tiene una cuenta asociada. Intenta iniciar sesión.";
+        return "Este correo ya está registrado. Intenta iniciar sesión.";
       case 'auth/weak-password':
-        return "La contraseña es muy débil (mínimo 6 caracteres).";
+        return "La contraseña es demasiado corta (mínimo 6 caracteres).";
       case 'auth/operation-not-allowed':
-        return "El método de acceso no está habilitado en Firebase.";
-      case 'auth/requests-from-referer-blocked':
-        return "Acceso bloqueado por restricciones de API. (Verifica Google Cloud Console).";
+        return "Este método de acceso no está habilitado en tu consola de Firebase.";
       default:
-        return `Error de acceso: ${code}. Por favor, verifica tus datos.`;
+        return `Fallo en el sistema: ${code}. Revisa la configuración de tu proyecto Firebase.`;
     }
   };
 
@@ -69,10 +71,10 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       });
       onAuthSuccess();
     } catch (error: any) {
-      console.error("Auth Error:", error.code);
+      console.error("Auth Error Code:", error.code);
       toast({
         variant: "destructive",
-        title: "Fallo en Autenticación",
+        title: "Error de Seguridad",
         description: getAuthErrorMessage(error.code),
       });
     } finally {
