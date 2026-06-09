@@ -3,7 +3,7 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-// Configuración de Firebase proporcionada por el usuario
+// Configuración de Firebase para el entorno de producción
 const firebaseConfig = {
   apiKey: "AIzaSyAA0CuASNFvj9DNjTnJh1KtZmoakufthe4",
   authDomain: "studio-4533708423-7da6a.firebaseapp.com",
@@ -13,7 +13,7 @@ const firebaseConfig = {
   appId: "1:206496988263:web:c6b4e1a1371bb1f32828c2"
 };
 
-// Initialize Firebase
+// Inicialización persistente
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);

@@ -47,17 +47,16 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           </a>
 
           <nav className="hidden lg:flex items-center gap-8">
-            {['Propuesta', 'Características', 'Precios', 'FAQ'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                {item}
-              </a>
-            ))}
+            <a href="#propuesta" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Propuesta</a>
+            <a href="#características" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Características</a>
+            <a href="#precios" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Precios</a>
+            <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">FAQ</a>
           </nav>
 
           <div className="flex items-center gap-3">
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-lg shadow-primary/20 font-bold text-xs uppercase tracking-widest px-6">
+                <Button className="bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-lg shadow-primary/20 font-bold text-xs uppercase tracking-widest px-6 h-10">
                   Acceso / Registro
                 </Button>
               </DialogTrigger>
@@ -75,15 +74,14 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       {isMenuOpen && (
         <div className="fixed inset-0 z-[90] bg-background pt-20 px-6 lg:hidden animate-in fade-in slide-in-from-top-4">
           <nav className="flex flex-col gap-6">
-            {['Propuesta', 'Características', 'Precios', 'FAQ'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>
-                {item}
-              </a>
-            ))}
+            <a href="#propuesta" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>Propuesta</a>
+            <a href="#características" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>Características</a>
+            <a href="#precios" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>Precios</a>
+            <a href="#faq" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>FAQ</a>
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground">
-                  Acceder / Registrarse
+                  Acceso / Registro
                 </Button>
               </DialogTrigger>
               <AuthModal onAuthSuccess={onEnter} />

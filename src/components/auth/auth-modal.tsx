@@ -52,6 +52,8 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
         return "Demasiados intentos fallidos. El acceso se ha bloqueado temporalmente por seguridad.";
       case 'auth/internal-error':
         return "Error interno del servidor. Inténtalo de nuevo en unos minutos.";
+      case 'auth/invalid-api-key':
+        return "Error crítico de configuración (API Key). Por favor, contacta con soporte.";
       default:
         return "No se pudo completar la operación. Por favor, verifica tus datos o inténtalo más tarde.";
     }
