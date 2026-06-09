@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Mail, Lock, Loader2, Briefcase, Eye, EyeOff } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Loader2, Briefcase, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { getOrCreateUserProfile } from '@/lib/services/user-service';
 import { UserRole } from '@/lib/types';
 
@@ -29,35 +29,32 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const { toast } = useToast();
 
   const getAuthErrorMessage = (code: string) => {
+    // Manejo de errores específicos de restricciones de API Key mostrados en el pantallazo
+    if (code.includes('requests-from-referer-blocked')) {
+      return "Acceso bloqueado por seguridad: El dominio de desarrollo no está autorizado en tu API Key de Google Cloud Console. Por favor, revisa las restricciones de la clave API.";
+    }
+
     switch (code) {
-      case 'auth/invalid-email':
-        return "El formato del correo electrónico no es válido.";
-      case 'auth/user-disabled':
-        return "Esta cuenta ha sido desactivada por el administrador.";
-      case 'auth/user-not-found':
-        return "No existe ninguna cuenta con este correo. Haz clic en 'Regístrate' para crear una.";
-      case 'auth/wrong-password':
-        return "La contraseña es incorrecta. Inténtalo de nuevo.";
-      case 'auth/invalid-credential':
-        return "Credenciales incorrectas. Verifica tu correo y contraseña o regístrate si no tienes cuenta.";
-      case 'auth/email-already-in-use':
-        return "Este correo electrónico ya está registrado. Intenta iniciar sesión.";
-      case 'auth/weak-password':
-        return "La contraseña debe tener al menos 6 caracteres.";
-      case 'auth/operation-not-allowed':
-        return "El acceso con correo/contraseña no está habilitado en la consola de Firebase.";
-      case 'auth/popup-closed-by-user':
-        return "Se cerró la ventana de acceso antes de finalizar.";
-      case 'auth/network-request-failed':
-        return "Error de red. Revisa tu conexión a internet.";
-      case 'auth/too-many-requests':
-        return "Demasiados intentos. El acceso se ha bloqueado temporalmente.";
+      case 'auth/invalid-api-key':
+        return "Configuración de API incorrecta. Verifica la Clave de API en el archivo de configuración.";
       case 'auth/unauthorized-domain':
         return "Este dominio no está autorizado en la consola de Firebase (Authentication > Settings > Domains).";
-      case 'auth/invalid-api-key':
-        return "Configuración de API incorrecta. Contacta con el administrador del sistema.";
+      case 'auth/invalid-email':
+        return "El formato del correo electrónico no es válido.";
+      case 'auth/user-not-found':
+        return "No existe ninguna cuenta con este correo. Por favor, regístrate.";
+      case 'auth/wrong-password':
+        return "La contraseña es incorrecta.";
+      case 'auth/invalid-credential':
+        return "Credenciales incorrectas. Verifica tus datos o regístrate si eres nuevo.";
+      case 'auth/email-already-in-use':
+        return "Este correo ya está registrado. Prueba a iniciar sesión.";
+      case 'auth/operation-not-allowed':
+        return "El método de acceso (email/password) no está habilitado en Firebase.";
+      case 'auth/network-request-failed':
+        return "Error de red. Revisa tu conexión a internet.";
       default:
-        return `Error técnico de acceso (${code}). Por favor, contacta con soporte.`;
+        return `Error técnico de acceso (${code}). Verifica los permisos en tu consola de Firebase/Google Cloud.`;
     }
   };
 
@@ -83,7 +80,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       toast({
         variant: "destructive",
         title: "Error de Autenticación",
-        description: getAuthErrorMessage(error.code),
+        description: getAuthErrorMessage(error.code || error.message),
       });
     } finally {
       setLoading(false);
@@ -102,7 +99,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       toast({
         variant: "destructive",
         title: "Error con Google",
-        description: getAuthErrorMessage(error.code),
+        description: getAuthErrorMessage(error.code || error.message),
       });
     } finally {
       setLoading(false);
@@ -121,7 +118,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       toast({
         variant: "destructive",
         title: "Error con Apple",
-        description: getAuthErrorMessage(error.code),
+        description: getAuthErrorMessage(error.code || error.message),
       });
     } finally {
       setLoading(false);
