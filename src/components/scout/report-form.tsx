@@ -355,10 +355,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const handleCalculatePIM = async () => {
     setIsCalculatingPIM(true);
     try {
-      const normalize = (val: number | undefined) => (val && val > 0 ? val : 3);
-
-      const getNormalizedMetricsArray = (list: string[]) => 
-        list.map(name => ({ name, value: normalize(ratings[name]) }));
+      const getMetricsArray = (list: string[]) => 
+        list
+          .filter(name => (ratings[name] || 0) > 0)
+          .map(name => ({ name, value: ratings[name] }));
 
       const payload: CalculatePlayerImpactMetricInput = {
         playerName: playerName || "Prospecto",
@@ -371,18 +371,18 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         teamDominance: teamDominance || "balanced",
         score: observingScore || "drawing",
         matchImportance: matchImportance || "medium",
-        technicalMetrics: getNormalizedMetricsArray([...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact]),
-        tacticalMetrics: getNormalizedMetricsArray([...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact]),
-        physicalMetrics: getNormalizedMetricsArray([...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact]),
-        mentalMetrics: getNormalizedMetricsArray([...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact]),
+        technicalMetrics: getMetricsArray([...activeRole.kpis.technical.observation, ...activeRole.kpis.technical.impact]),
+        tacticalMetrics: getMetricsArray([...activeRole.kpis.tactical.observation, ...activeRole.kpis.tactical.impact]),
+        physicalMetrics: getMetricsArray([...activeRole.kpis.physical.observation, ...activeRole.kpis.physical.impact]),
+        mentalMetrics: getMetricsArray([...activeRole.kpis.mental.observation, ...activeRole.kpis.mental.impact]),
         generalProfile: {
-          technicalLevel: normalize(ratings['Nivel técnico']),
-          tacticalIntelligence: normalize(ratings['Inteligencia táctica']),
-          physicalQuality: normalize(ratings['Calidad física']),
-          mentalStrength: normalize(ratings['Fortaleza mental']),
-          competitiveLevel: normalize(ratings['Nivel competitivo']),
-          potential: normalize(ratings['Potencial']),
-          currentLevel: normalize(ratings['Nivel actual']),
+          technicalLevel: ratings['Nivel técnico'] || 0,
+          tacticalIntelligence: ratings['Inteligencia táctica'] || 0,
+          physicalQuality: ratings['Calidad física'] || 0,
+          mentalStrength: ratings['Fortaleza mental'] || 0,
+          competitiveLevel: ratings['Nivel competitivo'] || 0,
+          potential: ratings['Potencial'] || 0,
+          currentLevel: ratings['Nivel actual'] || 0,
         },
         language: 'es'
       };
@@ -394,18 +394,25 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         let finalPim = result.playerImpactMetric;
         
         // Lógica de validación de cordura (Sanity Check)
-        const ratingValues = Object.values(ratings).filter(v => typeof v === 'number');
-        const avgRating = ratingValues.reduce((a, b) => a + b, 0) / (ratingValues.length || 1);
+        const ratingValues = Object.values(ratings).filter(v => typeof v === 'number' && v > 0);
+        const avgRating = ratingValues.length > 0 
+          ? ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length 
+          : 0;
 
         // Si la IA es demasiado optimista (promedio bajo pero PIM alto)
-        if (avgRating < 2 && finalPim > 40) {
+        if (avgRating > 0 && avgRating < 2 && finalPim > 40) {
           finalPim = Math.round(avgRating * 15); // Forzamos una bajada drástica (max 30 si avg es 2)
         }
         
-        const validatedPim = Math.max(10, Math.min(100, Math.round(finalPim)));
+        const validatedPim = Math.max(0, Math.min(100, Math.round(finalPim)));
         setPimScore(validatedPim);
         handleNoteChange('pim_explanation', result.explanation);
-        toast({ title: "Análisis Finalizado", description: `Métrica PIM calculada: ${validatedPim}` });
+        
+        if (validatedPim === 0) {
+          toast({ variant: "destructive", title: "Análisis Incompleto", description: result.explanation });
+        } else {
+          toast({ title: "Análisis Finalizado", description: `Métrica PIM calculada: ${validatedPim}` });
+        }
       }
     } catch (e: any) {
       console.error("AI Error (PIM):", e);
@@ -627,7 +634,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                 
                 <ChipGroup label={t.report.contextTab.gameStyle} options={['possession', 'counter', 'highPress', 'direct', 'defensive']} selected={matchStyle} onSelect={setMatchStyle} t={t} />
                 <ChipGroup label={t.report.contextTab.pace} options={['low', 'medium', 'high']} selected={matchPace} onSelect={setMatchPace} t={t} />
-                <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={teamDominance} onSelect={setTeamDominance} t={t} />
+                <ChipGroup label={t.report.contextTab.teamDominance} options={['dominant', 'balanced', 'disadvantage']} selected={teamDominance} onSelect={setTeamDominance} t={t} />
                 <ChipGroup label={t.report.contextTab.scoreAtObserving} options={['winning', 'drawing', 'losing']} selected={observingScore} onSelect={setObservingScore} t={t} />
                 <ChipGroup label={t.report.contextTab.importance} options={['low', 'medium', 'high', 'decisive']} selected={matchImportance} onSelect={setMatchImportance} t={t} />
                 <ChipGroup label={t.report.contextTab.weather} options={['sun', 'cloudy', 'rain', 'cold', 'wind']} selected={weather} onSelect={setWeather} t={t} icons={weatherIcons} />

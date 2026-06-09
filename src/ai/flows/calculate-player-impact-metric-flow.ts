@@ -41,7 +41,7 @@ const CalculatePlayerImpactMetricInputSchema = z.object({
 export type CalculatePlayerImpactMetricInput = z.infer<typeof CalculatePlayerImpactMetricInputSchema>;
 
 const CalculatePlayerImpactMetricOutputSchema = z.object({
-  playerImpactMetric: z.number().describe('Un número entero entre 10 y 100'),
+  playerImpactMetric: z.number().describe('Un número entero entre 0 y 100'),
   explanation: z.string().describe('Análisis técnico del scout sobre el patrón de rendimiento detectado'),
 });
 export type CalculatePlayerImpactMetricOutput = z.infer<typeof CalculatePlayerImpactMetricOutputSchema>;
@@ -58,20 +58,21 @@ DATOS DEL JUGADOR:
 - Jugador: {{{playerName}}} ({{{tacticalRole}}})
 - Contexto: {{{minPlayed}}} min, Condición {{{physicalCondition}}}, Importancia {{{matchImportance}}}
 
-MÉTRICAS RECIBIDAS (Escala 1-5):
+MÉTRICAS RECIBIDAS (Solo las observadas):
 Técnicas: {{#each technicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Tácticas: {{#each tacticalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Físicas: {{#each physicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 Mentales: {{#each mentalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
 
 REGLAS DE CÁLCULO ESTRICTAS:
-1. ANÁLISIS CUALITATIVO: Analiza los patrones de puntuación (1-5) para determinar el impacto real. Ignora la aritmética simple.
-2. ESCALA DE VALORACIÓN:
-   - Si las métricas (1-5) son mayoritariamente 1 o 2: El PIM DEBE ser inferior a 30. Es un rendimiento insuficiente.
-   - Si las métricas son mayoritariamente 3: El PIM DEBE estar en el rango de 40 a 60. Es un rendimiento sólido/estándar.
-   - Si las métricas son mayoritariamente 4 o 5: El PIM DEBE ser superior a 70. Es un rendimiento de impacto alto o élite.
-3. CÁLCULO DIRECTO: Si los datos son extremos (ej: todo 1 o todo 5), la puntuación debe reflejarlo drásticamente. Un jugador con todo "1" no puede tener un PIM de 50.
-4. RANGO: Devuelve siempre un número entero entre 10 y 100. NUNCA devuelvas 0 ni 1.
+1. ANÁLISIS CUALITATIVO: Evalúa las métricas recibidas. Ignora la aritmética simple y busca el impacto real.
+2. SI NO HAY DATOS: No inventes valores. Si recibes menos de 5 métricas en total entre todas las categorías, devuelve un PIM de 0 y explica en "explanation" que falta información para una evaluación profesional.
+3. ESCALA DE RENDIMIENTO OBLIGATORIA:
+   - Si la media de las métricas (1-5) es inferior a 2.0: El PIM DEBE ser obligatoriamente entre 10 y 30. Es un rendimiento insuficiente.
+   - Si la media de las métricas es aproximadamente 3.0: El PIM DEBE estar en el rango de 40 a 60.
+   - Si la media de las métricas es superior a 3.5: El PIM DEBE ser entre 70 y 100. Es un rendimiento de impacto alto.
+4. PROHIBICIÓN DEL 50: No devuelvas 50 por defecto por "seguridad". Si el jugador es mediocre, devuelve un valor bajo. Si es bueno, uno alto. El 50 solo se usa si el rendimiento es exactamente mediano.
+5. RANGO: Devuelve siempre un número entero. NUNCA devuelvas 1 a menos que sea un fallo total. El mínimo profesional es 10 si hay datos, o 0 si no los hay.
 
 RESPUESTA JSON ESTRICTA:
 - Devuelve EXCLUSIVAMENTE un objeto JSON válido con las claves "playerImpactMetric" (número entero) y "explanation" (string).
@@ -84,7 +85,7 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
     
     if (response.output) {
       return {
-        playerImpactMetric: Math.max(10, Math.min(100, Math.round(response.output.playerImpactMetric))),
+        playerImpactMetric: Math.max(0, Math.min(100, Math.round(response.output.playerImpactMetric))),
         explanation: response.output.explanation
       };
     }
@@ -95,17 +96,17 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
                       text.match(/playerImpactMetric[:\s]+(\d+)/) ||
                       text.match(/(\d+)/); 
     
-    const score = scoreMatch ? parseInt(scoreMatch[1]) : 50;
+    const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
     
     return {
-      playerImpactMetric: Math.max(10, Math.min(100, Math.round(score))),
+      playerImpactMetric: Math.max(0, Math.min(100, Math.round(score))),
       explanation: text.substring(0, 500) || "Cálculo realizado mediante análisis de patrón de rendimiento cualitativo."
     };
   } catch (error) {
     console.error("PIM Flow Error:", error);
     return {
-      playerImpactMetric: 50,
-      explanation: "Error en el motor de análisis. Se asigna valoración estándar."
+      playerImpactMetric: 0,
+      explanation: "Error en el motor de análisis. Información insuficiente."
     };
   }
 }
