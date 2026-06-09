@@ -10,7 +10,7 @@ import {
 import { useTranslation } from '@/lib/i18n/context';
 import { 
   subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, 
-  saveScheduledMatch, subscribeToGlobalPlayers 
+  subscribeToGlobalPlayers 
 } from "@/lib/services/db-service";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
@@ -31,11 +31,12 @@ import { Input } from "@/components/ui/input";
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
   onViewFicha: (id: string) => void;
+  onScheduleMatch: (id: string) => void;
   global?: boolean;
   mode?: 'analyzed' | 'pending' | 'all';
 }
 
-export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode = 'all' }: GlobalDatabaseProps) {
+export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, global = false, mode = 'all' }: GlobalDatabaseProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -95,12 +96,6 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode
     
     return true;
   });
-
-  const getPlayerStatus = (player: Player) => {
-    if (reports.some(r => r.playerId === player.id)) return 'analizado';
-    if (matches.some(m => m.playerId === player.id && m.status === 'scheduled')) return 'agendado';
-    return 'detectado';
-  };
 
   const getReportForPlayer = (playerId: string) => {
     return reports.find(r => r.playerId === playerId);
@@ -204,13 +199,12 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode
             <tbody className="divide-y divide-border/10">
               {filteredPlayers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-20 text-center text-muted-foreground font-black text-[11px] uppercase tracking-widest opacity-40 italic">
+                  <td colSpan={6} className="py-20 text-center text-muted-foreground font-black text-[11px] uppercase tracking-widest opacity-40 italic">
                     {t.database.noRecords}
                   </td>
                 </tr>
               ) : (
                 filteredPlayers.map(player => {
-                  const status = getPlayerStatus(player);
                   const report = getReportForPlayer(player.id);
                   const rating = report?.finalScoutRating || 0;
                   const score = rating > 0 ? rating * 20 : 0;
@@ -284,7 +278,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode
                               <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.editReport}</span>
                             </DropdownMenuItem>
                             
-                            {status === 'analizado' && (
+                            {score > 0 && (
                               <DropdownMenuItem 
                                 onClick={() => generatePDF(player)} 
                                 className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5"
@@ -294,19 +288,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, global = false, mode
                               </DropdownMenuItem>
                             )}
 
-                            <DropdownMenuItem onClick={() => {
-                              const newMatch: Omit<ScheduledMatch, 'id'> = {
-                                playerId: player.id,
-                                homeTeam: player.club || "TBD",
-                                awayTeam: "Rival",
-                                category: "Pro",
-                                dateTime: new Date().toISOString(),
-                                scoutId: userId || "",
-                                status: 'scheduled'
-                              };
-                              saveScheduledMatch(newMatch);
-                              toast({ title: t.database.actions.matchSuccess });
-                            }} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground">
+                            <DropdownMenuItem onClick={() => onScheduleMatch(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
                               <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.scheduleMatch}</span>
                             </DropdownMenuItem>

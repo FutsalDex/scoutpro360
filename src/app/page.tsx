@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -30,14 +31,18 @@ function AppShell({
   handleSignOut,
   userProfile,
   editingPlayerId,
-  setEditingPlayerId
+  setEditingPlayerId,
+  schedulingPlayerId,
+  setSchedulingPlayerId
 }: { 
   activeView: ViewState, 
   setActiveView: (view: ViewState) => void,
   handleSignOut: () => void,
   userProfile: UserProfile | null,
   editingPlayerId: string | null,
-  setEditingPlayerId: (id: string | null) => void
+  setEditingPlayerId: (id: string | null) => void,
+  schedulingPlayerId: string | null,
+  setSchedulingPlayerId: (id: string | null) => void
 }) {
   const { t } = useTranslation();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -53,7 +58,10 @@ function AppShell({
 
   const handleNavClick = (view: ViewState) => {
     if (needsProfileCompletion && view !== 'profile') return;
-    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda') setEditingPlayerId(null);
+    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda') {
+      setEditingPlayerId(null);
+      setSchedulingPlayerId(null);
+    }
     setActiveView(view);
     if (isMobile) {
       setOpenMobile(false);
@@ -70,16 +78,21 @@ function AppShell({
     setActiveView('talent-id');
   };
 
+  const handleScheduleMatch = (playerId: string) => {
+    setSchedulingPlayerId(playerId);
+    setActiveView('agenda');
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
-      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} global={false} mode="analyzed" />;
-      case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} global={false} mode="pending" />;
-      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} global={true} mode="all" />;
-      case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} />;
+      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="analyzed" />;
+      case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="pending" />;
+      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={true} mode="all" />;
+      case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} initialPlayerId={schedulingPlayerId} onClearScheduleContext={() => setSchedulingPlayerId(null)} />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
       default: return <ScoutDashboard userProfile={userProfile} onEditPlayer={handleEditPlayer} />;
@@ -341,6 +354,7 @@ export default function Home() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  const [schedulingPlayerId, setSchedulingPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     let unsubscribeProfile: (() => void) | null = null;
@@ -374,6 +388,7 @@ export default function Home() {
     setShowApp(false);
     setActiveView('dashboard');
     setEditingPlayerId(null);
+    setSchedulingPlayerId(null);
   };
 
   if (loading) {
@@ -398,6 +413,8 @@ export default function Home() {
         userProfile={userProfile}
         editingPlayerId={editingPlayerId}
         setEditingPlayerId={setEditingPlayerId}
+        schedulingPlayerId={schedulingPlayerId}
+        setSchedulingPlayerId={setSchedulingPlayerId}
       />
       <Toaster />
     </SidebarProvider>

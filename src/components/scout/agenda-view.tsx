@@ -5,26 +5,45 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, FilePlus, ChevronRight, Loader2, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, MapPin, Clock, FilePlus, ChevronRight, Loader2, User, Plus, Save, X } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
-import { subscribeToScheduledMatches, getPlayer } from "@/lib/services/db-service";
+import { subscribeToScheduledMatches, getPlayer, saveScheduledMatch, subscribeToPlayers } from "@/lib/services/db-service";
 import { ScheduledMatch, Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 
 interface AgendaViewProps {
   onStartScouting: (playerId: string) => void;
+  initialPlayerId?: string | null;
+  onClearScheduleContext?: () => void;
 }
 
-export function AgendaView({ onStartScouting }: AgendaViewProps) {
+export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleContext }: AgendaViewProps) {
   const { t, language } = useTranslation();
+  const { toast } = useToast();
   const [matches, setMatches] = useState<ScheduledMatch[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [newMatch, setNewMatch] = useState<Partial<ScheduledMatch>>({
+    homeTeam: '',
+    awayTeam: '',
+    category: '',
+    dateTime: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+    status: 'scheduled',
+    playerId: ''
+  });
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
@@ -51,9 +70,54 @@ export function AgendaView({ onStartScouting }: AgendaViewProps) {
       setMatches(sorted);
       setLoading(false);
     });
+
+    const unsubPlayers = subscribeToPlayers(userId, setPlayers);
     
-    return () => unsubMatches();
+    return () => {
+      unsubMatches();
+      unsubPlayers();
+    };
   }, [authReady, userId]);
+
+  useEffect(() => {
+    if (initialPlayerId) {
+      setNewMatch({
+        homeTeam: '',
+        awayTeam: '',
+        category: '',
+        dateTime: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+        status: 'scheduled',
+        playerId: initialPlayerId
+      });
+      setIsCreateOpen(true);
+    }
+  }, [initialPlayerId]);
+
+  const handleCreateMatch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId || !newMatch.homeTeam || !newMatch.awayTeam || !newMatch.playerId) {
+      toast({ variant: "destructive", title: "Campos incompletos" });
+      return;
+    }
+
+    saveScheduledMatch({
+      ...newMatch as Omit<ScheduledMatch, 'id'>,
+      scoutId: userId,
+      status: 'scheduled'
+    });
+
+    toast({ title: t.agenda.form.success });
+    setIsCreateOpen(false);
+    setNewMatch({
+      homeTeam: '',
+      awayTeam: '',
+      category: '',
+      dateTime: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+      status: 'scheduled',
+      playerId: ''
+    });
+    if (onClearScheduleContext) onClearScheduleContext();
+  };
 
   if (loading) {
     return (
@@ -65,12 +129,117 @@ export function AgendaView({ onStartScouting }: AgendaViewProps) {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
-      <div className="flex flex-col gap-2">
-        <div className="h-1 w-12 bg-accent rounded-full mb-2" />
-        <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
-          {t.agenda.title}
-        </h1>
-        <p className="text-muted-foreground font-medium">{t.agenda.subtitle}</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="h-1 w-12 bg-accent rounded-full mb-2" />
+          <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
+            {t.agenda.title}
+          </h1>
+          <p className="text-muted-foreground font-medium">{t.agenda.subtitle}</p>
+        </div>
+
+        <Dialog open={isCreateOpen} onOpenChange={(open) => {
+          setIsCreateOpen(open);
+          if (!open && onClearScheduleContext) onClearScheduleContext();
+        }}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+              <Plus className="h-4 w-4 mr-2" /> {t.agenda.newMatch}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-[#1b263b] border-border/40 shadow-2xl rounded-3xl max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                <Calendar className="h-5 w-5" /> {t.agenda.form.title}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreateMatch} className="space-y-6 pt-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.agenda.form.player}</Label>
+                  <Select 
+                    value={newMatch.playerId} 
+                    onValueChange={(v) => setNewMatch({...newMatch, playerId: v})}
+                    disabled={!!initialPlayerId}
+                  >
+                    <SelectTrigger className="h-12 bg-secondary/20 border-border/20 rounded-xl font-bold">
+                      <SelectValue placeholder="-" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1b263b] border-border/40">
+                      {players.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {initialPlayerId && (
+                    <p className="text-[8px] font-bold text-accent uppercase tracking-widest italic">Modo de agendamiento directo activo</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.agenda.form.homeTeam}</Label>
+                    <Input 
+                      value={newMatch.homeTeam} 
+                      onChange={(e) => setNewMatch({...newMatch, homeTeam: e.target.value})}
+                      className="h-12 bg-secondary/20 border-border/20 rounded-xl font-bold"
+                      placeholder="Local"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.agenda.form.awayTeam}</Label>
+                    <Input 
+                      value={newMatch.awayTeam} 
+                      onChange={(e) => setNewMatch({...newMatch, awayTeam: e.target.value})}
+                      className="h-12 bg-secondary/20 border-border/20 rounded-xl font-bold"
+                      placeholder="Visitante"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.agenda.form.dateTime}</Label>
+                  <Input 
+                    type="datetime-local"
+                    value={newMatch.dateTime} 
+                    onChange={(e) => setNewMatch({...newMatch, dateTime: e.target.value})}
+                    className="h-12 bg-secondary/20 border-border/20 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.agenda.form.category}</Label>
+                  <Input 
+                    placeholder="Ej: Liga Pro / Camp Nou"
+                    value={newMatch.category} 
+                    onChange={(e) => setNewMatch({...newMatch, category: e.target.value})}
+                    className="h-12 bg-secondary/20 border-border/20 rounded-xl font-bold"
+                  />
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={() => {
+                    setIsCreateOpen(false);
+                    if (onClearScheduleContext) onClearScheduleContext();
+                  }}
+                  className="text-[10px] font-black uppercase tracking-widest text-muted-foreground"
+                >
+                  {t.agenda.form.cancel}
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-primary text-primary-foreground font-black text-[10px] uppercase tracking-widest px-8 rounded-xl shadow-lg shadow-primary/20"
+                >
+                  <Save className="h-4 w-4 mr-2" /> {t.agenda.form.submit}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {matches.length === 0 ? (
@@ -143,7 +312,6 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
                 {match.homeTeam} <span className="text-primary italic mx-1">vs</span> {match.awayTeam}
               </h3>
             </div>
-            {/* Opcional: Mostrar categoría arriba si es necesario, pero el usuario pidió el campo abajo */}
           </div>
 
           <div className="p-4 bg-secondary/20 rounded-2xl border border-border/10 flex items-center justify-between">

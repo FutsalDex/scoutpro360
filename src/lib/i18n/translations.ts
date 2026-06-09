@@ -83,7 +83,7 @@ export const translations = {
         editReport: 'CREAR/EDITAR INFORME',
         createPdf: 'CREAR INFORME PDF',
         scheduleMeeting: 'Agendar Reunión',
-        scheduleMatch: 'Agendar Partido',
+        scheduleMatch: 'AGENDAR PARTIDO',
         meetingSuccess: 'Reunión agendada correctamente',
         matchSuccess: 'Observación de partido agendada',
         pdfIncomplete: 'Informe incompleto (mínimo 75%)',
@@ -112,6 +112,18 @@ export const translations = {
       noMatches: 'No tienes partidos programados en tu agenda.',
       startScouting: 'Iniciar Informe',
       matchDetails: 'Detalles del Partido',
+      newMatch: 'Nuevo Partido',
+      form: {
+        title: 'Programar Observación',
+        homeTeam: 'Equipo Local',
+        awayTeam: 'Equipo Visitante',
+        category: 'Categoría / Estadio',
+        dateTime: 'Fecha y Hora',
+        player: 'Jugador Objetivo',
+        submit: 'AGENDAR CITA',
+        cancel: 'CANCELAR',
+        success: 'Partido agendado correctamente'
+      }
     },
     matchAnalysis: {
       title: 'Laboratorio de Análisis Táctico',
