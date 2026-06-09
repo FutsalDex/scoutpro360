@@ -35,43 +35,49 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
       case 'auth/user-disabled':
         return "Esta cuenta ha sido desactivada por el administrador.";
       case 'auth/user-not-found':
+        return "No existe ninguna cuenta con este correo. ¿Te has registrado ya?";
       case 'auth/wrong-password':
+        return "La contraseña no es correcta.";
       case 'auth/invalid-credential':
-        return "Correo electrónico o contraseña incorrectos.";
+        return "Credenciales incorrectas. Verifica tu correo y contraseña.";
       case 'auth/email-already-in-use':
-        return "Este correo electrónico ya está registrado en otra cuenta.";
+        return "Este correo electrónico ya está registrado. Intenta iniciar sesión.";
       case 'auth/weak-password':
-        return "La contraseña es demasiado débil (mínimo 6 caracteres).";
-      case 'auth/popup-closed-by-user':
-        return "Se cerró la ventana de acceso antes de completar el proceso.";
+        return "La contraseña debe tener al menos 6 caracteres.";
       case 'auth/operation-not-allowed':
-        return "Este método de acceso no está habilitado actualmente.";
+        return "El acceso con correo/contraseña no está habilitado en Firebase. Contacta al administrador.";
+      case 'auth/popup-closed-by-user':
+        return "Se cerró la ventana de acceso antes de finalizar.";
       case 'auth/network-request-failed':
-        return "Error de red. Por favor, verifica tu conexión a internet.";
+        return "Error de red. Revisa tu conexión a internet.";
       case 'auth/too-many-requests':
-        return "Demasiados intentos fallidos. El acceso se ha bloqueado temporalmente por seguridad.";
-      case 'auth/internal-error':
-        return "Error interno del servidor. Inténtalo de nuevo en unos minutos.";
-      case 'auth/invalid-api-key':
-        return "Error de configuración (API Key). Por favor, contacta con el administrador del club.";
+        return "Demasiados intentos. El acceso se ha bloqueado temporalmente.";
+      case 'auth/unauthorized-domain':
+        return "Este dominio no está autorizado en la consola de Firebase.";
       default:
-        return "No se pudo completar la operación. Por favor, verifica tus datos o inténtalo más tarde.";
+        return `Error técnico (${code}): Por favor, verifica tus datos o contacta con soporte.`;
     }
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) return;
+    
     setLoading(true);
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email.trim(), password);
       } else {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await getOrCreateUserProfile(userCredential.user.uid, email, false, selectedRole);
+        const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        await getOrCreateUserProfile(userCredential.user.uid, email.trim(), false, selectedRole);
       }
-      toast({ title: isLogin ? "Acceso concedido" : "Cuenta creada", description: "Bienvenido a ScoutPro 360." });
+      toast({ 
+        title: isLogin ? "Acceso concedido" : "Cuenta creada", 
+        description: "Sincronización con ScoutPro 360 completada." 
+      });
       onAuthSuccess();
     } catch (error: any) {
+      console.error("Auth Error:", error.code, error.message);
       toast({
         variant: "destructive",
         title: "Error de autenticación",
@@ -86,8 +92,9 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      toast({ title: "Acceso con Google", description: "Sincronización exitosa." });
+      const result = await signInWithPopup(auth, provider);
+      await getOrCreateUserProfile(result.user.uid, result.user.email || '', false);
+      toast({ title: "Acceso con Google", description: "Identidad verificada con éxito." });
       onAuthSuccess();
     } catch (error: any) {
       toast({
@@ -104,8 +111,9 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
     setLoading(true);
     try {
       const provider = new OAuthProvider('apple.com');
-      await signInWithPopup(auth, provider);
-      toast({ title: "Acceso con Apple", description: "Sincronización exitosa." });
+      const result = await signInWithPopup(auth, provider);
+      await getOrCreateUserProfile(result.user.uid, result.user.email || '', false);
+      toast({ title: "Acceso con Apple", description: "Identidad verificada con éxito." });
       onAuthSuccess();
     } catch (error: any) {
       toast({
@@ -125,14 +133,14 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
           {isLogin ? 'Acceso a ScoutPro360' : 'Registro de Scout'}
         </DialogTitle>
         <DialogDescription className="sr-only">
-          Inicia sesión o regístrate para acceder a la plataforma profesional de scouting.
+          Panel de autenticación profesional para la red de scouting.
         </DialogDescription>
         <div className="bg-primary p-8 flex flex-col items-center gap-2 text-center">
           <div className="h-12 w-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center border border-white/20">
             <ShieldCheck className="text-primary-foreground h-7 w-7" />
           </div>
           <h2 className="text-xl font-black text-primary-foreground uppercase tracking-widest leading-tight">
-            {isLogin ? 'Acceso a ScoutPro360' : 'Registro de Scout'}
+            {isLogin ? 'Acceso Profesional' : 'Registro de Scout'}
           </h2>
         </div>
       </DialogHeader>
@@ -146,7 +154,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
               <Input 
                 type="email" 
                 placeholder="scout@club.com" 
-                className="pl-10 h-12 bg-secondary/10"
+                className="pl-10 h-12 bg-secondary/10 border-border/20 focus:border-primary/50"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -160,7 +168,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
               <Input 
                 type={showPassword ? "text" : "password"} 
                 placeholder="••••••••" 
-                className="pl-10 pr-10 h-12 bg-secondary/10"
+                className="pl-10 pr-10 h-12 bg-secondary/10 border-border/20 focus:border-primary/50"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -182,7 +190,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
               <div className="relative">
                 <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
                 <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as UserRole)}>
-                  <SelectTrigger className="pl-10 h-12 bg-secondary/10 border-input">
+                  <SelectTrigger className="pl-10 h-12 bg-secondary/10 border-border/20">
                     <SelectValue placeholder="Selecciona tu rol" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#1b263b] border-border/40">
@@ -196,7 +204,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
             </div>
           )}
 
-          <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground font-bold uppercase tracking-widest" disabled={loading}>
+          <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" disabled={loading}>
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (isLogin ? 'Entrar' : 'Crear Cuenta')}
           </Button>
         </form>
@@ -242,7 +250,7 @@ export function AuthModal({ onAuthSuccess }: { onAuthSuccess: () => void }) {
           <button 
             type="button"
             onClick={() => setIsLogin(!isLogin)} 
-            className="ml-2 text-primary font-bold hover:underline"
+            className="ml-2 text-primary font-black hover:underline"
           >
             {isLogin ? 'Regístrate' : 'Accede aquí'}
           </button>
