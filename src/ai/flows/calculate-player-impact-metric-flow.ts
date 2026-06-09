@@ -41,7 +41,7 @@ const CalculatePlayerImpactMetricInputSchema = z.object({
 export type CalculatePlayerImpactMetricInput = z.infer<typeof CalculatePlayerImpactMetricInputSchema>;
 
 const CalculatePlayerImpactMetricOutputSchema = z.object({
-  playerImpactMetric: z.number().describe('Un número entero entre 0 y 100'),
+  playerImpactMetric: z.number().describe('Un número entero entre 1 y 100'),
   explanation: z.string().describe('Explicación técnica del cálculo y recomendación final'),
 });
 export type CalculatePlayerImpactMetricOutput = z.infer<typeof CalculatePlayerImpactMetricOutputSchema>;
@@ -52,7 +52,7 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     schema: CalculatePlayerImpactMetricInputSchema
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
-  prompt: `Eres un motor lógico de scouting profesional. Tu única misión es calcular el Player Impact Metric (PIM) de 0 a 100.
+  prompt: `Eres un motor lógico de scouting profesional. Tu única misión es calcular el Player Impact Metric (PIM) de 1 a 100.
 
 DATOS RECIBIDOS:
 - Jugador: {{{playerName}}} ({{{tacticalRole}}})
@@ -76,12 +76,12 @@ REGLAS DE CÁLCULO ESTRICTAS:
 3. Modificadores:
    - Si minPlayed < 60: -5 puntos.
    - Si matchImportance es "high" y rendimiento > 4: +4 puntos.
-4. Redondea el resultado a un NÚMERO ENTERO.
+4. SIEMPRE devuelve un número entre 1 y 100. NUNCA devuelvas 0 aunque los datos parezcan incompletos. Si no hay datos detallados, usa el Perfil General.
 
 REGLAS DE FORMATO:
 - Debes responder EXCLUSIVAMENTE con un JSON válido.
 - No añadas texto explicativo antes ni después del bloque JSON.
-- Si el cálculo es menor a 0, devuelve 0. Si es mayor a 100, devuelve 100.`,
+- Si el cálculo es menor a 1, devuelve 1. Si es mayor a 100, devuelve 100.`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
@@ -90,23 +90,24 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
     
     if (response.output) {
       return {
-        playerImpactMetric: Math.max(0, Math.min(100, Math.round(response.output.playerImpactMetric))),
+        playerImpactMetric: Math.max(1, Math.min(100, Math.round(response.output.playerImpactMetric))),
         explanation: response.output.explanation
       };
     }
 
-    // Fallback de emergencia: Escaneo de texto plano por si el modelo rompe el JSON
+    // Fallback de emergencia agresivo: Escaneo profundo de texto
     const text = response.text || "";
     const scoreMatch = text.match(/"playerImpactMetric":\s*(\d+)/) || 
                       text.match(/playerImpactMetric[:\s]+(\d+)/) ||
+                      text.match(/PIM:\s*(\d+)/) ||
                       text.match(/(\d+)\/100/) ||
-                      text.match(/PIM:\s*(\d+)/);
+                      text.match(/(\d+)/); // Captura el primer número que aparezca
     
-    const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+    const score = scoreMatch ? parseInt(scoreMatch[1]) : 1;
     
-    if (score > 0 || text.length > 10) {
+    if (score > 0 || text.length > 5) {
       return {
-        playerImpactMetric: Math.max(0, Math.min(100, Math.round(score))),
+        playerImpactMetric: Math.max(1, Math.min(100, Math.round(score))),
         explanation: text.substring(0, 500) || "Cálculo realizado mediante análisis de texto."
       };
     }
@@ -115,8 +116,8 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
   } catch (error) {
     console.error("PIM Flow Error:", error);
     return {
-      playerImpactMetric: 0,
-      explanation: "Error en el motor de cálculo. Por favor, asegúrate de haber valorado al menos las métricas del Perfil General."
+      playerImpactMetric: 1,
+      explanation: "Error en el motor de cálculo. Se asigna puntuación base mínima."
     };
   }
 }
