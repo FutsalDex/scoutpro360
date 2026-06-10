@@ -1,8 +1,4 @@
 'use server';
-/**
- * @fileOverview Flujo de Genkit para calcular la Métrica de Impacto del Jugador (PIM).
- * Procesa datos técnicos, tácticos, físicos, mentales y cualitativos.
- */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
@@ -15,18 +11,18 @@ const MetricSchema = z.object({
 const CalculatePlayerImpactMetricInputSchema = z.object({
   playerName: z.string(),
   tacticalRole: z.string(),
-  dominantFoot: z.string().optional().default(""),
-  minPlayed: z.string().optional().default("90"),
-  physicalCondition: z.string().optional().default(""),
-  matchStyle: z.string().optional().default(""),
-  matchTempo: z.string().optional().default(""),
-  teamDominance: z.string().optional().default(""),
-  score: z.string().optional().default(""),
-  matchImportance: z.string().optional().default(""),
-  technicalMetrics: z.array(MetricSchema).optional().default([]),
-  tacticalMetrics: z.array(MetricSchema).optional().default([]),
-  physicalMetrics: z.array(MetricSchema).optional().default([]),
-  mentalMetrics: z.array(MetricSchema).optional().default([]),
+  minPlayed: z.string(),
+  physicalCondition: z.string(),
+  dominantFoot: z.string(),
+  matchStyle: z.string(),
+  matchTempo: z.string(),
+  teamDominance: z.string(),
+  score: z.string(),
+  matchImportance: z.string(),
+  technicalMetrics: z.array(MetricSchema),
+  tacticalMetrics: z.array(MetricSchema),
+  physicalMetrics: z.array(MetricSchema),
+  mentalMetrics: z.array(MetricSchema),
   generalProfile: z.object({
     technicalLevel: z.number(),
     tacticalIntelligence: z.number(),
@@ -48,15 +44,13 @@ export type CalculatePlayerImpactMetricInput = z.infer<typeof CalculatePlayerImp
 
 const CalculatePlayerImpactMetricOutputSchema = z.object({
   playerImpactMetric: z.number().describe('Un número entero entre 1 y 100'),
-  explanation: z.string().describe('Análisis técnico profesional sobre el rendimiento'),
+  explanation: z.string().describe('Análisis técnico profesional del scout'),
 });
 export type CalculatePlayerImpactMetricOutput = z.infer<typeof CalculatePlayerImpactMetricOutputSchema>;
 
 const calculatePlayerImpactMetricPrompt = ai.definePrompt({
   name: 'calculatePlayerImpactMetricPrompt',
-  input: {
-    schema: CalculatePlayerImpactMetricInputSchema
-  },
+  input: { schema: CalculatePlayerImpactMetricInputSchema },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
   prompt: `Eres un sistema experto de scouting de fútbol profesional de élite. Tu misión es calcular el Player Impact Metric (PIM) de 1 a 100 y generar un análisis técnico profesional basado en TODOS los datos disponibles del informe de observación.
 
@@ -132,31 +126,30 @@ Si tampoco hay dato en el perfil general, asigna 40 (nivel desconocido, neutro-b
 
 PASO 3 — PONDERA SEGÚN POSICIÓN:
 Aplica estos pesos al calcular el PIM compuesto:
-- Portero (GK/PO):        Técnico 25% | Táctico 30% | Físico 20% | Mental 25%
+- Portero (GK/PO):         Técnico 25% | Táctico 30% | Físico 20% | Mental 25%
 - Defensa Central (CB/DC): Técnico 20% | Táctico 30% | Físico 25% | Mental 25%
 - Lateral (RB/LB/LD/LI):  Técnico 25% | Táctico 25% | Físico 30% | Mental 20%
-- Mediocentro Def (CDM):  Técnico 20% | Táctico 35% | Físico 20% | Mental 25%
-- Mediocentro (CM/MC):    Técnico 30% | Táctico 30% | Físico 20% | Mental 20%
-- Mediapunta (CAM/MCO):   Técnico 35% | Táctico 25% | Físico 15% | Mental 25%
+- Mediocentro Def (CDM):   Técnico 20% | Táctico 35% | Físico 20% | Mental 25%
+- Mediocentro (CM/MC):     Técnico 30% | Táctico 30% | Físico 20% | Mental 20%
+- Mediapunta (CAM/MCO):    Técnico 35% | Táctico 25% | Físico 15% | Mental 25%
 - Extremo (RW/LW/ED/EI):  Técnico 30% | Táctico 20% | Físico 35% | Mental 15%
-- Delantero (ST/CF/DC):   Técnico 35% | Táctico 20% | Físico 25% | Mental 20%
-- Si la posición no coincide con ninguna: usa pesos iguales 25% cada categoría.
+- Delantero (ST/CF/DC):    Técnico 35% | Táctico 20% | Físico 25% | Mental 20%
+- Si la posición no coincide: usa pesos iguales 25% cada categoría.
 
 PASO 4 — INCORPORA IMPRESIÓN GLOBAL (bloque 7):
 El perfil general del scout tiene un peso del 15% sobre el PIM final.
 PIM_base = (PIM_ponderado × 0.85) + (media_perfil_general_normalizada × 0.15)
 
 PASO 5 — AJUSTES CONTEXTUALES:
-Aplica estos modificadores al PIM_base:
-+ 4 pts: importancia "Decisiva" + rendimiento observado alto (sub-score > 70)
-+ 3 pts: importancia "Alta" o "decisive"
-+ 2 pts: condición física "Excelente" o "excellent"
++ 4 pts: importancia "Decisiva" + sub-score > 70
++ 3 pts: importancia "Alta"
++ 2 pts: condición física "Excelente"
 + 2 pts: jugó 90 minutos completos
-+ 1 pt:  equipo en desventaja y sub-score defensivo/táctico > 65
++ 1 pt:  equipo en desventaja y sub-score táctico > 65
 - 3 pts: jugó menos de 60 minutos
-- 4 pts: condición física "Lesionado" o "injured"
+- 4 pts: condición física "Lesionado"
 - 2 pts: condición física "Bajo su nivel"
-- 1 pt:  equipo dominante (contexto de bajo esfuerzo requerido)
+- 1 pt:  equipo dominante
 
 PASO 6 — INCORPORA NOTAS CUALITATIVAS (bloque 8):
 Si hay fortalezas o descripción positiva: +2 pts máximo
@@ -167,25 +160,21 @@ Si no hay notas cualitativas: sin ajuste.
 PASO 7 — REGLAS FINALES ESTRICTAS:
 - El resultado FINAL debe ser un entero entre 1 y 100. NUNCA devuelvas 0.
 - NUNCA devuelvas exactamente 50 salvo que el cálculo real lo justifique.
-- Si hay muy pocos datos (menos de 5 KPIs en total), basa el cálculo en el perfil general y el contexto, e indica la limitación en la explicación.
-- Sé crítico y realista: valores bajos (1-2) deben producir PIM bajo (15-40).
-- Valores altos (4-5) en posiciones clave deben producir PIM alto (75-95).
+- Si hay muy pocos datos, basa el cálculo en el perfil general y el contexto.
+- Sé crítico y realista: valores bajos (1-2) producen PIM bajo (15-40). Valores altos (4-5) producen PIM alto (75-95).
 
 ═══════════════════════════════════════
 FORMATO DE RESPUESTA
 ═══════════════════════════════════════
 Devuelve ÚNICAMENTE este objeto JSON. Sin texto adicional. Sin bloques markdown. Sin comentarios:
 
-{
-  "playerImpactMetric": <entero entre 1 y 100>,
-  "explanation": "<análisis profesional en 3-4 frases en español: resume el nivel observado, destaca las fortalezas más relevantes según la posición, señala el área de mejora prioritaria y concluye con una valoración del potencial del jugador>"
-}`,
+{"playerImpactMetric": <entero entre 1 y 100>, "explanation": "<análisis profesional en 3-4 frases en español>"}`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
   try {
     const response = await calculatePlayerImpactMetricPrompt(input);
-    
+
     if (response.output) {
       return {
         playerImpactMetric: Math.max(1, Math.min(100, Math.round(response.output.playerImpactMetric))),
@@ -193,20 +182,26 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
       };
     }
 
-    // Fallback de emergencia agresivo
+    // Fallback: buscar número en texto plano
     const text = response.text || "";
-    const scoreMatch = text.match(/"playerImpactMetric":\s*(\d+)/) || text.match(/(\d+)/); 
+    const scoreMatch = text.match(/"playerImpactMetric":\s*(\d+)/) ||
+                       text.match(/playerImpactMetric[:\s]+(\d+)/) ||
+                       text.match(/(\d{2,3})/);
+
     const score = scoreMatch ? parseInt(scoreMatch[1]) : 40;
-    
+    const explanationMatch = text.match(/"explanation":\s*"([^"]+)"/);
+
     return {
       playerImpactMetric: Math.max(1, Math.min(100, Math.round(score))),
-      explanation: "Análisis generado por el motor de inteligencia técnica de ScoutPro 360."
+      explanation: explanationMatch ? explanationMatch[1] : "Análisis calculado mediante patrones de rendimiento observados."
     };
+
   } catch (error) {
-    console.error("PIM Flow Error:", error);
+    console.error("PIM Flow Error DETALLADO:", JSON.stringify(error, null, 2));
+    console.error("PIM Flow Error mensaje:", error instanceof Error ? error.message : String(error));
     return {
       playerImpactMetric: 1,
-      explanation: "Error en el motor de análisis. Información insuficiente o fallo de conexión."
+      explanation: `Error: ${error instanceof Error ? error.message : String(error)}`
     };
   }
 }

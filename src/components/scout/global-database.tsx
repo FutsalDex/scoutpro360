@@ -290,10 +290,12 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
                               </DropdownMenuItem>
                             )}
 
-                            <DropdownMenuItem onClick={() => onScheduleMatch(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.scheduleMatch}</span>
-                            </DropdownMenuItem>
+                            {mode !== 'analyzed' && (
+                              <DropdownMenuItem onClick={() => onScheduleMatch(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.scheduleMatch}</span>
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
