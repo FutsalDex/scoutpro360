@@ -13,7 +13,7 @@ import {
   FileText, ChevronRight, Activity, User, Target, Shield, 
   Save, Star, LayoutGrid, ClipboardCheck, Plus, Trash2,
   CheckCircle2, AlertTriangle, Sun, Cloud, CloudRain, Thermometer, Wind,
-  Brain, Sparkles, Database, Info
+  Brain, Sparkles, Database, Info, Loader2, TrendingUp
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
+import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 
 const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: string, rating?: number, onRatingChange: (v: number) => void, note?: string, onNoteChange?: (v: string) => void }) => (
   <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/10 last:border-0 px-4 w-full gap-4 hover:bg-white/5 transition-colors">
@@ -192,6 +193,10 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [finalScoutRating, setFinalScoutRating] = useState<number>(0);
 
+  // IA States
+  const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
+  const [pimResult, setPimResult] = useState<{ score: number, explanation: string } | null>(null);
+
   useEffect(() => {
     if (editingPlayerId) {
       getPlayer(editingPlayerId).then(p => {
@@ -224,6 +229,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setFinalRecommendation(r.finalRecommendation || "");
           setAdditionalNotes(r.additionalNotes || "");
           setFinalScoutRating(r.finalScoutRating || 0);
+          if (r.finalScoutRating) setPimResult({ score: r.finalScoutRating * 20, explanation: r.summary || "" });
         }
       });
     }
@@ -262,6 +268,75 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const removeAction = (index: number) => {
     setScoutingActions(scoutingActions.filter((_, i) => i !== index));
+  };
+
+  const handleCalculatePIM = async () => {
+    setIsCalculatingPIM(true);
+    setPimResult(null);
+
+    const getMetrics = (category: keyof typeof localizedKPIs) => {
+      const allKpis = [...localizedKPIs[category].observation, ...localizedKPIs[category].impact];
+      return allKpis
+        .filter(k => ratings[k])
+        .map(k => ({ name: k, value: ratings[k] }));
+    };
+
+    try {
+      const result = await calculatePlayerImpactMetric({
+        playerName,
+        tacticalRole: activeRole.name,
+        dominantFoot,
+        minPlayed,
+        physicalCondition,
+        matchStyle,
+        matchTempo: matchPace,
+        teamDominance,
+        score: observingScore,
+        matchImportance,
+        technicalMetrics: getMetrics('technical'),
+        tacticalMetrics: getMetrics('tactical'),
+        physicalMetrics: getMetrics('physical'),
+        mentalMetrics: getMetrics('mental'),
+        generalProfile: {
+          technicalLevel: ratings['Nivel técnico'] || 0,
+          tacticalIntelligence: ratings['Inteligencia táctica'] || 0,
+          physicalQuality: ratings['Calidad física'] || 0,
+          mentalStrength: ratings['Fortaleza mental'] || 0,
+          competitiveLevel: ratings['Nivel competitivo'] || 0,
+          potential: ratings['Potencial'] || 0,
+          currentLevel: ratings['Nivel actual'] || 0,
+        },
+        qualitativeNotes: {
+          strengths: strengths.filter(Boolean).join(", "),
+          weaknesses: weaknesses.filter(Boolean).join(", "),
+          description: overallDescription || "",
+          recommendation: finalRecommendation || "",
+        },
+        language: 'es'
+      });
+
+      setPimResult({
+        score: result.playerImpactMetric,
+        explanation: result.explanation
+      });
+      
+      // Sincronizar con el estado del informe
+      setFinalScoutRating(Math.round(result.playerImpactMetric / 20));
+      handleNoteChange('summary', result.explanation);
+
+      toast({
+        title: "Métrica PIM Generada",
+        description: "El motor de IA ha finalizado el análisis de impacto."
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error de IA",
+        description: "No se pudo procesar la métrica en este momento."
+      });
+    } finally {
+      setIsCalculatingPIM(false);
+    }
   };
 
   const handleSaveAll = () => {
@@ -311,7 +386,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
 
   const weatherIcons = { sun: Sun, cloudy: Cloud, rain: CloudRain, cold: Thermometer, wind: Wind };
 
-  // Auditoría de datos para la pestaña Analytics
   const getAuditStats = () => {
     const techCount = Object.keys(ratings).filter(k => localizedKPIs.technical.observation.includes(k) || localizedKPIs.technical.impact.includes(k)).length;
     const tacCount = Object.keys(ratings).filter(k => localizedKPIs.tactical.observation.includes(k)).length;
@@ -713,19 +787,56 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                   <Brain className="h-5 w-5 text-primary" />
                   <h2 className="text-[10px] font-black text-white uppercase tracking-widest">MOTOR DE INTELIGENCIA ARTIFICIAL</h2>
                 </div>
-                <CardContent className="p-12 text-center space-y-6">
-                  <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20">
-                    <Sparkles className="h-10 w-10 text-primary animate-pulse" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-black uppercase tracking-widest text-white">Análisis de Impacto Profesional</h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto italic font-medium">
-                      El sistema está listo para procesar los datos recolectados y generar la métrica objetiva de rendimiento.
-                    </p>
-                  </div>
-                  <Button className="h-14 px-12 bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-105 transition-all">
-                    <Database className="h-5 w-5 mr-2" /> GENERAR MÉTRICA PIM
-                  </Button>
+                <CardContent className="p-12 text-center space-y-8">
+                  {isCalculatingPIM ? (
+                    <div className="space-y-6">
+                      <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20 animate-pulse">
+                        <Loader2 className="h-12 w-12 text-primary animate-spin" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-black uppercase tracking-widest text-primary">Procesando Inteligencia Técnica...</h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto italic font-medium">
+                          Analizando métricas ponderadas por posición y ajustes contextuales de partido.
+                        </p>
+                      </div>
+                    </div>
+                  ) : pimResult ? (
+                    <div className="space-y-8 animate-in zoom-in-95 duration-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80 mb-2">PIM SCORE</span>
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-primary/20 blur-[40px] rounded-full" />
+                          <span className="text-8xl font-black text-primary font-headline relative leading-none">{pimResult.score}</span>
+                        </div>
+                        <Badge className="mt-6 bg-primary/20 text-primary px-8 py-2 text-xs font-black uppercase tracking-widest rounded-full border border-primary/30">
+                          {pimResult.score >= 80 ? 'POTENCIAL ÉLITE' : pimResult.score >= 60 ? 'NIVEL COMPETITIVO' : 'SEGUIMIENTO REQUERIDO'}
+                        </Badge>
+                      </div>
+                      <div className="p-6 bg-secondary/20 rounded-2xl border border-border/10 text-left">
+                        <div className="flex items-center gap-2 mb-3">
+                          <TrendingUp className="h-4 w-4 text-primary" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white">Análisis del Motor Genkit</span>
+                        </div>
+                        <p className="text-sm text-foreground/90 leading-relaxed font-medium italic">"{pimResult.explanation}"</p>
+                      </div>
+                      <Button onClick={handleCalculatePIM} variant="outline" className="h-10 border-primary/30 text-primary font-black text-[10px] uppercase tracking-widest">RECALCULAR MÉTRICA</Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20">
+                        <Sparkles className="h-10 w-10 text-primary animate-pulse" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-black uppercase tracking-widest text-white">Análisis de Impacto Profesional</h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto italic font-medium">
+                          El sistema está listo para procesar los datos recolectados y generar la métrica objetiva de rendimiento.
+                        </p>
+                      </div>
+                      <Button onClick={handleCalculatePIM} className="h-14 px-12 bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-105 transition-all">
+                        <Database className="h-5 w-5 mr-2" /> GENERAR MÉTRICA PIM
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -756,6 +867,19 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     Para una métrica precisa, asegúrate de haber evaluado al menos el <b>60%</b> de los campos técnicos y tácticos. Los datos cualitativos (fortalezas/debilidades) aportan el <b>30%</b> del peso en el resumen ejecutivo generado por la IA.
                   </p>
                </Card>
+               {pimResult && (
+                 <Card className="border-border/40 bg-card/40 rounded-2xl p-6">
+                    <h4 className="text-[10px] font-black uppercase text-accent tracking-widest mb-4">PESOS APLICADOS</h4>
+                    <div className="space-y-4">
+                       <WeightItem label="Rendimiento Base" weight="85%" />
+                       <WeightItem label="Perfil General" weight="15%" />
+                       <div className="pt-4 border-t border-border/10">
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase">Ajustes context. aplicados</p>
+                          <p className="text-xs font-black text-white mt-1">Simetría por posición ({activeRole.name})</p>
+                       </div>
+                    </div>
+                 </Card>
+               )}
             </div>
           </div>
 
@@ -790,6 +914,15 @@ function AuditStatus({ label, active }: { label: string, active: boolean }) {
       <div className={cn("h-2 w-2 rounded-full", active ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-muted-foreground/30")} />
       <span className={cn("text-[10px] font-black uppercase tracking-tight", active ? "text-foreground" : "text-muted-foreground/40")}>{label}</span>
       {active && <CheckCircle2 className="h-3 w-3 text-green-500 ml-auto" />}
+    </div>
+  );
+}
+
+function WeightItem({ label, weight }: { label: string, weight: string }) {
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-[10px] font-bold text-muted-foreground uppercase">{label}</span>
+      <span className="text-xs font-black text-primary">{weight}</span>
     </div>
   );
 }

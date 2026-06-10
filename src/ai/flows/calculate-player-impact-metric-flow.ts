@@ -1,8 +1,7 @@
-
 'use server';
 /**
  * @fileOverview Flujo de Genkit para calcular la Métrica de Impacto del Jugador (PIM).
- * Modo "Scout de Élite" enfocado en patrones cualitativos de rendimiento.
+ * Procesa datos técnicos, tácticos, físicos, mentales y cualitativos.
  */
 
 import { ai } from '@/ai/genkit';
@@ -16,18 +15,18 @@ const MetricSchema = z.object({
 const CalculatePlayerImpactMetricInputSchema = z.object({
   playerName: z.string(),
   tacticalRole: z.string(),
-  minPlayed: z.string(),
-  physicalCondition: z.string(),
-  dominantFoot: z.string(),
-  matchStyle: z.string(),
-  matchTempo: z.string(),
-  teamDominance: z.string(),
-  score: z.string(),
-  matchImportance: z.string(),
-  technicalMetrics: z.array(MetricSchema),
-  tacticalMetrics: z.array(MetricSchema),
-  physicalMetrics: z.array(MetricSchema),
-  mentalMetrics: z.array(MetricSchema),
+  dominantFoot: z.string().optional().default(""),
+  minPlayed: z.string().optional().default("90"),
+  physicalCondition: z.string().optional().default(""),
+  matchStyle: z.string().optional().default(""),
+  matchTempo: z.string().optional().default(""),
+  teamDominance: z.string().optional().default(""),
+  score: z.string().optional().default(""),
+  matchImportance: z.string().optional().default(""),
+  technicalMetrics: z.array(MetricSchema).optional().default([]),
+  tacticalMetrics: z.array(MetricSchema).optional().default([]),
+  physicalMetrics: z.array(MetricSchema).optional().default([]),
+  mentalMetrics: z.array(MetricSchema).optional().default([]),
   generalProfile: z.object({
     technicalLevel: z.number(),
     tacticalIntelligence: z.number(),
@@ -37,13 +36,19 @@ const CalculatePlayerImpactMetricInputSchema = z.object({
     potential: z.number(),
     currentLevel: z.number(),
   }),
+  qualitativeNotes: z.object({
+    strengths: z.string().optional().default(""),
+    weaknesses: z.string().optional().default(""),
+    description: z.string().optional().default(""),
+    recommendation: z.string().optional().default(""),
+  }).optional().default({}),
   language: z.enum(['en', 'es']).default('es'),
 });
 export type CalculatePlayerImpactMetricInput = z.infer<typeof CalculatePlayerImpactMetricInputSchema>;
 
 const CalculatePlayerImpactMetricOutputSchema = z.object({
-  playerImpactMetric: z.number().describe('Un número entero entre 0 y 100'),
-  explanation: z.string().describe('Análisis técnico del scout sobre el patrón de rendimiento detectado'),
+  playerImpactMetric: z.number().describe('Un número entero entre 1 y 100'),
+  explanation: z.string().describe('Análisis técnico profesional sobre el rendimiento'),
 });
 export type CalculatePlayerImpactMetricOutput = z.infer<typeof CalculatePlayerImpactMetricOutputSchema>;
 
@@ -53,31 +58,128 @@ const calculatePlayerImpactMetricPrompt = ai.definePrompt({
     schema: CalculatePlayerImpactMetricInputSchema
   },
   output: { schema: CalculatePlayerImpactMetricOutputSchema },
-  prompt: `Eres un experto en scouting de fútbol profesional con 20 años de experiencia en captación de élite. Tu tarea es analizar las métricas proporcionadas y asignar un Player Impact Metric (PIM) de 0 a 100 basado en la calidad del rendimiento observado.
+  prompt: `Eres un sistema experto de scouting de fútbol profesional de élite. Tu misión es calcular el Player Impact Metric (PIM) de 1 a 100 y generar un análisis técnico profesional basado en TODOS los datos disponibles del informe de observación.
 
-DATOS DEL JUGADOR:
-- Jugador: {{{playerName}}} ({{{tacticalRole}}})
-- Contexto: {{{minPlayed}}} min, Condición {{{physicalCondition}}}, Importancia {{{matchImportance}}}
+═══════════════════════════════════════
+BLOQUE 1 — METADATOS Y PERFIL
+═══════════════════════════════════════
+Jugador: {{{playerName}}}
+Posición / Rol táctico: {{{tacticalRole}}}
+Pie dominante: {{{dominantFoot}}}
 
-MÉTRICAS RECIBIDAS (Solo las observadas):
-Técnicas: {{#each technicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
-Tácticas: {{#each tacticalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
-Físicas: {{#each physicalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
-Mentales: {{#each mentalMetrics}}{{{name}}}: {{{value}}}, {{/each}}
+═══════════════════════════════════════
+BLOQUE 2 — CONTEXTO DEL PARTIDO
+═══════════════════════════════════════
+Minutos jugados: {{{minPlayed}}}
+Condición física: {{{physicalCondition}}}
+Estilo de juego del equipo: {{{matchStyle}}}
+Ritmo del partido: {{{matchTempo}}}
+Dominio del equipo: {{{teamDominance}}}
+Marcador al observar: {{{score}}}
+Importancia del encuentro: {{{matchImportance}}}
 
-REGLAS DE CÁLCULO ESTRICTAS:
-1. ANÁLISIS CUALITATIVO: Evalúa las métricas recibidas. Ignora la aritmética simple y busca el impacto real.
-2. SI NO HAY DATOS: No inventes valores. Si recibes menos de 5 métricas en total entre todas las categorías, devuelve un PIM de 0 y explica en "explanation" que falta información para una evaluación profesional.
-3. ESCALA DE RENDIMIENTO OBLIGATORIA:
-   - Si la media de las métricas (1-5) es inferior a 2.0: El PIM DEBE ser obligatoriamente entre 10 y 30. Es un rendimiento insuficiente.
-   - Si la media de las métricas es aproximadamente 3.0: El PIM DEBE estar en el rango de 40 a 60.
-   - Si la media de las métricas es superior a 3.5: El PIM DEBE ser entre 70 y 100. Es un rendimiento de impacto alto.
-4. PROHIBICIÓN DEL 50: No devuelvas 50 por defecto por "seguridad". Si el jugador es mediocre, devuelve un valor bajo. Si es bueno, uno alto. El 50 solo se usa si el rendimiento es exactamente mediano.
-5. RANGO: Devuelve siempre un número entero. NUNCA devuelvas 1 a menos que sea un fallo total. El mínimo profesional es 10 si hay datos, o 0 si no los hay.
+═══════════════════════════════════════
+BLOQUE 3 — KPIs TÉCNICOS (escala 1-5)
+═══════════════════════════════════════
+{{#if technicalMetrics.length}}{{#each technicalMetrics}}{{{name}}}: {{{value}}}/5 | {{/each}}{{else}}Sin valoraciones técnicas registradas.{{/if}}
 
-RESPUESTA JSON ESTRICTA:
-- Devuelve EXCLUSIVAMENTE un objeto JSON válido con las claves "playerImpactMetric" (número entero) y "explanation" (string).
-- No añadas texto explicativo fuera del bloque JSON.`,
+═══════════════════════════════════════
+BLOQUE 4 — KPIs TÁCTICOS (escala 1-5)
+═══════════════════════════════════════
+{{#if tacticalMetrics.length}}{{#each tacticalMetrics}}{{{name}}}: {{{value}}}/5 | {{/each}}{{else}}Sin valoraciones tácticas registradas.{{/if}}
+
+═══════════════════════════════════════
+BLOQUE 5 — KPIs FÍSICOS (escala 1-5)
+═══════════════════════════════════════
+{{#if physicalMetrics.length}}{{#each physicalMetrics}}{{{name}}}: {{{value}}}/5 | {{/each}}{{else}}Sin valoraciones físicas registradas.{{/if}}
+
+═══════════════════════════════════════
+BLOQUE 6 — KPIs MENTALES (escala 1-5)
+═══════════════════════════════════════
+{{#if mentalMetrics.length}}{{#each mentalMetrics}}{{{name}}}: {{{value}}}/5 | {{/each}}{{else}}Sin valoraciones mentales registradas.{{/if}}
+
+═══════════════════════════════════════
+BLOQUE 7 — IMPRESIÓN GLOBAL DEL SCOUT (escala 1-5, 0 = no evaluado)
+═══════════════════════════════════════
+Nivel técnico: {{{generalProfile.technicalLevel}}}/5
+Inteligencia táctica: {{{generalProfile.tacticalIntelligence}}}/5
+Calidad física: {{{generalProfile.physicalQuality}}}/5
+Fortaleza mental: {{{generalProfile.mentalStrength}}}/5
+Nivel competitivo: {{{generalProfile.competitiveLevel}}}/5
+Potencial: {{{generalProfile.potential}}}/5
+Nivel actual: {{{generalProfile.currentLevel}}}/5
+
+═══════════════════════════════════════
+BLOQUE 8 — NOTAS CUALITATIVAS DEL SCOUT
+═══════════════════════════════════════
+Fortalezas: {{{qualitativeNotes.strengths}}}
+Áreas de mejora: {{{qualitativeNotes.weaknesses}}}
+Descripción general: {{{qualitativeNotes.description}}}
+Recomendación: {{{qualitativeNotes.recommendation}}}
+
+═══════════════════════════════════════
+INSTRUCCIONES DE CÁLCULO DEL PIM
+═══════════════════════════════════════
+
+PASO 1 — RECOPILA DATOS DISPONIBLES:
+Agrupa todos los valores > 0 de los bloques 3, 4, 5, 6 y 7.
+Clasifícalos por categoría para calcular sub-scores ponderados.
+
+PASO 2 — CALCULA SUB-SCORES POR CATEGORÍA (0-100):
+Para cada categoría con datos: (suma de valores / (cantidad × 5)) × 100
+Si una categoría no tiene datos, usa el valor del perfil general correspondiente del bloque 7.
+Si tampoco hay dato en el perfil general, asigna 40 (nivel desconocido, neutro-bajo).
+
+PASO 3 — PONDERA SEGÚN POSICIÓN:
+Aplica estos pesos al calcular el PIM compuesto:
+- Portero (GK/PO):        Técnico 25% | Táctico 30% | Físico 20% | Mental 25%
+- Defensa Central (CB/DC): Técnico 20% | Táctico 30% | Físico 25% | Mental 25%
+- Lateral (RB/LB/LD/LI):  Técnico 25% | Táctico 25% | Físico 30% | Mental 20%
+- Mediocentro Def (CDM):  Técnico 20% | Táctico 35% | Físico 20% | Mental 25%
+- Mediocentro (CM/MC):    Técnico 30% | Táctico 30% | Físico 20% | Mental 20%
+- Mediapunta (CAM/MCO):   Técnico 35% | Táctico 25% | Físico 15% | Mental 25%
+- Extremo (RW/LW/ED/EI):  Técnico 30% | Táctico 20% | Físico 35% | Mental 15%
+- Delantero (ST/CF/DC):   Técnico 35% | Táctico 20% | Físico 25% | Mental 20%
+- Si la posición no coincide con ninguna: usa pesos iguales 25% cada categoría.
+
+PASO 4 — INCORPORA IMPRESIÓN GLOBAL (bloque 7):
+El perfil general del scout tiene un peso del 15% sobre el PIM final.
+PIM_base = (PIM_ponderado × 0.85) + (media_perfil_general_normalizada × 0.15)
+
+PASO 5 — AJUSTES CONTEXTUALES:
+Aplica estos modificadores al PIM_base:
++ 4 pts: importancia "Decisiva" + rendimiento observado alto (sub-score > 70)
++ 3 pts: importancia "Alta" o "decisive"
++ 2 pts: condición física "Excelente" o "excellent"
++ 2 pts: jugó 90 minutos completos
++ 1 pt:  equipo en desventaja y sub-score defensivo/táctico > 65
+- 3 pts: jugó menos de 60 minutos
+- 4 pts: condición física "Lesionado" o "injured"
+- 2 pts: condición física "Bajo su nivel"
+- 1 pt:  equipo dominante (contexto de bajo esfuerzo requerido)
+
+PASO 6 — INCORPORA NOTAS CUALITATIVAS (bloque 8):
+Si hay fortalezas o descripción positiva: +2 pts máximo
+Si la recomendación es "Fichaje inmediato": +3 pts
+Si la recomendación es "Reevaluar": -3 pts
+Si no hay notas cualitativas: sin ajuste.
+
+PASO 7 — REGLAS FINALES ESTRICTAS:
+- El resultado FINAL debe ser un entero entre 1 y 100. NUNCA devuelvas 0.
+- NUNCA devuelvas exactamente 50 salvo que el cálculo real lo justifique.
+- Si hay muy pocos datos (menos de 5 KPIs en total), basa el cálculo en el perfil general y el contexto, e indica la limitación en la explicación.
+- Sé crítico y realista: valores bajos (1-2) deben producir PIM bajo (15-40).
+- Valores altos (4-5) en posiciones clave deben producir PIM alto (75-95).
+
+═══════════════════════════════════════
+FORMATO DE RESPUESTA
+═══════════════════════════════════════
+Devuelve ÚNICAMENTE este objeto JSON. Sin texto adicional. Sin bloques markdown. Sin comentarios:
+
+{
+  "playerImpactMetric": <entero entre 1 y 100>,
+  "explanation": "<análisis profesional en 3-4 frases en español: resume el nivel observado, destaca las fortalezas más relevantes según la posición, señala el área de mejora prioritaria y concluye con una valoración del potencial del jugador>"
+}`,
 });
 
 export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMetricInput): Promise<CalculatePlayerImpactMetricOutput> {
@@ -86,28 +188,25 @@ export async function calculatePlayerImpactMetric(input: CalculatePlayerImpactMe
     
     if (response.output) {
       return {
-        playerImpactMetric: Math.max(0, Math.min(100, Math.round(response.output.playerImpactMetric))),
+        playerImpactMetric: Math.max(1, Math.min(100, Math.round(response.output.playerImpactMetric))),
         explanation: response.output.explanation
       };
     }
 
-    // Fallback de emergencia agresivo buscando cualquier número en el texto
+    // Fallback de emergencia agresivo
     const text = response.text || "";
-    const scoreMatch = text.match(/"playerImpactMetric":\s*(\d+)/) || 
-                      text.match(/playerImpactMetric[:\s]+(\d+)/) ||
-                      text.match(/(\d+)/); 
-    
-    const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+    const scoreMatch = text.match(/"playerImpactMetric":\s*(\d+)/) || text.match(/(\d+)/); 
+    const score = scoreMatch ? parseInt(scoreMatch[1]) : 40;
     
     return {
-      playerImpactMetric: Math.max(0, Math.min(100, Math.round(score))),
-      explanation: text.substring(0, 500) || "Cálculo realizado mediante análisis de patrón de rendimiento cualitativo."
+      playerImpactMetric: Math.max(1, Math.min(100, Math.round(score))),
+      explanation: "Análisis generado por el motor de inteligencia técnica de ScoutPro 360."
     };
   } catch (error) {
     console.error("PIM Flow Error:", error);
     return {
-      playerImpactMetric: 0,
-      explanation: "Error en el motor de análisis. Información insuficiente."
+      playerImpactMetric: 1,
+      explanation: "Error en el motor de análisis. Información insuficiente o fallo de conexión."
     };
   }
 }
