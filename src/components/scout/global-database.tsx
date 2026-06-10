@@ -105,13 +105,13 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     const report = getReportForPlayer(player.id);
     if (!report) return;
 
-    const doc = new jsPDF() as any;
+    const doc = new jsPDF();
     const primaryColor = [224, 176, 80];
     const navyColor = [27, 38, 59];
     const grayColor = [100, 116, 139];
 
     // Header
-    doc.setFillColor(...navyColor);
+    doc.setFillColor(navyColor[0], navyColor[1], navyColor[2]);
     doc.rect(0, 0, 210, 45, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
@@ -124,7 +124,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     doc.text(`ID INFORME: ${report.id || 'N/A'} | FECHA EXPORTACIÓN: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 105, 36, { align: "center" });
 
     // Section 1: JUGADOR
-    doc.setTextColor(...navyColor);
+    doc.setTextColor(navyColor[0], navyColor[1], navyColor[2]);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text("1. IDENTIDAD DEL JUGADOR", 14, 55);
@@ -143,7 +143,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
         ["TELÉFONO / EMAIL", `${player.phone || '-'} / ${player.email || '-'}`]
       ],
       theme: 'grid',
-      headStyles: { fillColor: primaryColor, textColor: navyColor },
+      headStyles: { fillColor: primaryColor as any, textColor: navyColor as any },
       styles: { fontSize: 9 },
       columnStyles: { 0: { fontStyle: 'bold', width: 50 } }
     });
@@ -165,14 +165,14 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
         ["CLIMA", t.report?.contextTab?.[report.weather as keyof typeof t.report.contextTab] || '-']
       ],
       theme: 'grid',
-      headStyles: { fillColor: primaryColor, textColor: navyColor },
+      headStyles: { fillColor: primaryColor as any, textColor: navyColor as any },
       styles: { fontSize: 9 },
       columnStyles: { 0: { fontStyle: 'bold', width: 50 } }
     });
 
     // New Page for KPIs
     doc.addPage();
-    doc.setTextColor(...navyColor);
+    doc.setTextColor(navyColor[0], navyColor[1], navyColor[2]);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text("3. MATRIZ DE RENDIMIENTO (KPIs)", 14, 20);
@@ -186,7 +186,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
       ]);
 
       doc.setFontSize(10);
-      doc.setTextColor(...navyColor);
+      doc.setTextColor(navyColor[0], navyColor[1], navyColor[2]);
       doc.text(title, 14, startY);
       
       autoTable(doc, {
@@ -194,7 +194,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
         head: [["KPI", "PUNTUACIÓN", "OBSERVACIONES"]],
         body: data,
         theme: 'striped',
-        headStyles: { fillColor: navyColor, textColor: [255, 255, 255], halign: 'center' },
+        headStyles: { fillColor: navyColor as any, textColor: [255, 255, 255], halign: 'center' },
         styles: { fontSize: 8, cellPadding: 3 },
         columnStyles: { 
           0: { fontStyle: 'bold', width: 50 }, 
@@ -224,7 +224,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
         head: [["MIN", "ACCIÓN", "RESULTADO", "NOTAS"]],
         body: report.actions.map(a => [a.minute, a.action, a.result.toUpperCase(), a.notes]),
         theme: 'grid',
-        headStyles: { fillColor: primaryColor, textColor: navyColor },
+        headStyles: { fillColor: primaryColor as any, textColor: navyColor as any },
         styles: { fontSize: 8 }
       });
       kpiY = (doc as any).lastAutoTable.finalY + 10;
@@ -249,31 +249,45 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
       columnStyles: { 0: { fontStyle: 'bold', width: 40, fillColor: [240, 240, 240] } }
     });
 
-    // Section 9: IA ANALYTICS
-    const finalY = (doc as any).lastAutoTable.finalY + 12;
-    doc.setFillColor(...primaryColor);
-    doc.rect(14, finalY, 182, 40, 'F');
-    doc.setTextColor(...navyColor);
-    doc.setFontSize(14);
+    // Section 9: IA ANALYTICS - Rediseño con altura dinámica
+    let finalY = (doc as any).lastAutoTable.finalY + 12;
+    const summaryText = report.summary || "Sin análisis de IA disponible.";
+    const splitExplanation = doc.splitTextToSize(summaryText, 170);
+    
+    // Cálculo de altura: Padding(10) + Título(8) + Score(12) + Padding(5) + Texto(Líneas * 5) + Padding(10)
+    const requiredHeight = 45 + (splitExplanation.length * 4.5);
+
+    // Verificar si cabe en la página actual
+    if (finalY + requiredHeight > 280) {
+      doc.addPage();
+      finalY = 20;
+    }
+
+    // Fondo IA
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(14, finalY, 182, requiredHeight, 'F');
+    
+    // Contenido IA
+    doc.setTextColor(navyColor[0], navyColor[1], navyColor[2]);
+    doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
-    doc.text("IA ANALYTICS - PIM SCORE", 105, finalY + 8, { align: "center" });
+    doc.text("IA ANALYTICS - PIM SCORE", 105, finalY + 10, { align: "center" });
     
     const pim = report.finalScoutRating ? report.finalScoutRating * 20 : 0;
     doc.setFontSize(28);
-    doc.text(`${pim}`, 105, finalY + 20, { align: "center" });
+    doc.text(`${pim}`, 105, finalY + 22, { align: "center" });
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "italic");
-    const summaryText = report.summary || "Sin análisis de IA disponible.";
-    const splitExplanation = doc.splitTextToSize(summaryText, 170);
-    doc.text(splitExplanation, 105, finalY + 28, { align: "center" });
+    // Dibujar el texto centrado con un line-height adecuado
+    doc.text(splitExplanation, 105, finalY + 32, { align: "center", lineHeightFactor: 1.4 });
 
     // Footer on all pages
-    const pageCount = doc.internal.getNumberOfPages();
+    const pageCount = (doc as any).internal.getNumberOfPages();
     for(let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(7);
-        doc.setTextColor(...grayColor);
+        doc.setTextColor(grayColor[0], grayColor[1], grayColor[2]);
         doc.text(`ScoutPro 360 Football Intelligence - Confidencial - Página ${i} de ${pageCount}`, 105, 290, { align: "center" });
     }
 
