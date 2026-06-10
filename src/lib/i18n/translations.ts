@@ -151,6 +151,7 @@ export const translations = {
         mental: 'MENTAL',
         actions: 'ACCIONES',
         evaluation: 'EVALUACIÓN',
+        analytics: 'IA ANALYTICS',
       },
       evaluationTab: {
         mainStrengths: 'FORTALEZAS PRINCIPALES',

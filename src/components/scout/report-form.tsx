@@ -12,7 +12,8 @@ import { TacticalCanvas } from "./tactical-canvas";
 import { 
   FileText, ChevronRight, Activity, User, Target, Shield, 
   Save, Star, LayoutGrid, ClipboardCheck, Plus, Trash2,
-  CheckCircle2, AlertTriangle, Sun, Cloud, CloudRain, Thermometer, Wind
+  CheckCircle2, AlertTriangle, Sun, Cloud, CloudRain, Thermometer, Wind,
+  Brain, Sparkles
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -328,7 +329,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 sm:grid-cols-8 bg-secondary/20 p-1 border border-border/20 rounded-2xl gap-1 mb-8 h-auto">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-9 bg-secondary/20 p-1 border border-border/20 rounded-2xl gap-1 mb-8 h-auto">
           {Object.entries(t.report?.tabs || {}).map(([k, v]) => (
             <TabsTrigger key={k} value={k} className="py-3 text-[9px] font-black uppercase tracking-tighter rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">{v as string}</TabsTrigger>
           ))}
@@ -677,8 +678,33 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
             </CardContent>
           </Card>
 
-          <div className="flex justify-start gap-4 pt-10">
+          <div className="flex justify-between gap-4 pt-10">
             <Button type="button" variant="ghost" onClick={() => setActiveTab("actions")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report?.tabs?.actions || 'Actions'}</Button>
+            <Button type="button" onClick={() => setActiveTab("analytics")} className="h-12 px-12 bg-primary text-primary-foreground font-black rounded-xl text-[12px] uppercase tracking-widest">{t.report?.tabs?.analytics || 'IA ANALYTICS'} <ChevronRight className="ml-2 h-4 w-4" /></Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-8 animate-in fade-in">
+          <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+            <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+              <Brain className="h-5 w-5 text-primary" />
+              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">MOTOR DE INTELIGENCIA ARTIFICIAL</h2>
+            </div>
+            <CardContent className="p-12 text-center space-y-6">
+               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20">
+                  <Sparkles className="h-10 w-10 text-primary animate-pulse" />
+               </div>
+               <div className="space-y-2">
+                  <h3 className="text-xl font-black uppercase tracking-widest text-white">Análisis de Impacto Profesional</h3>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                    Preparando el sistema de cálculo métrico basado en patrones cualitativos. 
+                    En el siguiente paso activaremos el motor de procesamiento para transformar tus notas en datos objetivos.
+                  </p>
+               </div>
+            </CardContent>
+          </Card>
+          <div className="flex justify-start gap-4 pt-10">
+            <Button type="button" variant="ghost" onClick={() => setActiveTab("evaluation")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report?.tabs?.evaluation || 'Evaluación'}</Button>
           </div>
         </TabsContent>
       </Tabs>
