@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 
@@ -129,7 +129,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     doc.setFont("helvetica", "bold");
     doc.text("1. IDENTIDAD DEL JUGADOR", 14, 55);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: 58,
       head: [["CAMPO", "VALOR"]],
       body: [
@@ -149,11 +149,11 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     });
 
     // Section 2: CONTEXTO
-    const nextY = (doc as any).lastAutoTable.cursor.y + 10;
+    const nextY = (doc as any).lastAutoTable.finalY + 10;
     doc.setFontSize(12);
     doc.text("2. CONTEXTO DEL PARTIDO", 14, nextY);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: nextY + 3,
       head: [["CATEGORÍA", "DETALLES TÁCTICOS / ENTORNO"]],
       body: [
@@ -185,7 +185,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
 
       doc.setFontSize(10);
       doc.text(title, 14, startY);
-      doc.autoTable({
+      autoTable(doc, {
         startY: startY + 2,
         head: [["KPI", "VALORACIÓN", "OBSERVACIONES"]],
         body: data,
@@ -194,7 +194,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
         styles: { fontSize: 8 },
         columnStyles: { 0: { fontStyle: 'bold', width: 45 }, 1: { width: 35 } }
       });
-      return (doc as any).lastAutoTable.cursor.y + 10;
+      return (doc as any).lastAutoTable.finalY + 10;
     };
 
     let kpiY = 25;
@@ -211,7 +211,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("4. REGISTRO DE ACCIONES CLAVE", 14, kpiY);
-      doc.autoTable({
+      autoTable(doc, {
         startY: kpiY + 3,
         head: [["MIN", "ACCIÓN", "RESULTADO", "NOTAS"]],
         body: report.actions.map(a => [a.minute, a.action, a.result.toUpperCase(), a.notes]),
@@ -219,7 +219,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
         headStyles: { fillColor: primaryColor, textColor: navyColor },
         styles: { fontSize: 8 }
       });
-      kpiY = (doc as any).lastAutoTable.cursor.y + 10;
+      kpiY = (doc as any).lastAutoTable.finalY + 10;
     }
 
     // Section 8: EVALUACIÓN
@@ -227,7 +227,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     doc.setFontSize(12);
     doc.text("5. CONCLUSIONES Y EVALUACIÓN", 14, kpiY);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: kpiY + 3,
       body: [
         ["FORTALEZAS", (report.strengths || []).filter(Boolean).join(" | ")],
@@ -241,7 +241,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     });
 
     // Section 9: IA ANALYTICS
-    const finalY = (doc as any).lastAutoTable.cursor.y + 12;
+    const finalY = (doc as any).lastAutoTable.finalY + 12;
     doc.setFillColor(...primaryColor);
     doc.rect(14, finalY, 182, 35, 'F');
     doc.setTextColor(...navyColor);
