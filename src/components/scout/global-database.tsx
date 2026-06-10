@@ -173,26 +173,34 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     // New Page for KPIs
     doc.addPage();
     doc.setTextColor(...navyColor);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
     doc.text("3. MATRIZ DE RENDIMIENTO (KPIs)", 14, 20);
 
     const renderKPITable = (title: string, category: string, startY: number) => {
       const kpis = t.report.kpis[category].obs || [];
       const data = kpis.map((k: string) => [
         k.toUpperCase(),
-        report.ratings[k] ? " ".repeat(report.ratings[k]) + "★".repeat(report.ratings[k]) + "☆".repeat(5 - report.ratings[k]) : 'N/E',
+        report.ratings[k] ? `${report.ratings[k]} / 5` : 'N/E',
         report.notes[k] || '-'
       ]);
 
       doc.setFontSize(10);
+      doc.setTextColor(...navyColor);
       doc.text(title, 14, startY);
+      
       autoTable(doc, {
         startY: startY + 2,
-        head: [["KPI", "VALORACIÓN", "OBSERVACIONES"]],
+        head: [["KPI", "PUNTUACIÓN", "OBSERVACIONES"]],
         body: data,
         theme: 'striped',
-        headStyles: { fillColor: navyColor, textColor: [255, 255, 255] },
-        styles: { fontSize: 8 },
-        columnStyles: { 0: { fontStyle: 'bold', width: 45 }, 1: { width: 35 } }
+        headStyles: { fillColor: navyColor, textColor: [255, 255, 255], halign: 'center' },
+        styles: { fontSize: 8, cellPadding: 3 },
+        columnStyles: { 
+          0: { fontStyle: 'bold', width: 50 }, 
+          1: { halign: 'center', width: 30, fontStyle: 'bold' },
+          2: { cellWidth: 'auto' }
+        }
       });
       return (doc as any).lastAutoTable.finalY + 10;
     };
@@ -225,6 +233,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     // Section 8: EVALUACIÓN
     if (kpiY > 230) { doc.addPage(); kpiY = 20; }
     doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
     doc.text("5. CONCLUSIONES Y EVALUACIÓN", 14, kpiY);
     
     autoTable(doc, {
@@ -243,9 +252,10 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     // Section 9: IA ANALYTICS
     const finalY = (doc as any).lastAutoTable.finalY + 12;
     doc.setFillColor(...primaryColor);
-    doc.rect(14, finalY, 182, 35, 'F');
+    doc.rect(14, finalY, 182, 40, 'F');
     doc.setTextColor(...navyColor);
     doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
     doc.text("IA ANALYTICS - PIM SCORE", 105, finalY + 8, { align: "center" });
     
     const pim = report.finalScoutRating ? report.finalScoutRating * 20 : 0;
@@ -254,7 +264,8 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "italic");
-    const splitExplanation = doc.splitTextToSize(report.summary || "Sin análisis de IA disponible.", 170);
+    const summaryText = report.summary || "Sin análisis de IA disponible.";
+    const splitExplanation = doc.splitTextToSize(summaryText, 170);
     doc.text(splitExplanation, 105, finalY + 28, { align: "center" });
 
     // Footer on all pages
