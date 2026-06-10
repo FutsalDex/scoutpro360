@@ -10,10 +10,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { 
   ShieldCheck, 
   ChevronRight, 
-  LayoutDashboard, 
   Brain, 
-  Target, 
-  Download, 
   CheckCircle2,
   Menu,
   X,
@@ -22,7 +19,6 @@ import {
   Users,
   Activity,
   Github,
-  Video,
   ClipboardList,
   Calendar,
   Sparkles,
@@ -122,7 +118,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 3. SECCIÓN DE CARACTERÍSTICAS (MÓDULOS ACTUALES) */}
+      {/* 3. SECCIÓN DE CARACTERÍSTICAS */}
       <section id="características" className="py-24 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl font-headline font-bold uppercase tracking-widest text-primary">Arquitectura de Scouting 360</h2>
@@ -156,21 +152,21 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           />
           <FeatureCard 
             icon={<Globe className="text-[#E91E63]" />} 
-            title="Mapeado de Red" 
-            desc="Visualización geoespacial de tu red de captación para detectar focos de talento en tiempo real."
+            title="Inteligencia de Red" 
+            desc="PRÓXIMAMENTE: Espacio exclusivo para que clubes centralicen y consulten el talento detectado por toda su red de scouts."
             borderColor="border-[#E91E63]/40"
           />
           <FeatureCard 
             icon={<Search className="text-primary" />} 
-            title="Central de Clubes" 
-            desc="PRÓXIMAMENTE: Espacio exclusivo para directivas donde consultar el talento detectado por toda su red de scouts."
+            title="Comparativas" 
+            desc="PRÓXIMAMENTE: Herramienta de benchmarking para comparar prospectos externos contra el rendimiento medio de tu plantilla."
             borderColor="border-primary/40"
             isUpcoming
           />
         </div>
       </section>
 
-      {/* 4. VISTA PREVIA DE INFORME REAL (ACTUALIZADO CON PIM) */}
+      {/* 4. VISTA PREVIA DE INFORME REAL */}
       <section className="py-24 px-6 bg-secondary/10">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-4">
@@ -179,7 +175,6 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           </div>
           
           <Card className="border-border/40 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden bg-[#1b263b] animate-in zoom-in-95 duration-700">
-            {/* Informe Header */}
             <div className="bg-[#1b263b] p-8 border-b border-primary/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1">
                 <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">ANÁLISIS DE IMPACTO</h3>
@@ -238,23 +233,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 5. PREGUNTAS FRECUENTES (FAQ) */}
-      <section id="faq" className="py-24 px-6 max-w-4xl mx-auto">
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-3xl font-headline font-bold uppercase tracking-widest text-primary">Preguntas Frecuentes</h2>
-          <p className="text-muted-foreground">Respuestas para profesionales del scouting</p>
-        </div>
-        <div className="grid md:grid-cols-1 gap-4">
-          <Accordion type="single" collapsible className="w-full space-y-4">
-            <FaqItem value="q1" question="¿Qué es la métrica PIM?" answer="El Player Impact Metric (PIM) es nuestro algoritmo de IA que procesa más de 50 variables técnicas, tácticas y contextuales para generar una puntuación objetiva del rendimiento de un jugador en un partido específico." />
-            <FaqItem value="q2" question="¿Cómo funciona el espacio para Clubes?" answer="Es un módulo estratégico (en desarrollo) que permite a los clubes centralizar la inteligencia de sus scouts. Los clubes podrán filtrar talentos de forma global según las evaluaciones enviadas por su red de captación." />
-            <FaqItem value="q3" question="¿Puedo exportar mis informes?" answer="Sí. ScoutPro 360 genera informes PDF corporativos exhaustivos que incluyen todas las valoraciones, acciones clave y el análisis de IA para ser presentados a la dirección deportiva." />
-            <FaqItem value="q4" question="¿Es útil para scouts independientes?" answer="Totalmente. Ofrece una herramienta de digitalización profesional que eleva el valor de tu trabajo, permitiéndote gestionar tu propia base de datos de talentos con un rigor de élite." />
-          </Accordion>
-        </div>
-      </section>
-
-      {/* 6. TABLA DE PRECIOS */}
+      {/* 5. SECCIÓN DE PRECIOS */}
       <section id="precios" className="py-24 px-6 bg-secondary/10">
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="text-center space-y-4">
@@ -264,57 +243,65 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           <div className="grid md:grid-cols-3 gap-8">
             <PricingCard 
               name="Analista" 
-              price="$29" 
+              price="9,99€" 
               desc="Para scouts independientes"
-              features={['Gestión de Fichas de Talento', 'Informes 360 Básicos', 'Mapeado Personal', 'Soporte Estándar']}
+              features={[
+                'Dashboard Operativo', 
+                'Gestión de Fichas de Talento', 
+                'BD de talentos', 
+                'BD SCOUT', 
+                'Agenda Scouting', 
+                'Soporte Estándar'
+              ]}
             />
             <PricingCard 
               name="Profesional" 
-              price="$99" 
+              price="29,99€" 
               desc="Para cuerpos técnicos y scouts Pro"
-              features={['Métricas PIM ilimitadas', 'Resúmenes de IA Generativa', 'Agenda Scouting Avanzada', 'Exportación PDF Pro', 'Dashboard Operativo']}
+              features={[
+                'Dashboard Operativo', 
+                'Gestión de Fichas de Talento', 
+                'BD de talentos', 
+                'BD SCOUT', 
+                'Informes 360 Pro',
+                'Métricas PIM ilimitadas', 
+                'Resúmenes de IA Generativa', 
+                'Exportación PDF Pro', 
+                'Agenda Scouting', 
+                'Soporte técnico Pro'
+              ]}
               featured
             />
             <PricingCard 
               name="Club / Red" 
               price="Consultar" 
               desc="Para entidades y agencias"
-              features={['Buscador Global de Talentos', 'Gestión de Red de Scouts', 'Comparativas de Plantilla', 'API de Integración', 'Soporte 24/7 Premium']}
+              features={[
+                'Buscador Global de Talentos', 
+                'Gestión de Red de Scouts', 
+                'Comparativas de Talentos', 
+                'Soporte 24/7 Premium'
+              ]}
             />
           </div>
         </div>
       </section>
 
-      {/* 7. ESTADÍSTICAS */}
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-          <StatItem value="15,000+" label="Talentos Registrados" />
-          <StatItem value="650+" label="Redes de Captación" />
-          <StatItem value="100%" label="Patrimonio del Club" />
-          <StatItem value="IA" label="Análisis en Segundos" />
+      {/* 6. FAQ */}
+      <section id="faq" className="py-24 px-6 max-w-4xl mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-3xl font-headline font-bold uppercase tracking-widest text-primary">Preguntas Frecuentes</h2>
+          <p className="text-muted-foreground">Respuestas para profesionales del scouting</p>
         </div>
+        <Accordion type="single" collapsible className="w-full space-y-4">
+          <FaqItem value="q1" question="¿Qué es la métrica PIM?" answer="El Player Impact Metric (PIM) es nuestro algoritmo de IA que procesa más de 50 variables técnicas, tácticas y contextuales para generar una puntuación objetiva del rendimiento de un jugador en un partido específico." />
+          <FaqItem value="q2" question="¿Cómo funciona el espacio para Clubes?" answer="Es un módulo estratégico que permite a los clubes centralizar la inteligencia de sus scouts. Las entidades podrán filtrar talentos de forma global según las evaluaciones enviadas por su red privada de captación." />
+          <FaqItem value="q3" question="¿Puedo exportar mis informes?" answer="Sí. El plan Profesional permite generar informes PDF corporativos exhaustivos que incluyen todas las valoraciones, acciones clave y el análisis de IA para ser presentados a la dirección deportiva." />
+          <FaqItem value="q4" question="¿Es útil para scouts independientes?" answer="Totalmente. Ofrece una herramienta de digitalización profesional que eleva el valor de tu trabajo, permitiéndote gestionar tu propia base de datos de talentos con un rigor de élite." />
+        </Accordion>
       </section>
 
-      {/* 8. CALL TO ACTION FINAL */}
-      <section className="py-32 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary/20 animate-pulse pointer-events-none" />
-        <div className="max-w-4xl mx-auto text-center space-y-10 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-headline font-black uppercase tracking-tight">El Futuro del <br />Scouting es Objetivo</h2>
-          <p className="text-xl text-muted-foreground font-medium">Únete a la nueva era del análisis deportivo y digitaliza tu patrimonio de inteligencia técnica hoy mismo.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="h-16 px-12 bg-primary text-primary-foreground text-lg font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
-                  Empezar Ahora
-                </Button>
-              </DialogTrigger>
-              <AuthModal onAuthSuccess={onEnter} />
-            </Dialog>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. FOOTER */}
+      {/* 7. FOOTER */}
       <footer className="bg-[#0f172a] text-slate-400 py-16 px-6 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="space-y-6">
@@ -326,24 +313,14 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               La plataforma definitiva para el scouting, el análisis de talento y la inteligencia de mercado profesional para clubes de élite.
             </p>
           </div>
-          <FooterColumn title="Plataforma" links={['Ficha Talentos', 'Informes 360', 'Métrica PIM', 'Mapeado']} />
-          <FooterColumn title="Soporte" links={['Contacto', 'FAQ', 'Documentación']} />
+          <FooterColumn title="Plataforma" links={['Ficha Talentos', 'Informes 360', 'Métrica PIM', 'Agenda']} />
+          <FooterColumn title="Soporte" links={['Contacto', 'FAQ', 'Privacidad']} />
           <div className="space-y-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs">Conecta</h4>
             <div className="flex gap-4">
-              <a 
-                href="https://github.com/FutsalDex/scoutpro360" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer"
-              >
+              <a href="https://github.com/FutsalDex/scoutpro360" target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer">
                 <Github className="h-5 w-5" />
               </a>
-              {[Globe, Users, Star, Activity].map((Icon, i) => (
-                <div key={i} className="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer">
-                  <Icon className="h-5 w-5" />
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -394,9 +371,9 @@ function PricingCard({ name, price, desc, features, featured }: { name: string, 
         </div>
         <div className="space-y-4 pt-4">
           {features.map((f, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm">
-              <CheckCircle2 className={cn("h-4 w-4", featured ? "text-primary" : "text-muted-foreground")} />
-              <span className="font-medium">{f}</span>
+            <div key={i} className="flex items-start gap-3 text-sm">
+              <CheckCircle2 className={cn("h-4 w-4 shrink-0 mt-0.5", featured ? "text-primary" : "text-muted-foreground")} />
+              <span className="font-medium text-foreground/90">{f}</span>
             </div>
           ))}
         </div>
@@ -419,15 +396,6 @@ function FaqItem({ value, question, answer }: { value: string, question: string,
         {answer}
       </AccordionContent>
     </AccordionItem>
-  );
-}
-
-function StatItem({ value, label }: { value: string, label: string }) {
-  return (
-    <div className="space-y-2">
-      <div className="text-4xl md:text-5xl font-black font-headline text-primary-foreground">{value}</div>
-      <div className="text-xs font-bold uppercase tracking-widest opacity-80">{label}</div>
-    </div>
   );
 }
 
