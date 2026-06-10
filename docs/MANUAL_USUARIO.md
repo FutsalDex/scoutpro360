@@ -9,40 +9,37 @@ La plataforma utiliza un sistema de Control de Acceso Basado en Roles (RBAC) par
 
 ### Usuario Administrador Maestro
 *   **Identificador**: `admin.scoutpro360@gmail.com`
-*   **Capacidades**: Acceso total, gestión de perfiles y visibilidad completa de todas las analíticas.
-
-### Matriz de Permisos por Rol
-*   **Administrador**: Acceso total a todos los módulos.
-*   **Analista / Entrenador / Director Deportivo**: Enfocados en la captación. Acceso a Operaciones (Dashboard, Informes en Vivo, Base de Datos Global) y Mapeo de Talento.
-*   **Gestión Club**: Enfocados en estrategia. Acceso a Dashboard, Base de Datos, Mapeo y los módulos avanzados de **Analytics** y **Benchmarking**.
-*   **Invitado (Guest)**: Acceso de solo lectura al Dashboard y al Mapeo de Talento para demostraciones.
+*   **Capacidades**: Acceso total, gestión de red y visibilidad completa de todas las analíticas.
 
 ---
 
 ## 1. Centro de Mando (Dashboard)
-*   **Objetivo**: Obtener una "Conciencia Situacional" inmediata de las operaciones de captación del club.
+*   **Objetivo**: Obtener una "Conciencia Situacional" inmediata de las operaciones de captación.
 *   **Funcionamiento**:
-    *   **KPIs de Rendimiento**: Muestra el total de jugadores en Firestore y el PIM promedio real de la base de datos.
-    *   **Top Targets**: Lista filtrada automáticamente con jugadores de Grado A.
-*   **Resultado**: Optimización del tiempo táctico.
+    *   **KPIs de Rendimiento**: Muestra el total de jugadores en la base de datos y el estado de los informes.
+    *   **Prospectos Recientes**: Acceso directo a las fichas de los últimos talentos identificados.
 
-## 2. Informe en Vivo (Live Report)
-*   **Objetivo**: Estandarizar la toma de datos durante los partidos.
-*   **IA Analytics**: 
-    *   **Calcular PIM**: Gemini analiza los datos técnicos y tácticos para generar un score de 0 a 100.
-    *   **Resumen Ejecutivo**: Generación de texto profesional basado en las notas del scout.
-*   **Persistencia**: Los datos se guardan en tiempo real en la colección `reports` vinculada al jugador.
+## 2. Identificación de Talento (Ficha Pro)
+*   **Objetivo**: Digitalizar la información personal y profesional del jugador.
+*   **Campos Clave**: Datos de contacto, valor de mercado, pie dominante y redes sociales. El acceso a la ficha es el paso previo a cualquier análisis técnico.
 
-## 3. Base de Datos Global
-*   **Objetivo**: Patrimonio de inteligencia centralizado.
-*   **Funcionamiento**: Búsqueda avanzada y filtrado de los jugadores registrados por toda la red de scouts del club.
+## 3. Informe 360 e Inteligencia Técnica (IA)
+*   **Objetivo**: Estandarizar la toma de datos y objetivar el talento mediante el algoritmo **PIM**.
+*   **Estructura de 9 Etapas**:
+    1.  **Jugador**: Metadatos y posicionamiento táctico en campo.
+    2.  **Contexto**: Estilo de juego, ritmo y clima.
+    3.  **Técnico/Táctico/Físico/Mental**: Evaluación de KPIs específicos (1-5).
+    4.  **Acciones**: Registro cronológico de eventos exitosos o fallidos.
+    5.  **Evaluación**: Fortalezas, debilidades y recomendación final.
+    6.  **IA Analytics**: El motor Genkit calcula el **PIM Score (1-100)** ponderado por posición y genera un **Resumen Ejecutivo** profesional.
 
-## 4. Mapeo de Talento (Talent Mapping)
-*   **Objetivo**: Análisis geográfico estratégico. Visualiza dónde se está detectando el mayor índice de PIM para optimizar recursos de viaje.
+## 4. Gestión de Bases de Datos
+*   **BD TALENTOS**: Prospectos identificados en fase de seguimiento inicial.
+*   **BD SCOUT**: Patrimonio de inteligencia técnica con informes completados y métricas PIM.
+*   **Exportación PDF**: Generación de informes profesionales de alta calidad para direcciones deportivas.
 
-## 5. Hub de Analítica & PIM Benchmarking
-*   **Objetivo**: Validar si un fichaje es superior a la plantilla actual.
-*   **Delta PIM**: Compara al prospecto contra el "Squad Benchmark" (el promedio del club en esa posición).
+## 5. Agenda de Scouting
+*   **Objetivo**: Planificar la logística de observación. Permite agendar partidos y vincularlos directamente con el flujo de creación de informes.
 
 ---
 **ScoutPro 360** - *La inteligencia que define el futuro de tu equipo.*
