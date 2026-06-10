@@ -13,7 +13,7 @@ import {
   FileText, ChevronRight, Activity, User, Target, Shield, 
   Save, Star, LayoutGrid, ClipboardCheck, Plus, Trash2,
   CheckCircle2, AlertTriangle, Sun, Cloud, CloudRain, Thermometer, Wind,
-  Brain, Sparkles
+  Brain, Sparkles, Database, Info
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -310,6 +310,27 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   };
 
   const weatherIcons = { sun: Sun, cloudy: Cloud, rain: CloudRain, cold: Thermometer, wind: Wind };
+
+  // Auditoría de datos para la pestaña Analytics
+  const getAuditStats = () => {
+    const techCount = Object.keys(ratings).filter(k => localizedKPIs.technical.observation.includes(k) || localizedKPIs.technical.impact.includes(k)).length;
+    const tacCount = Object.keys(ratings).filter(k => localizedKPIs.tactical.observation.includes(k)).length;
+    const physCount = Object.keys(ratings).filter(k => localizedKPIs.physical.observation.includes(k)).length;
+    const mentalCount = Object.keys(ratings).filter(k => localizedKPIs.mental.observation.includes(k)).length;
+    const globalCount = Object.keys(ratings).filter(k => t.report?.generalProfile?.attributes?.includes(k)).length;
+    
+    return {
+      tech: techCount,
+      tac: tacCount,
+      phys: physCount,
+      mental: mentalCount,
+      global: globalCount,
+      hasContext: !!matchStyle && !!matchSystem && !!matchPace,
+      hasSummary: !!overallDescription || !!notes['summary']
+    };
+  };
+
+  const audit = getAuditStats();
 
   return (
     <div className="space-y-6 pb-32">
@@ -685,29 +706,90 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-8 animate-in fade-in">
-          <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
-            <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
-              <Brain className="h-5 w-5 text-primary" />
-              <h2 className="text-[10px] font-black text-white uppercase tracking-widest">MOTOR DE INTELIGENCIA ARTIFICIAL</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-8 space-y-8">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <Brain className="h-5 w-5 text-primary" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">MOTOR DE INTELIGENCIA ARTIFICIAL</h2>
+                </div>
+                <CardContent className="p-12 text-center space-y-6">
+                  <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20">
+                    <Sparkles className="h-10 w-10 text-primary animate-pulse" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-black uppercase tracking-widest text-white">Análisis de Impacto Profesional</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto italic font-medium">
+                      El sistema está listo para procesar los datos recolectados y generar la métrica objetiva de rendimiento.
+                    </p>
+                  </div>
+                  <Button className="h-14 px-12 bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-105 transition-all">
+                    <Database className="h-5 w-5 mr-2" /> GENERAR MÉTRICA PIM
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
+                  <Info className="h-4 w-4 text-accent" />
+                  <h2 className="text-[10px] font-black text-white uppercase tracking-widest">AUDITORÍA DE DATOS RECOLECTADOS</h2>
+                </div>
+                <CardContent className="p-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                    <AuditMetric label="TÉCNICOS" value={audit.tech} total={13+6} />
+                    <AuditMetric label="TÁCTICOS" value={audit.tac} total={11} />
+                    <AuditMetric label="FÍSICOS" value={audit.phys} total={11} />
+                    <AuditMetric label="MENTALES" value={audit.mental} total={10} />
+                  </div>
+                  <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <AuditStatus label="Contexto de Partido" active={audit.hasContext} />
+                    <AuditStatus label="Notas Cualitativas" active={audit.hasSummary} />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <CardContent className="p-12 text-center space-y-6">
-               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border border-primary/20">
-                  <Sparkles className="h-10 w-10 text-primary animate-pulse" />
-               </div>
-               <div className="space-y-2">
-                  <h3 className="text-xl font-black uppercase tracking-widest text-white">Análisis de Impacto Profesional</h3>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Preparando el sistema de cálculo métrico basado en patrones cualitativos. 
-                    En el siguiente paso activaremos el motor de procesamiento para transformar tus notas en datos objetivos.
+
+            <div className="lg:col-span-4 space-y-8">
+               <Card className="border-border/40 bg-primary/5 rounded-2xl p-6 border-dashed border-2">
+                  <h4 className="text-[10px] font-black uppercase text-primary tracking-widest mb-4">RECOMENDACIÓN TÉCNICA</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Para una métrica precisa, asegúrate de haber evaluado al menos el <b>60%</b> de los campos técnicos y tácticos. Los datos cualitativos (fortalezas/debilidades) aportan el <b>30%</b> del peso en el resumen ejecutivo generado por la IA.
                   </p>
-               </div>
-            </CardContent>
-          </Card>
+               </Card>
+            </div>
+          </div>
+
           <div className="flex justify-start gap-4 pt-10">
             <Button type="button" variant="ghost" onClick={() => setActiveTab("evaluation")} className="h-12 px-8 font-black text-[11px] uppercase text-muted-foreground">← {t.report?.tabs?.evaluation || 'Evaluación'}</Button>
           </div>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function AuditMetric({ label, value, total }: { label: string, value: number, total: number }) {
+  const percentage = (value / total) * 100;
+  return (
+    <div className="space-y-2">
+      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">{label}</p>
+      <div className="flex items-baseline gap-1">
+        <span className={cn("text-xl font-black", value > 0 ? "text-white" : "text-muted-foreground/30")}>{value}</span>
+        <span className="text-[10px] text-muted-foreground/40">/ {total}</span>
+      </div>
+      <div className="h-1 w-full bg-secondary/50 rounded-full overflow-hidden">
+        <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${percentage}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function AuditStatus({ label, active }: { label: string, active: boolean }) {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/20 border border-border/10">
+      <div className={cn("h-2 w-2 rounded-full", active ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-muted-foreground/30")} />
+      <span className={cn("text-[10px] font-black uppercase tracking-tight", active ? "text-foreground" : "text-muted-foreground/40")}>{label}</span>
+      {active && <CheckCircle2 className="h-3 w-3 text-green-500 ml-auto" />}
     </div>
   );
 }
