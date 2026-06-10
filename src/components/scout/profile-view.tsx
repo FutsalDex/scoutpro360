@@ -84,7 +84,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
   };
 
   const currentPlan = planInfo[profile.subscriptionPlan || 'básico'];
-  const isClubPlan = profile.subscriptionPlan === 'enterprise' || profile.role === 'admin' || profile.role === 'gestion' || profile.role === 'director';
   const isOpsRole = ['admin', 'analista', 'entrenador', 'director', 'gestion'].includes(profile.role);
 
   return (
@@ -278,7 +277,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-8 space-y-8">
-             {/* Sección de Suscripción */}
              <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between group hover:bg-primary/10 transition-all">
                 <div className="flex items-center gap-5">
                    <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/10">
@@ -313,16 +311,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
                  title={t.profile.caps.agenda} 
                  allowed={isOpsRole} 
                  desc={t.profile.caps.agendaDesc}
-               />
-               <PermissionItem 
-                 title={t.profile.caps.globalDb} 
-                 allowed={isClubPlan} 
-                 desc={t.profile.caps.globalDbDesc}
-               />
-               <PermissionItem 
-                 title={t.profile.caps.analytics} 
-                 allowed={profile.subscriptionPlan === 'enterprise' || profile.role === 'admin'} 
-                 desc={t.profile.caps.analyticsDesc}
                />
              </div>
           </CardContent>
