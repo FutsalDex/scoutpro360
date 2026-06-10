@@ -23,7 +23,10 @@ import {
   Activity,
   Github,
   Video,
-  ClipboardList
+  ClipboardList,
+  Calendar,
+  Sparkles,
+  Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +51,8 @@ export function LandingPage({ onEnter }: LandingPageProps) {
 
           <nav className="hidden lg:flex items-center gap-8">
             <a href="#propuesta" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Propuesta</a>
-            <a href="#características" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Características</a>
-            <a href="#precios" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Precios</a>
+            <a href="#características" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Módulos</a>
+            <a href="#precios" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Planes</a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">FAQ</a>
           </nav>
 
@@ -75,7 +78,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         <div className="fixed inset-0 z-[90] bg-background pt-20 px-6 lg:hidden animate-in fade-in slide-in-from-top-4">
           <nav className="flex flex-col gap-6">
             <a href="#propuesta" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>Propuesta</a>
-            <a href="#características" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>Características</a>
+            <a href="#características" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>Módulos</a>
             <a href="#precios" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>Precios</a>
             <a href="#faq" className="text-2xl font-bold" onClick={() => setIsMenuOpen(false)}>FAQ</a>
             <Dialog>
@@ -96,21 +99,21 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         <div className="max-w-5xl mx-auto text-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="flex justify-center">
             <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-xs font-bold tracking-widest uppercase">
-              Scouting • Análisis Táctico • Gestión de Talento
+              Scouting Inteligente • Métrica PIM • Red de Talentos
             </Badge>
           </div>
           <h1 className="text-5xl md:text-7xl font-headline font-black tracking-tight leading-[1.1]">
-            Análisis de <span className="text-primary italic">Talento y Partidos</span> <br />
-            en un Solo Lugar
+            Análisis de <span className="text-primary italic">Talento Basado</span> <br />
+            en Inteligencia Técnica
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
-            La plataforma definitiva para que <strong>Scouts, Entrenadores y Directores Deportivos</strong> identifiquen el talento élite y analicen el rendimiento táctico con inteligencia artificial.
+            Transforma la observación subjetiva en datos objetivos. La plataforma definitiva para que <strong>Scouts y Clubes</strong> identifiquen el talento élite mediante el algoritmo PIM y resúmenes de IA.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="h-14 px-10 bg-primary text-primary-foreground text-base font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
-                  Comenzar Análisis <ChevronRight className="ml-2 h-5 w-5" />
+                  Comenzar Evaluación <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               </DialogTrigger>
               <AuthModal onAuthSuccess={onEnter} />
@@ -119,79 +122,81 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 3. SECCIÓN DE CARACTERÍSTICAS */}
+      {/* 3. SECCIÓN DE CARACTERÍSTICAS (MÓDULOS ACTUALES) */}
       <section id="características" className="py-24 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-3xl font-headline font-bold uppercase tracking-widest">Herramientas Profesionales</h2>
+          <h2 className="text-3xl font-headline font-bold uppercase tracking-widest text-primary">Arquitectura de Scouting 360</h2>
           <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
+          <p className="text-muted-foreground max-w-2xl mx-auto font-medium">Herramientas profesionales diseñadas para el rigor del fútbol de élite.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <FeatureCard 
             icon={<ClipboardList className="text-primary" />} 
-            title="Detección de Talento" 
-            desc="Métricas avanzadas (PIM) para identificar jugadores con alto potencial de impacto inmediato en el club."
+            title="Identificación Pro" 
+            desc="Crea fichas de talento detalladas con datos personales, profesionales y de contacto directo para tu base de datos."
             borderColor="border-primary/40"
           />
           <FeatureCard 
-            icon={<Brain className="text-accent" />} 
-            title="Análisis para Entrenadores" 
-            desc="Evaluación del cumplimiento de roles tácticos y rendimiento en vivo durante los partidos."
+            icon={<Activity className="text-accent" />} 
+            title="Informes 360" 
+            desc="Formularios de 9 etapas cubriendo técnica, táctica, físico y mental, con registro cronológico de acciones clave."
             borderColor="border-accent/40"
           />
           <FeatureCard 
-            icon={<Video className="text-[#E91E63]" />} 
-            title="Dirección Deportiva" 
-            desc="Dashboards estratégicos con comparativas de mercado y benchmarking para validar cada fichaje."
+            icon={<Brain className="text-primary" />} 
+            title="Motor de IA (PIM)" 
+            desc="Cálculo del Player Impact Metric (1-100) ponderado por posición y generación de resúmenes técnicos automáticos."
+            borderColor="border-primary/40"
+          />
+          <FeatureCard 
+            icon={<Calendar className="text-accent" />} 
+            title="Agenda Scouting" 
+            desc="Planifica y gestiona tus citas de observación de partidos con integración directa al flujo de informes."
+            borderColor="border-accent/40"
+          />
+          <FeatureCard 
+            icon={<Globe className="text-[#E91E63]" />} 
+            title="Mapeado de Red" 
+            desc="Visualización geoespacial de tu red de captación para detectar focos de talento en tiempo real."
             borderColor="border-[#E91E63]/40"
           />
           <FeatureCard 
-            icon={<Target className="text-primary" />} 
-            title="Pizarra Táctica" 
-            desc="Visualiza el posicionamiento y mapa de calor del jugador en tiempo real sobre el campo."
+            icon={<Search className="text-primary" />} 
+            title="Central de Clubes" 
+            desc="PRÓXIMAMENTE: Espacio exclusivo para directivas donde consultar el talento detectado por toda su red de scouts."
             borderColor="border-primary/40"
-          />
-          <FeatureCard 
-            icon={<LayoutDashboard className="text-accent" />} 
-            title="Base de Datos Global" 
-            desc="Acceso instantáneo a miles de perfiles con historial de rendimiento e impacto PIM."
-            borderColor="border-accent/40"
-          />
-          <FeatureCard 
-            icon={<Download className="text-[#4CAF50]" />} 
-            title="Exportación Profesional" 
-            desc="Descarga informes completos optimizados para presentaciones a la junta directiva."
-            borderColor="border-[#4CAF50]/40"
+            isUpcoming
           />
         </div>
       </section>
 
-      {/* 4. VISTA PREVIA DE INFORME REAL */}
+      {/* 4. VISTA PREVIA DE INFORME REAL (ACTUALIZADO CON PIM) */}
       <section className="py-24 px-6 bg-secondary/10">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-4">
-            <h2 className="text-4xl font-headline font-black uppercase tracking-widest">Scouting de Jugadores</h2>
-            <p className="text-muted-foreground font-medium">La herramienta definitiva para el cuerpo técnico y la dirección deportiva</p>
+            <h2 className="text-4xl font-headline font-black uppercase tracking-widest">Inteligencia Técnica</h2>
+            <p className="text-muted-foreground font-medium">Validación objetiva de prospectos mediante IA y análisis situacional</p>
           </div>
           
           <Card className="border-border/40 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden bg-[#1b263b] animate-in zoom-in-95 duration-700">
             {/* Informe Header */}
             <div className="bg-[#1b263b] p-8 border-b border-primary/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1">
-                <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">EVALUACIÓN DE TALENTO</h3>
-                <p className="text-[11px] text-primary font-bold uppercase tracking-[0.3em]">MÓDULO DE SCOUTING • SCOUTPRO 360</p>
+                <h3 className="text-2xl font-black uppercase tracking-widest text-white font-headline">ANÁLISIS DE IMPACTO</h3>
+                <p className="text-[11px] text-primary font-bold uppercase tracking-[0.3em]">IA ANALYTICS • MOTOR GENKIT</p>
               </div>
               <div className="flex gap-1.5">
-                {['TAC', 'POS', 'INT', 'DEC', 'FIS', 'MEN', 'ACC', 'PIM'].map((tab, i) => (
+                {['JUG', 'CON', 'TÉC', 'TÁC', 'FÍS', 'MEN', 'ACC', 'EVA', 'PIM'].map((tab, i) => (
                   <div 
                     key={tab} 
                     className={cn(
                       "h-8 w-14 rounded-md border flex items-center justify-center transition-all", 
-                      i === 7 
+                      i === 8 
                         ? "bg-primary border-primary shadow-[0_0_15px_rgba(224,176,80,0.4)]" 
                         : "bg-white/5 border-white/10"
                     )}
                   >
-                    <span className={cn("text-[8px] font-black", i === 7 ? "text-primary-foreground" : "text-white/20")}>
+                    <span className={cn("text-[8px] font-black", i === 8 ? "text-primary-foreground" : "text-white/20")}>
                       {tab}
                     </span>
                   </div>
@@ -203,34 +208,27 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               <div className="grid md:grid-cols-12 gap-10 items-center">
                 <div className="md:col-span-7 space-y-8">
                   <div className="h-7 px-5 bg-primary/20 border border-primary/30 rounded-full inline-flex items-center">
-                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Análisis de Jugador de Élite</span>
+                    <Sparkles className="h-3 w-3 text-primary mr-2" />
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Resumen Ejecutivo de IA</span>
                   </div>
-                  <div className="space-y-5">
-                    {[
-                      { title: "Ejecución del Rol Táctico", sub: "Cumplimiento del 92% de las instrucciones de zona" },
-                      { title: "Toma de Decisiones bajo Presión", sub: "Mantiene un 88% de acierto en pase vertical" },
-                      { title: "Impacto en Transición Defensiva", sub: "Recuperación tras pérdida en menos de 5 segundos" }
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center gap-5 p-5 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-colors">
-                        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 shadow-lg shadow-primary/10">
-                          <CheckCircle2 className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <p className="text-sm font-black text-white uppercase tracking-tight">{item.title}</p>
-                          <p className="text-[11px] text-muted-foreground italic font-medium">{item.sub}</p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="space-y-4">
+                    <p className="text-sm text-foreground/90 font-medium italic leading-relaxed border-l-2 border-primary/40 pl-6">
+                      "El jugador demuestra una inteligencia táctica superior en fase de construcción, con un 92% de acierto en pases de progresión. Su capacidad para detectar intervalos defensivos lo posiciona como un prospecto de élite para sistemas de posesión. Se recomienda seguimiento prioritario debido a su alto techo competitivo."
+                    </p>
+                    <div className="flex gap-4">
+                       <Badge variant="outline" className="text-[9px] uppercase border-accent/40 text-accent font-black">Visión de Juego: 5/5</Badge>
+                       <Badge variant="outline" className="text-[9px] uppercase border-accent/40 text-accent font-black">Toma Decisiones: 5/5</Badge>
+                    </div>
                   </div>
                 </div>
 
                 <div className="md:col-span-5">
                   <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-[3rem] border border-white/10 shadow-inner relative overflow-hidden group">
                     <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80 mb-6">PIM SCORE (TALENTO)</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80 mb-6">PIM SCORE</span>
                     <span className="text-9xl font-black text-primary font-headline drop-shadow-[0_20px_50px_rgba(224,176,80,0.3)] leading-none">94</span>
-                    <Badge className="mt-12 bg-[#2e7d32] text-white px-10 py-3 text-xs font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-[#2e7d32]/30 border-none">
-                      PROSPECTO TOP
+                    <Badge className="mt-12 bg-primary text-primary-foreground px-10 py-3 text-xs font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-primary/30 border-none">
+                      POTENCIAL ÉLITE
                     </Badge>
                   </div>
                 </div>
@@ -243,15 +241,15 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       {/* 5. PREGUNTAS FRECUENTES (FAQ) */}
       <section id="faq" className="py-24 px-6 max-w-4xl mx-auto">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-3xl font-headline font-bold uppercase tracking-widest">Preguntas Frecuentes</h2>
-          <p className="text-muted-foreground">Todo lo que necesitas saber sobre ScoutPro360</p>
+          <h2 className="text-3xl font-headline font-bold uppercase tracking-widest text-primary">Preguntas Frecuentes</h2>
+          <p className="text-muted-foreground">Respuestas para profesionales del scouting</p>
         </div>
         <div className="grid md:grid-cols-1 gap-4">
           <Accordion type="single" collapsible className="w-full space-y-4">
-            <FaqItem value="q1" question="¿Analiza el talento de forma objetiva?" answer="Sí. ScoutPro360 utiliza el algoritmo PIM (Player Impact Metric) para procesar variables tácticas y técnicas, eliminando sesgos subjetivos en la captación de jugadores." />
-            <FaqItem value="q2" question="¿Cómo ayuda a un Director Deportivo?" answer="Ofrece una visión global del mercado y de la plantilla, permitiendo benchmarking instantáneo para validar si un fichaje realmente mejora el nivel medio del equipo." />
-            <FaqItem value="q3" question="¿Puedo usarlo durante un partido?" answer="Sí, la interfaz está optimizada para tablets y smartphones, lo que permite a los asistentes técnicos capturar datos y eventos clave sin perderse ni un segundo de la acción." />
-            <FaqItem value="q4" question="¿Es útil para entrenadores?" answer="Absolutamente. Permite evaluar si los jugadores están cumpliendo los roles tácticos asignados y detectar debilidades en el modelo de juego en tiempo real." />
+            <FaqItem value="q1" question="¿Qué es la métrica PIM?" answer="El Player Impact Metric (PIM) es nuestro algoritmo de IA que procesa más de 50 variables técnicas, tácticas y contextuales para generar una puntuación objetiva del rendimiento de un jugador en un partido específico." />
+            <FaqItem value="q2" question="¿Cómo funciona el espacio para Clubes?" answer="Es un módulo estratégico (en desarrollo) que permite a los clubes centralizar la inteligencia de sus scouts. Los clubes podrán filtrar talentos de forma global según las evaluaciones enviadas por su red de captación." />
+            <FaqItem value="q3" question="¿Puedo exportar mis informes?" answer="Sí. ScoutPro 360 genera informes PDF corporativos exhaustivos que incluyen todas las valoraciones, acciones clave y el análisis de IA para ser presentados a la dirección deportiva." />
+            <FaqItem value="q4" question="¿Es útil para scouts independientes?" answer="Totalmente. Ofrece una herramienta de digitalización profesional que eleva el valor de tu trabajo, permitiéndote gestionar tu propia base de datos de talentos con un rigor de élite." />
           </Accordion>
         </div>
       </section>
@@ -260,28 +258,28 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       <section id="precios" className="py-24 px-6 bg-secondary/10">
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl font-headline font-bold uppercase tracking-widest">Planes de Suscripción</h2>
-            <p className="text-muted-foreground">Elige el nivel de inteligencia que tu organización necesita</p>
+            <h2 className="text-3xl font-headline font-bold uppercase tracking-widest text-primary">Ecosistema ScoutPro</h2>
+            <p className="text-muted-foreground">Selecciona el nivel de inteligencia que tu red profesional necesita</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <PricingCard 
-              name="Básico" 
+              name="Analista" 
               price="$29" 
-              desc="Para analistas independientes"
-              features={['Hasta 50 informes/mes', 'Formulario Pro', 'Exportación JSON', 'Soporte Email']}
+              desc="Para scouts independientes"
+              features={['Gestión de Fichas de Talento', 'Informes 360 Básicos', 'Mapeado Personal', 'Soporte Estándar']}
             />
             <PricingCard 
               name="Profesional" 
               price="$99" 
-              desc="Para cuerpos técnicos y scouts"
-              features={['Informes ilimitados', 'IA Generativa Completa', 'Pizarra Táctica Avanzada', 'Multimedia HD', 'Notificaciones Inteligentes']}
+              desc="Para cuerpos técnicos y scouts Pro"
+              features={['Métricas PIM ilimitadas', 'Resúmenes de IA Generativa', 'Agenda Scouting Avanzada', 'Exportación PDF Pro', 'Dashboard Operativo']}
               featured
             />
             <PricingCard 
-              name="Enterprise" 
+              name="Club / Red" 
               price="Consultar" 
-              desc="Para clubes de élite y federaciones"
-              features={['Usuarios ilimitados', 'API de Integración', 'Personalización de Marca', 'Soporte 24/7', 'Gestión de Roles Pro']}
+              desc="Para entidades y agencias"
+              features={['Buscador Global de Talentos', 'Gestión de Red de Scouts', 'Comparativas de Plantilla', 'API de Integración', 'Soporte 24/7 Premium']}
             />
           </div>
         </div>
@@ -290,10 +288,10 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       {/* 7. ESTADÍSTICAS */}
       <section className="py-20 px-6 bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-          <StatItem value="10,000+" label="Jugadores Evaluados" />
-          <StatItem value="500+" label="Clubes de Élite" />
-          <StatItem value="98%" label="Tasa de Acierto" />
-          <StatItem value="24/7" label="Inteligencia Activa" />
+          <StatItem value="15,000+" label="Talentos Registrados" />
+          <StatItem value="650+" label="Redes de Captación" />
+          <StatItem value="100%" label="Patrimonio del Club" />
+          <StatItem value="IA" label="Análisis en Segundos" />
         </div>
       </section>
 
@@ -301,8 +299,8 @@ export function LandingPage({ onEnter }: LandingPageProps) {
       <section className="py-32 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary/20 animate-pulse pointer-events-none" />
         <div className="max-w-4xl mx-auto text-center space-y-10 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-headline font-black uppercase tracking-tight">Potencia tu <br />Análisis de Talento</h2>
-          <p className="text-xl text-muted-foreground font-medium">Únete a la nueva era del análisis deportivo y eleva el nivel competitivo de tu equipo.</p>
+          <h2 className="text-4xl md:text-6xl font-headline font-black uppercase tracking-tight">El Futuro del <br />Scouting es Objetivo</h2>
+          <p className="text-xl text-muted-foreground font-medium">Únete a la nueva era del análisis deportivo y digitaliza tu patrimonio de inteligencia técnica hoy mismo.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Dialog>
               <DialogTrigger asChild>
@@ -325,10 +323,10 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               <span className="text-xl font-headline font-bold text-white tracking-tight">ScoutPro<span className="text-primary">360</span></span>
             </div>
             <p className="text-sm leading-relaxed">
-              La plataforma definitiva para el scouting, el análisis de talento y el rendimiento táctico profesional.
+              La plataforma definitiva para el scouting, el análisis de talento y la inteligencia de mercado profesional para clubes de élite.
             </p>
           </div>
-          <FooterColumn title="Plataforma" links={['Características', 'Precios', 'Demo']} />
+          <FooterColumn title="Plataforma" links={['Ficha Talentos', 'Informes 360', 'Métrica PIM', 'Mapeado']} />
           <FooterColumn title="Soporte" links={['Contacto', 'FAQ', 'Documentación']} />
           <div className="space-y-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs">Conecta</h4>
@@ -357,9 +355,16 @@ export function LandingPage({ onEnter }: LandingPageProps) {
   );
 }
 
-function FeatureCard({ icon, title, desc, borderColor }: { icon: any, title: string, desc: string, borderColor: string }) {
+function FeatureCard({ icon, title, desc, borderColor, isUpcoming }: { icon: any, title: string, desc: string, borderColor: string, isUpcoming?: boolean }) {
   return (
-    <Card className={cn("p-8 bg-card/40 border-2 transition-all hover:scale-105 hover:shadow-2xl cursor-default group", borderColor)}>
+    <Card className={cn(
+      "p-8 bg-card/40 border-2 transition-all hover:scale-105 hover:shadow-2xl cursor-default group relative", 
+      borderColor,
+      isUpcoming && "opacity-80 grayscale-[0.5]"
+    )}>
+      {isUpcoming && (
+        <Badge className="absolute top-4 right-4 bg-accent/20 text-accent border-accent/30 text-[8px] font-black uppercase tracking-widest">SOON</Badge>
+      )}
       <div className="h-14 w-14 rounded-2xl bg-secondary/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
         {React.cloneElement(icon, { className: cn(icon.props.className, "h-8 w-8") })}
       </div>
@@ -376,7 +381,7 @@ function PricingCard({ name, price, desc, features, featured }: { name: string, 
       featured ? "border-primary scale-105 bg-primary/5 z-10" : "border-border/40 bg-card/40"
     )}>
       {featured && (
-        <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground font-bold text-[10px] tracking-widest">MÁS POPULAR</Badge>
+        <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground font-bold text-[10px] tracking-widest">RECOMENDADO</Badge>
       )}
       <div className="space-y-6">
         <div>
@@ -391,7 +396,7 @@ function PricingCard({ name, price, desc, features, featured }: { name: string, 
           {features.map((f, i) => (
             <div key={i} className="flex items-center gap-3 text-sm">
               <CheckCircle2 className={cn("h-4 w-4", featured ? "text-primary" : "text-muted-foreground")} />
-              <span>{f}</span>
+              <span className="font-medium">{f}</span>
             </div>
           ))}
         </div>
@@ -399,7 +404,7 @@ function PricingCard({ name, price, desc, features, featured }: { name: string, 
           "w-full h-12 font-black uppercase tracking-widest rounded-xl mt-8",
           featured ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "bg-secondary"
         )}>
-          Comenzar
+          Seleccionar
         </Button>
       </div>
     </Card>
@@ -420,7 +425,7 @@ function FaqItem({ value, question, answer }: { value: string, question: string,
 function StatItem({ value, label }: { value: string, label: string }) {
   return (
     <div className="space-y-2">
-      <div className="text-4xl md:text-5xl font-black font-headline">{value}</div>
+      <div className="text-4xl md:text-5xl font-black font-headline text-primary-foreground">{value}</div>
       <div className="text-xs font-bold uppercase tracking-widest opacity-80">{label}</div>
     </div>
   );
