@@ -108,29 +108,166 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     const doc = new jsPDF() as any;
     const primaryColor = [224, 176, 80];
     const navyColor = [27, 38, 59];
+    const grayColor = [100, 116, 139];
 
+    // Header
     doc.setFillColor(...navyColor);
-    doc.rect(0, 0, 210, 40, 'F');
+    doc.rect(0, 0, 210, 45, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
     doc.text("SCOUTPRO 360", 105, 20, { align: "center" });
     doc.setFontSize(10);
-    doc.text(t.report.pdfHeader, 105, 28, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text("INFORME TÉCNICO PROFESIONAL DE SCOUTING", 105, 28, { align: "center" });
+    doc.setFontSize(8);
+    doc.text(`ID INFORME: ${report.id || 'N/A'} | FECHA EXPORTACIÓN: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 105, 36, { align: "center" });
 
+    // Section 1: JUGADOR
+    doc.setTextColor(...navyColor);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("1. IDENTIDAD DEL JUGADOR", 14, 55);
+    
     doc.autoTable({
-      startY: 45,
-      head: [[t.report.playerInfo.title, ""]],
+      startY: 58,
+      head: [["CAMPO", "VALOR"]],
       body: [
-        [t.report.playerInfo.name, player.name.toUpperCase()],
-        [t.report.playerInfo.club, player.club.toUpperCase()],
-        [t.report.playerInfo.nationality, player.nationality || 'N/A'],
-        [t.report.playerInfo.primaryPos, player.tacticalRole.toUpperCase()]
+        ["NOMBRE COMPLETO", player.name.toUpperCase()],
+        ["CLUB ACTUAL", player.club.toUpperCase()],
+        ["NACIONALIDAD", player.nationality || 'N/A'],
+        ["POSICIÓN PRINCIPAL", (t.report?.tacticalRoles?.[player.tacticalRole as keyof typeof t.report.tacticalRoles] || player.tacticalRole).toUpperCase()],
+        ["DORSAL", report.dorsal || 'N/A'],
+        ["VALOR DE MERCADO", player.marketValue || 'N/A'],
+        ["PIE DOMINANTE", (player.dominantFoot || 'N/A').toUpperCase()],
+        ["TELÉFONO / EMAIL", `${player.phone || '-'} / ${player.email || '-'}`]
       ],
       theme: 'grid',
       headStyles: { fillColor: primaryColor, textColor: navyColor },
+      styles: { fontSize: 9 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 50 } }
     });
 
-    doc.save(`ScoutPro_Report_${player.name.replace(/\s+/g, '_')}.pdf`);
+    // Section 2: CONTEXTO
+    const nextY = (doc as any).lastAutoTable.cursor.y + 10;
+    doc.setFontSize(12);
+    doc.text("2. CONTEXTO DEL PARTIDO", 14, nextY);
+    
+    doc.autoTable({
+      startY: nextY + 3,
+      head: [["CATEGORÍA", "DETALLES TÁCTICOS / ENTORNO"]],
+      body: [
+        ["COMPETICIÓN", report.competition || 'N/A'],
+        ["RIVAL", report.rivalName || 'N/A'],
+        ["SISTEMA / ROL", `${report.matchSystem || '-'} / ${report.specificMatchRole || '-'}`],
+        ["ESTILO / RITMO", `${t.report?.contextTab?.[report.matchStyle as keyof typeof t.report.contextTab] || '-'} / ${t.report?.contextTab?.[report.matchPace as keyof typeof t.report.contextTab] || '-'}`],
+        ["DOMINIO / MARCADOR", `${t.report?.contextTab?.[report.teamDominance as keyof typeof t.report.contextTab] || '-'} / ${t.report?.contextTab?.[report.observingScore as keyof typeof t.report.contextTab] || '-'}`],
+        ["CLIMA", t.report?.contextTab?.[report.weather as keyof typeof t.report.contextTab] || '-']
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: primaryColor, textColor: navyColor },
+      styles: { fontSize: 9 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 50 } }
+    });
+
+    // New Page for KPIs
+    doc.addPage();
+    doc.setTextColor(...navyColor);
+    doc.text("3. MATRIZ DE RENDIMIENTO (KPIs)", 14, 20);
+
+    const renderKPITable = (title: string, category: string, startY: number) => {
+      const kpis = t.report.kpis[category].obs || [];
+      const data = kpis.map((k: string) => [
+        k.toUpperCase(),
+        report.ratings[k] ? " ".repeat(report.ratings[k]) + "★".repeat(report.ratings[k]) + "☆".repeat(5 - report.ratings[k]) : 'N/E',
+        report.notes[k] || '-'
+      ]);
+
+      doc.setFontSize(10);
+      doc.text(title, 14, startY);
+      doc.autoTable({
+        startY: startY + 2,
+        head: [["KPI", "VALORACIÓN", "OBSERVACIONES"]],
+        body: data,
+        theme: 'striped',
+        headStyles: { fillColor: navyColor, textColor: [255, 255, 255] },
+        styles: { fontSize: 8 },
+        columnStyles: { 0: { fontStyle: 'bold', width: 45 }, 1: { width: 35 } }
+      });
+      return (doc as any).lastAutoTable.cursor.y + 10;
+    };
+
+    let kpiY = 25;
+    kpiY = renderKPITable("BLOQUE TÉCNICO", "technical", kpiY);
+    kpiY = renderKPITable("BLOQUE TÁCTICO", "tactical", kpiY);
+    
+    doc.addPage();
+    kpiY = 20;
+    kpiY = renderKPITable("BLOQUE FÍSICO", "physical", kpiY);
+    kpiY = renderKPITable("BLOQUE MENTAL", "mental", kpiY);
+
+    // Section 7: ACCIONES
+    if (report.actions && report.actions.length > 0) {
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("4. REGISTRO DE ACCIONES CLAVE", 14, kpiY);
+      doc.autoTable({
+        startY: kpiY + 3,
+        head: [["MIN", "ACCIÓN", "RESULTADO", "NOTAS"]],
+        body: report.actions.map(a => [a.minute, a.action, a.result.toUpperCase(), a.notes]),
+        theme: 'grid',
+        headStyles: { fillColor: primaryColor, textColor: navyColor },
+        styles: { fontSize: 8 }
+      });
+      kpiY = (doc as any).lastAutoTable.cursor.y + 10;
+    }
+
+    // Section 8: EVALUACIÓN
+    if (kpiY > 230) { doc.addPage(); kpiY = 20; }
+    doc.setFontSize(12);
+    doc.text("5. CONCLUSIONES Y EVALUACIÓN", 14, kpiY);
+    
+    doc.autoTable({
+      startY: kpiY + 3,
+      body: [
+        ["FORTALEZAS", (report.strengths || []).filter(Boolean).join(" | ")],
+        ["MEJORAS", (report.weaknesses || []).filter(Boolean).join(" | ")],
+        ["DESCRIPCIÓN", report.overallDescription || '-'],
+        ["RECOMENDACIÓN", (t.report?.evaluationTab?.recOptions?.[report.finalRecommendation as keyof typeof t.report.evaluationTab.recOptions] || report.finalRecommendation || '-').toUpperCase()]
+      ],
+      theme: 'grid',
+      styles: { fontSize: 9, cellPadding: 4 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 40, fillColor: [240, 240, 240] } }
+    });
+
+    // Section 9: IA ANALYTICS
+    const finalY = (doc as any).lastAutoTable.cursor.y + 12;
+    doc.setFillColor(...primaryColor);
+    doc.rect(14, finalY, 182, 35, 'F');
+    doc.setTextColor(...navyColor);
+    doc.setFontSize(14);
+    doc.text("IA ANALYTICS - PIM SCORE", 105, finalY + 8, { align: "center" });
+    
+    const pim = report.finalScoutRating ? report.finalScoutRating * 20 : 0;
+    doc.setFontSize(28);
+    doc.text(`${pim}`, 105, finalY + 20, { align: "center" });
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    const splitExplanation = doc.splitTextToSize(report.summary || "Sin análisis de IA disponible.", 170);
+    doc.text(splitExplanation, 105, finalY + 28, { align: "center" });
+
+    // Footer on all pages
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(...grayColor);
+        doc.text(`ScoutPro 360 Football Intelligence - Confidencial - Página ${i} de ${pageCount}`, 105, 290, { align: "center" });
+    }
+
+    doc.save(`INFORME_360_${player.name.replace(/\s+/g, '_')}_${format(new Date(), 'yyyyMMdd')}.pdf`);
+    toast({ title: t.database.actions.pdfSuccess });
   };
 
   const getPageTitle = () => {
