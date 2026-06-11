@@ -1,14 +1,15 @@
 
 "use client"
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { listFolderFiles } from "@/lib/services/storage-service";
 import { subscribeToPlayers, subscribeToGlobalPlayers } from "@/lib/services/db-service";
 import { Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
-import { Loader2, AlertCircle, Globe, Activity, Database } from "lucide-react";
+import { Loader2, AlertCircle, Globe, Activity, Database, Plus, Minus, Maximize, Move } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 // Mapeo de coordenadas aproximadas para la imagen mapamundi.png (proporción 1000x500)
@@ -44,7 +45,6 @@ const COUNTRY_COORDINATES: Record<string, { x: number, y: number }> = {
   "Turquía": { x: 575, y: 175 },
   "Croacia": { x: 535, y: 155 },
   "Serbia": { x: 545, y: 155 },
-  "Bélgica": { x: 502, y: 135 },
 };
 
 interface TalentMappingProps {
@@ -57,7 +57,13 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Europa es nuestro punto central de mando para las conexiones
+  // Zoom and Pan State
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+
   const centralPoint = { x: 485, y: 165 };
 
   useEffect(() => {
@@ -70,12 +76,10 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   useEffect(() => {
     async function init() {
       try {
-        // 1. Cargar imagen de mapa
         const files = await listFolderFiles("RECURSOS");
         const mapFile = files.find(f => f.name.toLowerCase() === 'mapamundi.png');
         if (mapFile) setMapUrl(mapFile.url);
 
-        // 2. Suscribirse a jugadores
         let unsubPlayers = () => {};
         if (global) {
           unsubPlayers = subscribeToGlobalPlayers(setPlayers);
@@ -93,7 +97,6 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
     if (userId || global) init();
   }, [userId, global]);
 
-  // Agrupar jugadores por país para calcular la intensidad de los hotspots
   const countryStats = useMemo(() => {
     const stats: Record<string, { count: number, coords: { x: number, y: number } }> = {};
     players.forEach(p => {
@@ -109,13 +112,9 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   }, [players]);
 
   const drawConnection = (pos: { x: number, y: number }, key: string) => {
-    // No dibujar conexión si es el mismo punto central
     if (pos.x === centralPoint.x && pos.y === centralPoint.y) return null;
-    
-    // Curva Bezier para efecto de arco
     const midX = (centralPoint.x + pos.x) / 2;
-    const midY = (centralPoint.y + pos.y) / 2 - 40; // Elevación del arco
-
+    const midY = (centralPoint.y + pos.y) / 2 - 40;
     return (
       <path 
         key={`line-${key}`}
@@ -128,6 +127,36 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
       />
     );
   };
+
+  // Zoom and Pan Handlers
+  const handleZoomIn = () => setScale(prev => Math.min(prev + 0.5, 4));
+  const handleZoomOut = () => {
+    setScale(prev => {
+      const newScale = Math.max(prev - 0.5, 1);
+      if (newScale === 1) setPosition({ x: 0, y: 0 });
+      return newScale;
+    });
+  };
+  const handleResetZoom = () => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale === 1) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || scale === 1) return;
+    setPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
 
   if (loading) {
     return (
@@ -164,93 +193,130 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
         </div>
       </div>
 
-      <Card className="border-none bg-transparent overflow-hidden relative min-h-[500px] w-full shadow-[0_0_80px_rgba(0,0,0,0.6)] rounded-[3rem] border border-white/5 ring-1 ring-white/10">
-        <CardContent className="p-0 h-full relative bg-black/40 flex items-center justify-center overflow-hidden">
-          
-          {/* Capa 1: Grid Táctico */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-               style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-
-          {mapUrl ? (
-            <div className="relative w-full h-full flex items-center justify-center p-4">
-              {/* Capa 2: Imagen Mapamundi Base */}
-              <img 
-                src={mapUrl} 
-                alt="Tactical World Map" 
-                className="w-full h-auto max-h-[85vh] object-contain block opacity-90 transition-all duration-700"
-                style={{ filter: 'contrast(1.1) brightness(0.9)' }}
-                loading="eager"
-              />
-
-              {/* Capa 3: Capa SVG de Inteligencia (Overlays) */}
-              <svg 
-                viewBox="0 0 1000 500" 
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <defs>
-                  <linearGradient id="gradient-flow" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-                    <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-                  </linearGradient>
-                  <radialGradient id="glow-hotspot">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-                  </radialGradient>
-                  <filter id="blur">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
-                  </filter>
-                </defs>
-
-                {/* Líneas de conexión */}
-                <g>
-                  {Object.entries(countryStats).map(([country, stat]) => drawConnection(stat.coords, country))}
-                </g>
-
-                {/* Hotspots de Países */}
-                {Object.entries(countryStats).map(([country, stat]) => {
-                  const size = 6 + (stat.count * 2); // Crece según el número de jugadores
-                  return (
-                    <g key={`hotspot-${country}`} className="cursor-help pointer-events-auto">
-                      {/* Resplandor externo */}
-                      <circle 
-                        cx={stat.coords.x} 
-                        cy={stat.coords.y} 
-                        r={size * 2.5} 
-                        fill="url(#glow-hotspot)" 
-                        className="animate-pulse opacity-40"
-                      />
-                      {/* Punto núcleo */}
-                      <circle 
-                        cx={stat.coords.x} 
-                        cy={stat.coords.y} 
-                        r={size / 2} 
-                        fill="hsl(var(--primary))" 
-                        className="shadow-2xl"
-                      />
-                      {/* Etiqueta flotante sutil */}
-                      <text 
-                        x={stat.coords.x} 
-                        y={stat.coords.y - size - 5} 
-                        textAnchor="middle" 
-                        className="fill-white font-black text-[7px] uppercase tracking-tighter opacity-80"
-                      >
-                        {country} ({stat.count})
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4 text-muted-foreground/40 py-40">
-              <AlertCircle className="h-12 w-12" />
-              <p className="text-[10px] font-black uppercase tracking-widest italic">Inyectando Inteligencia Geográfica...</p>
-            </div>
+      <Card className="border-none bg-transparent overflow-hidden relative min-h-[500px] w-full shadow-[0_0_80px_rgba(0,0,0,0.6)] rounded-[3rem] border border-white/5 ring-1 ring-white/10 group">
+        <CardContent 
+          className={cn(
+            "p-0 h-full relative bg-black/40 flex items-center justify-center overflow-hidden",
+            scale > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-default"
           )}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          {/* Zoom Controls */}
+          <div className="absolute bottom-8 right-8 z-50 flex flex-col gap-2">
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="bg-black/60 border border-white/10 backdrop-blur-md rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
+              onClick={handleZoomIn}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="bg-black/60 border border-white/10 backdrop-blur-md rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
+              onClick={handleZoomOut}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="bg-black/60 border border-white/10 backdrop-blur-md rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
+              onClick={handleResetZoom}
+            >
+              <Maximize className="h-4 w-4" />
+            </Button>
+          </div>
 
-          {/* Cuadro de Estado Flotante Inferior */}
+          <div className="absolute top-8 right-8 z-50">
+             {scale > 1 && (
+               <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 border border-primary/40 rounded-full animate-in fade-in zoom-in-90">
+                 <Move className="h-3 w-3 text-primary" />
+                 <span className="text-[8px] font-black text-primary uppercase tracking-widest">Arrastra para navegar</span>
+               </div>
+             )}
+          </div>
+          
+          <div 
+            className="relative w-full h-full flex items-center justify-center p-4 transition-transform duration-200 ease-out"
+            style={{ 
+              transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+              transformOrigin: 'center center'
+            }}
+          >
+            {mapUrl ? (
+              <>
+                <img 
+                  src={mapUrl} 
+                  alt="Tactical World Map" 
+                  className="w-full h-auto max-h-[85vh] object-contain block opacity-90 select-none pointer-events-none"
+                  style={{ filter: 'contrast(1.1) brightness(0.9)' }}
+                  loading="eager"
+                />
+
+                <svg 
+                  viewBox="0 0 1000 500" 
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  preserveAspectRatio="xMidYMid meet"
+                >
+                  <defs>
+                    <linearGradient id="gradient-flow" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                      <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                    </linearGradient>
+                    <radialGradient id="glow-hotspot">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                    </radialGradient>
+                  </defs>
+
+                  <g>
+                    {Object.entries(countryStats).map(([country, stat]) => drawConnection(stat.coords, country))}
+                  </g>
+
+                  {Object.entries(countryStats).map(([country, stat]) => {
+                    const size = 6 + (stat.count * 2);
+                    return (
+                      <g key={`hotspot-${country}`} className="cursor-help pointer-events-auto">
+                        <circle 
+                          cx={stat.coords.x} 
+                          cy={stat.coords.y} 
+                          r={size * 2.5} 
+                          fill="url(#glow-hotspot)" 
+                          className="animate-pulse opacity-40"
+                        />
+                        <circle 
+                          cx={stat.coords.x} 
+                          cy={stat.coords.y} 
+                          r={size / 2} 
+                          fill="hsl(var(--primary))" 
+                        />
+                        <text 
+                          x={stat.coords.x} 
+                          y={stat.coords.y - size - 5} 
+                          textAnchor="middle" 
+                          className="fill-white font-black text-[7px] uppercase tracking-tighter opacity-80"
+                        >
+                          {country} ({stat.count})
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-4 text-muted-foreground/40 py-40">
+                <AlertCircle className="h-12 w-12" />
+                <p className="text-[10px] font-black uppercase tracking-widest italic">Inyectando Inteligencia Geográfica...</p>
+              </div>
+            )}
+          </div>
+
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-primary/10 border border-primary/20 backdrop-blur-2xl rounded-full shadow-2xl animate-in slide-in-from-bottom-4 duration-1000">
              <Activity className="h-4 w-4 text-primary animate-pulse" />
              <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Sincronización de Red de Captación Activa</span>
