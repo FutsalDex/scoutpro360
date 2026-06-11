@@ -53,6 +53,7 @@ export interface Player {
   email?: string;
   dorsal?: string;
   socials?: string;
+  showOnMap?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }

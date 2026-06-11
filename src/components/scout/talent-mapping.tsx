@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
@@ -103,9 +102,14 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
     if (userId || global) init();
   }, [userId, global]);
 
+  // Filter players that should be shown on map
+  const visiblePlayers = useMemo(() => {
+    return players.filter(p => p.showOnMap !== false);
+  }, [players]);
+
   const countryStats = useMemo(() => {
     const stats: Record<string, { count: number, coords: { x: number, y: number } }> = {};
-    players.forEach(p => {
+    visiblePlayers.forEach(p => {
       const coords = COUNTRY_COORDINATES[p.nationality];
       if (coords) {
         if (!stats[p.nationality]) {
@@ -115,7 +119,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
       }
     });
     return stats;
-  }, [players]);
+  }, [visiblePlayers]);
 
   const drawConnection = (pos: { x: number, y: number }, key: string) => {
     if (pos.x === centralPoint.x && pos.y === centralPoint.y) return null;
@@ -193,8 +197,8 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
            </div>
            <div className="h-8 w-px bg-white/10" />
            <div className="text-center">
-              <p className="text-[8px] font-black text-muted-foreground uppercase mb-1">Total Prospectos</p>
-              <p className="text-xl font-black text-white">{players.length}</p>
+              <p className="text-[8px] font-black text-muted-foreground uppercase mb-1">Total Visibles</p>
+              <p className="text-xl font-black text-white">{visiblePlayers.length}</p>
            </div>
         </div>
       </div>

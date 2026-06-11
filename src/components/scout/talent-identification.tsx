@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Save, Sparkles, Calendar, Phone, Mail, Globe, Hash, Share2, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { User, Save, Sparkles, Calendar, Phone, Mail, Globe, Hash, Share2, Loader2, MapPin } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
@@ -28,6 +29,7 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
   const [nationality, setNationality] = useState("");
   const [dorsal, setDorsal] = useState("");
   const [socials, setSocials] = useState("");
+  const [showOnMap, setShowOnMap] = useState(true);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -45,7 +47,7 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
           setNationality(p.nationality || "");
           setDorsal(p.dorsal || "");
           setSocials(p.socials || "");
-          // Las notas iniciales se podrían mapear si se guardan como string en un campo específico
+          setShowOnMap(p.showOnMap !== undefined ? p.showOnMap : true);
         }
         setLoading(false);
       });
@@ -79,7 +81,8 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
       phone: phone,
       email: email,
       dorsal: dorsal,
-      socials: socials
+      socials: socials,
+      showOnMap: showOnMap
     }, editingPlayerId || undefined);
 
     toast({ title: t.talentId.success });
@@ -193,6 +196,19 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
                   <Share2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
                 </div>
               </div>
+            </div>
+
+            <div className="pt-6 border-t border-border/20 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <MapPin className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-white tracking-widest">VISIBILIDAD CARTOGRÁFICA</p>
+                  <p className="text-[9px] text-muted-foreground font-medium">¿Mostrar este prospecto en el Mapa de Talentos?</p>
+                </div>
+              </div>
+              <Switch checked={showOnMap} onCheckedChange={setShowOnMap} />
             </div>
           </CardContent>
         </Card>
