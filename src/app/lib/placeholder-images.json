@@ -1,0 +1,11 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "map-background",
+      "description": "Fondo del mapa mundi táctico (Subir a carpeta RECURSOS)",
+      "imageUrl": "",
+      "imageHint": "world map tactical"
+    }
+  ]
+}

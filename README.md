@@ -39,14 +39,21 @@ Planificación logística y operativa.
 - **Calendario Táctico**: Vista visual de cuadrícula para gestionar la carga de trabajo mensual.
 - **Vinculación Directa**: Permite iniciar informes directamente desde un partido programado, ahorrando tiempo al analista.
 
-### E. Historial Cronológico
-A diferencia de otros sistemas, ScoutPro permite **múltiples informes por jugador**.
-- **Seguimiento de Progresión**: Compara cómo evoluciona el PIM de un jugador a lo largo de la temporada.
-- **Análisis de Consistencia**: Detecta si el jugador rinde igual ante rivales de diferentes niveles.
+### E. Mapeo de Talento Dual
+Visualización geoespacial de la red de captación.
+- **Modo Analista**: Mapa privado de su propia cartera de talentos.
+- **Modo Club**: Mapa consolidado de toda la red de captación corporativa.
 
 ---
 
-## 3. Arquitectura Técnica (Stack)
+## 3. Gestión de Recursos (Firebase Storage)
+La plataforma utiliza una estructura organizada para activos multimedia:
+- **/RECURSOS**: Carpeta central para imágenes estáticas de la aplicación (logos, mapas de fondo, iconos corporativos).
+- **/users/{displayName}**: Carpetas personales para fotos de perfil de los scouts, nombradas automáticamente.
+
+---
+
+## 4. Arquitectura Técnica (Stack)
 - **Frontend**: `Next.js 15` (App Router) con `TypeScript`.
 - **Backend**: `Firebase Suite`
   - **Auth**: Control de acceso basado en roles (RBAC).
@@ -54,14 +61,6 @@ A diferencia de otros sistemas, ScoutPro permite **múltiples informes por jugad
   - **Storage**: Almacenamiento multimedia organizado por nombre de usuario.
 - **AI Engine**: `Google Genkit` integrado con `Gemini 2.5 Flash`.
 - **UI/UX**: `ShadCN UI` + `Tailwind CSS`. Estética "Tactical Navy" con efectos de cristalografía.
-
----
-
-## 4. Estructura de Seguridad (RBAC)
-La plataforma protege los datos mediante reglas granulares:
-- **Analista**: Solo gestiona sus propios informes y talentos.
-- **Director/Gestión**: Visión global de toda la red del club (Modo Club).
-- **Admin**: Gestión total del sistema y nodos de usuario.
 
 ---
 
