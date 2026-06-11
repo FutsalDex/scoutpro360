@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -12,10 +11,9 @@ import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
 import { ReportHistory } from '@/components/scout/report-history';
 import { TalentMapping } from '@/components/scout/talent-mapping';
-import { PruebaView } from '@/components/scout/prueba-view';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, Binoculars, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe, Database, Map as MapIcon, FlaskConical } from "lucide-react";
+import { LayoutDashboard, Binoculars, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe, Database, Map as MapIcon } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -26,7 +24,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'talent-mapping' | 'global-mapping' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'prueba';
+type ViewState = 'dashboard' | 'talent-id' | 'talent-mapping' | 'global-mapping' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history';
 
 function AppShell({ 
   activeView, 
@@ -115,7 +113,6 @@ function AppShell({
       case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={false} mode="analyzed" />;
       case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} initialPlayerId={schedulingPlayerId} onClearScheduleContext={() => setSchedulingPlayerId(null)} />;
-      case 'prueba': return <PruebaView />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
       default: return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
@@ -135,7 +132,6 @@ function AppShell({
       case 'bd-talentos': return t.sidebar.bdTalentos;
       case 'global-database': return t.sidebar.globalDatabase;
       case 'agenda': return t.sidebar.agenda;
-      case 'prueba': return "Módulo de Prueba";
       case 'profile': return t.sidebar.personalProfile;
       case 'admin': return t.sidebar.adminPanel;
       default: return '';
@@ -220,18 +216,6 @@ function AppShell({
                       <span className="font-medium">{t.sidebar.talentId}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      isActive={activeView === 'talent-mapping'} 
-                      onClick={() => handleNavClick('talent-mapping')}
-                      disabled={needsProfileCompletion}
-                      className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
-                    >
-                      <MapIcon className="h-5 w-5" />
-                      <span className="font-medium">Mapa de Talentos</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
                   
                   <SidebarMenuItem>
                     <SidebarMenuButton 
@@ -268,6 +252,19 @@ function AppShell({
                       <span className="font-medium">{t.sidebar.agenda}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'talent-mapping'} 
+                      onClick={() => handleNavClick('talent-mapping')}
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
+                    >
+                      <MapIcon className="h-5 w-5" />
+                      <span className="font-medium">Mapa de Talentos</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
                   <SidebarMenuItem>
                     <SidebarMenuButton 
                       isActive={activeView === 'match-analysis'} 
@@ -277,17 +274,6 @@ function AppShell({
                     >
                       <Video className="h-5 w-5" />
                       <span className="font-medium">{t.sidebar.matchAnalysis}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      isActive={activeView === 'prueba'} 
-                      onClick={() => handleNavClick('prueba')}
-                      disabled={needsProfileCompletion}
-                      className={cn("h-12 px-4 gap-4 text-purple-400", needsProfileCompletion && "opacity-30")}
-                    >
-                      <FlaskConical className="h-5 w-5" />
-                      <span className="font-medium">Módulo Prueba</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </>
