@@ -54,6 +54,8 @@ export interface Player {
   dorsal?: string;
   socials?: string;
   showOnMap?: boolean;
+  galleryImages?: string[];
+  videoLinks?: string[];
   createdAt?: any;
   updatedAt?: any;
 }

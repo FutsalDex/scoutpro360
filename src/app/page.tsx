@@ -103,7 +103,7 @@ function AppShell({
   const renderActiveView = () => {
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
-      case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
+      case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} userProfile={userProfile} />;
       case 'talent-mapping': return <TalentMapping global={false} />;
       case 'global-mapping': return <TalentMapping global={true} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} reportId={editingReportId} />;

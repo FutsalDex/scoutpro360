@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,15 +8,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { User, Save, Sparkles, Calendar, Phone, Mail, Globe, Hash, Share2, Loader2, MapPin } from "lucide-react";
+import { 
+  User, Save, Sparkles, Calendar, Phone, Mail, Globe, 
+  Hash, Share2, Loader2, MapPin, Image as ImageIcon, 
+  Youtube, Plus, Trash2, Camera, ExternalLink, ShieldAlert
+} from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/config";
 import { savePlayer, getPlayer } from "@/lib/services/db-service";
-import { TACTICAL_ROLES } from "@/lib/types";
+import { uploadFile } from "@/lib/services/storage-service";
+import { TACTICAL_ROLES, UserProfile } from "@/lib/types";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
+import { cn } from "@/lib/utils";
 
-export function TalentIdentification({ onComplete, editingPlayerId }: { onComplete: () => void, editingPlayerId: string | null }) {
+interface TalentIdentificationProps {
+  onComplete: () => void;
+  editingPlayerId: string | null;
+  userProfile: UserProfile | null;
+}
+
+export function TalentIdentification({ onComplete, editingPlayerId, userProfile }: TalentIdentificationProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
 
@@ -32,6 +44,17 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
   const [showOnMap, setShowOnMap] = useState(true);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  // Multimedia Gallery States
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [videoLinks, setVideoLinks] = useState<string[]>([]);
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Subscription Limits
+  const isBasicPlan = userProfile?.subscriptionPlan === 'básico';
+  const MAX_ITEMS = isBasicPlan ? 3 : 6;
 
   useEffect(() => {
     if (editingPlayerId) {
@@ -48,13 +71,15 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
           setDorsal(p.dorsal || "");
           setSocials(p.socials || "");
           setShowOnMap(p.showOnMap !== undefined ? p.showOnMap : true);
+          setGalleryImages(p.galleryImages || []);
+          setVideoLinks(p.videoLinks || []);
         }
         setLoading(false);
       });
     }
   }, [editingPlayerId]);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const scoutId = auth.currentUser?.uid;
@@ -82,11 +107,74 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
       email: email,
       dorsal: dorsal,
       socials: socials,
-      showOnMap: showOnMap
+      showOnMap: showOnMap,
+      galleryImages: galleryImages,
+      videoLinks: videoLinks
     }, editingPlayerId || undefined);
 
     toast({ title: t.talentId.success });
     onComplete();
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !playerName) {
+      if (!playerName) toast({ variant: "destructive", title: "Identidad Requerida", description: "Introduce el nombre del jugador antes de subir imágenes." });
+      return;
+    }
+
+    if (galleryImages.length >= MAX_ITEMS) {
+      toast({ 
+        variant: "destructive", 
+        title: "Límite alcanzado", 
+        description: `Tu plan permite un máximo de ${MAX_ITEMS} imágenes por jugador.` 
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const folderName = playerName.trim().replace(/\s+/g, '_');
+      const timestamp = new Date().getTime();
+      const path = `players/${folderName}/img_${timestamp}`;
+      
+      const downloadUrl = await uploadFile(file, path);
+      setGalleryImages(prev => [...prev, downloadUrl]);
+      toast({ title: "Imagen añadida", description: "El recurso se ha guardado en la galería." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error de subida", description: "No se pudo guardar la imagen en Storage." });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const addVideoLink = () => {
+    if (!newVideoUrl) return;
+    if (videoLinks.length >= MAX_ITEMS) {
+      toast({ 
+        variant: "destructive", 
+        title: "Límite alcanzado", 
+        description: `Tu plan permite un máximo de ${MAX_ITEMS} videos por jugador.` 
+      });
+      return;
+    }
+
+    if (!newVideoUrl.includes("youtube.com") && !newVideoUrl.includes("youtu.be")) {
+      toast({ variant: "destructive", title: "URL no válida", description: "Por favor introduce un enlace de YouTube válido." });
+      return;
+    }
+
+    setVideoLinks(prev => [...prev, newVideoUrl]);
+    setNewVideoUrl("");
+  };
+
+  const removeVideo = (index: number) => {
+    setVideoLinks(prev => prev.filter((_, i) => i !== index));
   };
 
   if (loading) {
@@ -100,15 +188,25 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex flex-col gap-2">
-        <div className="h-1 w-12 bg-accent rounded-full mb-2" />
-        <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
-          {t.talentId.title}
-        </h1>
-        <p className="text-muted-foreground font-medium">{t.talentId.subtitle}</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="h-1 w-12 bg-accent rounded-full mb-2" />
+          <h1 className="text-4xl font-headline font-black text-foreground uppercase tracking-tight">
+            {t.talentId.title}
+          </h1>
+          <p className="text-muted-foreground font-medium">{t.talentId.subtitle}</p>
+        </div>
+        <div className="flex items-center gap-3 px-4 py-2 bg-secondary/20 border border-border/20 rounded-2xl">
+          <ShieldAlert className={cn("h-4 w-4", isBasicPlan ? "text-muted-foreground" : "text-primary")} />
+          <div className="flex flex-col">
+            <span className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Capacidad Multimedia</span>
+            <span className="text-[10px] font-bold text-foreground">Plan {(userProfile?.subscriptionPlan || 'básico').toUpperCase()} – Límite: {MAX_ITEMS}</span>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleRegister} className="space-y-8">
+        {/* IDENTIDAD PRO SECTION */}
         <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
           <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-accent/20">
             <div className="flex items-center gap-3">
@@ -209,6 +307,113 @@ export function TalentIdentification({ onComplete, editingPlayerId }: { onComple
                 </div>
               </div>
               <Switch checked={showOnMap} onCheckedChange={setShowOnMap} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* MULTIMEDIA GALLERY SECTION */}
+        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+          <CardHeader className="bg-[#1b263b] px-8 py-5 border-b border-primary/20">
+            <div className="flex items-center gap-3">
+              <ImageIcon className="h-5 w-5 text-primary" />
+              <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-white">
+                GALERÍA GRÁFICA Y VIDEO
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-8 space-y-10">
+            {/* Image Section */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-black uppercase tracking-widest">Fotografías del Jugador</h4>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold italic">Sincronizado con Firebase Storage</p>
+                </div>
+                <Button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading || galleryImages.length >= MAX_ITEMS}
+                  className="bg-primary/20 text-primary border border-primary/30 h-10 px-6 rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
+                >
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Camera className="h-4 w-4 mr-2" /> Añadir Foto</>}
+                </Button>
+                <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                {galleryImages.map((url, idx) => (
+                  <div key={idx} className="aspect-square relative rounded-2xl overflow-hidden border border-border/40 group bg-black/40">
+                    <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button type="button" onClick={() => removeImage(idx)} className="h-8 w-8 rounded-full bg-destructive text-white flex items-center justify-center hover:scale-110 transition-transform">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {[...Array(MAX_ITEMS - galleryImages.length)].map((_, i) => (
+                  <div key={`empty-img-${i}`} className="aspect-square rounded-2xl border-2 border-dashed border-border/20 flex flex-col items-center justify-center gap-2 opacity-30">
+                    <ImageIcon className="h-6 w-6" />
+                    <span className="text-[8px] font-black">VACÍO</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Video Section */}
+            <div className="space-y-6 pt-10 border-t border-border/10">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-black uppercase tracking-widest">Análisis de Video (YouTube)</h4>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold italic">Enlaces externos a plataformas de scouting o highlights</p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      value={newVideoUrl} 
+                      onChange={(e) => setNewVideoUrl(e.target.value)} 
+                      placeholder="Pega la URL de YouTube aquí..." 
+                      className="h-12 bg-secondary/10 border-border/20 pl-10 rounded-xl font-bold"
+                    />
+                  </div>
+                  <Button 
+                    type="button" 
+                    onClick={addVideoLink} 
+                    disabled={!newVideoUrl || videoLinks.length >= MAX_ITEMS}
+                    className="h-12 px-6 bg-accent text-accent-foreground font-black rounded-xl"
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> AÑADIR
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {videoLinks.map((url, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-4 bg-secondary/20 border border-border/10 rounded-2xl group hover:border-accent/40 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+                        <Youtube className="h-5 w-5 text-red-500" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Video Análisis #{idx + 1}</span>
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-foreground hover:text-accent transition-colors flex items-center gap-2">
+                          {url.substring(0, 45)}... <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => removeVideo(idx)} className="h-8 w-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+                {videoLinks.length === 0 && (
+                  <div className="py-10 text-center border-2 border-dashed border-border/20 rounded-2xl opacity-20">
+                    <Youtube className="h-8 w-8 mx-auto mb-2" />
+                    <p className="text-[10px] font-black uppercase tracking-widest italic">Sin videos vinculados</p>
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
