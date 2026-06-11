@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { 
   User, Save, Sparkles, Calendar, Phone, Mail, Globe, 
   Hash, Share2, Loader2, MapPin, Image as ImageIcon, 
-  Youtube, Plus, Trash2, Camera, ExternalLink, ShieldAlert
+  Youtube, Plus, Trash2, Camera, ExternalLink, ShieldAlert,
+  Eye
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { useToast } from "@/hooks/use-toast";
@@ -344,9 +345,22 @@ export function TalentIdentification({ onComplete, editingPlayerId, userProfile 
                 {galleryImages.map((url, idx) => (
                   <div key={idx} className="aspect-square relative rounded-2xl overflow-hidden border border-border/40 group bg-black/40">
                     <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button type="button" onClick={() => removeImage(idx)} className="h-8 w-8 rounded-full bg-destructive text-white flex items-center justify-center hover:scale-110 transition-transform">
-                        <Trash2 className="h-4 w-4" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <button 
+                        type="button" 
+                        onClick={() => window.open(url, '_blank')} 
+                        className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                        title="Ver Imagen"
+                      >
+                        <Eye className="h-5 w-5" />
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(idx)} 
+                        className="h-9 w-9 rounded-full bg-destructive text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
