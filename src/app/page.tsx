@@ -75,7 +75,7 @@ function AppShell({
 
   const handleEditPlayer = (playerId: string) => {
     setEditingPlayerId(playerId);
-    setEditingReportId(null); // Nuevo informe por defecto desde esta acción
+    setEditingReportId(null); 
     setActiveView('report');
   };
 
