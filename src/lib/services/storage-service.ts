@@ -1,4 +1,3 @@
-
 import { storage } from "@/lib/firebase/config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
@@ -13,10 +12,10 @@ export async function uploadFile(
   path: string,
   onProgress?: (progress: number) => void
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+  const storageRef = ref(storage, path);
+  const uploadTask = uploadBytesResumable(storageRef, file);
 
+  return new Promise((resolve, reject) => {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -24,11 +23,18 @@ export async function uploadFile(
         if (onProgress) onProgress(progress);
       },
       (error) => {
+        // Captura errores de permisos, red, etc.
+        console.error("Storage upload task error:", error);
         reject(error);
       },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        resolve(downloadURL);
+      () => {
+        // Al completar, intentamos obtener la URL
+        getDownloadURL(uploadTask.snapshot.ref)
+          .then((downloadURL) => resolve(downloadURL))
+          .catch((error) => {
+            console.error("Error getting download URL after upload:", error);
+            reject(error);
+          });
       }
     );
   });

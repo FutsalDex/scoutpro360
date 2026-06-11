@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Shield, Briefcase, Mail, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, CheckCircle2, Zap, Camera } from "lucide-react";
-import { UserProfile, UserRole, SubscriptionPlan } from "@/lib/types";
+import { Shield, Briefcase, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, CheckCircle2, Zap, Camera } from "lucide-react";
+import { UserProfile, SubscriptionPlan } from "@/lib/types";
 import { updateUserProfile } from "@/lib/services/user-service";
 import { uploadFile } from "@/lib/services/storage-service";
 import { useToast } from "@/hooks/use-toast";
@@ -66,7 +66,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
       toast({ variant: "destructive", title: "Error", description: "El archivo seleccionado no es una imagen." });
       return;
@@ -74,20 +73,24 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
     setUploading(true);
     try {
-      // Carpeta con el nombre del usuario (sanitizado) o su UID
-      const folderName = profile.displayName ? profile.displayName.replace(/\s+/g, '_').toLowerCase() : profile.uid;
-      const fileName = `profile_picture_${Date.now()}`;
-      const path = `users/${folderName}/${fileName}`;
+      // Usamos el UID para la carpeta para evitar problemas con caracteres especiales
+      const path = `users/${profile.uid}/profile_picture_${Date.now()}`;
       
       const downloadUrl = await uploadFile(file, path);
       updateUserProfile(profile.uid, { photoUrl: downloadUrl });
       
-      toast({ title: "Foto de perfil actualizada" });
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast({ variant: "destructive", title: "Fallo en la subida", description: "No se pudo guardar la imagen en el servidor." });
+      toast({ title: "Foto de perfil actualizada", description: "La imagen se ha guardado correctamente." });
+    } catch (error: any) {
+      console.error("Upload error details:", error);
+      let errorMsg = "No se pudo guardar la imagen en el servidor.";
+      if (error.code === 'storage/unauthorized') {
+        errorMsg = "Error de permisos: Verifica las reglas de seguridad de Firebase Storage.";
+      }
+      toast({ variant: "destructive", title: "Fallo en la subida", description: errorMsg });
     } finally {
       setUploading(false);
+      // Limpiamos el input para permitir volver a subir el mismo archivo si es necesario
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -156,13 +159,19 @@ export function ProfileView({ profile }: ProfileViewProps) {
         <Card className="lg:col-span-1 border-border/40 bg-card/40 backdrop-blur-md overflow-hidden rounded-2xl shadow-2xl">
           <CardHeader className="text-center p-8 bg-secondary/20 border-b border-border/10">
             <div className="relative inline-block mx-auto mb-4 group">
-              <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full relative">
-                <AvatarImage src={profile.photoUrl || `https://picsum.photos/seed/${profile.uid}/400`} className="object-cover" />
-                <AvatarFallback className="text-4xl font-black">{profile.displayName?.[0] || 'U'}</AvatarFallback>
+              <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full relative overflow-hidden">
+                <AvatarImage 
+                  src={profile.photoUrl || `https://picsum.photos/seed/${profile.uid}/400`} 
+                  className="object-cover h-full w-full" 
+                />
+                <AvatarFallback className="text-4xl font-black bg-secondary text-primary">
+                  {profile.displayName?.[0] || 'U'}
+                </AvatarFallback>
                 
                 {uploading && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full z-10">
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-10">
                     <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                    <span className="text-[8px] font-bold text-white mt-2 uppercase tracking-widest">Subiendo...</span>
                   </div>
                 )}
               </Avatar>
@@ -170,7 +179,10 @@ export function ProfileView({ profile }: ProfileViewProps) {
               <button 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="absolute bottom-0 right-0 h-10 w-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center border-4 border-card shadow-lg hover:scale-110 active:scale-95 transition-all z-20 cursor-pointer"
+                className={cn(
+                  "absolute bottom-0 right-0 h-10 w-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center border-4 border-card shadow-lg hover:scale-110 active:scale-95 transition-all z-20 cursor-pointer",
+                  uploading && "opacity-50 cursor-not-allowed"
+                )}
                 title="Cambiar foto de perfil"
               >
                 <Camera className="h-5 w-5" />
@@ -393,7 +405,10 @@ function SocialIcon({ icon, url }: { icon: React.ReactNode, url?: string }) {
       href={isValidUrl ? (url.startsWith('www') ? `https://${url}` : url) : '#'} 
       target="_blank" 
       rel="noopener noreferrer"
-      className={`h-10 w-10 rounded-xl bg-secondary/30 flex items-center justify-center border border-border/10 hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all cursor-pointer ${!isValidUrl ? 'opacity-30 cursor-not-allowed' : ''}`}
+      className={cn(
+        "h-10 w-10 rounded-xl bg-secondary/30 flex items-center justify-center border border-border/10 hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all cursor-pointer",
+        !isValidUrl && "opacity-30 cursor-not-allowed"
+      )}
       onClick={(e) => !isValidUrl && e.preventDefault()}
     >
       {icon}
