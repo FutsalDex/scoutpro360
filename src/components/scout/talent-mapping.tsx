@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useEffect, useState } from 'react';
@@ -13,7 +14,6 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import placeholderData from '@/app/lib/placeholder-images.json';
 
-// Coordenadas geográficas realistas normalizadas para el SVG 1000x500 sobre la imagen de fondo
 const COUNTRY_COORDS: Record<string, { x: number, y: number }> = {
   "España": { x: 485, y: 165 },
   "Argentina": { x: 315, y: 430 },
@@ -56,7 +56,6 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // URL del mapa desde RECURSOS
   const mapImage = placeholderData.placeholderImages.find(img => img.id === 'map-background')?.imageUrl || "";
 
   useEffect(() => {
@@ -92,7 +91,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   }, {} as Record<string, { count: number }>);
 
   const drawConnection = (pos: {x: number, y: number}, countryName: string) => {
-    const centralPoint = { x: 485, y: 165 }; // Centro en Europa
+    const centralPoint = { x: 485, y: 165 }; 
     if (Math.abs(pos.x - centralPoint.x) < 20 && Math.abs(pos.y - centralPoint.y) < 20) return null;
 
     return (
@@ -139,7 +138,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
       </div>
 
       <Card className="border-border/40 bg-card/40 backdrop-blur-xl shadow-[0_0_80px_rgba(0,0,0,0.6)] overflow-hidden relative min-h-[700px] w-full border-2 rounded-[3rem]">
-        <CardHeader className="border-b border-white/10 pb-6 relative z-20 bg-background/60 backdrop-blur-md flex flex-row items-center justify-between px-10">
+        <CardHeader className="border-b border-white/10 pb-6 relative z-30 bg-background/60 backdrop-blur-md flex flex-row items-center justify-between px-10">
           <div>
             <CardTitle className="text-xl font-black uppercase tracking-widest text-foreground flex items-center gap-3 font-headline">
               <Globe className="h-6 w-6 text-primary" /> {t.mapping.hotspotsTitle}
@@ -153,23 +152,23 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
         </CardHeader>
         
         <CardContent className="p-0 h-[700px] relative bg-[#050810]">
-          {/* Imagen de fondo oficial desde RECURSOS con prioridad de carga */}
+          {/* Imagen de fondo oficial desde RECURSOS */}
           {mapImage && (
             <div className="absolute inset-0 z-0">
                <Image 
                  src={mapImage} 
                  alt="Tactical World Map" 
                  fill 
-                 className="object-cover opacity-90 contrast-125"
+                 className="object-cover opacity-100 contrast-110 saturate-125"
                  priority
                  unoptimized
                />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-40" />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-20" />
             </div>
           )}
 
           {/* Grid táctico de precisión */}
-          <div className="absolute inset-0 grid grid-cols-[repeat(50,minmax(0,1fr))] grid-rows-[repeat(30,minmax(0,1fr))] opacity-[0.05] z-5 pointer-events-none">
+          <div className="absolute inset-0 grid grid-cols-[repeat(50,minmax(0,1fr))] grid-rows-[repeat(30,minmax(0,1fr))] opacity-[0.03] z-5 pointer-events-none">
             {[...Array(1500)].map((_, i) => (
               <div key={i} className="border-[0.5px] border-primary/20" />
             ))}
@@ -177,8 +176,8 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
 
           <div className="relative h-full w-full flex items-center justify-center p-4 z-10">
              <div className="w-full h-full max-w-[1200px] aspect-[2/1] relative">
-                {/* SVG Capa de Inteligencia (Conexiones y Resplandores) */}
-                <svg viewBox="0 0 1000 500" className="w-full h-full pointer-events-none">
+                {/* SVG Capa de Inteligencia */}
+                <svg viewBox="0 0 1000 500" className="w-full h-full pointer-events-none absolute inset-0 z-20">
                    <defs>
                       <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="1" />
@@ -190,7 +189,6 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                       </radialGradient>
                    </defs>
 
-                   {/* Flujos de datos */}
                    <g>
                       {Object.entries(statsByCountry).map(([name, stat]) => {
                         const pos = COUNTRY_COORDS[name];
@@ -198,7 +196,6 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                       })}
                    </g>
 
-                   {/* Puntos de impacto (Hotspots) */}
                    <g>
                      {Object.entries(statsByCountry).map(([name, stat]) => {
                         const pos = COUNTRY_COORDS[name];
@@ -217,7 +214,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                    </g>
                 </svg>
 
-                {/* Marcadores Interactivos Tácticos */}
+                {/* Marcadores Interactivos */}
                 {Object.entries(statsByCountry).map(([name, stat]) => {
                   const pos = COUNTRY_COORDS[name];
                   if (!pos) return null;
@@ -225,26 +222,21 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                   return (
                     <div 
                       key={name}
-                      className="absolute group z-30"
+                      className="absolute group z-40"
                       style={{
                         top: `${(pos.y / 500) * 100}%`,
                         left: `${(pos.x / 1000) * 100}%`
                       }}
                     >
                       <div className="relative -translate-x-1/2 -translate-y-1/2">
-                        {/* Radar Ping */}
                         <div className="h-12 w-12 bg-primary/30 rounded-full absolute -inset-4 animate-ping opacity-20" />
-                        
-                        {/* Nodo de Interacción */}
                         <div className={cn(
                           "h-6 w-6 bg-primary rounded-full border-2 border-white shadow-[0_0_20px_rgba(224,176,80,0.8)] transition-all group-hover:scale-125 cursor-pointer flex items-center justify-center",
                           stat.count > 3 ? "ring-4 ring-primary/20" : ""
                         )}>
                            <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
                         </div>
-                        
-                        {/* Despliegue de Datos (Tooltip) */}
-                        <div className="absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#1b263b]/95 backdrop-blur-2xl px-6 py-5 rounded-[2rem] border border-white/10 opacity-0 group-hover:opacity-100 transition-all z-40 pointer-events-none scale-90 group-hover:scale-100 shadow-[0_40px_80px_rgba(0,0,0,0.9)]">
+                        <div className="absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#1b263b]/95 backdrop-blur-2xl px-6 py-5 rounded-[2rem] border border-white/10 opacity-0 group-hover:opacity-100 transition-all z-50 pointer-events-none scale-90 group-hover:scale-100 shadow-[0_40px_80px_rgba(0,0,0,0.9)]">
                           <div className="flex items-center gap-4 mb-4">
                              <Badge className="bg-primary text-primary-foreground text-[10px] font-black px-4 py-1">{name.toUpperCase()}</Badge>
                              <div className="flex items-center gap-2">
@@ -277,7 +269,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
           </div>
 
           {/* Cuadro de Inteligencia Operativa */}
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0 flex items-center gap-10 bg-[#1b263b]/90 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,0.8)] z-40 group hover:border-primary/40 transition-all">
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0 flex items-center gap-10 bg-[#1b263b]/90 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,0.8)] z-[60] group hover:border-primary/40 transition-all">
              <div className="flex items-center gap-6">
                <div className="h-14 w-14 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30 group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(224,176,80,0.2)]">
                   <Activity className="h-7 w-7 text-primary" />

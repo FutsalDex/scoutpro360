@@ -1,7 +1,10 @@
+
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    // Permite que la imagen se vea en la web (Acceso Público)
+
+    // Permite que la imagen se vea en la web (Acceso Público para RECURSOS)
     match /RECURSOS/{allPaths=**} {
       allow read: if true;
     }
