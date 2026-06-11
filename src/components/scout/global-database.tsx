@@ -273,7 +273,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
     doc.setFont("helvetica", "bold");
     doc.text("IA ANALYTICS - PIM SCORE", 105, finalY + 10, { align: "center" });
     
-    const pim = report.finalScoutRating ? report.finalScoutRating * 20 : 0;
+    const pim = report.pimScore || (report.finalScoutRating ? report.finalScoutRating * 20 : 0);
     doc.setFontSize(28);
     doc.text(`${pim}`, 105, finalY + 22, { align: "center" });
     
@@ -368,8 +368,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
               ) : (
                 filteredPlayers.map(player => {
                   const report = getReportForPlayer(player.id);
-                  const rating = report?.finalScoutRating || 0;
-                  const score = rating > 0 ? rating * 20 : 0;
+                  const score = report?.pimScore || (report?.finalScoutRating ? report.finalScoutRating * 20 : 0);
                   const dateStr = player.createdAt?.seconds 
                     ? format(new Date(player.createdAt.seconds * 1000), 'yyyy-MM-dd') 
                     : format(new Date(), 'yyyy-MM-dd');
@@ -399,7 +398,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
                         <span className="text-sm font-medium text-muted-foreground/80">{player.club}</span>
                       </td>
                       <td className="px-6 py-5">
-                        {rating > 0 ? (
+                        {score > 0 ? (
                           <div className="flex items-center gap-4">
                             <span className="text-sm font-black text-primary w-6">{score}</span>
                             <div className="h-1.5 w-24 bg-secondary/50 rounded-full overflow-hidden">
@@ -452,7 +451,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
                               </DropdownMenuItem>
                             )}
 
-                            {mode !== 'analyzed' && (
+                            {(mode === 'pending' || global) && (
                               <DropdownMenuItem onClick={() => onScheduleMatch(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground">
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.scheduleMatch}</span>

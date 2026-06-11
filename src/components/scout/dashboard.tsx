@@ -70,10 +70,10 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
   const identifiedOnly = Math.max(0, totalInDb - analyzedCount);
   const totalReports = reports.length;
 
-  // Cálculo de la Media PIM Global
-  const reportsWithRating = reports.filter(r => r.finalScoutRating && r.finalScoutRating > 0);
-  const avgPim = reportsWithRating.length > 0 
-    ? Math.round(reportsWithRating.reduce((acc, curr) => acc + (curr.finalScoutRating! * 20), 0) / reportsWithRating.length)
+  // Cálculo de la Media PIM Global (Exacta)
+  const reportsWithPIM = reports.filter(r => (r.pimScore && r.pimScore > 0) || (r.finalScoutRating && r.finalScoutRating > 0));
+  const avgPim = reportsWithPIM.length > 0 
+    ? Math.round(reportsWithPIM.reduce((acc, curr) => acc + (curr.pimScore || curr.finalScoutRating! * 20), 0) / reportsWithPIM.length)
     : 0;
   
   const recentPlayers = [...players]

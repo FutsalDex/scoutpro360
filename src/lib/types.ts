@@ -64,6 +64,7 @@ export interface ScoutingReport {
   scoutId: string;
   scoutName: string;
   summary: string;
+  pimScore?: number;
   ratings: Record<string, number>;
   notes: Record<string, string>;
   actions?: ScoutingAction[];

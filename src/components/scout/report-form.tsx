@@ -193,6 +193,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [finalRecommendation, setFinalRecommendation] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [finalScoutRating, setFinalScoutRating] = useState<number>(0);
+  const [pimScore, setPimScore] = useState<number>(0);
 
   // IA States
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
@@ -230,7 +231,13 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           setFinalRecommendation(r.finalRecommendation || "");
           setAdditionalNotes(r.additionalNotes || "");
           setFinalScoutRating(r.finalScoutRating || 0);
-          if (r.finalScoutRating) setPimResult({ score: r.finalScoutRating * 20, explanation: r.summary || "" });
+          setPimScore(r.pimScore || (r.finalScoutRating ? r.finalScoutRating * 20 : 0));
+          if (r.pimScore || r.finalScoutRating) {
+            setPimResult({ 
+              score: r.pimScore || (r.finalScoutRating! * 20), 
+              explanation: r.summary || "" 
+            });
+          }
         }
       });
     }
@@ -333,6 +340,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       });
       
       // Sincronizar con el estado del informe
+      setPimScore(result.playerImpactMetric);
       setFinalScoutRating(Math.round(result.playerImpactMetric / 20));
       handleNoteChange('summary', result.explanation);
 
@@ -379,6 +387,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
       scoutId: scoutId,
       scoutName: scoutName || userProfile?.displayName || "Scout",
       summary: notes['summary'] || "",
+      pimScore,
       ratings, notes, actions: scoutingActions,
       dorsal, rivalName, competition, matchDate, minPlayed, physicalCondition,
       pitchPosition: pitchMarker, heatmapPoints,
