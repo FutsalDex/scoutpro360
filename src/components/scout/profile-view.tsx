@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Briefcase, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, Zap, Camera, CheckCircle2 } from "lucide-react";
+import { 
+  Shield, Briefcase, Phone, Globe, Twitter, Linkedin, 
+  Instagram, Share2, Edit2, Save, X, Loader2, 
+  CreditCard, Zap, Camera, CheckCircle2 
+} from "lucide-react";
 import { UserProfile, SubscriptionPlan } from "@/lib/types";
 import { updateUserProfile } from "@/lib/services/user-service";
 import { uploadFile } from "@/lib/services/storage-service";
@@ -82,17 +86,25 @@ export function ProfileView({ profile }: ProfileViewProps) {
       const path = `users/${profile.uid}/profile_${timestamp}`;
       
       const downloadUrl = await uploadFile(file, path);
-      
       updateUserProfile(profile.uid, { photoUrl: downloadUrl });
       
       toast({ title: "Imagen actualizada", description: "Tu nueva foto de perfil ya es visible en el sistema." });
     } catch (error: any) {
-      console.error("Upload error details:", error);
-      toast({ 
-        variant: "destructive", 
-        title: "Fallo en la subida", 
-        description: "Asegúrate de que las reglas de Storage permitan la escritura." 
-      });
+      console.warn("Storage upload failed:", error.code);
+      
+      if (error.code === 'storage/unauthorized') {
+        toast({ 
+          variant: "destructive", 
+          title: "Acceso Denegado (Reglas)", 
+          description: "No tienes permiso para escribir en Storage. Por favor, revisa las Reglas en la Consola de Firebase." 
+        });
+      } else {
+        toast({ 
+          variant: "destructive", 
+          title: "Fallo en la subida", 
+          description: "Ha ocurrido un error inesperado al conectar con el servidor de archivos." 
+        });
+      }
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

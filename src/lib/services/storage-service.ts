@@ -17,15 +17,15 @@ export async function uploadFile(
   try {
     const storageRef = ref(storage, path);
     
-    // Usamos uploadBytes para una operación atómica más robusta
+    // Operación atómica de subida
     const snapshot = await uploadBytes(storageRef, file);
     
-    // Obtenemos la URL de descarga una vez confirmada la subida
+    // Obtención de la URL de descarga confirmada
     const downloadURL = await getDownloadURL(snapshot.ref);
     
     return downloadURL;
   } catch (error: any) {
-    console.error("Error crítico en StorageService:", error.code, error.message);
+    // Solo propagamos el error para que el componente decida cómo informarlo al usuario
     throw error;
   }
 }
