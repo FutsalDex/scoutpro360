@@ -1,7 +1,6 @@
-
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -9,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Shield, Briefcase, Mail, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, CheckCircle2, Zap } from "lucide-react";
+import { User, Shield, Briefcase, Mail, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, CheckCircle2, Zap, Camera } from "lucide-react";
 import { UserProfile, UserRole, SubscriptionPlan } from "@/lib/types";
 import { updateUserProfile } from "@/lib/services/user-service";
+import { uploadFile } from "@/lib/services/storage-service";
 import { useToast } from "@/hooks/use-toast";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { useTranslation } from '@/lib/i18n/context';
@@ -26,7 +26,9 @@ export function ProfileView({ profile }: ProfileViewProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -60,6 +62,35 @@ export function ProfileView({ profile }: ProfileViewProps) {
     }, 500);
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      toast({ variant: "destructive", title: "Error", description: "El archivo seleccionado no es una imagen." });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Carpeta con el nombre del usuario (sanitizado) o su UID
+      const folderName = profile.displayName ? profile.displayName.replace(/\s+/g, '_').toLowerCase() : profile.uid;
+      const fileName = `profile_picture_${Date.now()}`;
+      const path = `users/${folderName}/${fileName}`;
+      
+      const downloadUrl = await uploadFile(file, path);
+      updateUserProfile(profile.uid, { photoUrl: downloadUrl });
+      
+      toast({ title: "Foto de perfil actualizada" });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({ variant: "destructive", title: "Fallo en la subida", description: "No se pudo guardar la imagen en el servidor." });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const roleColors: Record<string, string> = {
     admin: "bg-red-500/20 text-red-500 border-red-500/30",
     analista: "bg-primary/20 text-primary border-primary/30",
@@ -79,8 +110,8 @@ export function ProfileView({ profile }: ProfileViewProps) {
   };
 
   const planInfo: Record<SubscriptionPlan, { name: string, price: string, color: string, icon: any }> = {
-    'básico': { name: 'PLAN BÁSICO', price: '$29/mes', color: 'text-muted-foreground', icon: CreditCard },
-    'profesional': { name: 'PLAN PROFESIONAL', price: '$99/mes', color: 'text-primary', icon: Zap },
+    'básico': { name: 'PLAN BÁSICO', price: '9,99€/mes', color: 'text-muted-foreground', icon: CreditCard },
+    'profesional': { name: 'PLAN PROFESIONAL', price: '29,99€/mes', color: 'text-primary', icon: Zap },
     'enterprise': { name: 'PLAN ENTERPRISE', price: 'Consultar', color: 'text-accent', icon: Shield }
   };
 
@@ -124,12 +155,36 @@ export function ProfileView({ profile }: ProfileViewProps) {
       <div className="grid lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-1 border-border/40 bg-card/40 backdrop-blur-md overflow-hidden rounded-2xl shadow-2xl">
           <CardHeader className="text-center p-8 bg-secondary/20 border-b border-border/10">
-            <div className="relative inline-block mx-auto mb-4">
-              <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full">
-                <AvatarImage src={`https://picsum.photos/seed/${profile.uid}/400`} />
+            <div className="relative inline-block mx-auto mb-4 group">
+              <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full relative">
+                <AvatarImage src={profile.photoUrl || `https://picsum.photos/seed/${profile.uid}/400`} className="object-cover" />
                 <AvatarFallback className="text-4xl font-black">{profile.displayName?.[0] || 'U'}</AvatarFallback>
+                
+                {uploading && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full z-10">
+                    <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                  </div>
+                )}
               </Avatar>
+              
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute bottom-0 right-0 h-10 w-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center border-4 border-card shadow-lg hover:scale-110 active:scale-95 transition-all z-20 cursor-pointer"
+                title="Cambiar foto de perfil"
+              >
+                <Camera className="h-5 w-5" />
+              </button>
+              
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                accept="image/*" 
+                className="hidden" 
+              />
             </div>
+            
             {isEditing ? (
               <div className="space-y-2 max-w-[240px] mx-auto text-left">
                 <Label className="text-[9px] font-black uppercase tracking-widest text-primary">Nombre y Apellidos</Label>
