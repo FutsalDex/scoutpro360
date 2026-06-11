@@ -328,7 +328,6 @@ export function TalentIdentification({ onComplete, editingPlayerId, userProfile 
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h4 className="text-sm font-black uppercase tracking-widest">Fotografías del Jugador</h4>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold italic">Sincronizado con Firebase Storage</p>
                 </div>
                 <Button 
                   type="button"
