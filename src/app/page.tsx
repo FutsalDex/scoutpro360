@@ -25,7 +25,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'global-mapping' | 'prueba';
+type ViewState = 'dashboard' | 'talent-id' | 'talent-mapping' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'prueba';
 
 function AppShell({ 
   activeView, 
@@ -105,6 +105,7 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
+      case 'talent-mapping': return <TalentMapping />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} reportId={editingReportId} />;
       case 'report-history': return <ReportHistory playerId={editingPlayerId!} onEditReport={handleEditReport} onBack={() => setActiveView('bd-scout')} onNewReport={() => handleEditPlayer(editingPlayerId!)} />;
       case 'match-analysis': return <MatchAnalysis />;
@@ -112,7 +113,6 @@ function AppShell({
       case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={false} mode="analyzed" />;
       case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} initialPlayerId={schedulingPlayerId} onClearScheduleContext={() => setSchedulingPlayerId(null)} />;
-      case 'global-mapping': return <TalentMapping />;
       case 'prueba': return <PruebaView />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
@@ -124,6 +124,7 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return t.sidebar.commandCenter;
       case 'talent-id': return t.sidebar.talentId;
+      case 'talent-mapping': return t.sidebar.talentMapping;
       case 'report': return editingReportId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
       case 'report-history': return "Historial de Informes";
       case 'match-analysis': return t.sidebar.matchAnalysis;
@@ -131,7 +132,6 @@ function AppShell({
       case 'bd-talentos': return t.sidebar.bdTalentos;
       case 'global-database': return t.sidebar.globalDatabase;
       case 'agenda': return t.sidebar.agenda;
-      case 'global-mapping': return "Mapeo Global Red";
       case 'prueba': return "Módulo de Prueba";
       case 'profile': return t.sidebar.personalProfile;
       case 'admin': return t.sidebar.adminPanel;
@@ -217,6 +217,18 @@ function AppShell({
                       <span className="font-medium">{t.sidebar.talentId}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={activeView === 'talent-mapping'} 
+                      onClick={() => handleNavClick('talent-mapping')}
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
+                    >
+                      <MapIcon className="h-5 w-5" />
+                      <span className="font-medium">{t.sidebar.talentMapping}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                   
                   <SidebarMenuItem>
                     <SidebarMenuButton 
@@ -295,17 +307,6 @@ function AppShell({
                   >
                     <Globe className="h-5 w-5 text-primary" />
                     <span className="font-medium">{t.sidebar.globalDatabase}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={activeView === 'global-mapping'}
-                    onClick={() => handleNavClick('global-mapping')}
-                    disabled={needsProfileCompletion}
-                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
-                  >
-                    <MapIcon className="h-5 w-5 text-primary" />
-                    <span className="font-medium">Mapeo Global Red</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

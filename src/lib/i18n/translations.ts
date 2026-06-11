@@ -4,6 +4,7 @@ export const translations = {
       operations: 'Operaciones',
       commandCenter: 'Centro de Mando',
       talentId: 'Ficha de Talentos',
+      talentMapping: 'Mapa de Talentos',
       liveReport: 'Informe Jugador',
       matchAnalysis: 'Análisis de Partido',
       bdScout: 'BD SCOUT',
@@ -142,8 +143,8 @@ export const translations = {
       comingSoonDesc: 'Módulo actualmente en mantenimiento.',
     },
     mapping: {
-      title: 'MAPEADO DE TALENTO',
-      subtitle: 'Distribución geográfica de la red de captación.',
+      title: 'MAPA DE TALENTOS',
+      subtitle: 'Cartografía táctica de la red de captación.',
       globalFeed: 'RED SINCRONIZADA',
       hotspotsTitle: 'HOTSPOTS DE RENDIMIENTO',
     },
@@ -298,7 +299,7 @@ export const translations = {
           imp: []
         },
         physical: {
-          obs: ['Velocidad', 'Aceleración', 'Agilidad', 'Coordinación', 'Equilibrio', 'Fuerza', 'Resistencia', 'Fondo físico', 'Explosividad', 'Movilidad', 'Resistencia a lesiones'],
+          obs: ['Velocidad', 'Aceleración', 'Agilidad', 'Coordinación', 'Equilibrio', 'Fuerza', 'Resistencia', 'Fondo físico', 'Explosividad', 'Mobilidad', 'Resistencia a lesiones'],
           imp: []
         },
         mental: {
@@ -350,6 +351,7 @@ export const translations = {
       operations: 'Operations',
       commandCenter: 'Command Center',
       talentId: 'Talent Identification',
+      talentMapping: 'Talent Mapping',
       liveReport: 'Player Report',
       matchAnalysis: 'Match Analysis',
       bdScout: 'SCOUT DB',
