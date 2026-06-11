@@ -34,9 +34,9 @@ const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: s
           <button 
             key={num} 
             type="button" 
-            onClick={() => onRatingChange(num)} 
+            onClick={() => onRatingChange(rating === num ? 0 : num)} 
             className={cn(
-              "h-8 w-8 rounded-full border border-border/40 text-[9px] font-black flex items-center justify-center transition-all", 
+              "h-8 w-8 rounded-full border border-border/40 text-[9px] font-black flex items-center justify-center transition-all focus:outline-none", 
               rating === num 
                 ? "bg-primary text-primary-foreground border-primary shadow-md scale-110" 
                 : "bg-white/5 hover:border-primary/50 text-muted-foreground"
@@ -236,7 +236,18 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
     }
   }, [editingPlayerId, localizedKPIs]);
 
-  const handleRatingChange = (kpi: string, value: number) => setRatings(prev => ({ ...prev, [kpi]: value }));
+  const handleRatingChange = (kpi: string, value: number) => {
+    setRatings(prev => {
+      const newState = { ...prev };
+      if (value === 0) {
+        delete newState[kpi];
+      } else {
+        newState[kpi] = value;
+      }
+      return newState;
+    });
+  };
+
   const handleNoteChange = (kpi: string, value: string) => setNotes(prev => ({ ...prev, [kpi]: value }));
 
   const toggleObservedFunction = (func: string) => {
@@ -754,7 +765,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
                     <Label className="text-[10px] font-black uppercase text-muted-foreground">{t.report?.evaluationTab?.finalRatingTitle || 'VALORACIÓN'}</Label>
                     <div className="flex gap-2 h-12 items-center px-4 bg-secondary/10 rounded-xl">
                       {[1,2,3,4,5].map(star => (
-                        <button key={star} type="button" onClick={() => setFinalScoutRating(star)} className="focus:outline-none">
+                        <button key={star} type="button" onClick={() => setFinalScoutRating(star === finalScoutRating ? 0 : star)} className="focus:outline-none">
                           <Star className={cn("h-6 w-6 transition-all", star <= finalScoutRating ? "fill-primary text-primary scale-110" : "text-muted-foreground opacity-30 hover:opacity-50")} />
                         </button>
                       ))}
