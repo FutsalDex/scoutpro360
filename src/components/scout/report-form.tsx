@@ -24,6 +24,7 @@ import { savePlayer, saveReport, getPlayer, getReport, getLatestReportForPlayer 
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
+import { format } from 'date-fns';
 
 const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: string, rating?: number, onRatingChange: (v: number) => void, note?: string, onNoteChange?: (v: string) => void }) => (
   <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/10 last:border-0 px-4 w-full gap-4 hover:bg-white/5 transition-colors">
@@ -211,12 +212,9 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
         }
       });
 
-      // Si tenemos un reportId inicial (Editar), lo cargamos
       if (initialReportId) {
         getReport(initialReportId).then(r => loadReportData(r));
       } else {
-        // Si no hay reportId, podríamos cargar el contexto del último informe para ahorrar tiempo al scout,
-        // pero NO el ID (para que se guarde como nuevo).
         getLatestReportForPlayer(editingPlayerId).then(r => {
           if (r) {
             setMatchDate(format(new Date(), 'yyyy-MM-dd'));
@@ -878,7 +876,7 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
                 </CardContent>
               </Card>
 
-              <Card className="border-border/40 bg-card/40 rounded-2xl overflow-hidden shadow-xl">
+              <Card className="border-border/40 shadow-xl overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md">
                 <div className="bg-[#1b263b] px-6 py-4 flex items-center gap-3 border-b border-primary/20">
                   <Info className="h-4 w-4 text-accent" />
                   <h2 className="text-[10px] font-black text-white uppercase tracking-widest">AUDITORÍA DE DATOS RECOLECTADOS</h2>
