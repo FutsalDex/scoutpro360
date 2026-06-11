@@ -1,8 +1,13 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // Permitir lectura pública de la carpeta RECURSOS para que las imágenes de la UI carguen siempre
+    match /RECURSOS/{allPaths=**} {
+      allow read: if true;
+    }
+    
+    // El resto de archivos (fotos de perfil, etc) requieren autenticación
     match /{allPaths=**} {
-      // ESTO PERMITE TODO A CUALQUIERA AUTENTICADO
       allow read, write: if request.auth != null;
     }
   }

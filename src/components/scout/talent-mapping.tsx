@@ -152,7 +152,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
         </CardHeader>
         
         <CardContent className="p-0 h-[700px] relative bg-[#050810]">
-          {/* Imagen de fondo oficial desde RECURSOS */}
+          {/* Imagen de fondo oficial desde RECURSOS - Con unoptimized para evitar fallos de proxy de Storage */}
           {mapImage && (
             <div className="absolute inset-0 z-0">
                <Image 
@@ -161,6 +161,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                  fill 
                  className="object-cover opacity-50 contrast-125 saturate-50"
                  priority
+                 unoptimized
                />
                <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-80" />
             </div>
