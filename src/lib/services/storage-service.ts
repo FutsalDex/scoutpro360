@@ -12,6 +12,11 @@ export async function uploadFile(
   path: string,
   onProgress?: (progress: number) => void
 ): Promise<string> {
+  // Verificación inicial para evitar fallos silenciosos
+  if (!storage) {
+    throw new Error("Firebase Storage no está inicializado.");
+  }
+
   const storageRef = ref(storage, path);
   const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -23,18 +28,19 @@ export async function uploadFile(
         if (onProgress) onProgress(progress);
       },
       (error) => {
-        // Captura errores de permisos, red, etc.
-        console.error("Storage upload task error:", error);
+        // Captura errores de permisos (403), cuota, etc.
+        console.error("Storage task error:", error.code, error.message);
         reject(error);
       },
-      () => {
-        // Al completar, intentamos obtener la URL
-        getDownloadURL(uploadTask.snapshot.ref)
-          .then((downloadURL) => resolve(downloadURL))
-          .catch((error) => {
-            console.error("Error getting download URL after upload:", error);
-            reject(error);
-          });
+      async () => {
+        try {
+          // Al completar la subida, obtenemos la URL pública
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadURL);
+        } catch (error) {
+          console.error("Error obteniendo downloadURL:", error);
+          reject(error);
+        }
       }
     );
   });

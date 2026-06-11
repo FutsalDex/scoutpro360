@@ -66,30 +66,45 @@ export function ProfileView({ profile }: ProfileViewProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validación de tipo de archivo
     if (!file.type.startsWith('image/')) {
-      toast({ variant: "destructive", title: "Error", description: "El archivo seleccionado no es una imagen." });
+      toast({ variant: "destructive", title: "Error", description: "El archivo seleccionado no es una imagen válida." });
+      return;
+    }
+
+    // Validación de tamaño (ej: máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ variant: "destructive", title: "Error", description: "La imagen es demasiado grande. Máximo 5MB." });
       return;
     }
 
     setUploading(true);
     try {
-      // Usamos el UID para la carpeta para evitar problemas con caracteres especiales
+      // Ruta estructurada: users/[UID]/perfil_[TIMESTAMP]
       const path = `users/${profile.uid}/profile_picture_${Date.now()}`;
       
       const downloadUrl = await uploadFile(file, path);
+      
+      // Actualizamos Firestore con la nueva URL
       updateUserProfile(profile.uid, { photoUrl: downloadUrl });
       
-      toast({ title: "Foto de perfil actualizada", description: "La imagen se ha guardado correctamente." });
+      toast({ title: "Identidad actualizada", description: "Tu foto de perfil se ha guardado correctamente." });
     } catch (error: any) {
-      console.error("Upload error details:", error);
-      let errorMsg = "No se pudo guardar la imagen en el servidor.";
+      console.error("Upload failure:", error);
+      
+      let errorMsg = "No se pudo subir la imagen.";
       if (error.code === 'storage/unauthorized') {
-        errorMsg = "Error de permisos: Verifica las reglas de seguridad de Firebase Storage.";
+        errorMsg = "Error de permisos: Revisa las reglas de seguridad de Firebase Storage.";
+      } else if (error.code === 'storage/canceled') {
+        errorMsg = "Subida cancelada por el usuario.";
+      } else if (error.code === 'storage/unknown') {
+        errorMsg = "Error desconocido del servidor Storage.";
       }
-      toast({ variant: "destructive", title: "Fallo en la subida", description: errorMsg });
+      
+      toast({ variant: "destructive", title: "Fallo en la sincronización", description: errorMsg });
     } finally {
+      // Siempre reseteamos el estado para evitar el bucle de carga
       setUploading(false);
-      // Limpiamos el input para permitir volver a subir el mismo archivo si es necesario
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -159,34 +174,36 @@ export function ProfileView({ profile }: ProfileViewProps) {
         <Card className="lg:col-span-1 border-border/40 bg-card/40 backdrop-blur-md overflow-hidden rounded-2xl shadow-2xl">
           <CardHeader className="text-center p-8 bg-secondary/20 border-b border-border/10">
             <div className="relative inline-block mx-auto mb-4 group">
-              <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full relative overflow-hidden">
-                <AvatarImage 
-                  src={profile.photoUrl || `https://picsum.photos/seed/${profile.uid}/400`} 
-                  className="object-cover h-full w-full" 
-                />
-                <AvatarFallback className="text-4xl font-black bg-secondary text-primary">
-                  {profile.displayName?.[0] || 'U'}
-                </AvatarFallback>
-                
+              <div className="relative h-32 w-32 mx-auto">
+                <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full relative overflow-hidden">
+                  <AvatarImage 
+                    src={profile.photoUrl} 
+                    className="object-cover h-full w-full" 
+                  />
+                  <AvatarFallback className="text-4xl font-black bg-secondary text-primary uppercase">
+                    {profile.displayName?.[0] || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+
                 {uploading && (
-                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-10">
+                  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center rounded-full z-10 animate-in fade-in">
                     <Loader2 className="h-8 w-8 text-primary animate-spin" />
-                    <span className="text-[8px] font-bold text-white mt-2 uppercase tracking-widest">Subiendo...</span>
+                    <span className="text-[8px] font-black text-primary mt-2 uppercase tracking-[0.2em]">Syncing...</span>
                   </div>
                 )}
-              </Avatar>
-              
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className={cn(
-                  "absolute bottom-0 right-0 h-10 w-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center border-4 border-card shadow-lg hover:scale-110 active:scale-95 transition-all z-20 cursor-pointer",
-                  uploading && "opacity-50 cursor-not-allowed"
-                )}
-                title="Cambiar foto de perfil"
-              >
-                <Camera className="h-5 w-5" />
-              </button>
+                
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className={cn(
+                    "absolute bottom-0 right-0 h-10 w-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center border-4 border-[#1b263b] shadow-lg hover:scale-110 active:scale-95 transition-all z-20 cursor-pointer",
+                    uploading && "opacity-50 cursor-not-allowed pointer-events-none"
+                  )}
+                  title="Cambiar foto de perfil"
+                >
+                  <Camera className="h-5 w-5" />
+                </button>
+              </div>
               
               <input 
                 type="file" 
