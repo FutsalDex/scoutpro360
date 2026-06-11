@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -13,7 +14,7 @@ import { ReportHistory } from '@/components/scout/report-history';
 import { TalentMapping } from '@/components/scout/talent-mapping';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe, Database, History, Map as MapIcon } from "lucide-react";
+import { LayoutDashboard, Binoculars, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe, Database, Map as MapIcon } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -24,7 +25,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'mapping' | 'global-mapping';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'global-mapping';
 
 function AppShell({ 
   activeView, 
@@ -111,8 +112,7 @@ function AppShell({
       case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={false} mode="analyzed" />;
       case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} initialPlayerId={schedulingPlayerId} onClearScheduleContext={() => setSchedulingPlayerId(null)} />;
-      case 'mapping': return <TalentMapping global={false} />;
-      case 'global-mapping': return <TalentMapping global={true} />;
+      case 'global-mapping': return <TalentMapping />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
       default: return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
@@ -130,7 +130,6 @@ function AppShell({
       case 'bd-talentos': return t.sidebar.bdTalentos;
       case 'global-database': return t.sidebar.globalDatabase;
       case 'agenda': return t.sidebar.agenda;
-      case 'mapping': return "Mis Talentos Map";
       case 'global-mapping': return "Mapeo Global Red";
       case 'profile': return t.sidebar.personalProfile;
       case 'admin': return t.sidebar.adminPanel;
@@ -250,17 +249,6 @@ function AppShell({
                     >
                       <Calendar className="h-5 w-5" />
                       <span className="font-medium">{t.sidebar.agenda}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      isActive={activeView === 'mapping'}
-                      onClick={() => handleNavClick('mapping')}
-                      disabled={needsProfileCompletion}
-                      className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
-                    >
-                      <MapIcon className="h-5 w-5 text-accent" />
-                      <span className="font-medium">Mi Mapa Talentos</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
