@@ -159,7 +159,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                  src={mapImage} 
                  alt="Tactical World Map" 
                  fill 
-                 className="object-cover opacity-50 contrast-125 saturate-50"
+                 className="object-cover opacity-60 contrast-125 saturate-50"
                  priority
                  unoptimized
                />
