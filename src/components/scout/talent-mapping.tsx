@@ -56,6 +56,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
+  // Obtenemos la URL del JSON de recursos
   const mapImage = placeholderData.placeholderImages.find(img => img.id === 'map-background')?.imageUrl || "";
 
   useEffect(() => {
@@ -152,18 +153,18 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
         </CardHeader>
         
         <CardContent className="p-0 h-[700px] relative bg-[#050810]">
-          {/* Imagen de fondo oficial desde RECURSOS - Con unoptimized para evitar fallos de proxy de Storage */}
+          {/* Imagen de fondo oficial desde RECURSOS */}
           {mapImage && (
             <div className="absolute inset-0 z-0">
                <Image 
                  src={mapImage} 
                  alt="Tactical World Map" 
                  fill 
-                 className="object-cover opacity-60 contrast-125 saturate-50"
+                 className="object-cover opacity-80 contrast-125"
                  priority
                  unoptimized
                />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-80" />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-60" />
             </div>
           )}
 
@@ -275,7 +276,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
              </div>
           </div>
 
-          {/* Cuadro Central de Inteligencia (Estética AI Market) */}
+          {/* Cuadro Central de Inteligencia */}
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0 flex items-center gap-10 bg-[#1b263b]/80 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl shadow-[0_0_80px_rgba(0,0,0,0.6)] z-30 group hover:border-primary/30 transition-colors">
              <div className="flex items-center gap-6">
                <div className="h-14 w-14 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30 group-hover:scale-110 transition-transform">
