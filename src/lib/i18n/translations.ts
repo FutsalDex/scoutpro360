@@ -39,6 +39,7 @@ export const translations = {
         identified: 'Talento Identificado',
         analyzed: 'Jugadores Analizados',
         reports: 'Informes Generados',
+        avgPim: 'Media PIM Global',
         syncing: 'Sincronizando Nodos...',
       },
       recentProspects: {
