@@ -11,7 +11,6 @@ import { Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import placeholderData from '@/app/lib/placeholder-images.json';
 
 const COUNTRY_COORDS: Record<string, { x: number, y: number }> = {
@@ -151,17 +150,15 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
           </div>
         </CardHeader>
         
-        <CardContent className="p-0 h-[700px] relative bg-[#050810]">
-          {/* Imagen de fondo oficial desde RECURSOS */}
+        <CardContent className="p-0 h-[700px] relative">
+          {/* Imagen de fondo oficial desde RECURSOS utilizando etiqueta estándar para máxima fiabilidad */}
           {mapImage && (
-            <div className="absolute inset-0 z-0">
-               <Image 
+            <div className="absolute inset-0 z-0 bg-[#050810]">
+               <img 
                  src={mapImage} 
                  alt="Tactical World Map" 
-                 fill 
-                 className="object-cover opacity-100 contrast-110 saturate-125"
-                 priority
-                 unoptimized
+                 className="w-full h-full object-cover opacity-100 contrast-110 saturate-125"
+                 loading="eager"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-20" />
             </div>
