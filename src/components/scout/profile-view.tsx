@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Briefcase, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, Zap, Camera } from "lucide-react";
+import { Shield, Briefcase, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, Zap, Camera, CheckCircle2 } from "lucide-react";
 import { UserProfile, SubscriptionPlan } from "@/lib/types";
 import { updateUserProfile } from "@/lib/services/user-service";
 import { uploadFile } from "@/lib/services/storage-service";
@@ -83,19 +83,15 @@ export function ProfileView({ profile }: ProfileViewProps) {
       
       const downloadUrl = await uploadFile(file, path);
       
-      // Actualizamos Firestore
       updateUserProfile(profile.uid, { photoUrl: downloadUrl });
       
       toast({ title: "Imagen actualizada", description: "Tu nueva foto de perfil ya es visible en el sistema." });
     } catch (error: any) {
       console.error("Upload error details:", error);
-      let message = "Asegúrate de que las reglas de Storage permitan la escritura.";
-      if (error.code === 'storage/unauthorized') message = "No tienes permisos. Revisa las 'Reglas' de Storage en la consola Firebase.";
-      
       toast({ 
         variant: "destructive", 
         title: "Fallo en la subida", 
-        description: message 
+        description: "Asegúrate de que las reglas de Storage permitan la escritura." 
       });
     } finally {
       setUploading(false);
