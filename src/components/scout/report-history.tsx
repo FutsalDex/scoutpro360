@@ -30,6 +30,8 @@ export function ReportHistory({ playerId, onEditReport, onBack, onNewReport }: R
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!playerId) return;
+    
     getPlayer(playerId).then(setPlayer);
     const unsub = subscribeToPlayerReports(playerId, (data) => {
       setReports(data);
