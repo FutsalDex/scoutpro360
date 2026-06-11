@@ -11,7 +11,7 @@ import { Loader2, AlertCircle, Globe, Activity, Database, Plus, Minus, Maximize,
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-// Mapeo de coordenadas ajustado para la imagen oficial
+// Mapeo de coordenadas EXACTAS optimizadas para 1000x500
 const COUNTRY_COORDINATES: Record<string, { x: number, y: number }> = {
   // Europa
   "España": { x: 485, y: 165 },
@@ -138,7 +138,6 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
     );
   };
 
-  // Zoom and Pan Handlers
   const handleZoomIn = () => setScale(prev => Math.min(prev + 0.5, 4));
   const handleZoomOut = () => {
     setScale(prev => {
@@ -203,7 +202,7 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
         </div>
       </div>
 
-      <Card className="border-none bg-transparent overflow-hidden relative min-h-[500px] w-full shadow-[0_0_80px_rgba(0,0,0,0.6)] rounded-[3rem] border border-white/5 ring-1 ring-white/10 group">
+      <Card className="border-none bg-transparent overflow-hidden relative min-h-[600px] w-full shadow-[0_0_80px_rgba(0,0,0,0.6)] rounded-[3rem] border border-white/5 ring-1 ring-white/10 group">
         <CardContent 
           className={cn(
             "p-0 h-full relative bg-black/40 flex items-center justify-center overflow-hidden",
@@ -252,18 +251,20 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
           </div>
           
           <div 
-            className="relative w-full h-full flex items-center justify-center p-4 transition-transform duration-200 ease-out"
+            className="relative transition-transform duration-200 ease-out"
             style={{ 
+              width: '1000px',
+              height: '500px',
               transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
               transformOrigin: 'center center'
             }}
           >
             {mapUrl ? (
-              <>
+              <div className="relative w-full h-full">
                 <img 
                   src={mapUrl} 
                   alt="Tactical World Map" 
-                  className="w-full h-auto max-h-[85vh] object-contain block opacity-90 select-none pointer-events-none"
+                  className="absolute inset-0 w-[1000px] h-[500px] object-cover opacity-90 select-none pointer-events-none"
                   style={{ filter: 'contrast(1.1) brightness(0.9)' }}
                   loading="eager"
                 />
@@ -271,7 +272,6 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                 <svg 
                   viewBox="0 0 1000 500" 
                   className="absolute inset-0 w-full h-full pointer-events-none"
-                  preserveAspectRatio="xMidYMid meet"
                 >
                   <defs>
                     <linearGradient id="gradient-flow" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -318,16 +318,16 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                     );
                   })}
                 </svg>
-              </>
+              </div>
             ) : (
-              <div className="flex flex-col items-center gap-4 text-muted-foreground/40 py-40">
+              <div className="flex flex-col items-center justify-center w-full h-full text-muted-foreground/40">
                 <AlertCircle className="h-12 w-12" />
                 <p className="text-[10px] font-black uppercase tracking-widest italic">Inyectando Inteligencia Geográfica...</p>
               </div>
             )}
           </div>
 
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-primary/10 border border-primary/20 backdrop-blur-2xl rounded-full shadow-2xl animate-in slide-in-from-bottom-4 duration-1000">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-primary/10 border border-primary/20 backdrop-blur-xl rounded-full shadow-2xl animate-in slide-in-from-bottom-4 duration-1000 pointer-events-none">
              <Activity className="h-4 w-4 text-primary animate-pulse" />
              <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Sincronización de Red de Captación Activa</span>
           </div>
