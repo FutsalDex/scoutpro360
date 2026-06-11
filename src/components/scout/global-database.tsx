@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, Download, Loader2, MoreVertical, FileText, 
-  Calendar, MapPin, User
+  Calendar, MapPin, User, History
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { 
@@ -32,11 +32,12 @@ interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
   onViewFicha: (id: string) => void;
   onScheduleMatch: (id: string) => void;
+  onViewHistory: (id: string) => void;
   global?: boolean;
   mode?: 'analyzed' | 'pending' | 'all';
 }
 
-export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, global = false, mode = 'all' }: GlobalDatabaseProps) {
+export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onViewHistory, global = false, mode = 'all' }: GlobalDatabaseProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -98,7 +99,9 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
   });
 
   const getReportForPlayer = (playerId: string) => {
-    return reports.find(r => r.playerId === playerId);
+    // Para la tabla, mostramos el más reciente
+    const playerReports = reports.filter(r => r.playerId === playerId);
+    return playerReports.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))[0];
   };
 
   const generatePDF = (player: Player) => {
@@ -437,8 +440,13 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, glo
                             <DropdownMenuItem onClick={() => onEditPlayer(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-primary/10 text-foreground">
                               <FileText className="h-4 w-4 text-primary" />
                               <span className="text-[11px] font-black uppercase tracking-widest">
-                                {mode === 'pending' ? t.database.actions.createReport : t.database.actions.editReport}
+                                {t.database.actions.createReport}
                               </span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onClick={() => onViewHistory(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5 text-foreground">
+                              <History className="h-4 w-4 text-accent" />
+                              <span className="text-[11px] font-black uppercase tracking-widest">VER HISTORIAL</span>
                             </DropdownMenuItem>
                             
                             {score > 0 && (

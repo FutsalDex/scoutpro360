@@ -20,7 +20,7 @@ import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, ty
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
-import { savePlayer, saveReport, getPlayer, getLatestReportForPlayer } from "@/lib/services/db-service";
+import { savePlayer, saveReport, getPlayer, getReport, getLatestReportForPlayer } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
@@ -143,7 +143,7 @@ const EvaluationModule = ({ icon: Icon, kpiSection, nextTab, prevTab, tabType, r
   </div>
 );
 
-export function ReportForm({ userProfile, editingPlayerId }: { userProfile: UserProfile | null, editingPlayerId: string | null }) {
+export function ReportForm({ userProfile, editingPlayerId, reportId: initialReportId }: { userProfile: UserProfile | null, editingPlayerId: string | null, reportId?: string | null }) {
   const { toast } = useToast();
   const { t } = useTranslation();
   const localizedKPIs = useMemo(() => getLocalizedKPIs(t), [t]);
@@ -153,7 +153,7 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [observedFunctions, setObservedFunctions] = useState<string[]>([]);
-  const [reportId, setReportId] = useState<string | null>(null);
+  const [reportId, setReportId] = useState<string | null>(initialReportId || null);
   const [scoutingActions, setScoutingActions] = useState<ScoutingAction[]>([]);
   const [pitchMarker, setPitchMarker] = useState<Point>({ x: 200, y: 300 });
   const [heatmapPoints, setHeatmapPoints] = useState<Point[]>([]);
@@ -210,38 +210,54 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           if (role) setActiveRole({ ...role, kpis: localizedKPIs });
         }
       });
-      getLatestReportForPlayer(editingPlayerId).then(r => {
-        if (r) {
-          setReportId(r.id || null); setDorsal(r.dorsal || ""); setRivalName(r.rivalName || "");
-          setCompetition(r.competition || ""); setMatchDate(r.matchDate || "");
-          setRatings(r.ratings || {}); setNotes(r.notes || {}); setScoutingActions(r.actions || []);
-          setMinPlayed(r.minPlayed || "90"); setPhysicalCondition(r.physicalCondition || "");
-          setScoutName(r.scoutName || ""); setObservedFunctions(r.observedFunctions || []);
-          setMatchStyle(r.matchStyle || ""); setMatchSystem(r.matchSystem || "");
-          setMatchPace(r.matchPace || ""); setTeamDominance(r.teamDominance || "");
-          setObservingScore(r.observingScore || ""); setMatchImportance(r.matchImportance || "");
-          setWeather(r.weather || ""); setOffBallTraits(r.offBallTraits || []);
-          setBodyLanguageTraits(r.bodyLanguageTraits || []); setSpecificMatchRole(r.specificMatchRole || "");
-          if (r.pitchPosition) setPitchMarker(r.pitchPosition);
-          if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
-          if (r.strengths) setStrengths(r.strengths);
-          if (r.weaknesses) setWeaknesses(r.weaknesses);
-          setOverallDescription(r.overallDescription || "");
-          setComparativePlayer(r.comparativePlayer || "");
-          setFinalRecommendation(r.finalRecommendation || "");
-          setAdditionalNotes(r.additionalNotes || "");
-          setFinalScoutRating(r.finalScoutRating || 0);
-          setPimScore(r.pimScore || (r.finalScoutRating ? r.finalScoutRating * 20 : 0));
-          if (r.pimScore || r.finalScoutRating) {
-            setPimResult({ 
-              score: r.pimScore || (r.finalScoutRating! * 20), 
-              explanation: r.summary || "" 
-            });
+
+      // Si tenemos un reportId inicial (Editar), lo cargamos
+      if (initialReportId) {
+        getReport(initialReportId).then(r => loadReportData(r));
+      } else {
+        // Si no hay reportId, podríamos cargar el contexto del último informe para ahorrar tiempo al scout,
+        // pero NO el ID (para que se guarde como nuevo).
+        getLatestReportForPlayer(editingPlayerId).then(r => {
+          if (r) {
+            setMatchDate(format(new Date(), 'yyyy-MM-dd'));
+            setCompetition(r.competition || "");
+            setMatchSystem(r.matchSystem || "");
           }
-        }
-      });
+        });
+      }
     }
-  }, [editingPlayerId, localizedKPIs]);
+  }, [editingPlayerId, initialReportId, localizedKPIs]);
+
+  const loadReportData = (r: ScoutingReport | null) => {
+    if (r) {
+      setReportId(r.id || null); setDorsal(r.dorsal || ""); setRivalName(r.rivalName || "");
+      setCompetition(r.competition || ""); setMatchDate(r.matchDate || "");
+      setRatings(r.ratings || {}); setNotes(r.notes || {}); setScoutingActions(r.actions || []);
+      setMinPlayed(r.minPlayed || "90"); setPhysicalCondition(r.physicalCondition || "");
+      setScoutName(r.scoutName || ""); setObservedFunctions(r.observedFunctions || []);
+      setMatchStyle(r.matchStyle || ""); setMatchSystem(r.matchSystem || "");
+      setMatchPace(r.matchPace || ""); setTeamDominance(r.teamDominance || "");
+      setObservingScore(r.observingScore || ""); setMatchImportance(r.matchImportance || "");
+      setWeather(r.weather || ""); setOffBallTraits(r.offBallTraits || []);
+      setBodyLanguageTraits(r.bodyLanguageTraits || []); setSpecificMatchRole(r.specificMatchRole || "");
+      if (r.pitchPosition) setPitchMarker(r.pitchPosition);
+      if (r.heatmapPoints) setHeatmapPoints(r.heatmapPoints);
+      if (r.strengths) setStrengths(r.strengths);
+      if (r.weaknesses) setWeaknesses(r.weaknesses);
+      setOverallDescription(r.overallDescription || "");
+      setComparativePlayer(r.comparativePlayer || "");
+      setFinalRecommendation(r.finalRecommendation || "");
+      setAdditionalNotes(r.additionalNotes || "");
+      setFinalScoutRating(r.finalScoutRating || 0);
+      setPimScore(r.pimScore || (r.finalScoutRating ? r.finalScoutRating * 20 : 0));
+      if (r.pimScore || r.finalScoutRating) {
+        setPimResult({ 
+          score: r.pimScore || (r.finalScoutRating! * 20), 
+          explanation: r.summary || "" 
+        });
+      }
+    }
+  };
 
   const handleRatingChange = (kpi: string, value: number) => {
     setRatings(prev => {
@@ -339,7 +355,6 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
         explanation: result.explanation
       });
       
-      // Sincronizar con el estado del informe
       setPimScore(result.playerImpactMetric);
       setFinalScoutRating(Math.round(result.playerImpactMetric / 20));
       handleNoteChange('summary', result.explanation);
@@ -436,7 +451,9 @@ export function ReportForm({ userProfile, editingPlayerId }: { userProfile: User
           </div>
           <div>
             <h1 className="text-2xl font-black font-headline uppercase tracking-tight">{playerName || t.report?.title || 'Informe'}</h1>
-            <p className="text-[10px] text-primary font-black uppercase tracking-widest">REGISTRO DE INTELIGENCIA DE SCOUTING</p>
+            <p className="text-[10px] text-primary font-black uppercase tracking-widest">
+              {reportId ? 'EDITANDO REGISTRO EXISTENTE' : 'REGISTRO DE NUEVA OBSERVACIÓN'}
+            </p>
           </div>
         </div>
         <Button onClick={handleSaveAll} className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg hover:scale-105 transition-all">

@@ -11,7 +11,8 @@ import {
   where,
   getDocs,
   limit,
-  setDoc
+  setDoc,
+  orderBy
 } from "firebase/firestore";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -116,15 +117,35 @@ export function saveReport(reportData: Partial<ScoutingReport>, id?: string): st
   return finalId;
 }
 
+export async function getReport(id: string): Promise<ScoutingReport | null> {
+  const docRef = doc(db, "reports", id);
+  try {
+    const snap = await getDoc(docRef);
+    return snap.exists() ? { id: snap.id, ...snap.data() } as ScoutingReport : null;
+  } catch (error) {
+    return null;
+  }
+}
+
 export async function getLatestReportForPlayer(playerId: string): Promise<ScoutingReport | null> {
   const colRef = collection(db, "reports");
-  const q = query(colRef, where("playerId", "==", playerId), limit(1));
+  const q = query(colRef, where("playerId", "==", playerId), orderBy("createdAt", "desc"), limit(1));
   try {
     const snap = await getDocs(q);
     return !snap.empty ? { id: snap.docs[0].id, ...snap.docs[0].data() } as ScoutingReport : null;
   } catch (error) {
     return null;
   }
+}
+
+export function subscribeToPlayerReports(playerId: string, callback: (reports: ScoutingReport[]) => void) {
+  const colRef = collection(db, "reports");
+  const q = query(colRef, where("playerId", "==", playerId), orderBy("createdAt", "desc"));
+  return onSnapshot(
+    q,
+    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScoutingReport[]),
+    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
+  );
 }
 
 export function subscribeToReports(scoutId: string | null, callback: (reports: ScoutingReport[]) => void) {

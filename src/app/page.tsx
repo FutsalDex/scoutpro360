@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -10,9 +9,10 @@ import { GlobalDatabase } from '@/components/scout/global-database';
 import { AgendaView } from '@/components/scout/agenda-view';
 import { ProfileView } from '@/components/scout/profile-view';
 import { AdminPanel } from '@/components/scout/admin-panel';
+import { ReportHistory } from '@/components/scout/report-history';
 import { LandingPage } from '@/components/landing/landing-page';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, SidebarFooter, SidebarGroup, SidebarGroupLabel, useSidebar } from "@/components/ui/sidebar";
-import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe, Database } from "lucide-react";
+import { LayoutDashboard, Binoculars, FilePlus, Users, LogOut, ShieldCheck, UserCircle, ShieldAlert, Video, AlertTriangle, Calendar, Globe, Database, History } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useTranslation } from '@/lib/i18n/context';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -23,7 +23,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history';
 
 function AppShell({ 
   activeView, 
@@ -32,6 +32,8 @@ function AppShell({
   userProfile,
   editingPlayerId,
   setEditingPlayerId,
+  editingReportId,
+  setEditingReportId,
   schedulingPlayerId,
   setSchedulingPlayerId
 }: { 
@@ -41,6 +43,8 @@ function AppShell({
   userProfile: UserProfile | null,
   editingPlayerId: string | null,
   setEditingPlayerId: (id: string | null) => void,
+  editingReportId: string | null,
+  setEditingReportId: (id: string | null) => void,
   schedulingPlayerId: string | null,
   setSchedulingPlayerId: (id: string | null) => void
 }) {
@@ -58,8 +62,9 @@ function AppShell({
 
   const handleNavClick = (view: ViewState) => {
     if (needsProfileCompletion && view !== 'profile') return;
-    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda') {
+    if (view !== 'report' && view !== 'talent-id' && view !== 'agenda' && view !== 'report-history') {
       setEditingPlayerId(null);
+      setEditingReportId(null);
       setSchedulingPlayerId(null);
     }
     setActiveView(view);
@@ -70,7 +75,18 @@ function AppShell({
 
   const handleEditPlayer = (playerId: string) => {
     setEditingPlayerId(playerId);
+    setEditingReportId(null); // Nuevo informe por defecto desde esta acción
     setActiveView('report');
+  };
+
+  const handleEditReport = (reportId: string) => {
+    setEditingReportId(reportId);
+    setActiveView('report');
+  };
+
+  const handleViewHistory = (playerId: string) => {
+    setEditingPlayerId(playerId);
+    setActiveView('report-history');
   };
 
   const handleViewFicha = (playerId: string) => {
@@ -87,11 +103,12 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
-      case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
+      case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} reportId={editingReportId} />;
+      case 'report-history': return <ReportHistory playerId={editingPlayerId!} onEditReport={handleEditReport} onBack={() => setActiveView('bd-scout')} onNewReport={() => handleEditPlayer(editingPlayerId!)} />;
       case 'match-analysis': return <MatchAnalysis />;
-      case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="pending" />;
-      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="analyzed" />;
-      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={true} mode="all" />;
+      case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={false} mode="pending" />;
+      case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={false} mode="analyzed" />;
+      case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} initialPlayerId={schedulingPlayerId} onClearScheduleContext={() => setSchedulingPlayerId(null)} />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
@@ -103,7 +120,8 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return t.sidebar.commandCenter;
       case 'talent-id': return t.sidebar.talentId;
-      case 'report': return editingPlayerId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
+      case 'report': return editingReportId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
+      case 'report-history': return "Historial de Informes";
       case 'match-analysis': return t.sidebar.matchAnalysis;
       case 'bd-scout': return t.sidebar.bdScout;
       case 'bd-talentos': return t.sidebar.bdTalentos;
@@ -343,6 +361,7 @@ export default function Home() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  const [editingReportId, setEditingReportId] = useState<string | null>(null);
   const [schedulingPlayerId, setSchedulingPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -377,6 +396,7 @@ export default function Home() {
     setShowApp(false);
     setActiveView('dashboard');
     setEditingPlayerId(null);
+    setEditingReportId(null);
     setSchedulingPlayerId(null);
   };
 
@@ -402,6 +422,8 @@ export default function Home() {
         userProfile={userProfile}
         editingPlayerId={editingPlayerId}
         setEditingPlayerId={setEditingPlayerId}
+        editingReportId={editingReportId}
+        setEditingReportId={setEditingReportId}
         schedulingPlayerId={schedulingPlayerId}
         setSchedulingPlayerId={setSchedulingPlayerId}
       />
