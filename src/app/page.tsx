@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -252,6 +253,17 @@ function AppShell({
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton 
+                      isActive={activeView === 'mapping'}
+                      onClick={() => handleNavClick('mapping')}
+                      disabled={needsProfileCompletion}
+                      className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
+                    >
+                      <MapIcon className="h-5 w-5 text-accent" />
+                      <span className="font-medium">Mapeo Global</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
                       isActive={activeView === 'match-analysis'} 
                       onClick={() => handleNavClick('match-analysis')}
                       disabled={needsProfileCompletion}
@@ -281,17 +293,6 @@ function AppShell({
                   >
                     <Globe className="h-5 w-5 text-primary" />
                     <span className="font-medium">{t.sidebar.globalDatabase}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={activeView === 'mapping'}
-                    onClick={() => handleNavClick('mapping')}
-                    disabled={needsProfileCompletion}
-                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
-                  >
-                    <MapIcon className="h-5 w-5 text-accent" />
-                    <span className="font-medium">Mapeo Global</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
