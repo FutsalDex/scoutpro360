@@ -103,6 +103,49 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
     return playerReports.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))[0];
   };
 
+  const handleExportCSV = () => {
+    if (filteredPlayers.length === 0) {
+      toast({ variant: "destructive", title: "Sin datos", description: "No hay registros para exportar." });
+      return;
+    }
+
+    const headers = ["Nombre", "Club", "Posicion", "Nacionalidad", "PIM Score", "Fecha Registro"];
+    const rows = filteredPlayers.map(player => {
+      const report = getReportForPlayer(player.id);
+      const score = report?.pimScore || (report?.finalScoutRating ? report.finalScoutRating * 20 : 0);
+      const dateStr = player.createdAt?.seconds 
+        ? format(new Date(player.createdAt.seconds * 1000), 'yyyy-MM-dd') 
+        : 'N/A';
+      
+      return [
+        player.name,
+        player.club,
+        player.tacticalRole,
+        player.nationality || 'N/A',
+        score > 0 ? score : 'Pendiente',
+        dateStr
+      ];
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `ScoutPro_Export_${format(new Date(), 'yyyy-MM-dd_HHmm')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({ title: "Exportación Exitosa", description: "El archivo CSV ha sido generado correctamente." });
+  };
+
   const generatePDF = (player: Player) => {
     const report = getReportForPlayer(player.id);
     if (!report) return;
@@ -160,7 +203,11 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
             {global ? t.database.globalSubtitle : (mode === 'analyzed' ? t.database.subtitleScout : t.database.subtitleTalentos)}
           </p>
         </div>
-        <Button variant="outline" className="bg-secondary/20 border-border/40 text-foreground font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-secondary/40">
+        <Button 
+          variant="outline" 
+          onClick={handleExportCSV}
+          className="bg-secondary/20 border-border/40 text-foreground font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-secondary/40"
+        >
           <Download className="h-4 w-4 mr-2" /> EXPORTAR CSV
         </Button>
       </div>
