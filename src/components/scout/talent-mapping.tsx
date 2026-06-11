@@ -12,39 +12,46 @@ import { Loader2, AlertCircle, Globe, Activity, Database, Plus, Minus, Maximize,
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-// Mapeo de coordenadas aproximadas para la imagen mapamundi.png (proporción 1000x500)
+// Mapeo de coordenadas ajustado para la imagen oficial
 const COUNTRY_COORDINATES: Record<string, { x: number, y: number }> = {
+  // Europa
   "España": { x: 485, y: 165 },
   "Portugal": { x: 472, y: 168 },
-  "Francia": { x: 495, y: 148 },
-  "Reino Unido": { x: 482, y: 125 },
-  "Alemania": { x: 512, y: 138 },
-  "Italia": { x: 515, y: 162 },
-  "Países Bajos": { x: 505, y: 132 },
+  "Francia": { x: 495, y: 145 },
+  "Reino Unido": { x: 480, y: 125 },
+  "Alemania": { x: 508, y: 135 },
+  "Italia": { x: 512, y: 160 },
   "Bélgica": { x: 500, y: 138 },
-  "Brasil": { x: 320, y: 350 },
-  "Argentina": { x: 310, y: 430 },
-  "Uruguay": { x: 330, y: 425 },
-  "Colombia": { x: 285, y: 310 },
-  "Chile": { x: 295, y: 420 },
-  "Ecuador": { x: 275, y: 325 },
-  "México": { x: 200, y: 245 },
-  "Estados Unidos": { x: 200, y: 175 },
-  "Canadá": { x: 220, y: 120 },
-  "Nigeria": { x: 510, y: 300 },
-  "Senegal": { x: 465, y: 285 },
-  "Camerún": { x: 520, y: 315 },
-  "Costa de Marfil": { x: 490, y: 305 },
-  "Marruecos": { x: 480, y: 215 },
-  "Argelia": { x: 500, y: 215 },
-  "Egipto": { x: 565, y: 235 },
+  "Países Bajos": { x: 502, y: 132 },
+  "Croacia": { x: 525, y: 158 },
+  "Serbia": { x: 535, y: 158 },
+  
+  // América
+  "Canadá": { x: 220, y: 110 },
+  "Estados Unidos": { x: 215, y: 175 },
+  "México": { x: 205, y: 240 },
+  "Colombia": { x: 275, y: 315 },
+  "Ecuador": { x: 265, y: 335 },
+  "Brasil": { x: 335, y: 360 },
+  "Chile": { x: 285, y: 430 },
+  "Argentina": { x: 305, y: 430 },
+  "Uruguay": { x: 325, y: 425 },
+
+  // África
+  "Marruecos": { x: 480, y: 210 },
+  "Argelia": { x: 500, y: 210 },
+  "Senegal": { x: 465, y: 275 },
+  "Costa de Marfil": { x: 485, y: 295 },
+  "Nigeria": { x: 505, y: 295 },
+  "Camerún": { x: 515, y: 310 },
+  "Egipto": { x: 555, y: 230 },
+
+  // Asia y Oceanía
+  "Turquía": { x: 565, y: 180 },
+  "China": { x: 775, y: 210 },
+  "Corea del Sur": { x: 825, y: 205 },
   "Japón": { x: 865, y: 195 },
-  "Corea del Sur": { x: 835, y: 200 },
-  "China": { x: 790, y: 210 },
-  "Australia": { x: 855, y: 420 },
-  "Turquía": { x: 575, y: 175 },
-  "Croacia": { x: 535, y: 155 },
-  "Serbia": { x: 545, y: 155 },
+  "Australia": { x: 850, y: 415 }
 };
 
 interface TalentMappingProps {
@@ -62,9 +69,8 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-
-  const centralPoint = { x: 485, y: 165 };
+  
+  const centralPoint = { x: 485, y: 165 }; // Punto focal (España/Europa)
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (user) => {
