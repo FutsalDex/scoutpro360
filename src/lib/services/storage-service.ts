@@ -1,47 +1,31 @@
 import { storage } from "@/lib/firebase/config";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 /**
- * Sube un archivo a Firebase Storage y devuelve la URL de descarga.
+ * Sube un archivo a Firebase Storage de forma directa y fiable.
  * @param file El archivo a subir.
- * @param path La ruta en el storage (ej: 'players/player_id/photo.jpg').
- * @param onProgress Callback opcional para monitorear el progreso (0-100).
+ * @param path La ruta en el storage (ej: 'users/uid/photo.jpg').
  */
 export async function uploadFile(
   file: File,
-  path: string,
-  onProgress?: (progress: number) => void
+  path: string
 ): Promise<string> {
-  // Verificación inicial para evitar fallos silenciosos
   if (!storage) {
-    throw new Error("Firebase Storage no está inicializado.");
+    throw new Error("Firebase Storage no está inicializado en la configuración.");
   }
 
-  const storageRef = ref(storage, path);
-  const uploadTask = uploadBytesResumable(storageRef, file);
-
-  return new Promise((resolve, reject) => {
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        if (onProgress) onProgress(progress);
-      },
-      (error) => {
-        // Captura errores de permisos (403), cuota, etc.
-        console.error("Storage task error:", error.code, error.message);
-        reject(error);
-      },
-      async () => {
-        try {
-          // Al completar la subida, obtenemos la URL pública
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(downloadURL);
-        } catch (error) {
-          console.error("Error obteniendo downloadURL:", error);
-          reject(error);
-        }
-      }
-    );
-  });
+  try {
+    const storageRef = ref(storage, path);
+    
+    // Usamos uploadBytes para una operación atómica más robusta
+    const snapshot = await uploadBytes(storageRef, file);
+    
+    // Obtenemos la URL de descarga una vez confirmada la subida
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return downloadURL;
+  } catch (error: any) {
+    console.error("Error crítico en StorageService:", error.code, error.message);
+    throw error;
+  }
 }

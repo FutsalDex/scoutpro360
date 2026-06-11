@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Briefcase, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, CheckCircle2, Zap, Camera } from "lucide-react";
+import { Shield, Briefcase, Phone, Globe, Twitter, Linkedin, Instagram, Share2, Edit2, Save, X, Loader2, CreditCard, Zap, Camera } from "lucide-react";
 import { UserProfile, SubscriptionPlan } from "@/lib/types";
 import { updateUserProfile } from "@/lib/services/user-service";
 import { uploadFile } from "@/lib/services/storage-service";
@@ -66,44 +66,38 @@ export function ProfileView({ profile }: ProfileViewProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validación de tipo de archivo
     if (!file.type.startsWith('image/')) {
-      toast({ variant: "destructive", title: "Error", description: "El archivo seleccionado no es una imagen válida." });
+      toast({ variant: "destructive", title: "Formato no válido", description: "Por favor selecciona una imagen (JPG, PNG)." });
       return;
     }
 
-    // Validación de tamaño (ej: máximo 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ variant: "destructive", title: "Error", description: "La imagen es demasiado grande. Máximo 5MB." });
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ variant: "destructive", title: "Archivo demasiado grande", description: "El límite es de 2MB para fotos de perfil." });
       return;
     }
 
     setUploading(true);
     try {
-      // Ruta estructurada: users/[UID]/perfil_[TIMESTAMP]
-      const path = `users/${profile.uid}/profile_picture_${Date.now()}`;
+      const timestamp = new Date().getTime();
+      const path = `users/${profile.uid}/profile_${timestamp}`;
       
       const downloadUrl = await uploadFile(file, path);
       
-      // Actualizamos Firestore con la nueva URL
+      // Actualizamos Firestore
       updateUserProfile(profile.uid, { photoUrl: downloadUrl });
       
-      toast({ title: "Identidad actualizada", description: "Tu foto de perfil se ha guardado correctamente." });
+      toast({ title: "Imagen actualizada", description: "Tu nueva foto de perfil ya es visible en el sistema." });
     } catch (error: any) {
-      console.error("Upload failure:", error);
+      console.error("Upload error details:", error);
+      let message = "Asegúrate de que las reglas de Storage permitan la escritura.";
+      if (error.code === 'storage/unauthorized') message = "No tienes permisos. Revisa las 'Reglas' de Storage en la consola Firebase.";
       
-      let errorMsg = "No se pudo subir la imagen.";
-      if (error.code === 'storage/unauthorized') {
-        errorMsg = "Error de permisos: Revisa las reglas de seguridad de Firebase Storage.";
-      } else if (error.code === 'storage/canceled') {
-        errorMsg = "Subida cancelada por el usuario.";
-      } else if (error.code === 'storage/unknown') {
-        errorMsg = "Error desconocido del servidor Storage.";
-      }
-      
-      toast({ variant: "destructive", title: "Fallo en la sincronización", description: errorMsg });
+      toast({ 
+        variant: "destructive", 
+        title: "Fallo en la subida", 
+        description: message 
+      });
     } finally {
-      // Siempre reseteamos el estado para evitar el bucle de carga
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -173,9 +167,9 @@ export function ProfileView({ profile }: ProfileViewProps) {
       <div className="grid lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-1 border-border/40 bg-card/40 backdrop-blur-md overflow-hidden rounded-2xl shadow-2xl">
           <CardHeader className="text-center p-8 bg-secondary/20 border-b border-border/10">
-            <div className="relative inline-block mx-auto mb-4 group">
+            <div className="relative inline-block mx-auto mb-4">
               <div className="relative h-32 w-32 mx-auto">
-                <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full relative overflow-hidden">
+                <Avatar className="h-32 w-32 border-4 border-primary/30 shadow-2xl rounded-full relative overflow-hidden bg-secondary">
                   <AvatarImage 
                     src={profile.photoUrl} 
                     className="object-cover h-full w-full" 
@@ -188,7 +182,7 @@ export function ProfileView({ profile }: ProfileViewProps) {
                 {uploading && (
                   <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center rounded-full z-10 animate-in fade-in">
                     <Loader2 className="h-8 w-8 text-primary animate-spin" />
-                    <span className="text-[8px] font-black text-primary mt-2 uppercase tracking-[0.2em]">Syncing...</span>
+                    <span className="text-[8px] font-black text-primary mt-2 uppercase tracking-[0.2em]">Subiendo...</span>
                   </div>
                 )}
                 
@@ -209,7 +203,7 @@ export function ProfileView({ profile }: ProfileViewProps) {
                 type="file" 
                 ref={fileInputRef} 
                 onChange={handleFileChange} 
-                accept="image/*" 
+                accept="image/jpeg,image/png,image/webp" 
                 className="hidden" 
               />
             </div>
