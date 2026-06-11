@@ -150,14 +150,14 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
           </div>
         </CardHeader>
         
-        <CardContent className="p-0 h-[700px] relative">
-          {/* Imagen de fondo oficial desde RECURSOS utilizando etiqueta estándar para máxima fiabilidad */}
+        <CardContent className="p-0 h-[700px] relative overflow-hidden">
+          {/* Imagen de fondo oficial desde RECURSOS */}
           {mapImage && (
-            <div className="absolute inset-0 z-0 bg-[#050810]">
+            <div className="absolute inset-0 z-0">
                <img 
                  src={mapImage} 
                  alt="Tactical World Map" 
-                 className="w-full h-full object-cover opacity-100 contrast-110 saturate-125"
+                 className="w-full h-full object-cover opacity-100 contrast-110 saturate-125 block"
                  loading="eager"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-20" />
