@@ -1,5 +1,5 @@
 import { storage } from "@/lib/firebase/config";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 
 /**
  * Sube un archivo a Firebase Storage de forma directa y fiable.
@@ -25,8 +25,30 @@ export async function uploadFile(
     
     return downloadURL;
   } catch (error: any) {
-    // Solo propagamos el error para que el componente decida cómo informarlo al usuario
-    // Evitamos console.error excesivo para no disparar overlays de Next.js en dev
     throw error;
+  }
+}
+
+/**
+ * Lista todos los archivos de una carpeta y devuelve sus URLs de descarga.
+ */
+export async function listFolderFiles(path: string): Promise<{ name: string, url: string }[]> {
+  if (!storage) return [];
+  
+  try {
+    const folderRef = ref(storage, path);
+    const result = await listAll(folderRef);
+    
+    const files = await Promise.all(
+      result.items.map(async (item) => {
+        const url = await getDownloadURL(item);
+        return { name: item.name, url };
+      })
+    );
+    
+    return files;
+  } catch (error) {
+    console.error("Error listing files:", error);
+    return [];
   }
 }
