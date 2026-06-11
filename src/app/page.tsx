@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -86,7 +87,7 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
-      case 'report': return editingPlayerId ? `${t.report.title} (Edit)` : t.report.title; // Note: simplified placeholder for active report component as used in actual report-form
+      case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
       case 'match-analysis': return <MatchAnalysis />;
       case 'bd-talentos': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="pending" />;
       case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} global={false} mode="analyzed" />;
@@ -96,14 +97,6 @@ function AppShell({
       case 'admin': return <AdminPanel />;
       default: return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
     }
-  };
-
-  // Re-inserting the actual ReportForm for the 'report' view which was accidentally simplified in the switch above
-  const renderActualActiveView = () => {
-    if (activeView === 'report') {
-      return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} />;
-    }
-    return renderActiveView();
   };
 
   const getViewTitle = () => {
@@ -198,17 +191,6 @@ function AppShell({
                     >
                       <Binoculars className="h-5 w-5" />
                       <span className="font-medium">{t.sidebar.talentId}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      isActive={activeView === 'report'} 
-                      onClick={() => handleNavClick('report')}
-                      disabled={needsProfileCompletion}
-                      className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
-                    >
-                      <FilePlus className="h-5 w-5" />
-                      <span className="font-medium">{t.sidebar.liveReport}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   
@@ -347,7 +329,7 @@ function AppShell({
             </div>
           )}
           <div className="w-full overflow-x-hidden">
-            {renderActualActiveView()}
+            {renderActiveView()}
           </div>
         </main>
       </SidebarInset>

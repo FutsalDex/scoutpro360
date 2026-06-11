@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -147,12 +148,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
             </Badge>
           </CardHeader>
           <CardContent className="p-8 space-y-6">
-            <ProfileInfoItem 
-              icon={<Mail className="h-4 w-4" />} 
-              label="Email" 
-              value={profile.email} 
-            />
-
             <div className="space-y-2">
               {isEditing ? (
                 <div className="flex flex-col gap-2">
