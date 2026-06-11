@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Loader2, Crosshair, Users } from "lucide-react";
+import { Globe, Loader2, Crosshair, Users, User } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
-import { subscribeToGlobalPlayers } from "@/lib/services/db-service";
+import { subscribeToGlobalPlayers, subscribeToPlayers } from "@/lib/services/db-service";
 import { Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
@@ -43,18 +43,38 @@ const COUNTRY_COORDS: Record<string, { x: number, y: number }> = {
   "Suecia": { x: 525, y: 90 },
 };
 
-export function TalentMapping() {
+interface TalentMappingProps {
+  global?: boolean;
+}
+
+export function TalentMapping({ global = false }: TalentMappingProps) {
   const { t } = useTranslation();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = subscribeToGlobalPlayers((data) => {
-      setPlayers(data);
-      setLoading(false);
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      setUserId(user?.uid || null);
     });
-    return () => unsub();
+    return () => unsubAuth();
   }, []);
+
+  useEffect(() => {
+    if (global) {
+      const unsub = subscribeToGlobalPlayers((data) => {
+        setPlayers(data);
+        setLoading(false);
+      });
+      return () => unsub();
+    } else if (userId) {
+      const unsub = subscribeToPlayers(userId, (data) => {
+        setPlayers(data);
+        setLoading(false);
+      });
+      return () => unsub();
+    }
+  }, [global, userId]);
 
   const statsByCountry = players.reduce((acc, player) => {
     const country = player.nationality || 'Unknown';
@@ -78,13 +98,19 @@ export function TalentMapping() {
     <div className="space-y-8 animate-in fade-in duration-700 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-headline font-black text-foreground uppercase tracking-tight">{t.mapping.title}</h1>
-          <p className="text-muted-foreground text-sm">{t.mapping.subtitle}</p>
+          <h1 className="text-3xl font-headline font-black text-foreground uppercase tracking-tight">
+            {global ? "Geopolítica del Talento" : "Mi Red de Captación"}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {global 
+              ? "Visión consolidada de toda la red de scouts del club." 
+              : "Distribución geográfica de tus talentos identificados."}
+          </p>
         </div>
         <div className="flex gap-2">
           <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-black py-1.5 px-4 tracking-widest uppercase flex items-center gap-2">
             <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            {t.mapping.globalFeed}
+            {global ? "INTELIGENCIA DE CLUB" : "RED PRIVADA"}
           </Badge>
         </div>
       </div>
@@ -158,14 +184,14 @@ export function TalentMapping() {
                           </div>
                           <div className="flex items-center gap-4">
                             <div>
-                              <p className="text-[8px] text-muted-foreground uppercase font-black">Activos</p>
+                              <p className="text-[8px] text-muted-foreground uppercase font-black">Prospectos</p>
                               <p className="text-base font-black text-white">{stat.count}</p>
                             </div>
                             <div className="h-8 w-[1px] bg-white/10" />
                             <div className="flex flex-col gap-1">
                                <div className="flex items-center gap-1">
-                                  <Users className="h-2 w-2 text-primary" />
-                                  <span className="text-[7px] font-bold text-primary/80 uppercase">Sincronizado</span>
+                                  {global ? <Users className="h-2 w-2 text-primary" /> : <User className="h-2 w-2 text-accent" />}
+                                  <span className="text-[7px] font-bold text-primary/80 uppercase">{global ? "Club" : "Propio"}</span>
                                </div>
                                <div className="h-1 w-12 bg-secondary rounded-full overflow-hidden">
                                   <div className="h-full bg-primary" style={{ width: '80%' }} />
@@ -185,13 +211,13 @@ export function TalentMapping() {
              <div className="flex items-center gap-4">
                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                <p className="text-[10px] font-black uppercase tracking-widest text-white">
-                  Red Privada de Captación
+                  {global ? "Red Global ScoutPro 360" : "Mi Inteligencia de Mercado"}
                </p>
              </div>
              <div className="h-6 w-[1px] bg-white/20" />
              <div className="flex flex-col">
                <p className="text-[9px] font-bold text-muted-foreground uppercase">{players.length} Talentos Detectados</p>
-               <p className="text-[7px] font-medium text-primary/60 uppercase tracking-tight italic">Actualización en tiempo real vía onSnapshot</p>
+               <p className="text-[7px] font-medium text-primary/60 uppercase tracking-tight italic">Sincronización segura con el núcleo de datos</p>
              </div>
           </div>
         </CardContent>

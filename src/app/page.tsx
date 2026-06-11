@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -25,7 +24,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'mapping';
+type ViewState = 'dashboard' | 'talent-id' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'mapping' | 'global-mapping';
 
 function AppShell({ 
   activeView, 
@@ -112,7 +111,8 @@ function AppShell({
       case 'bd-scout': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={false} mode="analyzed" />;
       case 'global-database': return <GlobalDatabase onEditPlayer={handleEditPlayer} onViewFicha={handleViewFicha} onScheduleMatch={handleScheduleMatch} onViewHistory={handleViewHistory} global={true} mode="all" />;
       case 'agenda': return <AgendaView onStartScouting={handleEditPlayer} initialPlayerId={schedulingPlayerId} onClearScheduleContext={() => setSchedulingPlayerId(null)} />;
-      case 'mapping': return <TalentMapping />;
+      case 'mapping': return <TalentMapping global={false} />;
+      case 'global-mapping': return <TalentMapping global={true} />;
       case 'profile': return <ProfileView profile={userProfile} />;
       case 'admin': return <AdminPanel />;
       default: return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
@@ -130,7 +130,8 @@ function AppShell({
       case 'bd-talentos': return t.sidebar.bdTalentos;
       case 'global-database': return t.sidebar.globalDatabase;
       case 'agenda': return t.sidebar.agenda;
-      case 'mapping': return t.mapping.title;
+      case 'mapping': return "Mis Talentos Map";
+      case 'global-mapping': return "Mapeo Global Red";
       case 'profile': return t.sidebar.personalProfile;
       case 'admin': return t.sidebar.adminPanel;
       default: return '';
@@ -259,7 +260,7 @@ function AppShell({
                       className={cn("h-12 px-4 gap-4 text-accent", needsProfileCompletion && "opacity-30")}
                     >
                       <MapIcon className="h-5 w-5 text-accent" />
-                      <span className="font-medium">Mapeo Global</span>
+                      <span className="font-medium">Mi Mapa Talentos</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
@@ -293,6 +294,17 @@ function AppShell({
                   >
                     <Globe className="h-5 w-5 text-primary" />
                     <span className="font-medium">{t.sidebar.globalDatabase}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    isActive={activeView === 'global-mapping'}
+                    onClick={() => handleNavClick('global-mapping')}
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
+                  >
+                    <MapIcon className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Mapeo Global Red</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
