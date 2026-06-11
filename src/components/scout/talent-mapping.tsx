@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Loader2, Crosshair } from "lucide-react";
+import { Globe, Loader2, Crosshair, Users } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
-import { subscribeToPlayers } from "@/lib/services/db-service";
+import { subscribeToGlobalPlayers } from "@/lib/services/db-service";
 import { Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
+// Coordenadas geográficas realistas normalizadas para el SVG 1000x500
 const COUNTRY_COORDS: Record<string, { x: number, y: number }> = {
   "España": { x: 485, y: 165 },
   "Argentina": { x: 315, y: 430 },
@@ -46,24 +47,14 @@ export function TalentMapping() {
   const { t } = useTranslation();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
-  const [scoutId, setScoutId] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, (user) => {
-      setScoutId(user?.uid || null);
-      if (!user) setLoading(false);
-    });
-    return () => unsubAuth();
-  }, []);
-
-  useEffect(() => {
-    if (!scoutId) return;
-    const unsub = subscribeToPlayers(scoutId, (data) => {
+    const unsub = subscribeToGlobalPlayers((data) => {
       setPlayers(data);
       setLoading(false);
     });
     return () => unsub();
-  }, [scoutId]);
+  }, []);
 
   const statsByCountry = players.reduce((acc, player) => {
     const country = player.nationality || 'Unknown';
@@ -76,8 +67,9 @@ export function TalentMapping() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh]">
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
         <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Sincronizando coordenadas...</p>
       </div>
     );
   }
@@ -97,44 +89,49 @@ export function TalentMapping() {
         </div>
       </div>
 
-      <Card className="border-border/40 bg-card/40 backdrop-blur-xl shadow-2xl overflow-hidden relative min-h-[650px] w-full border-2">
-        <CardHeader className="border-b border-border/10 pb-6 relative z-10 bg-background/20 backdrop-blur-md flex flex-row items-center justify-between">
+      <Card className="border-border/40 bg-card/40 backdrop-blur-xl shadow-2xl overflow-hidden relative min-h-[600px] w-full border-2 rounded-[2.5rem]">
+        <CardHeader className="border-b border-border/10 pb-6 relative z-10 bg-background/40 backdrop-blur-md flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-black uppercase tracking-widest text-foreground flex items-center gap-3">
               <Globe className="h-5 w-5 text-primary" /> {t.mapping.hotspotsTitle}
             </CardTitle>
             <CardDescription className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">Análisis geoespacial de la red de captación</CardDescription>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
              <Crosshair className="h-3 w-3 text-primary" />
              <span className="text-[8px] font-black text-primary uppercase tracking-widest">LIVE RADAR</span>
           </div>
         </CardHeader>
         
-        <CardContent className="p-0 h-[calc(100%-80px)] relative">
-          <div className="absolute inset-0 grid grid-cols-[repeat(40,minmax(0,1fr))] grid-rows-[repeat(25,minmax(0,1fr))] opacity-[0.05]">
+        <CardContent className="p-0 h-[600px] relative bg-[#0a0f1d]">
+          {/* Grid de fondo decorativo */}
+          <div className="absolute inset-0 grid grid-cols-[repeat(40,minmax(0,1fr))] grid-rows-[repeat(25,minmax(0,1fr))] opacity-[0.1]">
             {[...Array(1000)].map((_, i) => (
-              <div key={i} className="border-[0.5px] border-white/10" />
+              <div key={i} className="border-[0.5px] border-primary/20" />
             ))}
           </div>
 
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-             <div className="w-[300%] h-[300%] absolute -top-full -left-full bg-[conic-gradient(from_0deg,transparent_0deg,var(--primary)_5deg,transparent_20deg)] opacity-[0.03] animate-[spin_10s_linear_infinite]" />
-          </div>
-
-          <div className="relative h-full w-full flex items-center justify-center p-4 sm:p-12">
-             <div className="w-full h-full max-w-[1400px] aspect-[2/1] relative">
-                <svg viewBox="0 0 1000 500" className="w-full h-full fill-white/[0.04] stroke-white/20 stroke-[0.3] drop-shadow-[0_0_50px_rgba(0,0,0,0.7)]">
+          <div className="relative h-full w-full flex items-center justify-center p-8">
+             <div className="w-full h-full max-w-[1200px] aspect-[2/1] relative">
+                {/* SVG Realista del Mapa Mundi */}
+                <svg viewBox="0 0 1000 500" className="w-full h-full fill-primary/10 stroke-primary/30 stroke-[0.5] drop-shadow-[0_0_30px_rgba(224,176,80,0.1)]">
                    <g>
-                     <path d="M150,50 L250,45 L320,60 L330,120 L310,180 L280,240 L230,260 L180,250 L140,220 L100,150 L110,80 Z" />
-                     <path d="M280,300 L360,295 L410,320 L430,380 L420,470 L360,490 L300,480 L270,380 Z" />
-                     <path d="M460,120 L510,100 L560,110 L590,140 L580,190 L530,210 L490,200 L455,150 Z" />
-                     <path d="M460,220 L530,210 L590,220 L630,260 L650,350 L620,440 L570,480 L510,470 L450,380 L430,300 Z" />
-                     <path d="M590,100 L720,70 L870,85 L960,110 L980,200 L960,300 L870,380 L760,400 L660,350 L600,200 Z" />
-                     <path d="M830,410 L930,405 L960,440 L940,490 L860,495 L810,450 Z" />
+                     {/* América del Norte */}
+                     <path d="M120,60 L280,50 L340,80 L350,150 L310,220 L220,250 L150,220 L100,160 Z" />
+                     {/* América del Sur */}
+                     <path d="M280,280 L360,270 L420,330 L430,420 L380,480 L300,470 L270,360 Z" />
+                     {/* Europa */}
+                     <path d="M460,110 L520,90 L580,100 L600,140 L590,190 L530,210 L480,190 L455,140 Z" />
+                     {/* África */}
+                     <path d="M460,210 L530,200 L590,210 L640,260 L650,380 L600,460 L540,470 L460,380 L440,290 Z" />
+                     {/* Asia */}
+                     <path d="M600,90 L750,60 L920,80 L980,150 L960,280 L850,360 L720,380 L620,330 L600,180 Z" />
+                     {/* Oceanía */}
+                     <path d="M830,390 L950,380 L980,440 L950,490 L850,490 L810,440 Z" />
                    </g>
                 </svg>
 
+                {/* Renderizado de Hotspots */}
                 {Object.entries(statsByCountry).map(([name, stat]) => {
                   const pos = COUNTRY_COORDS[name];
                   if (!pos) return null;
@@ -149,16 +146,30 @@ export function TalentMapping() {
                       }}
                     >
                       <div className="relative -translate-x-1/2 -translate-y-1/2">
-                        <div className="h-12 w-12 bg-primary/20 rounded-full absolute -inset-4 animate-ping opacity-30" />
-                        <div className="h-5 w-5 bg-primary rounded-full border-2 border-white shadow-[0_0_25px_hsl(var(--primary))] transition-all group-hover:scale-125 cursor-pointer flex items-center justify-center">
-                           <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                        <div className="h-10 w-10 bg-primary/30 rounded-full absolute -inset-3 animate-ping opacity-40" />
+                        <div className="h-4 w-4 bg-primary rounded-full border-2 border-white shadow-[0_0_20px_hsl(var(--primary))] transition-all group-hover:scale-150 cursor-pointer flex items-center justify-center">
+                           <div className="h-1 w-1 rounded-full bg-white animate-pulse" />
                         </div>
-                        <div className="absolute top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#1b263b] px-6 py-5 rounded-2xl border-2 border-primary/30 opacity-0 group-hover:opacity-100 transition-all z-30 pointer-events-none scale-95 group-hover:scale-100 shadow-[0_30px_60px_rgba(0,0,0,0.9)]">
-                          <p className="text-[12px] font-black uppercase text-primary tracking-[0.2em]">{name}</p>
-                          <div className="flex items-center gap-8 mt-4">
-                            <div className="text-center">
-                              <p className="text-[9px] text-muted-foreground uppercase font-black">Activos</p>
-                              <p className="text-lg font-black text-white">{stat.count}</p>
+                        
+                        {/* Tooltip táctico */}
+                        <div className="absolute top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#1b263b] px-5 py-4 rounded-xl border border-primary/40 opacity-0 group-hover:opacity-100 transition-all z-30 pointer-events-none scale-90 group-hover:scale-100 shadow-2xl">
+                          <div className="flex items-center gap-3 mb-2">
+                             <Badge className="bg-primary text-primary-foreground text-[8px] font-black">{name.toUpperCase()}</Badge>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div>
+                              <p className="text-[8px] text-muted-foreground uppercase font-black">Activos</p>
+                              <p className="text-base font-black text-white">{stat.count}</p>
+                            </div>
+                            <div className="h-8 w-[1px] bg-white/10" />
+                            <div className="flex flex-col gap-1">
+                               <div className="flex items-center gap-1">
+                                  <Users className="h-2 w-2 text-primary" />
+                                  <span className="text-[7px] font-bold text-primary/80 uppercase">Sincronizado</span>
+                               </div>
+                               <div className="h-1 w-12 bg-secondary rounded-full overflow-hidden">
+                                  <div className="h-full bg-primary" style={{ width: '80%' }} />
+                               </div>
                             </div>
                           </div>
                         </div>
@@ -169,17 +180,18 @@ export function TalentMapping() {
              </div>
           </div>
 
-          <div className="absolute bottom-10 left-10 flex items-center gap-8 bg-black/60 p-6 rounded-[2rem] border border-white/10 backdrop-blur-2xl shadow-2xl z-20">
+          {/* Leyenda de Red */}
+          <div className="absolute bottom-8 left-8 flex items-center gap-8 bg-black/60 p-5 rounded-2xl border border-white/10 backdrop-blur-2xl shadow-2xl z-20">
              <div className="flex items-center gap-4">
-               <div className="h-3 w-3 rounded-full bg-primary animate-pulse" />
-               <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white">
-                  Red Privada Sincronizada
+               <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+               <p className="text-[10px] font-black uppercase tracking-widest text-white">
+                  Red Privada de Captación
                </p>
              </div>
              <div className="h-6 w-[1px] bg-white/20" />
              <div className="flex flex-col">
-               <p className="text-[10px] font-bold text-muted-foreground uppercase">{players.length} Prospectos</p>
-               <p className="text-[8px] font-medium text-primary/60 uppercase tracking-tighter">Última actualización: Ahora</p>
+               <p className="text-[9px] font-bold text-muted-foreground uppercase">{players.length} Talentos Detectados</p>
+               <p className="text-[7px] font-medium text-primary/60 uppercase tracking-tight italic">Actualización en tiempo real vía onSnapshot</p>
              </div>
           </div>
         </CardContent>
