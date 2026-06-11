@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useEffect, useState } from 'react';
@@ -11,8 +10,10 @@ import { Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import placeholderData from '@/app/lib/placeholder-images.json';
 
-// Coordenadas geográficas realistas normalizadas para el SVG 1000x500
+// Coordenadas geográficas realistas normalizadas para el SVG 1000x500 sobre la imagen de fondo
 const COUNTRY_COORDS: Record<string, { x: number, y: number }> = {
   "España": { x: 485, y: 165 },
   "Argentina": { x: 315, y: 430 },
@@ -55,6 +56,8 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
+  const mapImage = placeholderData.placeholderImages.find(img => img.id === 'map-background')?.imageUrl || "";
+
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (user) => {
       setUserId(user?.uid || null);
@@ -87,30 +90,28 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
     return acc;
   }, {} as Record<string, { count: number }>);
 
-  // Lógica para líneas de conexión (Mapas de flujo)
   const drawConnection = (pos: {x: number, y: number}, countryName: string) => {
-    const centralPoint = { x: 485, y: 165 }; // Europa
-    // Evitar dibujar si es el mismo punto central
-    if (Math.abs(pos.x - centralPoint.x) < 5 && Math.abs(pos.y - centralPoint.y) < 5) return null;
+    const centralPoint = { x: 485, y: 165 }; // Sede central (Europa)
+    if (Math.abs(pos.x - centralPoint.x) < 10 && Math.abs(pos.y - centralPoint.y) < 10) return null;
 
     return (
       <path 
         key={`conn-${countryName}`}
-        d={`M ${centralPoint.x} ${centralPoint.y} Q ${(centralPoint.x + pos.x)/2} ${(centralPoint.y + pos.y)/2 - 100} ${pos.x} ${pos.y}`}
+        d={`M ${centralPoint.x} ${centralPoint.y} Q ${(centralPoint.x + pos.x)/2} ${(centralPoint.y + pos.y)/2 - 120} ${pos.x} ${pos.y}`}
         fill="none"
         stroke="url(#gradient-line)"
-        strokeWidth="1.2"
-        strokeDasharray="4,4"
-        className="opacity-40 animate-pulse"
+        strokeWidth="1.5"
+        strokeDasharray="5,5"
+        className="opacity-60"
       />
     );
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Sincronizando coordenadas...</p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
+        <div className="h-16 w-16 rounded-2xl border-4 border-primary/20 border-t-primary animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">Iniciando Nodo Geográfico...</p>
       </div>
     );
   }
@@ -124,74 +125,70 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
           </h1>
           <p className="text-muted-foreground text-sm">
             {global 
-              ? "Visión consolidada de toda la red de scouts del club." 
-              : "Distribución geográfica de tus talentos identificados."}
+              ? "Patrimonio total de inteligencia de la organización." 
+              : "Visión geográfica de tu cartera de prospectos identificados."}
           </p>
         </div>
         <div className="flex gap-2">
-          <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-black py-1.5 px-4 tracking-widest uppercase flex items-center gap-2">
-            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            {global ? "INTELIGENCIA DE CLUB" : "RED PRIVADA"}
+          <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-black py-2 px-5 tracking-widest uppercase flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            {global ? "INTELIGENCIA GLOBAL" : "NODO PERSONAL"}
           </Badge>
         </div>
       </div>
 
-      <Card className="border-border/40 bg-card/40 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.4)] overflow-hidden relative min-h-[650px] w-full border-2 rounded-[2.5rem]">
-        <CardHeader className="border-b border-white/10 pb-6 relative z-10 bg-background/40 backdrop-blur-md flex flex-row items-center justify-between">
+      <Card className="border-border/40 bg-card/40 backdrop-blur-xl shadow-[0_0_80px_rgba(0,0,0,0.6)] overflow-hidden relative min-h-[700px] w-full border-2 rounded-[3rem]">
+        <CardHeader className="border-b border-white/10 pb-6 relative z-10 bg-background/60 backdrop-blur-md flex flex-row items-center justify-between px-10">
           <div>
-            <CardTitle className="text-lg font-black uppercase tracking-widest text-foreground flex items-center gap-3">
-              <Globe className="h-5 w-5 text-primary" /> {t.mapping.hotspotsTitle}
+            <CardTitle className="text-xl font-black uppercase tracking-widest text-foreground flex items-center gap-3 font-headline">
+              <Globe className="h-6 w-6 text-primary" /> {t.mapping.hotspotsTitle}
             </CardTitle>
-            <CardDescription className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">Flujos de información y captación global</CardDescription>
+            <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Análisis Táctico de Mercados • Tiempo Real</CardDescription>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
-             <Crosshair className="h-3 w-3 text-primary" />
-             <span className="text-[8px] font-black text-primary uppercase tracking-widest">LIVE RADAR ACTIVE</span>
+          <div className="flex items-center gap-3 px-5 py-2.5 bg-primary/10 rounded-full border border-primary/20">
+             <Crosshair className="h-4 w-4 text-primary" />
+             <span className="text-[9px] font-black text-primary uppercase tracking-widest">SISTEMA VIGÍA ACTIVO</span>
           </div>
         </CardHeader>
         
-        <CardContent className="p-0 h-[650px] relative bg-[#0a0f1d]">
-          {/* Grid de fondo decorativo */}
-          <div className="absolute inset-0 grid grid-cols-[repeat(40,minmax(0,1fr))] grid-rows-[repeat(25,minmax(0,1fr))] opacity-[0.05]">
-            {[...Array(1000)].map((_, i) => (
+        <CardContent className="p-0 h-[700px] relative bg-[#050810]">
+          {/* Imagen de fondo oficial desde RECURSOS */}
+          {mapImage && (
+            <div className="absolute inset-0 z-0">
+               <Image 
+                 src={mapImage} 
+                 alt="Tactical World Map" 
+                 fill 
+                 className="object-cover opacity-50 contrast-125 saturate-50"
+                 priority
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-transparent to-transparent opacity-80" />
+            </div>
+          )}
+
+          {/* Grid de fondo decorativo para profundidad */}
+          <div className="absolute inset-0 grid grid-cols-[repeat(50,minmax(0,1fr))] grid-rows-[repeat(30,minmax(0,1fr))] opacity-[0.03] z-5">
+            {[...Array(1500)].map((_, i) => (
               <div key={i} className="border-[0.5px] border-primary/20" />
             ))}
           </div>
 
-          <div className="relative h-full w-full flex items-center justify-center p-8">
+          <div className="relative h-full w-full flex items-center justify-center p-4 z-10">
              <div className="w-full h-full max-w-[1200px] aspect-[2/1] relative">
-                {/* SVG Realista del Mapa Mundi con trazados detallados */}
-                <svg viewBox="0 0 1000 500" className="w-full h-full stroke-[0.8] stroke-primary/30">
+                {/* SVG Overlay para Datos y Flujos */}
+                <svg viewBox="0 0 1000 500" className="w-full h-full">
                    <defs>
                       <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="1" />
                         <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.2" />
                       </linearGradient>
                       <radialGradient id="glow">
-                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.5" />
                         <stop offset="100%" stopColor="transparent" stopOpacity="0" />
                       </radialGradient>
                    </defs>
 
-                   {/* Mapa base con relleno sutil */}
-                   <g className="fill-primary/5">
-                     {/* América del Norte */}
-                     <path d="M210,60 L240,50 L270,55 L310,70 L340,90 L350,130 L345,160 L320,190 L280,210 L250,230 L220,240 L180,230 L150,200 L130,170 L110,140 L100,100 L120,70 Z" />
-                     {/* América del Sur */}
-                     <path d="M280,280 L320,270 L360,285 L390,310 L410,350 L420,380 L410,420 L380,460 L340,480 L300,470 L275,440 L260,400 L265,340 Z" />
-                     {/* Europa */}
-                     <path d="M460,110 L480,95 L510,85 L540,80 L570,85 L590,110 L600,140 L590,170 L570,195 L540,205 L500,200 L470,180 L455,140 Z" />
-                     {/* África */}
-                     <path d="M460,210 L500,200 L540,195 L580,205 L610,230 L630,270 L640,320 L635,370 L610,420 L570,460 L520,470 L480,450 L460,400 L445,340 L440,280 Z" />
-                     {/* Asia */}
-                     <path d="M600,90 L650,75 L710,65 L780,70 L850,85 L910,110 L940,150 L950,200 L940,250 L910,300 L860,340 L800,360 L730,370 L670,360 L620,330 L600,280 L590,200 L595,130 Z" />
-                     {/* Oceanía */}
-                     <path d="M830,390 L870,380 L920,385 L950,400 L960,430 L950,470 L910,490 L860,490 L820,470 L810,430 Z" />
-                     {/* Groenlandia */}
-                     <path d="M360,30 L420,20 L480,35 L470,70 L410,85 L370,70 Z" opacity="0.3" />
-                   </g>
-
-                   {/* Capa de conexiones (Mapas de flujo) */}
+                   {/* Render de Conexiones */}
                    <g>
                       {Object.entries(statsByCountry).map(([name, stat]) => {
                         const pos = COUNTRY_COORDS[name];
@@ -199,24 +196,26 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                       })}
                    </g>
 
-                   {/* Resaltado de Hotspots (Glow) */}
+                   {/* Resaltado de Hotspots (Glow dinámico) */}
                    <g>
                      {Object.entries(statsByCountry).map(([name, stat]) => {
                         const pos = COUNTRY_COORDS[name];
-                        if (!pos || stat.count < 3) return null;
+                        if (!pos) return null;
+                        const radius = 20 + stat.count * 4;
                         return (
                           <circle 
                             key={`glow-${name}`}
                             cx={pos.x} cy={pos.y} 
-                            r={15 + stat.count * 2} 
-                            fill="url(#glow)" 
+                            r={radius} 
+                            fill="url(#glow)"
+                            className="animate-pulse"
                           />
                         );
                      })}
                    </g>
                 </svg>
 
-                {/* Renderizado de Marcadores e Información */}
+                {/* Marcadores Interactivos */}
                 {Object.entries(statsByCountry).map(([name, stat]) => {
                   const pos = COUNTRY_COORDS[name];
                   if (!pos) return null;
@@ -231,36 +230,39 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
                       }}
                     >
                       <div className="relative -translate-x-1/2 -translate-y-1/2">
-                        <div className="h-8 w-8 bg-primary/20 rounded-full absolute -inset-2 animate-ping opacity-40" />
+                        {/* Indicador pulsante */}
+                        <div className="h-10 w-10 bg-primary/30 rounded-full absolute -inset-3 animate-ping opacity-20" />
+                        
+                        {/* Marcador Táctico */}
                         <div className={cn(
-                          "h-4 w-4 bg-primary rounded-full border-2 border-white transition-all group-hover:scale-150 cursor-pointer flex items-center justify-center",
-                          stat.count > 5 ? "shadow-[0_0_15px_hsl(var(--primary))]" : "shadow-lg"
+                          "h-5 w-5 bg-primary rounded-full border-2 border-white shadow-2xl transition-all group-hover:scale-150 cursor-pointer flex items-center justify-center",
+                          stat.count > 3 ? "ring-4 ring-primary/20" : ""
                         )}>
-                           <div className="h-1 w-1 rounded-full bg-white animate-pulse" />
+                           <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                         </div>
                         
-                        {/* Tooltip táctico flotante */}
-                        <div className="absolute top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#1b263b]/95 backdrop-blur-xl px-5 py-4 rounded-2xl border border-white/10 opacity-0 group-hover:opacity-100 transition-all z-30 pointer-events-none scale-90 group-hover:scale-100 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
-                          <div className="flex items-center gap-3 mb-2">
-                             <Badge className="bg-primary text-primary-foreground text-[8px] font-black">{name.toUpperCase()}</Badge>
-                             <div className="flex items-center gap-1">
-                                <Activity className="h-2 w-2 text-accent" />
-                                <span className="text-[7px] font-black text-accent uppercase">Actividad Alta</span>
+                        {/* Tooltip táctico profesional */}
+                        <div className="absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#1b263b]/95 backdrop-blur-2xl px-6 py-5 rounded-[2rem] border border-white/10 opacity-0 group-hover:opacity-100 transition-all z-30 pointer-events-none scale-90 group-hover:scale-100 shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
+                          <div className="flex items-center gap-4 mb-4">
+                             <Badge className="bg-primary text-primary-foreground text-[10px] font-black px-4 py-1">{name.toUpperCase()}</Badge>
+                             <div className="flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                                <span className="text-[8px] font-black text-accent uppercase tracking-tighter">Nodo Crítico</span>
                              </div>
                           </div>
-                          <div className="flex items-center gap-5">
+                          <div className="flex items-center gap-8">
                             <div>
-                              <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">Patrimonio</p>
-                              <p className="text-xl font-black text-white">{stat.count} <span className="text-[10px] text-primary">JUG</span></p>
+                              <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest mb-1">Patrimonio Club</p>
+                              <p className="text-3xl font-black text-white font-headline">{stat.count} <span className="text-sm text-primary font-bold">JUG</span></p>
                             </div>
-                            <div className="h-8 w-[1px] bg-white/10" />
-                            <div className="flex flex-col gap-1">
-                               <div className="flex items-center gap-1">
-                                  {global ? <Users className="h-2 w-2 text-primary" /> : <User className="h-2 w-2 text-accent" />}
-                                  <span className="text-[7px] font-bold text-white/60 uppercase">{global ? "Red Club" : "Cartera"}</span>
+                            <div className="h-12 w-[1px] bg-white/10" />
+                            <div className="flex flex-col gap-2">
+                               <div className="flex items-center gap-2">
+                                  {global ? <Users className="h-3 w-3 text-primary" /> : <User className="h-3 w-3 text-accent" />}
+                                  <span className="text-[8px] font-bold text-white/60 uppercase tracking-widest">{global ? "Red ScoutPro" : "Cartera Scout"}</span>
                                </div>
-                               <div className="h-1 w-16 bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-primary" style={{ width: `${Math.min(100, stat.count * 15)}%` }} />
+                               <div className="h-1.5 w-24 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                  <div className="h-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" style={{ width: `${Math.min(100, stat.count * 15)}%` }} />
                                </div>
                             </div>
                           </div>
@@ -272,23 +274,23 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
              </div>
           </div>
 
-          {/* Caja Flotante de Inteligencia (IA Market Look & Feel) */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 md:left-10 md:translate-x-0 flex items-center gap-8 bg-[#1b263b]/80 p-6 rounded-[2rem] border border-white/10 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] z-30">
-             <div className="flex items-center gap-5">
-               <div className="h-12 w-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30">
-                  <Activity className="h-6 w-6 text-primary" />
+          {/* Cuadro Central de Inteligencia (Estética AI Market) */}
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0 flex items-center gap-10 bg-[#1b263b]/80 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl shadow-[0_0_80px_rgba(0,0,0,0.6)] z-30 group hover:border-primary/30 transition-colors">
+             <div className="flex items-center gap-6">
+               <div className="h-14 w-14 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30 group-hover:scale-110 transition-transform">
+                  <Activity className="h-7 w-7 text-primary" />
                </div>
                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-1 animate-pulse">Sincronización de Red</p>
-                  <p className="text-xs font-black uppercase tracking-widest text-white">
-                     {global ? "INTELIGENCIA GLOBAL SCOUTPRO" : "MI INTELIGENCIA DE MERCADO"}
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-1.5 animate-pulse">Sincronización Transcontinental</p>
+                  <p className="text-sm font-black uppercase tracking-[0.1em] text-white">
+                     {global ? "CENTRO DE INTELIGENCIA GLOBAL" : "ANÁLISIS DE MERCADO PRIVADO"}
                   </p>
                </div>
              </div>
-             <div className="hidden md:block h-10 w-[1px] bg-white/10" />
-             <div className="hidden md:flex flex-col">
-               <p className="text-[10px] font-bold text-muted-foreground uppercase">{players.length} Prospectos en Radar</p>
-               <p className="text-[8px] font-medium text-primary/60 uppercase tracking-tighter italic">Validación mediante Algoritmo PIM</p>
+             <div className="hidden lg:block h-12 w-[1px] bg-white/10" />
+             <div className="hidden lg:flex flex-col">
+               <p className="text-xs font-black text-white uppercase">{players.length} PROSPECTOS EN RADAR</p>
+               <p className="text-[9px] font-bold text-primary/70 uppercase tracking-tight italic mt-1">Validación mediante Algoritmo PIM v2.4</p>
              </div>
           </div>
         </CardContent>
@@ -296,4 +298,3 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
     </div>
   );
 }
-

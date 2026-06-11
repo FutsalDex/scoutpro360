@@ -1,10 +1,9 @@
-
 {
   "placeholderImages": [
     {
       "id": "map-background",
-      "description": "Fondo del mapa mundi táctico (Subir a carpeta RECURSOS)",
-      "imageUrl": "",
+      "description": "Fondo del mapa mundi táctico oficial",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-4533708423-7da6a.firebasestorage.app/o/RECURSOS%2Fmapamundi.png?alt=media",
       "imageHint": "world map tactical"
     }
   ]
