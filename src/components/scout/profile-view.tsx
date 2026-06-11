@@ -82,8 +82,13 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
     setUploading(true);
     try {
+      // Usamos el nombre del usuario para la carpeta, sanitizado para evitar problemas de URL
+      const folderName = profile.displayName 
+        ? profile.displayName.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '')
+        : profile.uid;
+      
       const timestamp = new Date().getTime();
-      const path = `users/${profile.uid}/profile_${timestamp}`;
+      const path = `users/${folderName}/profile_${timestamp}`;
       
       const downloadUrl = await uploadFile(file, path);
       updateUserProfile(profile.uid, { photoUrl: downloadUrl });
@@ -95,14 +100,14 @@ export function ProfileView({ profile }: ProfileViewProps) {
       if (error.code === 'storage/unauthorized') {
         toast({ 
           variant: "destructive", 
-          title: "Acceso Denegado (Reglas)", 
-          description: "No tienes permiso para escribir en Storage. Por favor, revisa las Reglas en la Consola de Firebase." 
+          title: "Acceso Denegado", 
+          description: "Asegúrate de que las Reglas de Storage permiten el acceso." 
         });
       } else {
         toast({ 
           variant: "destructive", 
           title: "Fallo en la subida", 
-          description: "Ha ocurrido un error inesperado al conectar con el servidor de archivos." 
+          description: "Hubo un error al intentar subir la imagen al servidor." 
         });
       }
     } finally {
