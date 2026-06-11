@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -25,7 +26,7 @@ import { UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type ViewState = 'dashboard' | 'talent-id' | 'talent-mapping' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'prueba';
+type ViewState = 'dashboard' | 'talent-id' | 'talent-mapping' | 'global-mapping' | 'report' | 'match-analysis' | 'bd-scout' | 'bd-talentos' | 'global-database' | 'agenda' | 'profile' | 'admin' | 'report-history' | 'prueba';
 
 function AppShell({ 
   activeView, 
@@ -105,7 +106,8 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return <ScoutDashboard userProfile={userProfile} onViewFicha={handleViewFicha} />;
       case 'talent-id': return <TalentIdentification onComplete={() => setActiveView('dashboard')} editingPlayerId={editingPlayerId} />;
-      case 'talent-mapping': return <TalentMapping />;
+      case 'talent-mapping': return <TalentMapping global={false} />;
+      case 'global-mapping': return <TalentMapping global={true} />;
       case 'report': return <ReportForm userProfile={userProfile} editingPlayerId={editingPlayerId} reportId={editingReportId} />;
       case 'report-history': return <ReportHistory playerId={editingPlayerId!} onEditReport={handleEditReport} onBack={() => setActiveView('bd-scout')} onNewReport={() => handleEditPlayer(editingPlayerId!)} />;
       case 'match-analysis': return <MatchAnalysis />;
@@ -124,7 +126,8 @@ function AppShell({
     switch (activeView) {
       case 'dashboard': return t.sidebar.commandCenter;
       case 'talent-id': return t.sidebar.talentId;
-      case 'talent-mapping': return t.sidebar.talentMapping;
+      case 'talent-mapping': return "Mapa de Talentos";
+      case 'global-mapping': return "Mapeo Global Red";
       case 'report': return editingReportId ? `${t.sidebar.liveReport} (Edit)` : t.sidebar.liveReport;
       case 'report-history': return "Historial de Informes";
       case 'match-analysis': return t.sidebar.matchAnalysis;
@@ -226,7 +229,7 @@ function AppShell({
                       className={cn("h-12 px-4 gap-4 text-primary", needsProfileCompletion && "opacity-30")}
                     >
                       <MapIcon className="h-5 w-5" />
-                      <span className="font-medium">{t.sidebar.talentMapping}</span>
+                      <span className="font-medium">Mapa de Talentos</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   
@@ -300,12 +303,23 @@ function AppShell({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
+                    isActive={activeView === 'global-mapping'}
+                    onClick={() => handleNavClick('global-mapping')}
+                    disabled={needsProfileCompletion}
+                    className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
+                  >
+                    <Globe className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Mapeo Global Red</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
                     isActive={activeView === 'global-database'}
                     onClick={() => handleNavClick('global-database')}
                     disabled={needsProfileCompletion}
                     className={cn("h-12 px-4 gap-4", needsProfileCompletion && "opacity-30")}
                   >
-                    <Globe className="h-5 w-5 text-primary" />
+                    <Database className="h-5 w-5 text-primary" />
                     <span className="font-medium">{t.sidebar.globalDatabase}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
