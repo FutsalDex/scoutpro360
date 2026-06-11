@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useEffect, useState } from 'react';
@@ -139,21 +140,23 @@ export function TalentMapping({ global = false }: TalentMappingProps) {
 
           <div className="relative h-full w-full flex items-center justify-center p-8">
              <div className="w-full h-full max-w-[1200px] aspect-[2/1] relative">
-                {/* SVG Realista del Mapa Mundi */}
+                {/* SVG Realista del Mapa Mundi con trazados detallados */}
                 <svg viewBox="0 0 1000 500" className="w-full h-full fill-primary/10 stroke-primary/30 stroke-[0.5] drop-shadow-[0_0_30px_rgba(224,176,80,0.1)]">
                    <g>
                      {/* América del Norte */}
-                     <path d="M120,60 L280,50 L340,80 L350,150 L310,220 L220,250 L150,220 L100,160 Z" />
+                     <path d="M210,60 L240,50 L270,55 L310,70 L340,90 L350,130 L345,160 L320,190 L280,210 L250,230 L220,240 L180,230 L150,200 L130,170 L110,140 L100,100 L120,70 Z" />
                      {/* América del Sur */}
-                     <path d="M280,280 L360,270 L420,330 L430,420 L380,480 L300,470 L270,360 Z" />
+                     <path d="M280,280 L320,270 L360,285 L390,310 L410,350 L420,380 L410,420 L380,460 L340,480 L300,470 L275,440 L260,400 L265,340 Z" />
                      {/* Europa */}
-                     <path d="M460,110 L520,90 L580,100 L600,140 L590,190 L530,210 L480,190 L455,140 Z" />
+                     <path d="M460,110 L480,95 L510,85 L540,80 L570,85 L590,110 L600,140 L590,170 L570,195 L540,205 L500,200 L470,180 L455,140 Z" />
                      {/* África */}
-                     <path d="M460,210 L530,200 L590,210 L640,260 L650,380 L600,460 L540,470 L460,380 L440,290 Z" />
+                     <path d="M460,210 L500,200 L540,195 L580,205 L610,230 L630,270 L640,320 L635,370 L610,420 L570,460 L520,470 L480,450 L460,400 L445,340 L440,280 Z" />
                      {/* Asia */}
-                     <path d="M600,90 L750,60 L920,80 L980,150 L960,280 L850,360 L720,380 L620,330 L600,180 Z" />
+                     <path d="M600,90 L650,75 L710,65 L780,70 L850,85 L910,110 L940,150 L950,200 L940,250 L910,300 L860,340 L800,360 L730,370 L670,360 L620,330 L600,280 L590,200 L595,130 Z" />
                      {/* Oceanía */}
-                     <path d="M830,390 L950,380 L980,440 L950,490 L850,490 L810,440 Z" />
+                     <path d="M830,390 L870,380 L920,385 L950,400 L960,430 L950,470 L910,490 L860,490 L820,470 L810,430 Z" />
+                     {/* Groenlandia (Bonus visual) */}
+                     <path d="M360,30 L420,20 L480,35 L470,70 L410,85 L370,70 Z" opacity="0.3" />
                    </g>
                 </svg>
 
