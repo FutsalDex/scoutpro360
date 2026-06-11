@@ -26,6 +26,7 @@ export async function uploadFile(
     return downloadURL;
   } catch (error: any) {
     // Solo propagamos el error para que el componente decida cómo informarlo al usuario
+    // Evitamos console.error excesivo para no disparar overlays de Next.js en dev
     throw error;
   }
 }
