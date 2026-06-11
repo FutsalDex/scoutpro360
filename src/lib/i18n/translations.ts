@@ -115,6 +115,14 @@ export const translations = {
       startScouting: 'Iniciar Informe',
       matchDetails: 'Detalles del Partido',
       newMatch: 'Nuevo Partido',
+      calendarView: 'Calendario',
+      listView: 'Lista',
+      week: 'Semana',
+      status: {
+        scheduled: 'Programado',
+        inProgress: 'En curso',
+        completed: 'Completado'
+      },
       form: {
         title: 'Programar Observación',
         homeTeam: 'Equipo Local',
@@ -353,6 +361,16 @@ export const translations = {
       signOut: 'Sign Out',
       adminPanel: 'Admin Panel',
       administration: 'Administration',
+    },
+    agenda: {
+      calendarView: 'Calendar',
+      listView: 'List',
+      week: 'Week',
+      status: {
+        scheduled: 'Scheduled',
+        inProgress: 'In Progress',
+        completed: 'Completed'
+      }
     }
   }
 };

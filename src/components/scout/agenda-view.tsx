@@ -143,6 +143,12 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
     );
   }
 
+  const statuses = [
+    { id: 'scheduled', label: t.agenda.status.scheduled, color: 'bg-accent' },
+    { id: 'in-progress', label: t.agenda.status.inProgress, color: 'bg-primary' },
+    { id: 'completed', label: t.agenda.status.completed, color: 'bg-muted-foreground' }
+  ];
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
@@ -162,7 +168,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
               onClick={() => setViewMode('calendar')}
               className="h-9 px-4 text-[10px] font-black uppercase tracking-widest gap-2"
             >
-              <Grid3X3 className="h-3.5 w-3.5" /> Calendario
+              <Grid3X3 className="h-3.5 w-3.5" /> {t.agenda.calendarView}
             </Button>
             <Button 
               variant={viewMode === 'list' ? 'default' : 'ghost'} 
@@ -170,7 +176,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
               onClick={() => setViewMode('list')}
               className="h-9 px-4 text-[10px] font-black uppercase tracking-widest gap-2"
             >
-              <LayoutList className="h-3.5 w-3.5" /> Lista
+              <LayoutList className="h-3.5 w-3.5" /> {t.agenda.listView}
             </Button>
           </div>
 
@@ -275,7 +281,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
 
       {viewMode === 'calendar' ? (
         <div className="space-y-6 animate-in zoom-in-95 duration-500">
-          <div className="flex items-center justify-between bg-card/40 p-4 rounded-2xl border border-border/40 backdrop-blur-md">
+          <div className="flex flex-col md:flex-row items-center justify-between bg-card/40 p-4 rounded-2xl border border-border/40 backdrop-blur-md gap-4">
             <h2 className="text-xl font-black uppercase tracking-widest text-primary flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={() => setCurrentDate(subMonths(currentDate, 1))}>
                 <ChevronLeft className="h-5 w-5" />
@@ -287,11 +293,11 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </h2>
-            <div className="flex gap-4">
-               {['scheduled', 'in-progress', 'completed'].map(status => (
-                 <div key={status} className="flex items-center gap-2">
-                    <div className={cn("h-3 w-3 rounded-sm", status === 'scheduled' ? 'bg-accent' : status === 'in-progress' ? 'bg-primary' : 'bg-muted-foreground')} />
-                    <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">{status}</span>
+            <div className="flex flex-wrap justify-center gap-4">
+               {statuses.map(s => (
+                 <div key={s.id} className="flex items-center gap-2">
+                    <div className={cn("h-3 w-3 rounded-sm", s.color)} />
+                    <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">{s.label}</span>
                  </div>
                ))}
             </div>
@@ -318,7 +324,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
                   <React.Fragment key={idx}>
                     {isFirstCol && (
                       <div className="bg-black/40 border-r border-b border-border/20 flex items-center justify-center p-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/20 rotate-[-90deg] whitespace-nowrap">SEMANA {weekNum}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/20 rotate-[-90deg] whitespace-nowrap">{t.agenda.week.toUpperCase()} {weekNum}</span>
                       </div>
                     )}
                     <div className={cn(
