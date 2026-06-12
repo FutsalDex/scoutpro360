@@ -72,11 +72,11 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
 
   const pimDistributionData = useMemo(() => {
     const ranges = [
-      { name: '0-20', count: 0, color: 'hsl(var(--chart-4))' },
-      { name: '21-40', count: 0, color: 'hsl(var(--muted-foreground))' },
-      { name: '41-60', count: 0, color: 'hsl(var(--chart-2))' },
-      { name: '61-80', count: 0, color: 'hsl(var(--accent))' },
-      { name: '81-100', count: 0, color: 'hsl(var(--primary))' },
+      { name: '0-20', count: 0 },
+      { name: '21-40', count: 0 },
+      { name: '41-60', count: 0 },
+      { name: '61-80', count: 0 },
+      { name: '81-100', count: 0 },
     ];
     reports.forEach(r => {
       const score = r.pimScore || (r.finalScoutRating ? r.finalScoutRating * 20 : 0);
@@ -147,31 +147,33 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
           </CardHeader>
           <CardContent className="p-8 pt-0">
              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={positionData} layout="vertical" margin={{ left: 20, right: 30 }}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.2} />
-                      <XAxis type="number" hide />
-                      <YAxis 
-                        dataKey="name" 
-                        type="category" 
-                        axisLine={false} 
-                        tickLine={false} 
-                        fontSize={10} 
-                        fontWeight="bold" 
-                        width={80}
-                        stroke="hsl(var(--muted-foreground))"
-                      />
-                      <Tooltip 
-                        cursor={{ fill: 'rgba(224, 176, 80, 0.05)' }}
-                        content={<ChartTooltipContent hideLabel />}
-                      />
-                      <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
-                        {positionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={index % 2 === 0 ? 'hsl(var(--primary))' : 'hsl(var(--accent))'} />
-                        ))}
-                      </Bar>
-                   </BarChart>
-                </ResponsiveContainer>
+                <ChartContainer config={chartConfig}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={positionData} layout="vertical" margin={{ left: 20, right: 30 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.2} />
+                        <XAxis type="number" hide />
+                        <YAxis 
+                          dataKey="name" 
+                          type="category" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          fontSize={10} 
+                          fontWeight="bold" 
+                          width={80}
+                          stroke="hsl(var(--muted-foreground))"
+                        />
+                        <ChartTooltip 
+                          cursor={{ fill: 'rgba(224, 176, 80, 0.05)' }}
+                          content={<ChartTooltipContent hideLabel />}
+                        />
+                        <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+                          {positionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? 'hsl(var(--primary))' : 'hsl(var(--accent))'} />
+                          ))}
+                        </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
              </div>
           </CardContent>
         </Card>
@@ -184,36 +186,38 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
           </CardHeader>
           <CardContent className="p-8 pt-0">
              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                   <AreaChart data={pimDistributionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.2} />
-                      <XAxis 
-                        dataKey="name" 
-                        axisLine={false} 
-                        tickLine={false} 
-                        fontSize={10} 
-                        fontWeight="bold" 
-                        stroke="hsl(var(--muted-foreground))"
-                      />
-                      <YAxis axisLine={false} tickLine={false} fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                      <Tooltip content={<ChartTooltipContent />} />
-                      <Area 
-                        type="monotone" 
-                        dataKey="count" 
-                        stroke="hsl(var(--accent))" 
-                        fillOpacity={1} 
-                        fill="url(#colorCount)" 
-                        strokeWidth={3} 
-                        animationDuration={1500}
-                      />
-                   </AreaChart>
-                </ResponsiveContainer>
+                <ChartContainer config={chartConfig}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={pimDistributionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.2} />
+                        <XAxis 
+                          dataKey="name" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          fontSize={10} 
+                          fontWeight="bold" 
+                          stroke="hsl(var(--muted-foreground))"
+                        />
+                        <YAxis axisLine={false} tickLine={false} fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Area 
+                          type="monotone" 
+                          dataKey="count" 
+                          stroke="hsl(var(--accent))" 
+                          fillOpacity={1} 
+                          fill="url(#colorCount)" 
+                          strokeWidth={3} 
+                          animationDuration={1500}
+                        />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
              </div>
           </CardContent>
         </Card>
