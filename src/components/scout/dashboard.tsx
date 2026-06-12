@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, ShieldCheck, ClipboardCheck, ChevronRight, MapPin, Star, Binoculars, TrendingUp } from "lucide-react";
+import { User, ShieldCheck, ClipboardCheck, ChevronRight, MapPin, Star, Binoculars, TrendingUp, LayoutGrid, Activity } from "lucide-react";
 import { Player, ScoutingReport } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers, subscribeToReports, subscribeToGlobalPlayers, subscribeToGlobalReports } from "@/lib/services/db-service";
@@ -10,6 +10,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart, Cell } from "recharts";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 interface ScoutDashboardProps {
   userProfile: any;
@@ -56,6 +58,42 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
     };
   }, [authReady, scoutId, isManagement]);
 
+  // Data for Charts
+  const positionData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    players.forEach(p => {
+      const roleName = (t.report.tacticalRoles[p.tacticalRole as keyof typeof t.report.tacticalRoles] || p.tacticalRole).split(' – ')[0];
+      counts[roleName] = (counts[roleName] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [players, t]);
+
+  const pimDistributionData = useMemo(() => {
+    const ranges = [
+      { name: '0-20', count: 0, color: 'hsl(var(--chart-4))' },
+      { name: '21-40', count: 0, color: 'hsl(var(--muted-foreground))' },
+      { name: '41-60', count: 0, color: 'hsl(var(--chart-2))' },
+      { name: '61-80', count: 0, color: 'hsl(var(--accent))' },
+      { name: '81-100', count: 0, color: 'hsl(var(--primary))' },
+    ];
+    reports.forEach(r => {
+      const score = r.pimScore || (r.finalScoutRating ? r.finalScoutRating * 20 : 0);
+      if (score <= 20) ranges[0].count++;
+      else if (score <= 40) ranges[1].count++;
+      else if (score <= 60) ranges[2].count++;
+      else if (score <= 80) ranges[3].count++;
+      else ranges[4].count++;
+    });
+    return ranges;
+  }, [reports]);
+
+  const chartConfig = {
+    count: { label: t.dashboard.charts.players, color: "hsl(var(--primary))" },
+    pim: { label: "PIM Score", color: "hsl(var(--accent))" }
+  } satisfies ChartConfig;
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
@@ -70,7 +108,6 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
   const identifiedOnly = Math.max(0, totalInDb - analyzedCount);
   const totalReports = reports.length;
 
-  // Cálculo de la Media PIM Global (Exacta)
   const reportsWithPIM = reports.filter(r => (r.pimScore && r.pimScore > 0) || (r.finalScoutRating && r.finalScoutRating > 0));
   const avgPim = reportsWithPIM.length > 0 
     ? Math.round(reportsWithPIM.reduce((acc, curr) => acc + (curr.pimScore || curr.finalScoutRating! * 20), 0) / reportsWithPIM.length)
@@ -91,6 +128,7 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
         <p className="text-muted-foreground font-medium">{t.dashboard.subtitle}</p>
       </div>
 
+      {/* KPI Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard title={t.dashboard.stats.detected} value={totalInDb.toString()} icon={<User className="text-primary" />} />
         <StatCard title={t.dashboard.stats.identified} value={identifiedOnly.toString()} icon={<Binoculars className="text-accent" />} />
@@ -99,6 +137,89 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
         <StatCard title={t.dashboard.stats.avgPim} value={avgPim > 0 ? avgPim.toString() : "-"} icon={<TrendingUp className="text-primary" />} highlight />
       </div>
 
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+          <CardHeader className="p-8 pb-4">
+             <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3">
+               <LayoutGrid className="h-4 w-4 text-primary" /> {t.dashboard.charts.positions}
+             </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0">
+             <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={positionData} layout="vertical" margin={{ left: 20, right: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.2} />
+                      <XAxis type="number" hide />
+                      <YAxis 
+                        dataKey="name" 
+                        type="category" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        fontSize={10} 
+                        fontWeight="bold" 
+                        width={80}
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <Tooltip 
+                        cursor={{ fill: 'rgba(224, 176, 80, 0.05)' }}
+                        content={<ChartTooltipContent hideLabel />}
+                      />
+                      <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+                        {positionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={index % 2 === 0 ? 'hsl(var(--primary))' : 'hsl(var(--accent))'} />
+                        ))}
+                      </Bar>
+                   </BarChart>
+                </ResponsiveContainer>
+             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+          <CardHeader className="p-8 pb-4">
+             <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3">
+               <Activity className="h-4 w-4 text-accent" /> {t.dashboard.charts.quality}
+             </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0">
+             <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                   <AreaChart data={pimDistributionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.2} />
+                      <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        fontSize={10} 
+                        fontWeight="bold" 
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <YAxis axisLine={false} tickLine={false} fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                      <Tooltip content={<ChartTooltipContent />} />
+                      <Area 
+                        type="monotone" 
+                        dataKey="count" 
+                        stroke="hsl(var(--accent))" 
+                        fillOpacity={1} 
+                        fill="url(#colorCount)" 
+                        strokeWidth={3} 
+                        animationDuration={1500}
+                      />
+                   </AreaChart>
+                </ResponsiveContainer>
+             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Prospect List */}
       <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
         <CardHeader className="p-8 border-b border-border/10 flex flex-row items-center justify-between bg-secondary/10">
           <div>

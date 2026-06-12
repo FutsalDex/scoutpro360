@@ -35,6 +35,12 @@ export const translations = {
     dashboard: {
       title: 'CENTRO DE MANDO',
       subtitle: 'Supervisión de operaciones de captación en tiempo real.',
+      charts: {
+        positions: 'Distribución por Posición',
+        quality: 'Análisis de Calidad (PIM)',
+        players: 'Jugadores',
+        count: 'Cantidad',
+      },
       stats: {
         detected: 'Jugadores en la BD',
         identified: 'Talento Identificado',
