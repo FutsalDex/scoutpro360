@@ -180,45 +180,49 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
           <CardHeader className="p-8 pb-6 flex flex-row items-center justify-between border-b border-border/10 bg-secondary/5">
              <div className="space-y-1">
                 <CardTitle className="text-sm font-black uppercase tracking-widest text-white">Suministro en Vivo</CardTitle>
-                <p className="text-[9px] text-primary font-bold uppercase tracking-[0.2em]">IA Intelligence Feed</p>
+                <p className="text-[9px] text-primary font-bold uppercase tracking-[0.2em]">INTELIGENCIA TÉCNICA IA</p>
              </div>
              <Badge className="bg-accent/20 text-accent border-accent/30 text-[8px] font-black uppercase tracking-tighter animate-pulse">
-               LIVE
+               VIVO
              </Badge>
           </CardHeader>
           <CardContent className="p-0">
              {liveFeed.length > 0 ? (
                <div className="divide-y divide-border/10">
-                 {liveFeed.map((report, idx) => (
-                   <div key={idx} className="p-6 flex items-center justify-between hover:bg-white/5 transition-all group">
-                     <div className="flex items-center gap-4">
-                       <Avatar className="h-10 w-10 rounded-xl bg-secondary border border-border/40 shadow-lg">
-                         <AvatarFallback className="font-black text-xs text-primary">{report.playerName[0].toUpperCase()}</AvatarFallback>
-                       </Avatar>
-                       <div className="space-y-0.5">
-                         <p className="text-sm font-black uppercase text-white group-hover:text-primary transition-colors">{report.playerName}</p>
-                         <div className="flex items-center gap-2">
-                           <span className="text-[10px] text-muted-foreground font-bold uppercase">{report.rivalName || 'Observation'}</span>
-                           <span className="text-muted-foreground/30">•</span>
-                           <span className="text-[10px] text-muted-foreground font-bold">{report.scoutName.split(' ')[0]}</span>
+                 {liveFeed.map((report, idx) => {
+                   const playerClub = players.find(p => p.id === report.playerId)?.club || 'Sin Club';
+                   
+                   return (
+                     <div key={idx} className="p-6 flex items-center justify-between hover:bg-white/5 transition-all group">
+                       <div className="flex items-center gap-4">
+                         <Avatar className="h-12 w-12 rounded-xl bg-secondary border border-border/40 shadow-lg">
+                           <AvatarFallback className="font-black text-sm text-primary">{report.playerName[0].toUpperCase()}</AvatarFallback>
+                         </Avatar>
+                         <div className="space-y-0.5">
+                           <p className="text-sm font-headline font-black uppercase text-white group-hover:text-primary transition-colors leading-tight">
+                             {report.playerName}
+                           </p>
+                           <div className="flex items-center gap-2">
+                             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">{playerClub}</span>
+                           </div>
                          </div>
                        </div>
-                     </div>
-                     <div className="text-right">
-                       <div className="flex items-center gap-1 justify-end">
-                         <span className="text-lg font-black text-primary font-headline">{report.pimScore || 0}</span>
-                         <span className="text-[8px] font-black text-muted-foreground uppercase">PIM</span>
+                       <div className="text-right">
+                         <div className="flex items-center gap-1 justify-end">
+                           <span className="text-xl font-black text-primary font-headline leading-none">{report.pimScore || 0}</span>
+                           <span className="text-[8px] font-black text-muted-foreground uppercase">PIM</span>
+                         </div>
+                         <p className="text-[9px] font-bold text-muted-foreground uppercase mt-1 flex items-center gap-1 justify-end">
+                           <Clock className="h-2.5 w-2.5" />
+                           {report.createdAt?.seconds ? formatDistanceToNow(new Date(report.createdAt.seconds * 1000), { locale: es, addSuffix: true }).toUpperCase() : 'AHORA'}
+                         </p>
                        </div>
-                       <p className="text-[8px] font-bold text-muted-foreground uppercase mt-1 flex items-center gap-1 justify-end">
-                         <Clock className="h-2 w-2" />
-                         {report.createdAt?.seconds ? formatDistanceToNow(new Date(report.createdAt.seconds * 1000), { locale: es, addSuffix: true }) : 'Hoy'}
-                       </p>
                      </div>
-                   </div>
-                 ))}
+                   );
+                 })}
                  <div className="p-6 bg-secondary/10">
-                   <button className="w-full flex items-center justify-center gap-2 text-[10px] font-black text-muted-foreground hover:text-white uppercase tracking-widest transition-colors">
-                     Ver Toda la Actividad <ChevronRight className="h-3 w-3" />
+                   <button className="w-full flex items-center justify-center gap-2 text-[10px] font-black text-muted-foreground hover:text-white uppercase tracking-widest transition-colors border border-white/10 rounded-lg py-3">
+                     VER TODA LA ACTIVIDAD <ChevronRight className="h-3 w-3" />
                    </button>
                  </div>
                </div>
