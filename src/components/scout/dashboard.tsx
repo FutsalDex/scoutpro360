@@ -1,17 +1,20 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, ShieldCheck, ClipboardCheck, ChevronRight, MapPin, Star, Binoculars, TrendingUp, LayoutGrid, Activity } from "lucide-react";
-import { Player, ScoutingReport } from "@/lib/types";
+import { User, ShieldCheck, ClipboardCheck, ChevronRight, MapPin, Star, Binoculars, TrendingUp, LayoutGrid, Activity, Clock } from "lucide-react";
+import { Player, ScoutingReport, TACTICAL_ROLES } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers, subscribeToReports, subscribeToGlobalPlayers, subscribeToGlobalReports } from "@/lib/services/db-service";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart, Cell } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 interface ScoutDashboardProps {
   userProfile: any;
@@ -58,40 +61,35 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
     };
   }, [authReady, scoutId, isManagement]);
 
-  // Data for Charts
+  // Data for Charts - Include all roles
   const positionData = useMemo(() => {
     const counts: Record<string, number> = {};
+    
+    // Initialize all standard roles
+    TACTICAL_ROLES.forEach(role => {
+      const roleName = (t.report.tacticalRoles[role.id as keyof typeof t.report.tacticalRoles] || role.name).split(' – ')[0];
+      counts[roleName] = 0;
+    });
+
     players.forEach(p => {
       const roleName = (t.report.tacticalRoles[p.tacticalRole as keyof typeof t.report.tacticalRoles] || p.tacticalRole).split(' – ')[0];
-      counts[roleName] = (counts[roleName] || 0) + 1;
+      // Only increment if it's one of our expected keys
+      if (counts[roleName] !== undefined) {
+        counts[roleName]++;
+      }
     });
-    return Object.entries(counts)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
+
+    return Object.entries(counts).map(([name, count]) => ({ name, count }));
   }, [players, t]);
 
-  const pimDistributionData = useMemo(() => {
-    const ranges = [
-      { name: '0-20', count: 0 },
-      { name: '21-40', count: 0 },
-      { name: '41-60', count: 0 },
-      { name: '61-80', count: 0 },
-      { name: '81-100', count: 0 },
-    ];
-    reports.forEach(r => {
-      const score = r.pimScore || (r.finalScoutRating ? r.finalScoutRating * 20 : 0);
-      if (score <= 20) ranges[0].count++;
-      else if (score <= 40) ranges[1].count++;
-      else if (score <= 60) ranges[2].count++;
-      else if (score <= 80) ranges[3].count++;
-      else ranges[4].count++;
-    });
-    return ranges;
+  const liveFeed = useMemo(() => {
+    return [...reports]
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+      .slice(0, 4);
   }, [reports]);
 
   const chartConfig = {
-    count: { label: t.dashboard.charts.players, color: "hsl(var(--primary))" },
-    pim: { label: "PIM Score", color: "hsl(var(--accent))" }
+    count: { label: t.dashboard.charts.players, color: "hsl(var(--primary))" }
   } satisfies ChartConfig;
 
   if (loading) {
@@ -112,10 +110,6 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
   const avgPim = reportsWithPIM.length > 0 
     ? Math.round(reportsWithPIM.reduce((acc, curr) => acc + (curr.pimScore || curr.finalScoutRating! * 20), 0) / reportsWithPIM.length)
     : 0;
-  
-  const recentPlayers = [...players]
-    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-    .slice(0, 5);
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700 pb-20">
@@ -137,38 +131,41 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
         <StatCard title={t.dashboard.stats.avgPim} value={avgPim > 0 ? avgPim.toString() : "-"} icon={<TrendingUp className="text-primary" />} highlight />
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+      {/* Main Analysis Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Vertical Position Chart */}
+        <Card className="lg:col-span-8 border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
           <CardHeader className="p-8 pb-4">
-             <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3">
-               <LayoutGrid className="h-4 w-4 text-primary" /> {t.dashboard.charts.positions}
-             </CardTitle>
+             <div className="space-y-1">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3 text-white">
+                  Distribución Táctica por Posición
+                </CardTitle>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold">Cobertura total de la red de captación</p>
+             </div>
           </CardHeader>
-          <CardContent className="p-8 pt-0">
-             <div className="h-[300px] w-full">
+          <CardContent className="p-8 pt-4">
+             <div className="h-[350px] w-full">
                 <ChartContainer config={chartConfig}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={positionData} layout="vertical" margin={{ left: 20, right: 30 }}>
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.2} />
-                        <XAxis type="number" hide />
-                        <YAxis 
+                    <BarChart data={positionData} margin={{ top: 20, right: 30, left: -20, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.2} />
+                        <XAxis 
                           dataKey="name" 
-                          type="category" 
                           axisLine={false} 
                           tickLine={false} 
-                          fontSize={10} 
+                          fontSize={9} 
                           fontWeight="bold" 
-                          width={80}
                           stroke="hsl(var(--muted-foreground))"
+                          interval={0}
                         />
+                        <YAxis axisLine={false} tickLine={false} fontSize={10} stroke="hsl(var(--muted-foreground))" />
                         <ChartTooltip 
                           cursor={{ fill: 'rgba(224, 176, 80, 0.05)' }}
-                          content={<ChartTooltipContent hideLabel />}
+                          content={<ChartTooltipContent />}
                         />
-                        <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+                        <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={35}>
                           {positionData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? 'hsl(var(--primary))' : 'hsl(var(--accent))'} />
+                            <Cell key={`cell-${index}`} fill="hsl(var(--primary))" fillOpacity={entry.count > 0 ? 1 : 0.1} />
                           ))}
                         </Bar>
                     </BarChart>
@@ -178,88 +175,62 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
-          <CardHeader className="p-8 pb-4">
-             <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3">
-               <Activity className="h-4 w-4 text-accent" /> {t.dashboard.charts.quality}
-             </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8 pt-0">
-             <div className="h-[300px] w-full">
-                <ChartContainer config={chartConfig}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={pimDistributionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.2} />
-                        <XAxis 
-                          dataKey="name" 
-                          axisLine={false} 
-                          tickLine={false} 
-                          fontSize={10} 
-                          fontWeight="bold" 
-                          stroke="hsl(var(--muted-foreground))"
-                        />
-                        <YAxis axisLine={false} tickLine={false} fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Area 
-                          type="monotone" 
-                          dataKey="count" 
-                          stroke="hsl(var(--accent))" 
-                          fillOpacity={1} 
-                          fill="url(#colorCount)" 
-                          strokeWidth={3} 
-                          animationDuration={1500}
-                        />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
+        {/* Live Supply Feed */}
+        <Card className="lg:col-span-4 border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+          <CardHeader className="p-8 pb-6 flex flex-row items-center justify-between border-b border-border/10 bg-secondary/5">
+             <div className="space-y-1">
+                <CardTitle className="text-sm font-black uppercase tracking-widest text-white">Suministro en Vivo</CardTitle>
+                <p className="text-[9px] text-primary font-bold uppercase tracking-[0.2em]">IA Intelligence Feed</p>
              </div>
+             <Badge className="bg-accent/20 text-accent border-accent/30 text-[8px] font-black uppercase tracking-tighter animate-pulse">
+               LIVE
+             </Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+             {liveFeed.length > 0 ? (
+               <div className="divide-y divide-border/10">
+                 {liveFeed.map((report, idx) => (
+                   <div key={idx} className="p-6 flex items-center justify-between hover:bg-white/5 transition-all group">
+                     <div className="flex items-center gap-4">
+                       <Avatar className="h-10 w-10 rounded-xl bg-secondary border border-border/40 shadow-lg">
+                         <AvatarFallback className="font-black text-xs text-primary">{report.playerName[0].toUpperCase()}</AvatarFallback>
+                       </Avatar>
+                       <div className="space-y-0.5">
+                         <p className="text-sm font-black uppercase text-white group-hover:text-primary transition-colors">{report.playerName}</p>
+                         <div className="flex items-center gap-2">
+                           <span className="text-[10px] text-muted-foreground font-bold uppercase">{report.rivalName || 'Observation'}</span>
+                           <span className="text-muted-foreground/30">•</span>
+                           <span className="text-[10px] text-muted-foreground font-bold">{report.scoutName.split(' ')[0]}</span>
+                         </div>
+                       </div>
+                     </div>
+                     <div className="text-right">
+                       <div className="flex items-center gap-1 justify-end">
+                         <span className="text-lg font-black text-primary font-headline">{report.pimScore || 0}</span>
+                         <span className="text-[8px] font-black text-muted-foreground uppercase">PIM</span>
+                       </div>
+                       <p className="text-[8px] font-bold text-muted-foreground uppercase mt-1 flex items-center gap-1 justify-end">
+                         <Clock className="h-2 w-2" />
+                         {report.createdAt?.seconds ? formatDistanceToNow(new Date(report.createdAt.seconds * 1000), { locale: es, addSuffix: true }) : 'Hoy'}
+                       </p>
+                     </div>
+                   </div>
+                 ))}
+                 <div className="p-6 bg-secondary/10">
+                   <button className="w-full flex items-center justify-center gap-2 text-[10px] font-black text-muted-foreground hover:text-white uppercase tracking-widest transition-colors">
+                     Ver Toda la Actividad <ChevronRight className="h-3 w-3" />
+                   </button>
+                 </div>
+               </div>
+             ) : (
+               <div className="py-20 text-center flex flex-col items-center gap-3 opacity-30">
+                  <Activity className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-[9px] font-black uppercase tracking-widest">Esperando informes de campo...</p>
+               </div>
+             )}
           </CardContent>
         </Card>
       </div>
-
-      {/* Recent Prospect List */}
-      <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
-        <CardHeader className="p-8 border-b border-border/10 flex flex-row items-center justify-between bg-secondary/10">
-          <div>
-            <CardTitle className="text-lg font-black uppercase tracking-widest flex items-center gap-2">
-              <Star className="h-5 w-5 text-primary fill-primary" /> {t.dashboard.recentProspects.title}
-            </CardTitle>
-            <p className="text-[10px] text-muted-foreground uppercase font-bold">{t.dashboard.recentProspects.subtitle}</p>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {recentPlayers.length > 0 ? (
-            <div className="divide-y divide-border/10">
-              {recentPlayers.map(player => (
-                <div key={player.id} className="p-6 flex items-center justify-between hover:bg-primary/5 transition-all cursor-pointer group" onClick={() => onViewFicha(player.id)}>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12 rounded-xl border border-primary/20 shadow-lg">
-                      <AvatarFallback className="font-black text-primary bg-primary/10">{player.name[0].toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-black text-sm uppercase group-hover:text-primary transition-colors">{player.name}</p>
-                      <p className="text-[10px] text-muted-foreground flex items-center gap-2 font-bold"><MapPin className="h-3 w-3" /> {player.club} · <span className="text-primary uppercase">{player.tacticalRole}</span></p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center border border-border/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                      <ChevronRight className="h-5 w-5" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-20 text-center text-muted-foreground font-black text-[10px] uppercase tracking-widest opacity-40">{t.dashboard.recentProspects.noData}</div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
