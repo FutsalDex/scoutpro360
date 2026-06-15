@@ -34,8 +34,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -55,7 +53,6 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
   const [searchTerm, setSearchTerm] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
   const [reports, setReports] = useState<ScoutingReport[]>([]);
-  const [matches, setMatches] = useState<ScheduledMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [authReady, setAuthReady] = useState(false);
@@ -63,7 +60,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, async (user) => {
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserId(user.uid);
       } else {
@@ -86,12 +83,10 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
       ? subscribeToReports(null, setReports)
       : subscribeToReports(userId, setReports);
 
-    const unsubMatches = subscribeToScheduledMatches(userId, setMatches);
-    const timer = setTimeout(() => setLoading(false), 1000);
+    const timer = setTimeout(() => setLoading(false), 800);
     return () => {
       unsubPlayers();
       unsubReports();
-      unsubMatches();
       clearTimeout(timer);
     };
   }, [authReady, userId, global]);
@@ -113,7 +108,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
   });
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === filteredPlayers.length) {
+    if (selectedIds.length === filteredPlayers.length && filteredPlayers.length > 0) {
       setSelectedIds([]);
     } else {
       setSelectedIds(filteredPlayers.map(p => p.id));
@@ -132,10 +127,10 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
     setIsDeleting(true);
     try {
       await deletePlayers(selectedIds);
-      toast({ title: "Borrados con éxito", description: `${selectedIds.length} jugadores han sido eliminados del sistema.` });
+      toast({ title: "Borrados con éxito", description: `${selectedIds.length} registros eliminados.` });
       setSelectedIds([]);
     } catch (error) {
-      toast({ variant: "destructive", title: "Error de permisos", description: "No tienes autorización para eliminar estos registros." });
+      toast({ variant: "destructive", title: "Error de permisos", description: "No tienes autorización para esta acción." });
     } finally {
       setIsDeleting(false);
     }
@@ -186,44 +181,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
     link.click();
     document.body.removeChild(link);
 
-    toast({ title: "Exportación Exitosa", description: "El archivo CSV ha sido generado correctamente." });
-  };
-
-  const generatePDF = (player: Player) => {
-    const report = getReportForPlayer(player.id);
-    if (!report) return;
-
-    const doc = new jsPDF();
-    const primaryColor = [224, 176, 80];
-    const navyColor = [27, 38, 59];
-
-    doc.setFillColor(navyColor[0], navyColor[1], navyColor[2]);
-    doc.rect(0, 0, 210, 45, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.text("SCOUTPRO 360", 105, 20, { align: "center" });
-    doc.setFontSize(10);
-    doc.text("INFORME TÉCNICO PROFESIONAL DE SCOUTING", 105, 28, { align: "center" });
-
-    doc.setTextColor(navyColor[0], navyColor[1], navyColor[2]);
-    doc.setFontSize(12);
-    doc.text("1. IDENTIDAD DEL JUGADOR", 14, 55);
-    
-    autoTable(doc, {
-      startY: 58,
-      head: [["CAMPO", "VALOR"]],
-      body: [
-        ["NOMBRE COMPLETO", player.name.toUpperCase()],
-        ["CLUB ACTUAL", player.club.toUpperCase()],
-        ["NACIONALIDAD", player.nationality || 'N/A'],
-        ["POSICIÓN", (player.tacticalRole).toUpperCase()]
-      ],
-      theme: 'grid',
-      headStyles: { fillColor: primaryColor as any, textColor: navyColor as any },
-    });
-
-    doc.save(`INFORME_${player.name.replace(/\s+/g, '_')}.pdf`);
-    toast({ title: t.database.actions.pdfSuccess });
+    toast({ title: "Exportación Exitosa", description: "Archivo CSV generado." });
   };
 
   if (loading) {
@@ -252,7 +210,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="destructive" 
-                  className="bg-destructive/10 border-destructive/30 text-destructive font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-destructive hover:text-white"
+                  className="bg-destructive text-white font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-destructive/90 shadow-lg shadow-destructive/20 animate-in zoom-in-95"
                 >
                   <Trash2 className="h-4 w-4 mr-2" /> ELIMINAR ({selectedIds.length})
                 </Button>
@@ -261,7 +219,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-white uppercase font-black tracking-widest">¿Confirmar eliminación masiva?</AlertDialogTitle>
                   <AlertDialogDescription className="text-muted-foreground italic">
-                    Estás a punto de eliminar {selectedIds.length} jugadores y todos sus informes técnicos asociados. Esta acción es irreversible y afectará al patrimonio de inteligencia del club.
+                    Estás a punto de eliminar {selectedIds.length} jugadores y todos sus informes técnicos asociados. Esta acción es irreversible.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -307,7 +265,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
                   <Checkbox 
                     checked={selectedIds.length === filteredPlayers.length && filteredPlayers.length > 0}
                     onCheckedChange={toggleSelectAll}
-                    className="border-white/20 data-[state=checked]:bg-primary"
+                    className="border-white/40 data-[state=checked]:bg-primary"
                   />
                 </th>
                 <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.player}</th>
@@ -339,7 +297,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
                          <Checkbox 
                            checked={selectedIds.includes(player.id)}
                            onCheckedChange={() => toggleSelect(player.id)}
-                           className="border-white/20 data-[state=checked]:bg-primary"
+                           className="border-white/40 data-[state=checked]:bg-primary"
                          />
                       </td>
                       <td className="px-6 py-5">
@@ -396,13 +354,6 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
                               <span className="text-[11px] font-black uppercase tracking-widest">NUEVO INFORME</span>
                             </DropdownMenuItem>
                             
-                            {score > 0 && (
-                              <DropdownMenuItem onClick={() => generatePDF(player)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5">
-                                <Download className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.createPdf}</span>
-                              </DropdownMenuItem>
-                            )}
-
                             <DropdownMenuItem onClick={() => onScheduleMatch(player.id)} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer hover:bg-white/5">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
                               <span className="text-[11px] font-black uppercase tracking-widest">{t.database.actions.scheduleMatch}</span>

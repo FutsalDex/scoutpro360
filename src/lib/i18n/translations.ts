@@ -106,12 +106,12 @@ export const translations = {
         detectado: 'Detectado'
       },
       table: {
-        player: 'Jugador',
-        pos: 'Pos',
-        club: 'Club',
-        score: 'Puntuación',
-        country: 'País',
-        date: 'Fecha',
+        player: 'JUGADOR',
+        pos: 'POS',
+        club: 'CLUB',
+        score: 'PUNTUACIÓN',
+        country: 'PAÍS',
+        date: 'FECHA',
         status: 'Estado'
       }
     },
