@@ -125,6 +125,7 @@ export const translations = {
       calendarView: 'Calendario',
       listView: 'Lista',
       week: 'Semana',
+      scanLineup: 'Escanear Alineación',
       status: {
         scheduled: 'Programado',
         inProgress: 'En curso',
@@ -317,6 +318,7 @@ export const translations = {
         next: 'Siguiente',
         previous: 'Anterior',
         save: 'GUARDAR INFORME',
+        viewHistory: 'VER EVOLUCIÓN',
       },
       summary: {
         title: 'RESUMEN EJECUTIVO',

@@ -1,7 +1,6 @@
-
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,10 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   Calendar as CalendarIcon, MapPin, Clock, FilePlus, 
   ChevronRight, Loader2, User, Plus, Save, X, 
-  LayoutList, Grid3X3, ChevronLeft
+  LayoutList, Grid3X3, ChevronLeft, Navigation, Scan, Camera
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
-import { subscribeToScheduledMatches, getPlayer, saveScheduledMatch, subscribeToPlayers } from "@/lib/services/db-service";
+import { subscribeToScheduledMatches, getPlayer, saveScheduledMatch, subscribeToPlayers, savePlayer } from "@/lib/services/db-service";
 import { ScheduledMatch, Player } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
@@ -27,6 +26,7 @@ import {
 } from "date-fns";
 import { es } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { scanLineup } from "@/ai/flows/scan-lineup-flow";
 
 interface AgendaViewProps {
   onStartScouting: (playerId: string) => void;
@@ -54,6 +54,9 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
     status: 'scheduled',
     playerId: ''
   });
+
+  const [isScanning, setIsScanning] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
@@ -129,6 +132,45 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
     if (onClearScheduleContext) onClearScheduleContext();
   };
 
+  const handleScanLineup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !userId) return;
+
+    setIsScanning(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        const result = await scanLineup({ photoDataUri: base64 });
+        
+        if (result.detectedPlayers.length > 0) {
+          result.detectedPlayers.forEach(p => {
+            savePlayer({
+              name: p.name,
+              club: result.teamName || "Escaneado",
+              tacticalRole: p.position?.toLowerCase() || 'mc',
+              nationality: "Unknown",
+              age: 0,
+              marketValue: "€0",
+              grade: 'C',
+              scoutId: userId,
+              dorsal: p.dorsal
+            });
+          });
+          toast({ title: "Escaneo Exitoso", description: `Se han detectado y registrado ${result.detectedPlayers.length} jugadores.` });
+        } else {
+          toast({ variant: "destructive", title: "Sin resultados", description: "No se pudieron detectar jugadores en la hoja." });
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error OCR", description: "Fallo al procesar la alineación." });
+    } finally {
+      setIsScanning(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const daysGrid = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 });
     const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 });
@@ -161,6 +203,17 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
         </div>
 
         <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
+          <input type="file" ref={fileInputRef} onChange={handleScanLineup} className="hidden" accept="image/*" />
+          <Button 
+            variant="outline" 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isScanning}
+            className="h-11 px-6 bg-accent/10 border-accent/30 text-accent font-black text-xs uppercase tracking-widest rounded-xl hover:bg-accent hover:text-accent-foreground"
+          >
+            {isScanning ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Scan className="h-4 w-4 mr-2" />}
+            {t.agenda.scanLineup}
+          </Button>
+
           <div className="bg-secondary/20 p-1 rounded-xl border border-border/20 flex gap-1">
             <Button 
               variant={viewMode === 'calendar' ? 'default' : 'ghost'} 
@@ -426,6 +479,11 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
   const matchDate = isValidDate ? new Date(match.dateTime) : new Date();
   const isTodayMatch = isValidDate && isToday(matchDate);
 
+  const openGps = () => {
+    const query = encodeURIComponent(`${match.category} ${match.homeTeam}`);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  };
+
   return (
     <Card className={cn(
       "border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all group",
@@ -438,11 +496,16 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
             {isValidDate ? format(matchDate, 'dd MMM yyyy', { locale: language === 'es' ? es : undefined }) : 'TBD'}
           </span>
         </div>
-        {isTodayMatch && (
-          <Badge className="bg-accent text-accent-foreground text-[8px] font-black uppercase tracking-tighter animate-pulse">
-            HOY / TODAY
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          <Button size="icon" variant="ghost" onClick={openGps} className="h-8 w-8 text-primary hover:bg-primary/20">
+            <Navigation className="h-4 w-4" />
+          </Button>
+          {isTodayMatch && (
+            <Badge className="bg-accent text-accent-foreground text-[8px] font-black uppercase tracking-tighter animate-pulse">
+              HOY / TODAY
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="p-6 space-y-6">
         <div className="space-y-4">

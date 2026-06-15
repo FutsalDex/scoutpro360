@@ -14,17 +14,24 @@ import {
   FileText, ChevronRight, Activity, User, Target, Shield, 
   Save, Star, LayoutGrid, ClipboardCheck, Plus, Trash2,
   CheckCircle2, AlertTriangle, Sun, Cloud, CloudRain, Thermometer, Wind,
-  Brain, Sparkles, Database, Info, Loader2, TrendingUp
+  Brain, Sparkles, Database, Info, Loader2, TrendingUp, History
 } from "lucide-react";
 import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
-import { savePlayer, saveReport, getPlayer, getReport, getLatestReportForPlayer } from "@/lib/services/db-service";
+import { savePlayer, saveReport, getPlayer, getReport, getLatestReportForPlayer, subscribeToPlayerReports } from "@/lib/services/db-service";
 import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const RatingRow = ({ kpi, rating, onRatingChange, note, onNoteChange }: { kpi: string, rating?: number, onRatingChange: (v: number) => void, note?: string, onNoteChange?: (v: string) => void }) => (
   <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/10 last:border-0 px-4 w-full gap-4 hover:bg-white/5 transition-colors">
@@ -200,6 +207,9 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
   const [pimResult, setPimResult] = useState<{ score: number, explanation: string } | null>(null);
 
+  // History State
+  const [pastReports, setPastReports] = useState<any[]>([]);
+
   useEffect(() => {
     if (editingPlayerId) {
       getPlayer(editingPlayerId).then(p => {
@@ -223,6 +233,10 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
           }
         });
       }
+
+      // Suscribirse a historial
+      const unsub = subscribeToPlayerReports(editingPlayerId, setPastReports);
+      return () => unsub();
     }
   }, [editingPlayerId, initialReportId, localizedKPIs]);
 
@@ -449,9 +463,41 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
           </div>
           <div>
             <h1 className="text-2xl font-black font-headline uppercase tracking-tight">{playerName || t.report?.title || 'Informe'}</h1>
-            <p className="text-[10px] text-primary font-black uppercase tracking-widest">
-              {reportId ? 'EDITANDO REGISTRO EXISTENTE' : 'REGISTRO DE NUEVA OBSERVACIÓN'}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-[10px] text-primary font-black uppercase tracking-widest">
+                {reportId ? 'EDITANDO REGISTRO EXISTENTE' : 'REGISTRO DE NUEVA OBSERVACIÓN'}
+              </p>
+              {pastReports.length > 0 && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 px-3 bg-accent/10 text-accent font-black text-[8px] uppercase tracking-widest rounded-full hover:bg-accent hover:text-accent-foreground">
+                      <History className="h-3 w-3 mr-1" /> {t.report.actions.viewHistory}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-[#1b263b] border-border/40 max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" /> Evolución de Rendimiento
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-6">
+                      {pastReports.filter(r => r.id !== reportId).map((r, i) => (
+                        <div key={i} className="p-4 bg-secondary/20 rounded-xl border border-border/10 flex justify-between items-center">
+                          <div>
+                            <p className="text-[10px] font-black uppercase text-muted-foreground">{r.matchDate || "Sin Fecha"}</p>
+                            <p className="font-bold text-white uppercase">{r.rivalName ? `vs ${r.rivalName}` : "Análisis previo"}</p>
+                          </div>
+                          <div className="text-right">
+                             <p className="text-2xl font-black text-primary font-headline">{r.pimScore || 0}</p>
+                             <p className="text-[8px] font-black uppercase text-muted-foreground">PIM SCORE</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
           </div>
         </div>
         <Button onClick={handleSaveAll} className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg hover:scale-105 transition-all">
@@ -915,6 +961,15 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
                        </div>
                     </div>
                  </Card>
+               )}
+               {Object.values(audit).some(v => typeof v === 'number' && v === 0) && (
+                 <div className="bg-destructive/10 border border-destructive/30 p-4 rounded-xl flex items-start gap-3">
+                   <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+                   <div>
+                     <p className="text-[10px] font-black uppercase text-destructive">Alerta de Integridad</p>
+                     <p className="text-[9px] text-destructive/80 font-medium">Faltan categorías completas. El PIM Score puede ser inexacto.</p>
+                   </div>
+                 </div>
                )}
             </div>
           </div>

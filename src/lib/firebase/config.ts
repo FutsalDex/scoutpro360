@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getFirestore, Firestore } from "firebase/firestore";
+import { getFirestore, Firestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import { getAuth, Auth } from "firebase/auth";
 
@@ -22,5 +22,16 @@ const app: FirebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebas
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);
 const auth: Auth = getAuth(app);
+
+// Habilitar Persistencia Offline (Sincronización Inteligente)
+if (typeof window !== "undefined") {
+  enableMultiTabIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+      console.warn("La persistencia offline falló: Múltiples pestañas abiertas.");
+    } else if (err.code === 'unimplemented') {
+      console.warn("La persistencia offline no es compatible con este navegador.");
+    }
+  });
+}
 
 export { app, db, storage, auth };
