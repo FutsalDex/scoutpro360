@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   Calendar as CalendarIcon, MapPin, Clock, FilePlus, 
   ChevronRight, Loader2, User, Plus, Save, X, 
-  LayoutList, Grid3X3, ChevronLeft, Scan
+  LayoutList, Grid3X3, ChevronLeft, Scan, Pencil, Trash2
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToScheduledMatches, getPlayer, saveScheduledMatch, subscribeToPlayers, savePlayer } from "@/lib/services/db-service";
@@ -46,6 +46,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
   const [userId, setUserId] = useState<string | null>(null);
   
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
   const [newMatch, setNewMatch] = useState<Partial<ScheduledMatch>>({
     homeTeam: '',
     awayTeam: '',
@@ -94,6 +95,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
 
   useEffect(() => {
     if (initialPlayerId) {
+      setEditingMatchId(null);
       setNewMatch({
         homeTeam: '',
         awayTeam: '',
@@ -116,11 +118,11 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
     saveScheduledMatch({
       ...newMatch as Omit<ScheduledMatch, 'id'>,
       scoutId: userId,
-      status: 'scheduled'
-    });
+    }, editingMatchId || undefined);
 
-    toast({ title: t.agenda.form.success });
+    toast({ title: editingMatchId ? "Partido actualizado" : t.agenda.form.success });
     setIsCreateOpen(false);
+    setEditingMatchId(null);
     setNewMatch({
       homeTeam: '',
       awayTeam: '',
@@ -130,6 +132,19 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
       playerId: ''
     });
     if (onClearScheduleContext) onClearScheduleContext();
+  };
+
+  const handleEditMatch = (match: ScheduledMatch) => {
+    setEditingMatchId(match.id!);
+    setNewMatch({
+      homeTeam: match.homeTeam,
+      awayTeam: match.awayTeam,
+      category: match.category,
+      dateTime: match.dateTime,
+      status: match.status,
+      playerId: match.playerId
+    });
+    setIsCreateOpen(true);
   };
 
   const handleScanLineup = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,7 +250,10 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
 
           <Dialog open={isCreateOpen} onOpenChange={(open) => {
             setIsCreateOpen(open);
-            if (!open && onClearScheduleContext) onClearScheduleContext();
+            if (!open) {
+              setEditingMatchId(null);
+              if (onClearScheduleContext) onClearScheduleContext();
+            }
           }}>
             <DialogTrigger asChild>
               <Button className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-11 px-6 rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-all">
@@ -245,7 +263,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
             <DialogContent className="bg-[#1b263b] border-border/40 shadow-2xl rounded-3xl max-w-lg">
               <DialogHeader>
                 <DialogTitle className="text-xl font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" /> {t.agenda.form.title}
+                  <CalendarIcon className="h-5 w-5" /> {editingMatchId ? "Editar Observación" : t.agenda.form.title}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreateMatch} className="space-y-6 pt-4">
@@ -314,7 +332,10 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
                   <Button 
                     type="button" 
                     variant="ghost" 
-                    onClick={() => setIsCreateOpen(false)}
+                    onClick={() => {
+                      setIsCreateOpen(false);
+                      setEditingMatchId(null);
+                    }}
                     className="text-[10px] font-black uppercase tracking-widest text-muted-foreground"
                   >
                     {t.agenda.form.cancel}
@@ -323,7 +344,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
                     type="submit" 
                     className="bg-primary text-primary-foreground font-black text-[10px] uppercase tracking-widest px-8 rounded-xl"
                   >
-                    <Save className="h-4 w-4 mr-2" /> {t.agenda.form.submit}
+                    <Save className="h-4 w-4 mr-2" /> {editingMatchId ? "GUARDAR CAMBIOS" : t.agenda.form.submit}
                   </Button>
                 </DialogFooter>
               </form>
@@ -400,6 +421,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
                             key={m.id} 
                             match={m} 
                             onClick={() => m.playerId && onStartScouting(m.playerId)} 
+                            onEdit={() => handleEditMatch(m)}
                           />
                         ))}
                       </div>
@@ -422,6 +444,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
                 key={match.id} 
                 match={match} 
                 onStartScouting={onStartScouting} 
+                onEdit={() => handleEditMatch(match)}
                 t={t} 
                 language={language}
               />
@@ -433,7 +456,7 @@ export function AgendaView({ onStartScouting, initialPlayerId, onClearScheduleCo
   );
 }
 
-function CalendarMatchCard({ match, onClick }: { match: ScheduledMatch, onClick: () => void }) {
+function CalendarMatchCard({ match, onClick, onEdit }: { match: ScheduledMatch, onClick: () => void, onEdit: () => void }) {
   const [playerName, setPlayerName] = useState<string>("...");
 
   useEffect(() => {
@@ -445,26 +468,36 @@ function CalendarMatchCard({ match, onClick }: { match: ScheduledMatch, onClick:
   const time = match.dateTime ? format(new Date(match.dateTime), 'HH:mm') : '--:--';
 
   return (
-    <button 
-      onClick={onClick}
-      className={cn(
-        "w-full text-left p-2 rounded-lg border-l-4 shadow-sm transition-all hover:scale-[1.03] active:scale-95 group overflow-hidden",
-        match.status === 'scheduled' ? "bg-accent/10 border-accent hover:bg-accent/20" : 
-        match.status === 'in-progress' ? "bg-primary/10 border-primary hover:bg-primary/20" : 
-        "bg-secondary/40 border-muted-foreground hover:bg-secondary"
-      )}
-    >
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[7px] font-black text-white/40 uppercase tracking-tighter">{time}</span>
-        <div className="h-1.5 w-1.5 rounded-full bg-white/20 group-hover:bg-white transition-colors" />
-      </div>
-      <p className="text-[9px] font-black uppercase text-foreground leading-tight truncate">{match.homeTeam} v {match.awayTeam}</p>
-      <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-1 truncate">{playerName}</p>
-    </button>
+    <div className="group relative">
+      <button 
+        onClick={onClick}
+        className={cn(
+          "w-full text-left p-2 rounded-lg border-l-4 shadow-sm transition-all hover:scale-[1.03] active:scale-95 overflow-hidden",
+          match.status === 'scheduled' ? "bg-accent/10 border-accent hover:bg-accent/20" : 
+          match.status === 'in-progress' ? "bg-primary/10 border-primary hover:bg-primary/20" : 
+          "bg-secondary/40 border-muted-foreground hover:bg-secondary"
+        )}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[7px] font-black text-white/40 uppercase tracking-tighter">{time}</span>
+          <div className="h-1.5 w-1.5 rounded-full bg-white/20 transition-colors" />
+        </div>
+        <p className="text-[9px] font-black uppercase text-foreground leading-tight truncate">{match.homeTeam} v {match.awayTeam}</p>
+        <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-1 truncate">{playerName}</p>
+      </button>
+      <Button 
+        size="icon" 
+        variant="ghost" 
+        onClick={(e) => { e.stopPropagation(); onEdit(); }}
+        className="absolute top-1 right-1 h-5 w-5 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <Pencil className="h-2.5 w-2.5 text-white" />
+      </Button>
+    </div>
   );
 }
 
-function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMatch, onStartScouting: (id: string) => void, t: any, language: string }) {
+function MatchCard({ match, onStartScouting, onEdit, t, language }: { match: ScheduledMatch, onStartScouting: (id: string) => void, onEdit: () => void, t: any, language: string }) {
   const [playerName, setPlayerName] = useState<string>("...");
 
   useEffect(() => {
@@ -497,6 +530,14 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
               HOY / TODAY
             </Badge>
           )}
+          <Button 
+            size="icon" 
+            variant="ghost" 
+            onClick={onEdit}
+            className="h-8 w-8 rounded-xl bg-white/5 hover:bg-primary/20 text-white/40 hover:text-primary transition-all"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="p-6 space-y-6">
