@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -16,7 +17,7 @@ import {
   CheckCircle2, AlertTriangle, Sun, Cloud, CloudRain, Thermometer, Wind,
   Brain, Sparkles, Database, Info, Loader2, TrendingUp, History
 } from "lucide-react";
-import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig } from "@/lib/types";
+import { TACTICAL_ROLES, getLocalizedKPIs, type KPISection, type UserProfile, type Point, type ScoutingAction, type TacticalRoleConfig, type ScoutingReport } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/lib/i18n/context';
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ import { auth } from "@/lib/firebase/config";
 import { ALL_COUNTRIES } from "@/lib/data/countries";
 import { calculatePlayerImpactMetric } from "@/ai/flows/calculate-player-impact-metric-flow";
 import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
   Dialog,
   DialogContent,
@@ -203,12 +205,9 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
   const [finalScoutRating, setFinalScoutRating] = useState<number>(0);
   const [pimScore, setPimScore] = useState<number>(0);
 
-  // IA States
   const [isCalculatingPIM, setIsCalculatingPIM] = useState(false);
   const [pimResult, setPimResult] = useState<{ score: number, explanation: string } | null>(null);
-
-  // History State
-  const [pastReports, setPastReports] = useState<any[]>([]);
+  const [pastReports, setPastReports] = useState<ScoutingReport[]>([]);
 
   useEffect(() => {
     if (editingPlayerId) {
@@ -234,11 +233,24 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
         });
       }
 
-      // Suscribirse a historial
       const unsub = subscribeToPlayerReports(editingPlayerId, setPastReports);
       return () => unsub();
     }
   }, [editingPlayerId, initialReportId, localizedKPIs]);
+
+  const calculateCategoryAverages = (report: ScoutingReport) => {
+    const getAvg = (keys: string[]) => {
+      const values = keys.map(k => report.ratings[k] || 0).filter(v => v > 0);
+      return values.length > 0 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1) : "0";
+    };
+
+    return {
+      technical: getAvg([...localizedKPIs.technical.observation, ...localizedKPIs.technical.impact]),
+      tactical: getAvg(localizedKPIs.tactical.observation),
+      physical: getAvg(localizedKPIs.physical.observation),
+      mental: getAvg(localizedKPIs.mental.observation)
+    };
+  };
 
   const loadReportData = (r: ScoutingReport | null) => {
     if (r) {
@@ -474,25 +486,37 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
                       <History className="h-3 w-3 mr-1" /> {t.report.actions.viewHistory}
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-[#1b263b] border-border/40 max-w-2xl">
-                    <DialogHeader>
+                  <DialogContent className="bg-[#1b263b] border-border/40 max-w-3xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader className="border-b border-white/10 pb-4">
                       <DialogTitle className="text-xl font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5" /> Evolución de Rendimiento
+                        <TrendingUp className="h-5 w-5" /> Evolución de Rendimiento Técnico
                       </DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 pt-6">
-                      {pastReports.filter(r => r.id !== reportId).map((r, i) => (
-                        <div key={i} className="p-4 bg-secondary/20 rounded-xl border border-border/10 flex justify-between items-center">
-                          <div>
-                            <p className="text-[10px] font-black uppercase text-muted-foreground">{r.matchDate || "Sin Fecha"}</p>
-                            <p className="font-bold text-white uppercase">{r.rivalName ? `vs ${r.rivalName}` : "Análisis previo"}</p>
+                    <div className="space-y-6 pt-6">
+                      {pastReports.filter(r => r.id !== reportId).map((r, i) => {
+                        const avgs = calculateCategoryAverages(r);
+                        return (
+                          <div key={i} className="p-6 bg-secondary/20 rounded-2xl border border-border/10 space-y-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="text-[10px] font-black uppercase text-primary mb-1">{r.matchDate ? format(new Date(r.matchDate), "dd MMM yyyy", { locale: es }) : "TBD"}</p>
+                                <h4 className="text-lg font-black text-white uppercase">{r.rivalName ? `vs ${r.rivalName}` : "Análisis previo"}</h4>
+                              </div>
+                              <div className="text-right">
+                                 <p className="text-3xl font-black text-primary font-headline leading-none">{r.pimScore || 0}</p>
+                                 <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">PIM SCORE</p>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/5">
+                               <EvolutionMetric label="TÉCNICO" value={avgs.technical} icon={<Activity className="h-3 w-3" />} />
+                               <EvolutionMetric label="TÁCTICO" value={avgs.tactical} icon={<Target className="h-3 w-3" />} />
+                               <EvolutionMetric label="FÍSICO" value={avgs.physical} icon={<ZapIcon className="h-3 w-3" />} />
+                               <EvolutionMetric label="MENTAL" value={avgs.mental} icon={<Brain className="h-3 w-3" />} />
+                            </div>
                           </div>
-                          <div className="text-right">
-                             <p className="text-2xl font-black text-primary font-headline">{r.pimScore || 0}</p>
-                             <p className="text-[8px] font-black uppercase text-muted-foreground">PIM SCORE</p>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -980,6 +1004,47 @@ export function ReportForm({ userProfile, editingPlayerId, reportId: initialRepo
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function EvolutionMetric({ label, value, icon }: { label: string, value: string, icon: React.ReactNode }) {
+  const numValue = parseFloat(value);
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="text-muted-foreground">{icon}</span>
+        <span className="text-[8px] font-black text-muted-foreground uppercase tracking-tighter">{label}</span>
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span className="text-xl font-black text-white font-headline">{value}</span>
+        <span className="text-[8px] font-bold text-muted-foreground">/ 5.0</span>
+      </div>
+      <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-primary transition-all duration-1000" 
+          style={{ width: `${(numValue / 5) * 100}%` }} 
+        />
+      </div>
+    </div>
+  );
+}
+
+function ZapIcon({ className }: { className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
   );
 }
 

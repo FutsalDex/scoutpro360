@@ -1,6 +1,7 @@
+
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,13 +9,20 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   FileText, Calendar, Clock, ChevronRight, 
   TrendingUp, Download, Loader2, ArrowLeft,
-  Target, Shield
+  Target, Shield, Activity, Brain, Star
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayerReports, getPlayer } from "@/lib/services/db-service";
-import { Player, ScoutingReport } from "@/lib/types";
+import { Player, ScoutingReport, getLocalizedKPIs } from "@/lib/types";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ReportHistoryProps {
   playerId: string;
@@ -25,6 +33,7 @@ interface ReportHistoryProps {
 
 export function ReportHistory({ playerId, onEditReport, onBack, onNewReport }: ReportHistoryProps) {
   const { t } = useTranslation();
+  const localizedKPIs = useMemo(() => getLocalizedKPIs(t), [t]);
   const [player, setPlayer] = useState<Player | null>(null);
   const [reports, setReports] = useState<ScoutingReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +48,20 @@ export function ReportHistory({ playerId, onEditReport, onBack, onNewReport }: R
     });
     return () => unsub();
   }, [playerId]);
+
+  const calculateCategoryAverages = (report: ScoutingReport) => {
+    const getAvg = (keys: string[]) => {
+      const values = keys.map(k => report.ratings[k] || 0).filter(v => v > 0);
+      return values.length > 0 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1) : "0";
+    };
+
+    return {
+      technical: getAvg([...localizedKPIs.technical.observation, ...localizedKPIs.technical.impact]),
+      tactical: getAvg(localizedKPIs.tactical.observation),
+      physical: getAvg(localizedKPIs.physical.observation),
+      mental: getAvg(localizedKPIs.mental.observation)
+    };
+  };
 
   if (loading) {
     return (
@@ -67,9 +90,54 @@ export function ReportHistory({ playerId, onEditReport, onBack, onNewReport }: R
             </div>
           </div>
         </div>
-        <Button onClick={onNewReport} className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg hover:scale-105 transition-all">
-          <FileText className="h-4 w-4 mr-2" /> Nuevo Informe
-        </Button>
+        
+        <div className="flex gap-3">
+          {reports.length > 1 && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-12 px-6 border-accent/30 text-accent font-black text-xs uppercase tracking-widest rounded-xl hover:bg-accent hover:text-accent-foreground">
+                  <TrendingUp className="h-4 w-4 mr-2" /> VER EVOLUCIÓN
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#1b263b] border-border/40 max-w-3xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader className="border-b border-white/10 pb-4">
+                  <DialogTitle className="text-xl font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" /> Evolución de Rendimiento Técnico
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6 pt-6">
+                  {reports.map((r, i) => {
+                    const avgs = calculateCategoryAverages(r);
+                    return (
+                      <div key={i} className="p-6 bg-secondary/20 rounded-2xl border border-border/10 space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-[10px] font-black uppercase text-primary mb-1">{r.matchDate ? format(new Date(r.matchDate), "dd MMM yyyy", { locale: es }) : "TBD"}</p>
+                            <h4 className="text-lg font-black text-white uppercase">{r.rivalName ? `vs ${r.rivalName}` : "Análisis de Campo"}</h4>
+                          </div>
+                          <div className="text-right">
+                             <p className="text-3xl font-black text-primary font-headline leading-none">{r.pimScore || 0}</p>
+                             <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">PIM SCORE</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/5">
+                           <EvolutionMetric label="TÉCNICO" value={avgs.technical} icon={<Activity className="h-3 w-3" />} />
+                           <EvolutionMetric label="TÁCTICO" value={avgs.tactical} icon={<Target className="h-3 w-3" />} />
+                           <EvolutionMetric label="FÍSICO" value={avgs.physical} icon={<Zap className="h-3 w-3" />} />
+                           <EvolutionMetric label="MENTAL" value={avgs.mental} icon={<Brain className="h-3 w-3" />} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+          <Button onClick={onNewReport} className="bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest h-12 px-8 rounded-xl shadow-lg hover:scale-105 transition-all">
+            <FileText className="h-4 w-4 mr-2" /> Nuevo Informe
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
@@ -147,5 +215,46 @@ export function ReportHistory({ playerId, onEditReport, onBack, onNewReport }: R
         )}
       </div>
     </div>
+  );
+}
+
+function EvolutionMetric({ label, value, icon }: { label: string, value: string, icon: React.ReactNode }) {
+  const numValue = parseFloat(value);
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="text-muted-foreground">{icon}</span>
+        <span className="text-[8px] font-black text-muted-foreground uppercase tracking-tighter">{label}</span>
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span className="text-xl font-black text-white font-headline">{value}</span>
+        <span className="text-[8px] font-bold text-muted-foreground">/ 5.0</span>
+      </div>
+      <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-primary transition-all duration-1000" 
+          style={{ width: `${(numValue / 5) * 100}%` }} 
+        />
+      </div>
+    </div>
+  );
+}
+
+function Zap({ className }: { className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
   );
 }
