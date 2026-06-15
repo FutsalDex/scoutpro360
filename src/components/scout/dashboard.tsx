@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, ShieldCheck, ClipboardCheck, ChevronRight, MapPin, Star, Binoculars, TrendingUp, LayoutGrid, Activity, Clock } from "lucide-react";
+import { User, ShieldCheck, ClipboardCheck, ChevronRight, TrendingUp, Activity, Clock, Target } from "lucide-react";
 import { Player, ScoutingReport, TACTICAL_ROLES } from "@/lib/types";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToPlayers, subscribeToReports, subscribeToGlobalPlayers, subscribeToGlobalReports } from "@/lib/services/db-service";
@@ -11,15 +11,29 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { cn } from "@/lib/utils";
 
 interface ScoutDashboardProps {
   userProfile: any;
   onViewFicha: (id: string) => void;
 }
+
+// Coordenadas para el campo táctico (Base 400x600 vertical)
+const POSITION_COORDS: Record<string, { x: number, y: number, label: string }> = {
+  'po': { x: 200, y: 540, label: 'PO' },
+  'dc-def': { x: 200, y: 460, label: 'DC' },
+  'ld': { x: 340, y: 440, label: 'LD' },
+  'li': { x: 60, y: 440, label: 'LI' },
+  'mcd': { x: 200, y: 370, label: 'MCD' },
+  'mc': { x: 200, y: 300, label: 'MC' },
+  'mco': { x: 200, y: 220, label: 'MCO' },
+  'ed': { x: 340, y: 180, label: 'ED' },
+  'ei': { x: 60, y: 180, label: 'EI' },
+  'sd': { x: 200, y: 130, label: 'SD' },
+  'dc-fwd': { x: 200, y: 60, label: 'DC' },
+};
 
 export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps) {
   const { t } = useTranslation();
@@ -61,36 +75,26 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
     };
   }, [authReady, scoutId, isManagement]);
 
-  // Data for Charts - Include all roles
-  const positionData = useMemo(() => {
+  const positionCounts = useMemo(() => {
     const counts: Record<string, number> = {};
+    Object.keys(POSITION_COORDS).forEach(roleId => counts[roleId] = 0);
     
-    // Initialize all standard roles
-    TACTICAL_ROLES.forEach(role => {
-      const roleName = (t.report.tacticalRoles[role.id as keyof typeof t.report.tacticalRoles] || role.name).split(' – ')[0];
-      counts[roleName] = 0;
-    });
-
+    // Solo contamos jugadores que tengan al menos un informe (BD Scout)
+    const analyzedPlayerIds = new Set(reports.map(r => r.playerId));
+    
     players.forEach(p => {
-      const roleName = (t.report.tacticalRoles[p.tacticalRole as keyof typeof t.report.tacticalRoles] || p.tacticalRole).split(' – ')[0];
-      // Only increment if it's one of our expected keys
-      if (counts[roleName] !== undefined) {
-        counts[roleName]++;
+      if (analyzedPlayerIds.has(p.id) && counts[p.tacticalRole] !== undefined) {
+        counts[p.tacticalRole]++;
       }
     });
-
-    return Object.entries(counts).map(([name, count]) => ({ name, count }));
-  }, [players, t]);
+    return counts;
+  }, [players, reports]);
 
   const liveFeed = useMemo(() => {
     return [...reports]
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-      .slice(0, 4);
+      .slice(0, 5);
   }, [reports]);
-
-  const chartConfig = {
-    count: { label: t.dashboard.charts.players, color: "hsl(var(--primary))" }
-  } satisfies ChartConfig;
 
   if (loading) {
     return (
@@ -125,58 +129,74 @@ export function ScoutDashboard({ userProfile, onViewFicha }: ScoutDashboardProps
       {/* KPI Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard title={t.dashboard.stats.detected} value={totalInDb.toString()} icon={<User className="text-primary" />} />
-        <StatCard title={t.dashboard.stats.identified} value={identifiedOnly.toString()} icon={<Binoculars className="text-accent" />} />
+        <StatCard title={t.dashboard.stats.identified} value={identifiedOnly.toString()} icon={<Target className="text-accent" />} />
         <StatCard title={t.dashboard.stats.analyzed} value={analyzedCount.toString()} icon={<ShieldCheck className="text-primary" />} />
         <StatCard title={t.dashboard.stats.reports} value={totalReports.toString()} icon={<ClipboardCheck className="text-accent" />} />
         <StatCard title={t.dashboard.stats.avgPim} value={avgPim > 0 ? avgPim.toString() : "-"} icon={<TrendingUp className="text-primary" />} highlight />
       </div>
 
-      {/* Main Analysis Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Vertical Position Chart */}
-        <Card className="lg:col-span-8 border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+        {/* Tactical Pitch Map */}
+        <Card className="lg:col-span-7 border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl flex flex-col">
           <CardHeader className="p-8 pb-4">
              <div className="space-y-1">
                 <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3 text-white">
-                  Distribución Táctica por Posición
+                  Mapa de Densidad Táctica
                 </CardTitle>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold">Cobertura total de la red de captación</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold italic">Ocupación de la BD Scout por posición</p>
              </div>
           </CardHeader>
-          <CardContent className="p-8 pt-4">
-             <div className="h-[350px] w-full">
-                <ChartContainer config={chartConfig}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={positionData} margin={{ top: 20, right: 30, left: -20, bottom: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.2} />
-                        <XAxis 
-                          dataKey="name" 
-                          axisLine={false} 
-                          tickLine={false} 
-                          fontSize={9} 
-                          fontWeight="bold" 
-                          stroke="hsl(var(--muted-foreground))"
-                          interval={0}
-                        />
-                        <YAxis axisLine={false} tickLine={false} fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                        <ChartTooltip 
-                          cursor={{ fill: 'rgba(224, 176, 80, 0.05)' }}
-                          content={<ChartTooltipContent />}
-                        />
-                        <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={35}>
-                          {positionData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill="hsl(var(--primary))" fillOpacity={entry.count > 0 ? 1 : 0.1} />
-                          ))}
-                        </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
+          <CardContent className="p-8 pt-4 flex-1 flex items-center justify-center">
+             <div className="relative w-full max-w-[450px] aspect-[2/3] bg-[#001524] rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl">
+                {/* SVG Pitch Lines */}
+                <svg viewBox="0 0 400 600" className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+                  <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" strokeWidth="2" />
+                  <line x1="10" y1="300" x2="390" y2="300" stroke="white" strokeWidth="2" />
+                  <circle cx="200" cy="300" r="60" fill="none" stroke="white" strokeWidth="2" />
+                  <rect x="80" y="10" width="240" height="100" fill="none" stroke="white" strokeWidth="2" />
+                  <rect x="80" y="490" width="240" height="100" fill="none" stroke="white" strokeWidth="2" />
+                </svg>
+
+                {/* Tactical Nodes */}
+                {Object.entries(POSITION_COORDS).map(([id, pos]) => {
+                  const count = positionCounts[id] || 0;
+                  const isActive = count > 0;
+                  
+                  return (
+                    <div 
+                      key={id} 
+                      className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500"
+                      style={{ left: `${(pos.x / 400) * 100}%`, top: `${(pos.y / 600) * 100}%` }}
+                    >
+                      <div className={cn(
+                        "flex flex-col items-center gap-1 group",
+                        !isActive && "opacity-30"
+                      )}>
+                        <div className={cn(
+                          "h-10 w-10 rounded-full border-2 flex items-center justify-center font-black text-[10px] transition-all duration-300 shadow-lg",
+                          isActive 
+                            ? "bg-primary border-primary text-primary-foreground scale-110 shadow-primary/30" 
+                            : "bg-secondary/80 border-white/20 text-white"
+                        )}>
+                          {count}
+                        </div>
+                        <span className="text-[8px] font-black text-white uppercase tracking-tighter bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/5">
+                          {pos.label}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[8px] font-black text-primary/60 uppercase tracking-[0.3em]">
+                  ScoutPro 360 Tactical Lab
+                </div>
              </div>
           </CardContent>
         </Card>
 
         {/* Live Supply Feed */}
-        <Card className="lg:col-span-4 border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
+        <Card className="lg:col-span-5 border-border/40 bg-card/40 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl">
           <CardHeader className="p-8 pb-6 flex flex-row items-center justify-between border-b border-border/10 bg-secondary/5">
              <div className="space-y-1">
                 <CardTitle className="text-sm font-black uppercase tracking-widest text-white">Suministro en Vivo</CardTitle>
