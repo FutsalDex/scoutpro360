@@ -41,7 +41,7 @@ const executiveSummaryPrompt = ai.definePrompt({
       { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
     ],
   },
-  prompt: `Actúa como un Director Deportivo de élite. Genera un resumen ejecutivo profesional.
+  prompt: `Actúa como un Director Deportivo de élite. Genera un resumen ejecutivo profesional sobre el jugador {{{playerName}}}.
 Idioma de respuesta: {{{language}}}.
 
 DATOS DEL JUGADOR:
@@ -58,7 +58,7 @@ INSTRUCCIONES:
 
 export async function generateExecutiveSummary(input: ExecutiveSummaryGenerationInput): Promise<ExecutiveSummaryGenerationOutput> {
   try {
-    const response = await executiveSummaryPrompt({
+    const { output } = await executiveSummaryPrompt({
       playerName: input.playerName,
       tacticalRole: input.tacticalRole,
       metrics: JSON.stringify(input.metrics || {}),
@@ -66,20 +66,15 @@ export async function generateExecutiveSummary(input: ExecutiveSummaryGeneration
       language: input.language === 'es' ? 'Español' : 'English',
     });
     
-    if (response.output) {
-      return response.output;
-    }
-
-    // Fallback en caso de que el modelo devuelva texto plano en lugar de JSON estructurado
-    if (response.text) {
-      return { summary: response.text.trim() };
+    if (output) {
+      return output;
     }
     
     throw new Error('No se recibió contenido de la IA');
   } catch (error) {
     console.error("Summary Flow Error:", error);
     return {
-      summary: "Análisis técnico: El jugador muestra características compatibles con el rol solicitado. Se recomienda revisar las notas individuales de técnica y táctica para una valoración detallada, ya que el servicio de síntesis automática está temporalmente limitado."
+      summary: "Análisis técnico: El jugador muestra características compatibles con el rol solicitado. Se recomienda revisar las notas individuales de técnica y táctica para una valoración detallada."
     };
   }
 }

@@ -24,18 +24,18 @@ export type ScanLineupOutput = z.infer<typeof ScanLineupOutputSchema>;
 export async function scanLineup(input: ScanLineupInput): Promise<ScanLineupOutput> {
   const { output } = await ai.generate({
     model: 'googleai/gemini-1.5-flash',
-    input: {
-      schema: ScanLineupInputSchema,
-      data: input,
-    },
     output: {
       schema: ScanLineupOutputSchema,
     },
     prompt: [
-      { text: "Eres un experto analista de fútbol. Escanea esta imagen de una hoja de alineaciones oficial y extrae la lista de jugadores." },
+      { text: "Eres un experto analista de fútbol profesional. Escanea esta imagen de una hoja de alineaciones oficial y extrae la lista de jugadores de forma estructurada. Identifica el nombre, dorsal y posición si están disponibles." },
       { media: { url: input.photoDataUri, contentType: 'image/jpeg' } }
     ],
   });
 
-  return output as ScanLineupOutput;
+  if (!output) {
+    throw new Error('No se pudo procesar la alineación. El motor de IA no devolvió resultados.');
+  }
+
+  return output;
 }
