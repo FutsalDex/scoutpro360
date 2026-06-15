@@ -12,7 +12,8 @@ import {
   getDocs,
   limit,
   setDoc,
-  orderBy
+  orderBy,
+  writeBatch
 } from "firebase/firestore";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -55,6 +56,33 @@ export async function getPlayer(id: string): Promise<Player | null> {
   } catch (error) {
     return null;
   }
+}
+
+/**
+ * Elimina jugadores y sus informes asociados
+ */
+export async function deletePlayers(playerIds: string[]): Promise<void> {
+  const batch = writeBatch(db);
+  
+  for (const id of playerIds) {
+    const playerRef = doc(db, "players", id);
+    batch.delete(playerRef);
+    
+    // Buscar y añadir al batch los informes asociados
+    const reportsQuery = query(collection(db, "reports"), where("playerId", "==", id));
+    const reportsSnap = await getDocs(reportsQuery);
+    reportsSnap.forEach(reportDoc => {
+      batch.delete(reportDoc.ref);
+    });
+  }
+  
+  await batch.commit().catch(err => {
+    errorEmitter.emit('permission-error', new FirestorePermissionError({ 
+      path: 'players/multiple', 
+      operation: 'delete' 
+    }));
+    throw err;
+  });
 }
 
 /**

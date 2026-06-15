@@ -5,12 +5,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, Download, Loader2, MoreVertical, FileText, 
-  Calendar, MapPin, User, History
+  Calendar, User, History, Trash2
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { 
   subscribeToPlayers, subscribeToReports, subscribeToScheduledMatches, 
-  subscribeToGlobalPlayers 
+  subscribeToGlobalPlayers, deletePlayers 
 } from "@/lib/services/db-service";
 import { Player, ScoutingReport, ScheduledMatch } from "@/lib/types";
 import { auth } from "@/lib/firebase/config";
@@ -22,11 +22,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface GlobalDatabaseProps {
   onEditPlayer: (id: string) => void;
@@ -45,8 +57,10 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
   const [reports, setReports] = useState<ScoutingReport[]>([]);
   const [matches, setMatches] = useState<ScheduledMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [authReady, setAuthReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
@@ -97,6 +111,35 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
     
     return true;
   });
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredPlayers.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredPlayers.map(p => p.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    
+    setIsDeleting(true);
+    try {
+      await deletePlayers(selectedIds);
+      toast({ title: "Borrados con éxito", description: `${selectedIds.length} jugadores han sido eliminados del sistema.` });
+      setSelectedIds([]);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error de permisos", description: "No tienes autorización para eliminar estos registros." });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const getReportForPlayer = (playerId: string) => {
     const playerReports = reports.filter(r => r.playerId === playerId);
@@ -203,13 +246,46 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
             {global ? t.database.globalSubtitle : (mode === 'analyzed' ? t.database.subtitleScout : t.database.subtitleTalentos)}
           </p>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={handleExportCSV}
-          className="bg-secondary/20 border-border/40 text-foreground font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-secondary/40"
-        >
-          <Download className="h-4 w-4 mr-2" /> EXPORTAR CSV
-        </Button>
+        <div className="flex gap-3">
+          {selectedIds.length > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="destructive" 
+                  className="bg-destructive/10 border-destructive/30 text-destructive font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-destructive hover:text-white"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" /> ELIMINAR ({selectedIds.length})
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-[#1b263b] border-border/40">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-white uppercase font-black tracking-widest">¿Confirmar eliminación masiva?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground italic">
+                    Estás a punto de eliminar {selectedIds.length} jugadores y todos sus informes técnicos asociados. Esta acción es irreversible y afectará al patrimonio de inteligencia del club.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="bg-transparent border-border/40 text-white font-bold uppercase text-[10px]">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDeleteSelected}
+                    className="bg-destructive text-white font-black uppercase text-[10px] tracking-widest"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : null}
+                    ELIMINAR DEFINITIVAMENTE
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          <Button 
+            variant="outline" 
+            onClick={handleExportCSV}
+            className="bg-secondary/20 border-border/40 text-foreground font-black text-[10px] uppercase tracking-widest h-11 px-6 rounded-xl hover:bg-secondary/40"
+          >
+            <Download className="h-4 w-4 mr-2" /> EXPORTAR CSV
+          </Button>
+        </div>
       </div>
 
       <div className="relative group">
@@ -227,6 +303,13 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-secondary/30 border-b border-border/20">
+                <th className="px-4 py-5 w-12 text-center">
+                  <Checkbox 
+                    checked={selectedIds.length === filteredPlayers.length && filteredPlayers.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                    className="border-white/20 data-[state=checked]:bg-primary"
+                  />
+                </th>
                 <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.player}</th>
                 <th className="px-6 py-5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.pos}</th>
                 <th className="px-6 py-5 text-left text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t.database.table.club}</th>
@@ -238,7 +321,7 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
             <tbody className="divide-y divide-border/10">
               {filteredPlayers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-20 text-center text-muted-foreground font-black text-[11px] uppercase tracking-widest opacity-40 italic">
+                  <td colSpan={7} className="py-20 text-center text-muted-foreground font-black text-[11px] uppercase tracking-widest opacity-40 italic">
                     {t.database.noRecords}
                   </td>
                 </tr>
@@ -251,7 +334,14 @@ export function GlobalDatabase({ onEditPlayer, onViewFicha, onScheduleMatch, onV
                     : '---';
 
                   return (
-                    <tr key={player.id} className="hover:bg-primary/5 transition-all group">
+                    <tr key={player.id} className={cn("hover:bg-primary/5 transition-all group", selectedIds.includes(player.id) && "bg-primary/10")}>
+                      <td className="px-4 py-5 text-center">
+                         <Checkbox 
+                           checked={selectedIds.includes(player.id)}
+                           onCheckedChange={() => toggleSelect(player.id)}
+                           className="border-white/20 data-[state=checked]:bg-primary"
+                         />
+                      </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
                           <Avatar className="h-10 w-10 rounded-xl bg-secondary/50 border border-border/40">
