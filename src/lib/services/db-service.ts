@@ -232,3 +232,12 @@ export function subscribeToScheduledMatches(scoutId: string | null, callback: (m
     async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
   );
 }
+
+export function subscribeToGlobalScheduledMatches(callback: (matches: ScheduledMatch[]) => void) {
+  const colRef = collection(db, "scheduledMatches");
+  return onSnapshot(
+    colRef,
+    (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as ScheduledMatch[]),
+    async (err) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'list' }))
+  );
+}
