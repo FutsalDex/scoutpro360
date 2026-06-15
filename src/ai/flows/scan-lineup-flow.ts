@@ -22,8 +22,8 @@ const ScanLineupOutputSchema = z.object({
 export type ScanLineupOutput = z.infer<typeof ScanLineupOutputSchema>;
 
 export async function scanLineup(input: ScanLineupInput): Promise<ScanLineupOutput> {
+  // Utilizamos el modelo por defecto configurado en el objeto 'ai' para mayor robustez
   const { output } = await ai.generate({
-    model: 'googleai/gemini-1.5-flash',
     output: {
       schema: ScanLineupOutputSchema,
     },
