@@ -480,6 +480,7 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
   const isTodayMatch = isValidDate && isToday(matchDate);
 
   const openGps = () => {
+    // Función de geolocalización: busca el estadio y el equipo local en mapas
     const query = encodeURIComponent(`${match.category} ${match.homeTeam}`);
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
   };
@@ -497,7 +498,13 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" onClick={openGps} className="h-8 w-8 text-primary hover:bg-primary/20">
+          <Button 
+            size="icon" 
+            variant="ghost" 
+            onClick={openGps} 
+            className="h-8 w-8 text-primary hover:bg-primary/20"
+            title="Abrir GPS / Ruta al Estadio"
+          >
             <Navigation className="h-4 w-4" />
           </Button>
           {isTodayMatch && (
