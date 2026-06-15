@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   Calendar as CalendarIcon, MapPin, Clock, FilePlus, 
   ChevronRight, Loader2, User, Plus, Save, X, 
-  LayoutList, Grid3X3, ChevronLeft, Navigation, Scan, Camera
+  LayoutList, Grid3X3, ChevronLeft, Scan
 } from "lucide-react";
 import { useTranslation } from '@/lib/i18n/context';
 import { subscribeToScheduledMatches, getPlayer, saveScheduledMatch, subscribeToPlayers, savePlayer } from "@/lib/services/db-service";
@@ -479,12 +479,6 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
   const matchDate = isValidDate ? new Date(match.dateTime) : new Date();
   const isTodayMatch = isValidDate && isToday(matchDate);
 
-  const openGps = () => {
-    // Función de geolocalización: busca el estadio y el equipo local en mapas
-    const query = encodeURIComponent(`${match.category} ${match.homeTeam}`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-  };
-
   return (
     <Card className={cn(
       "border-border/40 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all group",
@@ -498,15 +492,6 @@ function MatchCard({ match, onStartScouting, t, language }: { match: ScheduledMa
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            onClick={openGps} 
-            className="h-8 w-8 text-primary hover:bg-primary/20"
-            title="Abrir GPS / Ruta al Estadio"
-          >
-            <Navigation className="h-4 w-4" />
-          </Button>
           {isTodayMatch && (
             <Badge className="bg-accent text-accent-foreground text-[8px] font-black uppercase tracking-tighter animate-pulse">
               HOY / TODAY
